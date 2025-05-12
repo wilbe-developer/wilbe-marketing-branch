@@ -31,16 +31,7 @@ export const getIncorporationSteps = (
     return [];
   }
   
-  const steps: EnhancedStep[] = [
-    // Step 2: Show incorporation status profile information
-    {
-      type: "content", // This matches a valid StepType
-      context: "incorporation",
-      content: [
-        <div key="incorporation-info" className="mt-1">{null}</div>
-      ]
-    }
-  ];
+  const steps: EnhancedStep[] = [];
   
   // Add incorporation-specific questions
   if (isIncorporated) {
@@ -128,9 +119,7 @@ export const getIncorporationSteps = (
               </div>
             </RadioGroup>
             
-            {plannedFormationLocation !== "US" && 
-             plannedFormationLocation !== "UK" && 
-             plannedFormationLocation !== "Other" && (
+            {plannedFormationLocation === "Other" && (
               <Input 
                 className="mt-2"
                 placeholder="Please specify"

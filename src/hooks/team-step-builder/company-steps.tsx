@@ -12,7 +12,6 @@ export const getCompanySteps = (
       type: "content", // This matches a valid StepType
       context: "company_reason",
       content: [
-        "Why are you building a company?",
         <CompanyReasonStep
           key="company-reasons" 
           selectedReasons={companyReasons}
