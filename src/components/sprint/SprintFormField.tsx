@@ -11,6 +11,7 @@ import { Step } from "@/types/sprint-signup";
 interface SprintFormFieldProps {
   step: Step;
   value: any;
+  formValues: any; // Add this to access all form values
   onChange: (field: string, value: any) => void;
   onFileUpload: (file: File | null) => void;
   toggleMultiSelect: (field: string, value: string) => void;
@@ -20,6 +21,7 @@ interface SprintFormFieldProps {
 export const SprintFormField: React.FC<SprintFormFieldProps> = ({
   step,
   value,
+  formValues, // Add this to access all form values
   onChange,
   onFileUpload,
   toggleMultiSelect,
@@ -125,12 +127,14 @@ export const SprintFormField: React.FC<SprintFormFieldProps> = ({
     case 'conditional':
       if (!step.conditional) return null;
       
-      // Find the matching condition
+      // Find the matching condition based on the formValues instead of value
       const matchedCondition = step.conditional.find(condition => {
         // Extract the condition field and value
         const conditionField = condition.field;
         const conditionValue = condition.value;
-        return value && value[conditionField] === conditionValue;
+        
+        // Check if the condition is met in the entire form values
+        return formValues[conditionField] === conditionValue;
       });
       
       // If no condition matches, don't render anything

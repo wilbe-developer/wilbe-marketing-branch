@@ -68,6 +68,7 @@ export const WindowFormFields: React.FC<WindowFormFieldsProps> = ({
                 <SprintFormField
                   step={question}
                   value={values[question.id]}
+                  formValues={values} // Pass the entire values object
                   onChange={onChange}
                   onFileUpload={onFileUpload}
                   toggleMultiSelect={toggleMultiSelect}
