@@ -9,6 +9,7 @@ interface SprintProfileShowOrAskProps {
   options?: { value: string; label: string }[];
   type?: "string" | "boolean" | "select" | "multi-select";
   children: React.ReactNode;
+  displayStyle?: "standard" | "you-chose";
 }
 
 // Helper to wrap a field with quick-edit if value is present
@@ -18,6 +19,7 @@ export const SprintProfileShowOrAsk = ({
   options,
   type = "boolean",
   children,
+  displayStyle = "standard",
 }: SprintProfileShowOrAskProps) => {
   const { sprintProfile } = useSprintProfileQuickEdit();
   
@@ -42,8 +44,17 @@ export const SprintProfileShowOrAsk = ({
     return (
       <div className="mb-6 p-4 bg-slate-50 rounded-lg border border-slate-200">
         <div className="flex items-center gap-2 mb-3">
-          <span className="font-medium">{label || profileKey}:</span>
-          <span className="text-green-800">{displayValue}</span>
+          {displayStyle === "standard" ? (
+            <>
+              <span className="font-medium">{label || profileKey}:</span>
+              <span className="text-green-800">{displayValue}</span>
+            </>
+          ) : (
+            <>
+              <span className="font-medium">{label || profileKey}:</span>
+              <span className="text-green-800">You chose: {displayValue}</span>
+            </>
+          )}
           <SprintProfileQuickEdit
             profileKey={profileKey}
             label={label}

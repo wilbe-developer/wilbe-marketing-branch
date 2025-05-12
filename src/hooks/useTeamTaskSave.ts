@@ -8,6 +8,12 @@ import { Json } from "@/integrations/supabase/types";
 interface TeamTaskAnswers {
   team_members: TeamMember[];
   needed_skills: string;
+  company_reasons?: string[];
+  equity_split?: string;
+  equity_rationale?: string;
+  vesting_schedule?: boolean;
+  vesting_details?: string;
+  equity_formal_agreement?: boolean;
 }
 
 export const useTeamTaskSave = () => {
@@ -17,7 +23,13 @@ export const useTeamTaskSave = () => {
     taskId: string,
     teamMembers: TeamMember[],
     neededSkills: string,
-    uploadedFileId?: string
+    uploadedFileId?: string,
+    companyReasons: string[] = [],
+    equitySplit: string = '',
+    equityRationale: string = '',
+    vestingSchedule: boolean = false,
+    vestingDetails: string = '',
+    equityFormalAgreement: boolean = false
   ) => {
     if (!user?.id) {
       toast.error("Missing required information");
@@ -34,7 +46,13 @@ export const useTeamTaskSave = () => {
           employmentStatus: member.employmentStatus,
           triggerPoints: member.triggerPoints
         })),
-        needed_skills: neededSkills
+        needed_skills: neededSkills,
+        company_reasons: companyReasons,
+        equity_split: equitySplit,
+        equity_rationale: equityRationale,
+        vesting_schedule: vestingSchedule,
+        vesting_details: vestingDetails,
+        equity_formal_agreement: equityFormalAgreement
       };
 
       console.log("Saving task answers:", JSON.stringify(serializedTaskAnswers));
