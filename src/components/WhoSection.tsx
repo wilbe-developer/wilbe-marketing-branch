@@ -8,13 +8,13 @@ import { useIsMobile } from '@/hooks/use-mobile';
 const features = [
   {
     title: 'Mindset',
-    topText: 'Academic training often leads to slower iteration cycles compared to business.',
-    bottomText: 'We help you increase iteration speed, speed means more data, in science and in business.'
+    topText: 'Scientific training rewards precision and caution - often at the cost of speed.',
+    bottomText: 'We help you shift gears: in both science and business, faster, rigorous iteration means more data and faster learning.'
   },
   {
     title: 'Unique playbook',
     topText: 'There is no one playbook for science companies.',
-    bottomText: 'We help you build your own unique playbook.'
+    bottomText: 'We help you build your own unique playbook and raise capital from tier 1 investors.'
   },
   {
     title: 'Community',

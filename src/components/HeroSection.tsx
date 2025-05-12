@@ -20,12 +20,14 @@ const HeroSection: React.FC = () => {
       <div className="text-center space-y-6">
         <h1 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold leading-tight max-w-7xl mx-auto">
           Bring your science to the world.<br />
-          Build the company only you can.
         </h1>
+        <p className="text-lg md:text-xl text-white/90 max-w-3xl mx-auto">
+          <strong>Scientists and engineers</strong> hold the keys to the solutions we need for the century. 
+        </p>
         <p className="text-lg md:text-xl text-white/90 max-w-3xl mx-auto">
           Go from scientist to founder in 10 days. Unlock all our templates, guidance and the clarity to 
           make critical decisions. Put together your most investable venture plan and tell us how much 
-          you need to make it happen. Stand out, and you'll get your first $100K-250K investment from 
+          you need to make it happen. Stand out, and you'll get your first $100K–250K investment from 
           us, and join a world-class community of scientist-founders.
         </p>
         <div className="pt-4">

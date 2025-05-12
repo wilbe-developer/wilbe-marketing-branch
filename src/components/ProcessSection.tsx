@@ -48,7 +48,7 @@ const ProcessSection: React.FC = () => {
 
   return (
     <Section className="bg-white">
-      <h2 className="text-3xl font-bold mb-10">Your journey to Become a Scientist Founder (BSF)</h2>
+      <h2 className="text-3xl font-bold mb-10">Your journey to Be a Scientist Founder (BSF)</h2>
       <div className="space-y-8 mb-10">
         {steps.map((step, index) => (
           <div key={step.number} className="flex border-b border-zinc-200 pb-6 last:border-b-0">
