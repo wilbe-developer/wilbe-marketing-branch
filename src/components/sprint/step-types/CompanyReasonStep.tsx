@@ -1,8 +1,7 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 
 export interface CompanyReason {
   id: string;
@@ -21,13 +20,11 @@ const COMPANY_REASONS: CompanyReason[] = [
 interface CompanyReasonStepProps {
   selectedReasons: string[];
   onReasonsChange: (reasons: string[]) => void;
-  onContinue: () => void;
 }
 
 const CompanyReasonStep: React.FC<CompanyReasonStepProps> = ({
   selectedReasons,
-  onReasonsChange,
-  onContinue
+  onReasonsChange
 }) => {
   const handleCheckboxChange = (reasonId: string) => {
     if (selectedReasons.includes(reasonId)) {
@@ -36,8 +33,6 @@ const CompanyReasonStep: React.FC<CompanyReasonStepProps> = ({
       onReasonsChange([...selectedReasons, reasonId]);
     }
   };
-
-  const isReady = selectedReasons.length > 0;
 
   return (
     <div className="space-y-6">
@@ -60,15 +55,6 @@ const CompanyReasonStep: React.FC<CompanyReasonStepProps> = ({
             </Label>
           </div>
         ))}
-      </div>
-      
-      <div className="pt-4 flex justify-end">
-        <Button 
-          onClick={onContinue}
-          disabled={!isReady}
-        >
-          Next
-        </Button>
       </div>
     </div>
   );

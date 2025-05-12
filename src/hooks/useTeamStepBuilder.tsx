@@ -116,15 +116,14 @@ export const useTeamStepBuilder = ({
           key="company-reasons"
           selectedReasons={companyReasons}
           onReasonsChange={onCompanyReasonsChange}
-          onContinue={() => {}} // This is handled by StepBasedTaskLogic
         />
       ]
     }
   ];
 
-  // Steps based on incorporation status
+  // Steps for incorporation
   if (isIncorporated !== undefined) {
-    // Add the incorporation status profile information at the right step
+    // Step 2: Show incorporation status profile information
     steps.push({
       type: "content",
       content: [
@@ -135,7 +134,7 @@ export const useTeamStepBuilder = ({
           displayStyle="you-chose"
           type="boolean"
         >
-          <div className="mt-4"></div>
+          <div className="mt-1"></div>
         </SprintProfileShowOrAsk>
       ]
     });
@@ -339,7 +338,7 @@ export const useTeamStepBuilder = ({
             { value: "cofounders", label: "I have co-founders" }
           ]}
         >
-          <div className="mt-4"></div>
+          <div className="mt-1"></div>
         </SprintProfileShowOrAsk>
       ]
     });
