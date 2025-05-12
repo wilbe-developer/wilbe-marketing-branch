@@ -1,5 +1,4 @@
-
-import { TeamMember } from "../useTeamMembers";
+import { TeamMember } from "../team-members/types";
 
 // Define step contexts to be used for displaying the right profile info
 export type StepContext = 'company_reason' | 'incorporation' | 'team';

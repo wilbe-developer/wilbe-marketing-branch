@@ -2,7 +2,7 @@
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { TeamMember } from "./useTeamMembers";
+import { TeamMember } from "./team-members/types";
 import { Json } from "@/integrations/supabase/types";
 
 interface TeamTaskAnswers {
