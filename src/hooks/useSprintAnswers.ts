@@ -1,22 +1,72 @@
 
-import { useState } from "react";
-import { SprintSignupAnswers } from "@/types/sprint-signup";
+import { useState } from 'react';
+import { SprintSignupAnswers } from '@/types/sprint-signup';
 
-export const useSprintAnswers = (initialAnswers?: Partial<SprintSignupAnswers>) => {
+export const useSprintAnswers = () => {
   const [answers, setAnswers] = useState<SprintSignupAnswers>({
-    deck: '',
+    // Basic Info
+    name: '',
+    email: '',
+    linkedin: '',
+    founder_profile: null,
+    job: '',
+    
+    // Window 2
+    is_scientist_engineer: '',
+    job_type: '',
     team: '',
+    
+    // Window 3
+    incorporated: '',
+    
+    // Window 4
     invention: '',
     ip: '',
-    problem: '',
+    ip_concerns: '',
+    
+    // Window 5
+    potential_beneficiaries: '',
+    
+    // Window 6
     customers: '',
+    specific_customers: '',
+    customer_evidence: '',
+    
+    // Window 7
     market_known: '',
-    funding_plan: '',
+    competition_research: '',
+    market_gap_reason: '',
+    
+    // Window 8
+    experiment: '',
+    
+    // Window 9
+    success_vision_1yr: '',
+    success_vision_10yr: '',
+    impact_scale: [],
+    vision: '',
+    
+    // Window 10
+    prior_accelerators: '',
+    prior_accelerators_details: '',
+    planned_accelerators: '',
+    planned_accelerators_details: '',
+    
+    // Window 11
     funding_received: '',
     funding_details: '',
-    sprint_goals: [],
-    founder_profile: null,
-    ...initialAnswers
+    funding_amount_text: '',
+    funding_plan: '',
+    funding_sources: [],
+    
+    // Window 12
+    deck: '',
+    deck_feedback: '',
+    
+    // Window 13
+    lab_space_needed: '',
+    lab_space_secured: '',
+    lab_space_details: '',
   });
 
   const handleChange = (field: string, value: any) => {
@@ -26,18 +76,25 @@ export const useSprintAnswers = (initialAnswers?: Partial<SprintSignupAnswers>) 
     }));
   };
 
-  const toggleMultiSelect = (name: string, value: string) => {
+  const toggleMultiSelect = (field: string, value: string) => {
     setAnswers(prevAnswers => {
-      const currentValues = prevAnswers[name] as string[] || [];
-      if (currentValues.includes(value)) {
+      const currentValues = Array.isArray(prevAnswers[field]) ? [...prevAnswers[field]] : [];
+      
+      // Check if the value already exists
+      const valueIndex = currentValues.indexOf(value);
+      
+      if (valueIndex === -1) {
+        // Add the value if it doesn't exist
         return {
           ...prevAnswers,
-          [name]: currentValues.filter(v => v !== value)
+          [field]: [...currentValues, value]
         };
       } else {
+        // Remove the value if it exists
+        currentValues.splice(valueIndex, 1);
         return {
           ...prevAnswers,
-          [name]: [...currentValues, value]
+          [field]: currentValues
         };
       }
     });

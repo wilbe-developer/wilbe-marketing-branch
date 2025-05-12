@@ -70,6 +70,9 @@ export const useSprintSubmission = () => {
 
       console.log("Creating/updating sprint profile for user:", userId);
 
+      // Process boolean values
+      const getBooleanValue = (value: string | undefined | null) => value === 'yes';
+
       // Create/update the profile in Supabase
       const { error: profileError } = await supabase.rpc('create_sprint_profile', {
         p_user_id: userId,
@@ -78,23 +81,43 @@ export const useSprintSubmission = () => {
         p_linkedin_url: answers.linkedin || '',
         p_cv_url: answers.founder_profile,
         p_current_job: answers.job || '',
-        p_company_incorporated: answers.incorporated === 'yes',
-        p_received_funding: answers.funding_received === 'yes',
+        p_company_incorporated: getBooleanValue(answers.incorporated),
+        p_received_funding: getBooleanValue(answers.funding_received),
         p_funding_details: answers.funding_details || '',
-        p_has_deck: answers.deck === 'yes',
+        p_has_deck: getBooleanValue(answers.deck),
         p_team_status: answers.team || '',
-        p_commercializing_invention: answers.invention === 'yes',
+        p_commercializing_invention: getBooleanValue(answers.invention),
         p_university_ip: answers.ip === 'tto_yes' || answers.ip === 'tto_no',
         p_tto_engaged: answers.ip === 'tto_yes',
-        p_problem_defined: answers.problem === 'yes',
+        p_problem_defined: getBooleanValue(answers.problem),
         p_customer_engagement: answers.customers || '',
-        p_market_known: answers.market_known === 'yes',
+        p_market_known: getBooleanValue(answers.market_known),
         p_market_gap_reason: answers.market_gap_reason || '',
         p_funding_amount: answers.funding_amount_text || '',
-        p_has_financial_plan: answers.funding_plan === 'yes',
+        p_has_financial_plan: getBooleanValue(answers.funding_plan),
         p_funding_sources: Array.isArray(answers.funding_sources) ? answers.funding_sources : [],
-        p_experiment_validated: answers.experiment === 'yes',
-        p_industry_changing_vision: answers.vision === 'yes'
+        p_experiment_validated: getBooleanValue(answers.experiment),
+        p_industry_changing_vision: getBooleanValue(answers.vision),
+        
+        // New fields
+        p_is_scientist_engineer: getBooleanValue(answers.is_scientist_engineer),
+        p_job_type: answers.job_type || '',
+        p_ip_concerns: getBooleanValue(answers.ip_concerns),
+        p_potential_beneficiaries: getBooleanValue(answers.potential_beneficiaries),
+        p_specific_customers: getBooleanValue(answers.specific_customers),
+        p_customer_evidence: getBooleanValue(answers.customer_evidence),
+        p_competition_research: getBooleanValue(answers.competition_research),
+        p_success_vision_1yr: getBooleanValue(answers.success_vision_1yr),
+        p_success_vision_10yr: getBooleanValue(answers.success_vision_10yr),
+        p_impact_scale: Array.isArray(answers.impact_scale) ? answers.impact_scale : [],
+        p_prior_accelerators: getBooleanValue(answers.prior_accelerators),
+        p_prior_accelerators_details: answers.prior_accelerators_details || '',
+        p_planned_accelerators: getBooleanValue(answers.planned_accelerators),
+        p_planned_accelerators_details: answers.planned_accelerators_details || '',
+        p_lab_space_needed: getBooleanValue(answers.lab_space_needed),
+        p_lab_space_secured: getBooleanValue(answers.lab_space_secured),
+        p_lab_space_details: answers.lab_space_details || '',
+        p_deck_feedback: getBooleanValue(answers.deck_feedback)
       });
 
       if (profileError) {

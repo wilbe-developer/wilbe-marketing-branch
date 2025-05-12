@@ -1,3 +1,4 @@
+
 export type Step = {
   id: string;
   question: string;
@@ -10,6 +11,12 @@ export type Step = {
     componentType: string;
     componentProps?: Record<string, string>;
   }[];
+};
+
+export type Window = {
+  id: string;
+  title: string;
+  questions: Step[];
 };
 
 export type SprintSignupAnswers = {
@@ -41,4 +48,24 @@ export interface SprintProfile {
   funding_sources: string[];
   experiment_validated: boolean;
   industry_changing_vision: boolean;
+  
+  // New fields
+  is_scientist_engineer?: boolean;
+  job_type?: string;
+  ip_concerns?: boolean;
+  potential_beneficiaries?: boolean;
+  specific_customers?: boolean;
+  customer_evidence?: boolean;
+  competition_research?: boolean;
+  success_vision_1yr?: boolean;
+  success_vision_10yr?: boolean;
+  impact_scale?: string[];
+  prior_accelerators?: boolean;
+  prior_accelerators_details?: string;
+  planned_accelerators?: boolean;
+  planned_accelerators_details?: string;
+  lab_space_needed?: boolean;
+  lab_space_secured?: boolean;
+  lab_space_details?: string;
+  deck_feedback?: boolean;
 }
