@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import StepBasedTaskLogic from "../StepBasedTaskLogic";
@@ -167,7 +166,6 @@ const TeamTaskLogic: React.FC<TeamTaskLogicProps> = ({
           label="Is your company incorporated?"
           type="boolean"
         >
-          {/* No empty div, just null */}
           {null}
         </SprintProfileShowOrAsk>
       );
@@ -185,7 +183,6 @@ const TeamTaskLogic: React.FC<TeamTaskLogicProps> = ({
             { value: "cofounders", label: "I have co-founders" }
           ]}
         >
-          {/* No empty div, just null */}
           {null}
         </SprintProfileShowOrAsk>
       );

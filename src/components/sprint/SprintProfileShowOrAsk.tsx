@@ -44,7 +44,6 @@ export const SprintProfileShowOrAsk = ({
     return (
       <div className="mb-6 p-4 bg-slate-50 rounded-lg border border-slate-200">
         <div className="flex items-center gap-2 mb-3">
-          {/* Removed the "You chose:" text */}
           <span className="font-medium">{label || profileKey}:</span>
           <span className="text-green-800">{displayValue}</span>
           <SprintProfileQuickEdit

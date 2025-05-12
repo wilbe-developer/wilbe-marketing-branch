@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Step } from "@/components/sprint/StepBasedTaskLogic";
 import TeamMemberForm from "@/components/sprint/step-types/TeamMemberForm";
@@ -136,7 +135,7 @@ export const useTeamStepBuilder = ({
       type: "content",
       context: "incorporation",
       content: [
-        <div key="incorporation-info" className="mt-1"></div>
+        <div key="incorporation-info" className="mt-1">{null}</div>
       ]
     });
     
@@ -230,7 +229,13 @@ export const useTeamStepBuilder = ({
                 <Input 
                   className="mt-2"
                   placeholder="Please specify"
-                  value={plannedFormationLocation !== "US" && plannedFormationLocation !== "UK" && plannedFormationLocation !== "Other" ? plannedFormationLocation : ""}
+                  value={
+                    plannedFormationLocation !== "US" && 
+                    plannedFormationLocation !== "UK" && 
+                    plannedFormationLocation !== "Other" 
+                      ? plannedFormationLocation 
+                      : ""
+                  }
                   onChange={(e) => onPlannedFormationLocationChange(e.target.value)}
                 />
               )}
@@ -335,7 +340,7 @@ export const useTeamStepBuilder = ({
       type: "content",
       context: "team",
       content: [
-        <div key="team-status-info" className="mt-1"></div>
+        <div key="team-status-info" className="mt-1">{null}</div>
       ]
     });
     

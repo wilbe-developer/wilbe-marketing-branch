@@ -1,3 +1,4 @@
+
 import React from "react";
 import DeckTaskLogic from "./DeckTaskLogic";
 import TeamTaskLogic from "./TeamTaskLogic";
@@ -9,8 +10,6 @@ import MarketTaskLogic from "./MarketTaskLogic";
 import FundingTaskLogic from "./FundingTaskLogic";
 import ExperimentTaskLogic from "./ExperimentTaskLogic";
 import VisionTaskLogic from "./VisionTaskLogic";
-import { SprintProfileQuickEdit } from "../SprintProfileQuickEdit";
-import { useSprintProfileQuickEdit } from "@/hooks/useSprintProfileQuickEdit";
 import { SprintProfileShowOrAsk } from "../SprintProfileShowOrAsk";
 
 export const SprintTaskLogicRouter = ({
@@ -43,23 +42,12 @@ export const SprintTaskLogicRouter = ({
     case "Develop Team Building Plan":
     case "Team Profile":
       return (
-        <SprintProfileShowOrAsk 
-          profileKey="team_status" 
-          label="Team status"
-          type="select"
-          options={[
-            { value: "solo", label: "I'm solo" },
-            { value: "employees", label: "I have a team but they're employees" },
-            { value: "cofounders", label: "I have co-founders" }
-          ]}
-        >
-          <TeamTaskLogic
-            task={task}
-            isCompleted={isCompleted}
-            onComplete={onComplete}
-            hideMainQuestion={true}
-          />
-        </SprintProfileShowOrAsk>
+        <TeamTaskLogic
+          task={task}
+          isCompleted={isCompleted}
+          onComplete={onComplete}
+          hideMainQuestion={true}
+        />
       );
       
     case "Scientific Foundation":
