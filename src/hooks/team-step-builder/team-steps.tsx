@@ -33,7 +33,7 @@ export const getTeamSteps = (
   // Start with the profile information step
   const steps: EnhancedStep[] = [
     {
-      type: "content",
+      type: "content", // This matches a valid StepType
       context: "team",
       content: [
         <div key="team-status-info" className="mt-1">{null}</div>

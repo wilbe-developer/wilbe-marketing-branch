@@ -34,7 +34,7 @@ export const getIncorporationSteps = (
   const steps: EnhancedStep[] = [
     // Step 2: Show incorporation status profile information
     {
-      type: "content",
+      type: "content", // This matches a valid StepType
       context: "incorporation",
       content: [
         <div key="incorporation-info" className="mt-1">{null}</div>

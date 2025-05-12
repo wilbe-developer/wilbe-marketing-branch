@@ -1,15 +1,22 @@
 
 import { TeamMember } from "../team-members/types";
+import { StepType } from "@/components/sprint/StepBasedTaskLogic";
 
 // Define step contexts to be used for displaying the right profile info
 export type StepContext = 'company_reason' | 'incorporation' | 'team';
 
 export interface EnhancedStep {
-  type: string;
+  type: StepType; // Changed from string to StepType for compatibility
   context?: StepContext;
   content?: React.ReactNode[];
   label?: string;
   question?: string;
+  options?: Array<{
+    label: string;
+    value: string;
+  }>;
+  uploads?: string[];
+  action?: string;
   validate?: () => boolean;
 }
 
