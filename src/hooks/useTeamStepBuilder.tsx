@@ -1,13 +1,12 @@
 
-import { Step } from "@/components/sprint/StepBasedTaskLogic";
-import { UseTeamStepBuilderProps, EnhancedStep } from "./team-step-builder/types";
+import { EnhancedStep, StepContext } from "./team-step-builder/types";
 import { getCompanySteps } from "./team-step-builder/company-steps";
 import { getIncorporationSteps } from "./team-step-builder/incorporation-steps";
 import { getTeamSteps } from "./team-step-builder/team-steps";
 
-export type StepContext = 'company_reason' | 'incorporation' | 'team';
+export type { StepContext } from "./team-step-builder/types";
 
-export const useTeamStepBuilder = (props: UseTeamStepBuilderProps): EnhancedStep[] => {
+export const useTeamStepBuilder = (props: any): EnhancedStep[] => {
   // Get all steps from the different modules
   const companySteps = getCompanySteps(
     props.companyReasons,

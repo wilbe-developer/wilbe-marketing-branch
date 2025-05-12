@@ -128,17 +128,13 @@ export const getIncorporationSteps = (
               </div>
             </RadioGroup>
             
-            {plannedFormationLocation === "Other" && (
+            {plannedFormationLocation !== "US" && 
+             plannedFormationLocation !== "UK" && 
+             plannedFormationLocation !== "Other" && (
               <Input 
                 className="mt-2"
                 placeholder="Please specify"
-                value={
-                  !(plannedFormationLocation === "US" || 
-                    plannedFormationLocation === "UK" || 
-                    plannedFormationLocation === "Other")
-                    ? plannedFormationLocation 
-                    : ""
-                }
+                value={plannedFormationLocation}
                 onChange={(e) => onPlannedFormationLocationChange(e.target.value)}
               />
             )}
