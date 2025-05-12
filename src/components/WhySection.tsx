@@ -31,6 +31,69 @@ const founders = [
     company: "Apoha",
     description: "Building the first machine that understands sensory data",
     image: "https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/founders//shamit.png"
+  },
+  {
+    name: "Alexandre Webster",
+    title: "Co-founder & CSO",
+    company: "U-Ploid",
+    description: "The egg rejuvenation company",
+    image: "https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/founders//Alex.jpeg"
+  },
+  {
+    name: "Ola Hekselman",
+    title: "Co-founder & CEO",
+    company: "Solveteq",
+    description: "Next generation battery recycling",
+    image: "https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/founders//Ola.png"
+  },
+  {
+    name: "Liviu Mantescu",
+    title: "Co-founder & CEO",
+    company: "Watergenics",
+    description: "Making water quality visible",
+    image: "https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/founders//Liviu.png"
+  },
+  {
+    name: "Salpie Nowinski",
+    title: "Co-founder & CEO",
+    company: "Hijack Bio",
+    description: "Leveraging bacteria for the future of medicine",
+    image: "https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/founders//Salpie.png"
+  },
+  {
+    name: "Aaron Crapster",
+    title: "Co-founder & CEO",
+    company: "Anther Therapeutics",
+    description: "Non-hormonal male contraceptives",
+    image: "https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/founders//Aaron.png"
+  },
+  {
+    name: "Alex Evans",
+    title: "Co-founder & CEO",
+    company: "Alceus Bio",
+    description: "Programming single cells to cure solid cancers",
+    image: "https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/founders//Alex.png"
+  },
+  {
+    name: "Spencer Matonis",
+    title: "Co-founder & CEO",
+    company: "Edulis Therapeutics",
+    description: "Localised drug delivery for gastrointestinal disease",
+    image: "https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/founders//Spencer.png"
+  },
+  {
+    name: "Carmen Kivisild",
+    title: "Co-founder & CEO",
+    company: "ElnoraAI",
+    description: "Optimising data capturing to accelerate drug discovery",
+    image: "https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/founders//Carmen.png"
+  },
+  {
+    name: "Thomas-Louis de Lophem",
+    title: "Co-founder & CEO",
+    company: "MinersAI",
+    description: "GIS platform and AI-driven insights for mineral exploration",
+    image: "https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/founders//Thomas-Louis.png"
   }
 ];
 
