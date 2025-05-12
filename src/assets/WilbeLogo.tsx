@@ -7,7 +7,7 @@ const WilbeLogo = (props: React.SVGProps<SVGSVGElement>) => {
   
   return (
     <svg
-      viewBox="0 0 42.541706 9.9177141"
+      viewBox="0 0 43.5 9.9177141"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
       style={style}
