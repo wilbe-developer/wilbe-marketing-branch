@@ -49,9 +49,10 @@ export const WindowFormFields: React.FC<WindowFormFieldsProps> = ({
           {window.questions.map((question, index) => {
             // For conditional questions, check if we should render them
             if (question.type === 'conditional' && question.conditional) {
-              const shouldRender = question.conditional.some(cond => 
-                values[cond.field] === cond.value
-              );
+              // Check if any condition is met
+              const shouldRender = question.conditional.some(cond => {
+                return values[cond.field] === cond.value;
+              });
               
               if (!shouldRender) {
                 return null;

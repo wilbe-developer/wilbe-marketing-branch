@@ -1,4 +1,3 @@
-
 import { Window } from "@/types/sprint-signup";
 
 export const windows: Window[] = [

@@ -123,44 +123,61 @@ export const SprintFormField: React.FC<SprintFormFieldProps> = ({
       ) : null;
     
     case 'conditional':
-      // For funding details, check if funding_received is 'yes'
-      if (step.id === 'funding_details') {
-        return value?.funding_received === 'yes' ? (
+      if (!step.conditional) return null;
+      
+      // Find the matching condition
+      const matchedCondition = step.conditional.find(condition => {
+        // Extract the condition field and value
+        const conditionField = condition.field;
+        const conditionValue = condition.value;
+        return value && value[conditionField] === conditionValue;
+      });
+      
+      // If no condition matches, don't render anything
+      if (!matchedCondition) return null;
+      
+      // Render the appropriate component based on the condition
+      const { componentType, componentProps = {} } = matchedCondition;
+      
+      if (componentType === 'textarea') {
+        return (
           <Textarea
             value={value || ''}
             onChange={(e) => onChange(step.id, e.target.value)}
-            placeholder="Please list the amount received and from whom."
+            placeholder={componentProps.placeholder || "Your answer"}
           />
-        ) : null;
-      }
-      
-      // For other conditional fields, try to find a matching condition
-      const matchedCondition = step.conditional.find(condition => {
-        const conditionField = condition.field;
-        const conditionValue = condition.value;
-        return value?.[conditionField] === conditionValue;
-      });
-      
-      if (matchedCondition) {
-        const { componentType, componentProps = {} } = matchedCondition;
-        
-        if (componentType === 'textarea') {
+        );
+      } else if (componentType === 'input') {
+        return (
+          <Input
+            value={value || ''}
+            onChange={(e) => onChange(step.id, e.target.value)}
+            placeholder={componentProps.placeholder || "Your answer"}
+            type={componentProps.type || "text"}
+          />
+        );
+      } else if (componentType === 'select') {
+        try {
+          const options = componentProps.options ? JSON.parse(componentProps.options) : [];
           return (
-            <Textarea
+            <RadioGroup
               value={value || ''}
-              onChange={(e) => onChange(step.id, e.target.value)}
-              placeholder={componentProps.placeholder || "Your answer"}
-            />
+              onValueChange={(value) => onChange(step.id, value)}
+              className="space-y-3"
+            >
+              {options.map((option: any) => (
+                <div key={option.value} className="flex items-center space-x-2">
+                  <RadioGroupItem value={option.value} id={`${step.id}-${option.value}`} />
+                  <Label htmlFor={`${step.id}-${option.value}`} className="cursor-pointer">
+                    {option.label}
+                  </Label>
+                </div>
+              ))}
+            </RadioGroup>
           );
-        } else if (componentType === 'input') {
-          return (
-            <Input
-              value={value || ''}
-              onChange={(e) => onChange(step.id, e.target.value)}
-              placeholder={componentProps.placeholder || "Your answer"}
-              type={componentProps.type || "text"}
-            />
-          );
+        } catch (error) {
+          console.error("Error parsing options:", error);
+          return null;
         }
       }
       

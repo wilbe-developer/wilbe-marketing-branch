@@ -74,6 +74,36 @@ export const useSprintAnswers = () => {
       ...prevAnswers,
       [field]: value
     }));
+    
+    // When a field that has conditional follow-up questions changes,
+    // reset the conditional fields if the condition is no longer met
+    if (field === 'prior_accelerators' && value !== 'yes') {
+      setAnswers(prev => ({ ...prev, prior_accelerators_details: '' }));
+    }
+    
+    if (field === 'planned_accelerators' && value !== 'yes') {
+      setAnswers(prev => ({ ...prev, planned_accelerators_details: '' }));
+    }
+    
+    if (field === 'funding_received' && value !== 'yes') {
+      setAnswers(prev => ({ ...prev, funding_details: '' }));
+    }
+    
+    if (field === 'deck' && value !== 'yes') {
+      setAnswers(prev => ({ ...prev, deck_feedback: '' }));
+    }
+    
+    if (field === 'lab_space_needed' && value !== 'yes') {
+      setAnswers(prev => ({ 
+        ...prev, 
+        lab_space_secured: '',
+        lab_space_details: ''
+      }));
+    }
+    
+    if (field === 'lab_space_secured' && value !== 'yes') {
+      setAnswers(prev => ({ ...prev, lab_space_details: '' }));
+    }
   };
 
   const toggleMultiSelect = (field: string, value: string) => {
