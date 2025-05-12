@@ -230,7 +230,7 @@ export const useTeamStepBuilder = ({
                 <Input 
                   className="mt-2"
                   placeholder="Please specify"
-                  value={plannedFormationLocation !== "US" && plannedFormationLocation !== "UK" ? plannedFormationLocation : ""}
+                  value={plannedFormationLocation !== "US" && plannedFormationLocation !== "UK" && plannedFormationLocation !== "Other" ? plannedFormationLocation : ""}
                   onChange={(e) => onPlannedFormationLocationChange(e.target.value)}
                 />
               )}

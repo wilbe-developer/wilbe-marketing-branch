@@ -165,10 +165,10 @@ const TeamTaskLogic: React.FC<TeamTaskLogicProps> = ({
         <SprintProfileShowOrAsk 
           profileKey="company_incorporated" 
           label="Is your company incorporated?"
-          displayStyle="you-chose"
           type="boolean"
         >
-          <div className="mt-1"></div>
+          {/* No empty div, just null */}
+          {null}
         </SprintProfileShowOrAsk>
       );
     }
@@ -178,7 +178,6 @@ const TeamTaskLogic: React.FC<TeamTaskLogicProps> = ({
         <SprintProfileShowOrAsk 
           profileKey="team_status" 
           label="Team status"
-          displayStyle="you-chose"
           type="select"
           options={[
             { value: "solo", label: "I'm solo" },
@@ -186,7 +185,8 @@ const TeamTaskLogic: React.FC<TeamTaskLogicProps> = ({
             { value: "cofounders", label: "I have co-founders" }
           ]}
         >
-          <div className="mt-1"></div>
+          {/* No empty div, just null */}
+          {null}
         </SprintProfileShowOrAsk>
       );
     }
