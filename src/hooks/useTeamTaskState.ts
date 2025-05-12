@@ -8,49 +8,72 @@ export const useTeamTaskState = (task: any, sprintProfile: any) => {
   const [uploadedFileId, setUploadedFileId] = useState<string | undefined>();
   const [hiringPlanStep, setHiringPlanStep] = useState<'download' | 'upload'>('download');
   
-  // New states
+  // Company reasons state
   const [companyReasons, setCompanyReasons] = useState<string[]>([]);
+  
+  // Incorporation related states
+  const [companyFormationDate, setCompanyFormationDate] = useState<string>('');
+  const [companyFormationLocation, setCompanyFormationLocation] = useState<string>('');
+  const [plannedFormationDate, setPlannedFormationDate] = useState<string>('');
+  const [plannedFormationLocation, setPlannedFormationLocation] = useState<string>('');
+  const [formationLocationReason, setFormationLocationReason] = useState<string>('');
+  
+  // Equity related states
+  const [equityAgreed, setEquityAgreed] = useState<boolean | null>(null);
   const [equitySplit, setEquitySplit] = useState<string>('');
-  const [equityRationale, setEquityRationale] = useState<string>('');
-  const [vestingSchedule, setVestingSchedule] = useState<boolean>(false);
-  const [vestingDetails, setVestingDetails] = useState<string>('');
-  const [equityFormalAgreement, setEquityFormalAgreement] = useState<boolean>(false);
+  const [equityConcerns, setEquityConcerns] = useState<string>('');
   
   // Extract values from profile
   const teamStatus = sprintProfile?.team_status;
   const isIncorporated = sprintProfile?.company_incorporated || false;
 
-  // Load needed skills from task answers if available
+  // Load saved answers if available
   useEffect(() => {
     if (task?.progress?.task_answers) {
       const answers = task.progress.task_answers;
       
+      // Original answers
       if (answers.needed_skills) {
         setNeededSkills(answers.needed_skills);
       }
       
+      // Company reasons
       if (answers.company_reasons) {
         setCompanyReasons(answers.company_reasons);
+      }
+      
+      // Incorporation data
+      if (answers.company_formation_date) {
+        setCompanyFormationDate(answers.company_formation_date);
+      }
+      
+      if (answers.company_formation_location) {
+        setCompanyFormationLocation(answers.company_formation_location);
+      }
+      
+      if (answers.planned_formation_date) {
+        setPlannedFormationDate(answers.planned_formation_date);
+      }
+      
+      if (answers.planned_formation_location) {
+        setPlannedFormationLocation(answers.planned_formation_location);
+      }
+      
+      if (answers.formation_location_reason) {
+        setFormationLocationReason(answers.formation_location_reason);
+      }
+      
+      // Equity data
+      if (answers.equity_agreed !== undefined) {
+        setEquityAgreed(answers.equity_agreed);
       }
       
       if (answers.equity_split) {
         setEquitySplit(answers.equity_split);
       }
       
-      if (answers.equity_rationale) {
-        setEquityRationale(answers.equity_rationale);
-      }
-      
-      if (answers.vesting_schedule !== undefined) {
-        setVestingSchedule(answers.vesting_schedule);
-      }
-      
-      if (answers.vesting_details) {
-        setVestingDetails(answers.vesting_details);
-      }
-      
-      if (answers.equity_formal_agreement !== undefined) {
-        setEquityFormalAgreement(answers.equity_formal_agreement);
+      if (answers.equity_concerns) {
+        setEquityConcerns(answers.equity_concerns);
       }
     }
   }, [task?.progress?.task_answers]);
@@ -71,19 +94,30 @@ export const useTeamTaskState = (task: any, sprintProfile: any) => {
     hiringPlanStep,
     setHiringPlanStep,
     teamStatus,
-    // New returns
     isIncorporated,
+    
+    // Company reasons
     companyReasons,
     setCompanyReasons,
+    
+    // Incorporation data
+    companyFormationDate,
+    setCompanyFormationDate,
+    companyFormationLocation,
+    setCompanyFormationLocation,
+    plannedFormationDate,
+    setPlannedFormationDate,
+    plannedFormationLocation,
+    setPlannedFormationLocation,
+    formationLocationReason,
+    setFormationLocationReason,
+    
+    // Equity data
+    equityAgreed,
+    setEquityAgreed,
     equitySplit,
     setEquitySplit,
-    equityRationale,
-    setEquityRationale,
-    vestingSchedule,
-    setVestingSchedule,
-    vestingDetails,
-    setVestingDetails,
-    equityFormalAgreement,
-    setEquityFormalAgreement,
+    equityConcerns,
+    setEquityConcerns,
   };
 };

@@ -9,11 +9,18 @@ interface TeamTaskAnswers {
   team_members: TeamMember[];
   needed_skills: string;
   company_reasons?: string[];
+  
+  // Incorporation data
+  company_formation_date?: string;
+  company_formation_location?: string;
+  planned_formation_date?: string;
+  planned_formation_location?: string;
+  formation_location_reason?: string;
+  
+  // Equity data
+  equity_agreed?: boolean;
   equity_split?: string;
-  equity_rationale?: string;
-  vesting_schedule?: boolean;
-  vesting_details?: string;
-  equity_formal_agreement?: boolean;
+  equity_concerns?: string;
 }
 
 export const useTeamTaskSave = () => {
@@ -25,11 +32,18 @@ export const useTeamTaskSave = () => {
     neededSkills: string,
     uploadedFileId?: string,
     companyReasons: string[] = [],
+    
+    // Incorporation data
+    companyFormationDate: string = '',
+    companyFormationLocation: string = '',
+    plannedFormationDate: string = '',
+    plannedFormationLocation: string = '',
+    formationLocationReason: string = '',
+    
+    // Equity data
+    equityAgreed: boolean | null = null,
     equitySplit: string = '',
-    equityRationale: string = '',
-    vestingSchedule: boolean = false,
-    vestingDetails: string = '',
-    equityFormalAgreement: boolean = false
+    equityConcerns: string = ''
   ) => {
     if (!user?.id) {
       toast.error("Missing required information");
@@ -48,11 +62,18 @@ export const useTeamTaskSave = () => {
         })),
         needed_skills: neededSkills,
         company_reasons: companyReasons,
+        
+        // Incorporation data
+        company_formation_date: companyFormationDate,
+        company_formation_location: companyFormationLocation,
+        planned_formation_date: plannedFormationDate,
+        planned_formation_location: plannedFormationLocation,
+        formation_location_reason: formationLocationReason,
+        
+        // Equity data
+        equity_agreed: equityAgreed,
         equity_split: equitySplit,
-        equity_rationale: equityRationale,
-        vesting_schedule: vestingSchedule,
-        vesting_details: vestingDetails,
-        equity_formal_agreement: equityFormalAgreement
+        equity_concerns: equityConcerns
       };
 
       console.log("Saving task answers:", JSON.stringify(serializedTaskAnswers));

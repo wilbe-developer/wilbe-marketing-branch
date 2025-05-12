@@ -8,7 +8,6 @@ import { useTeamTaskState } from "@/hooks/useTeamTaskState";
 import { useTeamStepBuilder } from "@/hooks/useTeamStepBuilder";
 import { useTeamTaskSave } from "@/hooks/useTeamTaskSave";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { SprintProfileShowOrAsk } from "../SprintProfileShowOrAsk";
 
 interface TeamTaskLogicProps {
   isCompleted: boolean;
@@ -37,6 +36,7 @@ const TeamTaskLogic: React.FC<TeamTaskLogicProps> = ({
   } = useTeamMembers(task?.progress?.task_answers);
 
   const {
+    // Original states
     neededSkills,
     setNeededSkills,
     uploadedFileId,
@@ -45,18 +45,30 @@ const TeamTaskLogic: React.FC<TeamTaskLogicProps> = ({
     setHiringPlanStep,
     teamStatus,
     isIncorporated,
+    
+    // Company reasons
     companyReasons,
     setCompanyReasons,
+    
+    // Incorporation data
+    companyFormationDate,
+    setCompanyFormationDate,
+    companyFormationLocation,
+    setCompanyFormationLocation,
+    plannedFormationDate,
+    setPlannedFormationDate,
+    plannedFormationLocation,
+    setPlannedFormationLocation,
+    formationLocationReason,
+    setFormationLocationReason,
+    
+    // Equity data
+    equityAgreed,
+    setEquityAgreed,
     equitySplit,
     setEquitySplit,
-    equityRationale,
-    setEquityRationale,
-    vestingSchedule,
-    setVestingSchedule,
-    vestingDetails,
-    setVestingDetails,
-    equityFormalAgreement,
-    setEquityFormalAgreement
+    equityConcerns,
+    setEquityConcerns,
   } = useTeamTaskState(task, sprintProfile);
 
   const { saveTeamData } = useTeamTaskSave();
@@ -76,11 +88,20 @@ const TeamTaskLogic: React.FC<TeamTaskLogicProps> = ({
     uploadedFileId,
     hiringPlanStep,
     companyReasons,
+    
+    // Incorporation data
+    companyFormationDate,
+    companyFormationLocation,
+    plannedFormationDate,
+    plannedFormationLocation,
+    formationLocationReason,
+    
+    // Equity data
+    equityAgreed,
     equitySplit,
-    equityRationale,
-    vestingSchedule,
-    vestingDetails,
-    equityFormalAgreement,
+    equityConcerns,
+    
+    // Handlers
     onTeamMemberAdd: addTeamMember,
     onTeamMemberRemove: removeTeamMember,
     onTeamMemberUpdate: updateTeamMember,
@@ -88,11 +109,18 @@ const TeamTaskLogic: React.FC<TeamTaskLogicProps> = ({
     onFileUpload: setUploadedFileId,
     onHiringPlanStepChange: setHiringPlanStep,
     onCompanyReasonsChange: setCompanyReasons,
+    
+    // Incorporation data handlers
+    onCompanyFormationDateChange: setCompanyFormationDate,
+    onCompanyFormationLocationChange: setCompanyFormationLocation,
+    onPlannedFormationDateChange: setPlannedFormationDate,
+    onPlannedFormationLocationChange: setPlannedFormationLocation,
+    onFormationLocationReasonChange: setFormationLocationReason,
+    
+    // Equity data handlers
+    onEquityAgreedChange: setEquityAgreed,
     onEquitySplitChange: setEquitySplit,
-    onEquityRationaleChange: setEquityRationale,
-    onVestingScheduleChange: setVestingSchedule,
-    onVestingDetailsChange: setVestingDetails,
-    onEquityFormalAgreementChange: setEquityFormalAgreement
+    onEquityConcernsChange: setEquityConcerns,
   });
 
   const handleComplete = async () => {
@@ -103,11 +131,18 @@ const TeamTaskLogic: React.FC<TeamTaskLogicProps> = ({
       neededSkills,
       uploadedFileId,
       companyReasons,
+      
+      // Incorporation data
+      companyFormationDate,
+      companyFormationLocation,
+      plannedFormationDate,
+      plannedFormationLocation,
+      formationLocationReason,
+      
+      // Equity data
+      equityAgreed,
       equitySplit,
-      equityRationale,
-      vestingSchedule,
-      vestingDetails,
-      equityFormalAgreement
+      equityConcerns
     );
 
     if (success) {
@@ -120,37 +155,6 @@ const TeamTaskLogic: React.FC<TeamTaskLogicProps> = ({
       {children}
       <Card className={`mb-6 ${isMobile ? 'shadow-sm' : 'mb-8'}`}>
         <CardContent className={isMobile ? "p-3 sm:p-4 md:p-6" : "p-6"}>
-          {/* Display incorporation status info at the relevant step */}
-          {isIncorporated !== undefined && (
-            <SprintProfileShowOrAsk 
-              profileKey="company_incorporated" 
-              label="Is your company incorporated?"
-              displayStyle="you-chose"
-              type="boolean"
-            >
-              {/* This will display at the proper time in the flow */}
-              <div className="mb-4"></div>
-            </SprintProfileShowOrAsk>
-          )}
-          
-          {/* Display team status info at the relevant step */}
-          {teamStatus && (
-            <SprintProfileShowOrAsk 
-              profileKey="team_status" 
-              label="Team status"
-              displayStyle="you-chose"
-              type="select"
-              options={[
-                { value: "solo", label: "I'm solo" },
-                { value: "employees", label: "I have a team but they're employees" },
-                { value: "cofounders", label: "I have co-founders" }
-              ]}
-            >
-              {/* This will display at the proper time in the flow */}
-              <div className="mb-4"></div>
-            </SprintProfileShowOrAsk>
-          )}
-          
           <StepBasedTaskLogic
             steps={steps}
             isCompleted={isCompleted}
