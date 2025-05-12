@@ -30,16 +30,8 @@ export const getTeamSteps = (
     return [];
   }
   
-  // Start with the profile information step
-  const steps: EnhancedStep[] = [
-    {
-      type: "content", // This matches a valid StepType
-      context: "team",
-      content: [
-        <div key="team-status-info" className="mt-1">{null}</div>
-      ]
-    }
-  ];
+  // Start with an empty array of steps instead of having an empty first step
+  const steps: EnhancedStep[] = [];
   
   // Add team-status specific questions
   if (teamStatus === "solo") {

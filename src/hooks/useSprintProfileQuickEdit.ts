@@ -2,6 +2,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
+import { toast } from "sonner";
 
 export const useSprintProfileQuickEdit = () => {
   const { user } = useAuth();
@@ -27,15 +28,28 @@ export const useSprintProfileQuickEdit = () => {
   const updateSprintProfile = useMutation({
     mutationFn: async (updates: Partial<any>) => {
       if (!user) throw new Error("No user found");
-      const { error } = await supabase
+      
+      const { data, error } = await supabase
         .from("sprint_profiles")
         .update({ ...updates, updated_at: new Date().toISOString() })
-        .eq("user_id", user.id);
+        .eq("user_id", user.id)
+        .select()
+        .single();
+        
       if (error) throw error;
-      return updates;
+      return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      // Immediately update the cache with the new data to ensure UI updates instantly
+      queryClient.setQueryData(["sprintProfile", user?.id], data);
+      
+      // Also invalidate the query to ensure fresh data on next query
       queryClient.invalidateQueries({ queryKey: ["sprintProfile", user?.id] });
+      toast.success("Profile updated successfully");
+    },
+    onError: (error) => {
+      console.error("Error updating profile:", error);
+      toast.error("Failed to update profile. Please try again.");
     }
   });
 

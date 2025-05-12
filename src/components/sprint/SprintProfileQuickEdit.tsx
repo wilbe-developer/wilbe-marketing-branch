@@ -1,11 +1,12 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSprintProfileQuickEdit } from "@/hooks/useSprintProfileQuickEdit";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 
 interface SprintProfileQuickEditProps {
   profileKey: string;
@@ -30,13 +31,25 @@ export const SprintProfileQuickEdit: React.FC<SprintProfileQuickEditProps> = ({
   const { sprintProfile, isLoading, updateSprintProfile } = useSprintProfileQuickEdit();
   const [open, setOpen] = useState(false);
   const [editValue, setEditValue] = useState<string | string[]>("");
+  const [currentValue, setCurrentValue] = useState<any>(null);
 
-  React.useEffect(() => {
+  // Update the current value when the profile changes
+  useEffect(() => {
+    if (sprintProfile && profileKey in sprintProfile) {
+      const v = sprintProfile[profileKey];
+      setCurrentValue(v);
+    }
+  }, [sprintProfile, profileKey]);
+
+  // Initialize edit value when dialog opens
+  useEffect(() => {
     if (open && sprintProfile && profileKey in sprintProfile) {
       const v = sprintProfile[profileKey];
       if (v !== null && v !== undefined) {
         if (Array.isArray(v)) {
-          setEditValue(v);
+          setEditValue([...v]); // Create a new array to avoid reference issues
+        } else if (typeof v === "boolean") {
+          setEditValue(v.toString());
         } else {
           setEditValue(v.toString());
         }
@@ -75,10 +88,18 @@ export const SprintProfileQuickEdit: React.FC<SprintProfileQuickEditProps> = ({
   };
 
   const onEdit = async () => {
-    await updateSprintProfile.mutateAsync({ 
-      [profileKey]: type === "boolean" ? editValue === "true" : editValue 
-    });
-    setOpen(false);
+    try {
+      await updateSprintProfile.mutateAsync({ 
+        [profileKey]: type === "boolean" ? editValue === "true" : editValue 
+      });
+      
+      // Short delay before closing to ensure UI updates
+      setTimeout(() => {
+        setOpen(false);
+      }, 300);
+    } catch (error) {
+      console.error("Error saving profile change:", error);
+    }
   };
 
   return (
@@ -154,7 +175,7 @@ export const SprintProfileQuickEdit: React.FC<SprintProfileQuickEditProps> = ({
                 </div>
               </RadioGroup>
             ) : (
-              <input
+              <Input
                 type="text"
                 value={editValue as string}
                 onChange={e => setEditValue(e.target.value)}
