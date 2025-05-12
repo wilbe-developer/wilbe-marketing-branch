@@ -8,11 +8,13 @@ import QuestionStep from "./step-types/QuestionStep";
 import ContentStep from "./step-types/ContentStep";
 import UploadStep from "./step-types/UploadStep";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { StepContext } from "@/hooks/useTeamStepBuilder";
 
 export type StepType = "question" | "content" | "upload";
 
 export interface Step {
   type: StepType;
+  context?: StepContext;
   question?: string;
   content?: string | React.ReactNode | (string | React.ReactNode)[];
   options?: Array<{
@@ -28,13 +30,15 @@ interface StepBasedTaskLogicProps {
   isCompleted: boolean;
   onComplete: (fileId?: string) => void;
   conditionalFlow?: Record<number, Record<string, number>>;
+  onStepChange?: (step: number, context?: StepContext) => void;
 }
 
 const StepBasedTaskLogic: React.FC<StepBasedTaskLogicProps> = ({
   steps,
   isCompleted,
   onComplete,
-  conditionalFlow = {}
+  conditionalFlow = {},
+  onStepChange
 }) => {
   const isMobile = useIsMobile();
   
@@ -53,6 +57,13 @@ const StepBasedTaskLogic: React.FC<StepBasedTaskLogicProps> = ({
     onComplete, 
     conditionalFlow 
   });
+  
+  // Call onStepChange when the current step changes
+  React.useEffect(() => {
+    if (onStepChange) {
+      onStepChange(currentStep, steps[currentStep]?.context);
+    }
+  }, [currentStep, onStepChange, steps]);
   
   const step = steps[currentStep];
   const hasAnswer = answers[currentStep] !== undefined || step.type === 'content' || step.type === 'upload';

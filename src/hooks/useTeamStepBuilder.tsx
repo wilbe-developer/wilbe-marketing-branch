@@ -64,6 +64,13 @@ interface UseTeamStepBuilderProps {
   onEquityConcernsChange: (value: string) => void;
 }
 
+// Define step contexts to be used for displaying the right profile info
+export type StepContext = 'company_reason' | 'incorporation' | 'team';
+
+interface EnhancedStep extends Step {
+  context?: StepContext;
+}
+
 export const useTeamStepBuilder = ({
   teamStatus,
   isIncorporated,
@@ -105,12 +112,13 @@ export const useTeamStepBuilder = ({
   onEquityAgreedChange,
   onEquitySplitChange,
   onEquityConcernsChange
-}: UseTeamStepBuilderProps): Step[] => {
+}: UseTeamStepBuilderProps): EnhancedStep[] => {
   // Start with the standalone step that all users see
-  const steps: Step[] = [
+  const steps: EnhancedStep[] = [
     // Step 1: Company Reason - all users see this
     {
       type: "content",
+      context: "company_reason",
       content: [
         <CompanyReasonStep 
           key="company-reasons"
@@ -126,16 +134,9 @@ export const useTeamStepBuilder = ({
     // Step 2: Show incorporation status profile information
     steps.push({
       type: "content",
+      context: "incorporation",
       content: [
-        <SprintProfileShowOrAsk 
-          key="incorporation-status"
-          profileKey="company_incorporated" 
-          label="Is your company incorporated?"
-          displayStyle="you-chose"
-          type="boolean"
-        >
-          <div className="mt-1"></div>
-        </SprintProfileShowOrAsk>
+        <div key="incorporation-info" className="mt-1"></div>
       ]
     });
     
@@ -144,6 +145,7 @@ export const useTeamStepBuilder = ({
       // If incorporated, ask about formation details
       steps.push({
         type: "content",
+        context: "incorporation",
         content: [
           "Where and when was your company formed / incorporated?",
           <div key="formation-details" className="space-y-4 mt-4">
@@ -172,6 +174,7 @@ export const useTeamStepBuilder = ({
       // Ask about equity split
       steps.push({
         type: "content",
+        context: "incorporation",
         content: [
           "List equity split among all stakeholders including founders",
           <div key="equity-split" className="mt-4">
@@ -189,6 +192,7 @@ export const useTeamStepBuilder = ({
       // If not incorporated, ask about planned formation
       steps.push({
         type: "content",
+        context: "incorporation",
         content: [
           "When and where do you plan to form / incorporate the company?",
           <div key="planned-formation" className="space-y-4 mt-4">
@@ -226,7 +230,7 @@ export const useTeamStepBuilder = ({
                 <Input 
                   className="mt-2"
                   placeholder="Please specify"
-                  value={plannedFormationLocation !== "US" && plannedFormationLocation !== "UK" && plannedFormationLocation !== "Other" ? plannedFormationLocation : ""}
+                  value={plannedFormationLocation !== "US" && plannedFormationLocation !== "UK" ? plannedFormationLocation : ""}
                   onChange={(e) => onPlannedFormationLocationChange(e.target.value)}
                 />
               )}
@@ -238,6 +242,7 @@ export const useTeamStepBuilder = ({
       // Ask about location rationale
       steps.push({
         type: "content",
+        context: "incorporation",
         content: [
           "Why did you pick this location?",
           <div key="location-reason" className="mt-4">
@@ -255,6 +260,7 @@ export const useTeamStepBuilder = ({
       // Ask about equity agreement
       steps.push({
         type: "content",
+        context: "incorporation",
         content: [
           "Have you agreed on the equity split among the team?",
           <div key="equity-agreement" className="space-y-4 mt-4">
@@ -294,6 +300,7 @@ export const useTeamStepBuilder = ({
     // Add the equity education content for all users
     steps.push({
       type: "content",
+      context: "incorporation",
       content: [
         "Use of equity as a tool not as credit",
         <div key="equity-guidance" className="p-4 bg-blue-50 rounded-lg mt-4">
@@ -305,6 +312,7 @@ export const useTeamStepBuilder = ({
     // Add the optional equity concerns question
     steps.push({
       type: "content",
+      context: "incorporation",
       content: [
         "If you have any concerns about the current or future equity split, explain here.",
         <div key="equity-concerns" className="mt-4">
@@ -325,21 +333,9 @@ export const useTeamStepBuilder = ({
     // Show the team status profile information
     steps.push({
       type: "content",
+      context: "team",
       content: [
-        <SprintProfileShowOrAsk 
-          key="team-status"
-          profileKey="team_status" 
-          label="Team status"
-          displayStyle="you-chose"
-          type="select"
-          options={[
-            { value: "solo", label: "I'm solo" },
-            { value: "employees", label: "I have a team but they're employees" },
-            { value: "cofounders", label: "I have co-founders" }
-          ]}
-        >
-          <div className="mt-1"></div>
-        </SprintProfileShowOrAsk>
+        <div key="team-status-info" className="mt-1"></div>
       ]
     });
     
@@ -348,6 +344,7 @@ export const useTeamStepBuilder = ({
       steps.push(
         {
           type: "content",
+          context: "team",
           content: [
             "As a solo founder, it's crucial to understand the importance of team culture and future team building.",
             <VideoEmbed 
@@ -359,6 +356,7 @@ export const useTeamStepBuilder = ({
         },
         {
           type: "content",
+          context: "team",
           content: [
             "What technical skills do you need in your future team?",
             <div key="skills-input" className="mt-4">
@@ -374,6 +372,7 @@ export const useTeamStepBuilder = ({
         },
         {
           type: "content",
+          context: "team",
           content: [
             "Hiring Plan Template",
             <div key="hiring-plan" className="mt-4 space-y-6">
@@ -417,6 +416,7 @@ export const useTeamStepBuilder = ({
       steps.push(
         {
           type: "content",
+          context: "team",
           content: [
             `Tell us about your ${memberType}s`,
             <TeamMemberForm

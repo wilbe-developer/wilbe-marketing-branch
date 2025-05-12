@@ -1,13 +1,14 @@
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import StepBasedTaskLogic from "../StepBasedTaskLogic";
 import { useSprintProfileQuickEdit } from "@/hooks/useSprintProfileQuickEdit";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useTeamTaskState } from "@/hooks/useTeamTaskState";
-import { useTeamStepBuilder } from "@/hooks/useTeamStepBuilder";
+import { useTeamStepBuilder, StepContext } from "@/hooks/useTeamStepBuilder";
 import { useTeamTaskSave } from "@/hooks/useTeamTaskSave";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { SprintProfileShowOrAsk } from "@/components/sprint/SprintProfileShowOrAsk";
 
 interface TeamTaskLogicProps {
   isCompleted: boolean;
@@ -72,6 +73,7 @@ const TeamTaskLogic: React.FC<TeamTaskLogicProps> = ({
   } = useTeamTaskState(task, sprintProfile);
 
   const { saveTeamData } = useTeamTaskSave();
+  const [currentStepContext, setCurrentStepContext] = useState<StepContext | undefined>(undefined);
 
   // Effect to reload team members when team status changes
   useEffect(() => {
@@ -123,6 +125,10 @@ const TeamTaskLogic: React.FC<TeamTaskLogicProps> = ({
     onEquityConcernsChange: setEquityConcerns,
   });
 
+  const handleStepChange = (stepIndex: number, context?: StepContext) => {
+    setCurrentStepContext(context);
+  };
+
   const handleComplete = async () => {
     // Always save team data to both tables
     const success = await saveTeamData(
@@ -150,9 +156,48 @@ const TeamTaskLogic: React.FC<TeamTaskLogicProps> = ({
     }
   };
 
+  // Render the appropriate profile info based on the current step context
+  const renderContextBasedProfileInfo = () => {
+    if (!currentStepContext) return null;
+    
+    if (currentStepContext === "incorporation" && isIncorporated !== undefined) {
+      return (
+        <SprintProfileShowOrAsk 
+          profileKey="company_incorporated" 
+          label="Is your company incorporated?"
+          displayStyle="you-chose"
+          type="boolean"
+        >
+          <div className="mt-1"></div>
+        </SprintProfileShowOrAsk>
+      );
+    }
+    
+    if (currentStepContext === "team" && teamStatus) {
+      return (
+        <SprintProfileShowOrAsk 
+          profileKey="team_status" 
+          label="Team status"
+          displayStyle="you-chose"
+          type="select"
+          options={[
+            { value: "solo", label: "I'm solo" },
+            { value: "employees", label: "I have a team but they're employees" },
+            { value: "cofounders", label: "I have co-founders" }
+          ]}
+        >
+          <div className="mt-1"></div>
+        </SprintProfileShowOrAsk>
+      );
+    }
+    
+    return null;
+  };
+
   return (
     <div>
       {children}
+      {renderContextBasedProfileInfo()}
       <Card className={`mb-6 ${isMobile ? 'shadow-sm' : 'mb-8'}`}>
         <CardContent className={isMobile ? "p-3 sm:p-4 md:p-6" : "p-6"}>
           <StepBasedTaskLogic
@@ -160,6 +205,7 @@ const TeamTaskLogic: React.FC<TeamTaskLogicProps> = ({
             isCompleted={isCompleted}
             onComplete={handleComplete}
             conditionalFlow={{}}
+            onStepChange={handleStepChange}
           />
         </CardContent>
       </Card>
