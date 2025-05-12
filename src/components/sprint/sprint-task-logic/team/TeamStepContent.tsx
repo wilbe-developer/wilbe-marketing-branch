@@ -1,0 +1,38 @@
+
+import React from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import StepBasedTaskLogic from "../../StepBasedTaskLogic";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { EnhancedStep, StepContext } from "@/hooks/useTeamStepBuilder";
+
+interface TeamStepContentProps {
+  steps: EnhancedStep[];
+  isCompleted: boolean;
+  onComplete: () => void;
+  onStepChange: (stepIndex: number, context?: StepContext) => void;
+}
+
+const TeamStepContent: React.FC<TeamStepContentProps> = ({
+  steps,
+  isCompleted,
+  onComplete,
+  onStepChange
+}) => {
+  const isMobile = useIsMobile();
+
+  return (
+    <Card className={`mb-6 ${isMobile ? 'shadow-sm' : 'mb-8'}`}>
+      <CardContent className={isMobile ? "p-3 sm:p-4 md:p-6" : "p-6"}>
+        <StepBasedTaskLogic
+          steps={steps}
+          isCompleted={isCompleted}
+          onComplete={onComplete}
+          conditionalFlow={{}}
+          onStepChange={onStepChange}
+        />
+      </CardContent>
+    </Card>
+  );
+};
+
+export default TeamStepContent;
