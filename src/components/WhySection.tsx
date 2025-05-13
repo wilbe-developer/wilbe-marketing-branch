@@ -137,11 +137,12 @@ const WhySection: React.FC = () => {
             {founders.map((founder, idx) => (
               <CarouselItem key={idx} className="pl-2 basis-full sm:basis-1/2 md:basis-1/3">
                 <div 
-                  className="p-4 bg-zinc-50 rounded-md h-64 relative overflow-hidden transition-all duration-300 ease-in-out"
+                  className="p-4 bg-zinc-50 rounded-md h-64 relative overflow-hidden"
                   onMouseEnter={() => setHoveredIndex(idx)}
                   onMouseLeave={() => setHoveredIndex(null)}
                 >
-                  <div className={`absolute inset-0 bg-gradient-to-t from-zinc-900/60 to-transparent transition-opacity duration-300 ${hoveredIndex === idx ? 'opacity-100' : 'opacity-0'}`} />
+                  {/* Permanent semi-transparent overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/60 to-transparent" />
                   
                   {founder.image ? (
                     <img 
@@ -155,15 +156,15 @@ const WhySection: React.FC = () => {
                     </div>
                   )}
                   
-                  {/* Info overlay */}
-                  <div 
-                    className={`absolute bottom-0 left-0 right-0 p-4 text-white transform transition-transform duration-300 ${
-                      hoveredIndex === idx ? 'translate-y-0' : 'translate-y-full'
-                    }`}
-                  >
+                  {/* Basic info always visible */}
+                  <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
                     <h3 className="font-bold">{founder.name}</h3>
                     <p className="text-sm">{founder.title}, {founder.company}</p>
-                    <p className="text-xs mt-1 opacity-80">{founder.description}</p>
+                    
+                    {/* Description only visible on hover */}
+                    {hoveredIndex === idx && (
+                      <p className="text-xs mt-1 opacity-80 transition-opacity duration-300">{founder.description}</p>
+                    )}
                   </div>
                 </div>
               </CarouselItem>

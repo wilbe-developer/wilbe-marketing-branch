@@ -33,8 +33,8 @@ const SprintWaitlistPage = () => {
       <div className="bg-white flex-1 flex flex-col">
         <WhoSection />
         <ProcessSection />
-        <FocusSection />
         <WhySection />
+        <FocusSection />
         <AboutSection />
         
         {/* Waitlist Form Section */}
