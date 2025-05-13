@@ -94,6 +94,34 @@ const founders = [
     company: "MinersAI",
     description: "GIS platform and AI-driven insights for mineral exploration",
     image: "https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/founders//Thomas-Louis.png"
+  },
+  {
+    name: "Alberto Conti",
+    title: "Co-founder & CSO",
+    company: "Alceus Bio",
+    description: "Programming single cells to cure solid cancers",
+    image: "https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/founders//Alberto.png"
+  },
+  {
+    name: "Max Mossner",
+    title: "Co-founder & CTO",
+    company: "Hijack Bio",
+    description: "Leveraging bacteria for the future of medicine",
+    image: "https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/founders//Max.png"
+  },
+  {
+    name: "Zahra Jawad",
+    title: "Founder & CEO",
+    company: "Creasallis",
+    description: "Antibody remodelling to improve treatment of solid tumours",
+    image: "https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/founders//Zahra.png"
+  },
+  {
+    name: "Vikram Bakaraju",
+    title: "Founder & CEO",
+    company: "Pavakah Energy",
+    description: "Solar paint",
+    image: "https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/founders//Vikram.png"
   }
 ];
 
