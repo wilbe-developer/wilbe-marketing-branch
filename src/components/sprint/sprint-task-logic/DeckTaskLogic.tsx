@@ -10,6 +10,7 @@ type Props = {
   onComplete: (fileId?: string) => void;
   task: any;
   hideMainQuestion?: boolean;
+  readOnly?: boolean;
   children?: React.ReactNode;
 };
 
@@ -43,7 +44,14 @@ const DECK_TEMPLATE_PLACEHOLDER = (
   </div>
 );
 
-const DeckTaskLogic: React.FC<Props> = ({ isCompleted, onComplete, task, hideMainQuestion, children }) => {
+const DeckTaskLogic: React.FC<Props> = ({ 
+  isCompleted, 
+  onComplete, 
+  task, 
+  hideMainQuestion, 
+  readOnly = false, 
+  children 
+}) => {
   const { sprintProfile } = useSprintProfileQuickEdit();
   const hasDeck = sprintProfile?.has_deck === true;
   const [uploadedFileId, setUploadedFileId] = useState<string | undefined>(task?.progress?.file_id);
@@ -132,6 +140,7 @@ const DeckTaskLogic: React.FC<Props> = ({ isCompleted, onComplete, task, hideMai
             isCompleted={isCompleted}
             onComplete={handleComplete}
             conditionalFlow={conditionalFlow}
+            readOnly={readOnly}
           />
         </CardContent>
       </Card>

@@ -85,62 +85,63 @@ const SprintTaskPage = () => {
     navigate("/sprint/dashboard");
   };
   
-  if (isLoading) {
-    return (
-      <SprintLayout>
+  const renderContent = () => {
+    if (isLoading) {
+      return (
         <div className="flex justify-center items-center h-64">
           <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
         </div>
-      </SprintLayout>
-    );
-  }
-  
-  if (!task) {
-    return (
-      <SprintLayout>
+      );
+    }
+    
+    if (!task) {
+      return (
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Task Not Found</h1>
           <p className="mb-6">This task may not exist or you may not have access to it.</p>
           <Button onClick={handleBack}>Back to Dashboard</Button>
         </div>
-      </SprintLayout>
-    );
-  }
-
-  const isCompleted = progress?.completed || false;
-  const onComplete = (fileId?: string) => {
-    if (taskId) {
-      handleSubmit(taskId, {}, fileId !== undefined);
+      );
     }
+
+    const isCompleted = progress?.completed || false;
+    const onComplete = (fileId?: string) => {
+      if (taskId) {
+        handleSubmit(taskId, {}, fileId !== undefined);
+      }
+    };
+    
+    return (
+      <>
+        <div className="mb-6">
+          <Button 
+            variant="ghost" 
+            className="mb-4 pl-0" 
+            onClick={handleBack}
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Dashboard
+          </Button>
+          
+          {taskId && <SharedSprintNotification taskId={taskId} />}
+          
+          <h1 className="text-2xl font-bold">{task.title}</h1>
+          {task.description && (
+            <p className="text-gray-600 mt-2">{task.description}</p>
+          )}
+        </div>
+        
+        <SprintTaskLogicRouter 
+          task={task} 
+          isCompleted={isCompleted}
+          onComplete={onComplete}
+          readOnly={isReadOnly}
+        />
+      </>
+    );
   };
   
-  return (
-    <SprintLayout>
-      <div className="mb-6">
-        <Button 
-          variant="ghost" 
-          className="mb-4 pl-0" 
-          onClick={handleBack}
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Dashboard
-        </Button>
-        
-        {taskId && <SharedSprintNotification taskId={taskId} />}
-        
-        <h1 className="text-2xl font-bold">{task.title}</h1>
-        {task.description && (
-          <p className="text-gray-600 mt-2">{task.description}</p>
-        )}
-      </div>
-      
-      <SprintTaskLogicRouter 
-        task={task} 
-        isCompleted={isCompleted}
-        onComplete={onComplete}
-      />
-    </SprintLayout>
-  );
+  return <SprintLayout>{renderContent()}</SprintLayout>;
 };
 
 export default SprintTaskPage;

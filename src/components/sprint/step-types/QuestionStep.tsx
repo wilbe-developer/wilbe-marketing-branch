@@ -1,50 +1,38 @@
 
 import React from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 
-export interface QuestionStepProps {
+export type QuestionStepProps = {
   question: string;
-  selectedAnswer?: string;
+  options: Array<{ label: string; value: string }>;
+  selectedAnswer: string;
   onAnswerSelect: (value: string) => void;
-  options?: Array<{
-    label: string;
-    value: string;
-  }>;
-}
+  disabled?: boolean;
+};
 
 const QuestionStep: React.FC<QuestionStepProps> = ({
   question,
+  options,
   selectedAnswer,
   onAnswerSelect,
-  options
+  disabled = false
 }) => {
   return (
-    <Card>
-      <CardContent className="pt-6">
-        <h3 className="text-xl font-semibold mb-4">{question}</h3>
-        
-        {options && options.length > 0 ? (
-          <RadioGroup 
-            value={selectedAnswer} 
-            onValueChange={onAnswerSelect}
-            className="space-y-3"
+    <div className="space-y-4">
+      <h3 className="text-lg font-semibold">{question}</h3>
+      <div className="flex flex-wrap gap-3">
+        {options.map((option) => (
+          <Button
+            key={option.value}
+            variant={selectedAnswer === option.value ? "default" : "outline"}
+            onClick={() => onAnswerSelect(option.value)}
+            disabled={disabled}
           >
-            {options.map((option) => (
-              <div key={option.value} className="flex items-center space-x-2">
-                <RadioGroupItem value={option.value} id={option.value} />
-                <Label htmlFor={option.value} className="cursor-pointer">
-                  {option.label}
-                </Label>
-              </div>
-            ))}
-          </RadioGroup>
-        ) : (
-          <div className="text-muted-foreground">No options available</div>
-        )}
-      </CardContent>
-    </Card>
+            {option.label}
+          </Button>
+        ))}
+      </div>
+    </div>
   );
 };
 

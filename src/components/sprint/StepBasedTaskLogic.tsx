@@ -1,145 +1,166 @@
-
-import React from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight } from "lucide-react";
-import { useStepNavigation } from "@/hooks/useStepNavigation";
-import QuestionStep from "./step-types/QuestionStep";
+import React, { useState } from "react";
 import ContentStep from "./step-types/ContentStep";
+import QuestionStep from "./step-types/QuestionStep";
 import UploadStep from "./step-types/UploadStep";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { StepContext } from "@/hooks/useTeamStepBuilder";
+import { Button } from "@/components/ui/button";
 
-export type StepType = "question" | "content" | "upload";
+// Types for different step configurations
+type ContentStepType = {
+  type: "content";
+  content: string | string[];
+};
 
-export interface Step {
-  type: StepType;
-  context?: StepContext;
-  question?: string;
-  content?: string | React.ReactNode | (string | React.ReactNode)[];
-  options?: Array<{
-    label: string;
-    value: string;
-  }>;
-  uploads?: string[];
+type QuestionStepType = {
+  type: "question";
+  question: string;
+  options: Array<{ label: string; value: string }>;
+};
+
+type UploadStepType = {
+  type: "upload";
+  uploads: string[];
   action?: string;
-}
+};
 
-interface StepBasedTaskLogicProps {
+export type Step = ContentStepType | QuestionStepType | UploadStepType;
+
+type ConditionalFlow = {
+  [stepIndex: number]: {
+    [answer: string]: number;
+  };
+};
+
+type StepBasedTaskLogicProps = {
   steps: Step[];
   isCompleted: boolean;
   onComplete: (fileId?: string) => void;
-  conditionalFlow?: Record<number, Record<string, number>>;
-  onStepChange?: (step: number, context?: StepContext) => void;
-}
+  conditionalFlow?: ConditionalFlow;
+  readOnly?: boolean;
+};
 
 const StepBasedTaskLogic: React.FC<StepBasedTaskLogicProps> = ({
   steps,
   isCompleted,
   onComplete,
-  conditionalFlow = {},
-  onStepChange
+  conditionalFlow,
+  readOnly = false
 }) => {
-  const isMobile = useIsMobile();
-  
-  const {
-    currentStep,
-    answers,
-    isLastStep,
-    isSubmitting,
-    handleAnswerSelect,
-    goToNextStep,
-    goToPreviousStep,
-    progress,
-    handleComplete
-  } = useStepNavigation({ 
-    totalSteps: steps.length, 
-    onComplete, 
-    conditionalFlow 
-  });
-  
-  // Call onStepChange when the current step changes
-  React.useEffect(() => {
-    if (onStepChange) {
-      onStepChange(currentStep, steps[currentStep]?.context);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [uploadedFileId, setUploadedFileId] = useState<string | undefined>();
+
+  // Function to handle moving to next step
+  const handleNext = () => {
+    // Check if we have conditional flow rules for this step and answer
+    if (
+      conditionalFlow &&
+      conditionalFlow[currentStep] &&
+      answers[currentStep] &&
+      conditionalFlow[currentStep][answers[currentStep]] !== undefined
+    ) {
+      // Jump to the specified step based on the answer
+      setCurrentStep(conditionalFlow[currentStep][answers[currentStep]]);
+    } else if (currentStep < steps.length - 1) {
+      // Otherwise just go to the next step
+      setCurrentStep(currentStep + 1);
+    } else {
+      // We're at the last step, complete the task
+      onComplete(uploadedFileId);
     }
-  }, [currentStep, onStepChange, steps]);
-  
-  const step = steps[currentStep];
-  const hasAnswer = answers[currentStep] !== undefined || step.type === 'content' || step.type === 'upload';
-  
+  };
+
+  // Function to handle answer selection for question steps
+  const handleAnswerSelect = (value: string) => {
+    setAnswers({
+      ...answers,
+      [currentStep]: value,
+    });
+  };
+
+  // Function to handle file upload completion
+  const handleFileUploaded = (fileId: string) => {
+    setUploadedFileId(fileId);
+    // Don't auto-proceed on upload - let user click Next
+  };
+
+  // Early return if task is already completed
+  if (isCompleted) {
+    return (
+      <div className="p-4 bg-green-50 border border-green-200 rounded-md">
+        <p className="text-green-800 font-medium">
+          ✅ This task has been completed.
+        </p>
+      </div>
+    );
+  }
+
+  const currentStepData = steps[currentStep];
+
+  // Determine if the Next button should be enabled
+  const isNextEnabled = () => {
+    if (readOnly) return false;
+    
+    if (currentStepData.type === "question") {
+      return !!answers[currentStep]; // Enable only if an answer is selected
+    }
+    if (currentStepData.type === "upload") {
+      return !!uploadedFileId; // Enable only if a file was uploaded
+    }
+    // For content steps, always enable the Next button
+    return true;
+  };
+
   return (
-    <div className={isMobile ? "mx-0" : ""}>
-      {/* Progress indicator */}
-      <div className="flex justify-between items-center mb-4">
-        <div className="text-sm text-muted-foreground">
-          Step {currentStep + 1} of {steps.length}
-        </div>
-        <div className="w-1/2 bg-gray-200 rounded-full h-2">
-          <div 
-            className="bg-brand-pink h-2 rounded-full transition-all duration-500" 
-            style={{ width: `${progress}%` }}
-          ></div>
-        </div>
-      </div>
-      
-      {/* Step content */}
-      <div className={`min-h-[200px] ${isMobile ? 'mb-4' : 'mb-6'}`}>
-        {step.type === 'question' && (
-          <QuestionStep
-            question={step.question || ''}
-            selectedAnswer={answers[currentStep]}
-            onAnswerSelect={handleAnswerSelect}
-            options={step.options}
-          />
-        )}
-        
-        {step.type === 'content' && step.content && (
-          <ContentStep content={step.content} />
-        )}
-        
-        {step.type === 'upload' && (
-          <UploadStep
-            action={step.action}
-            uploads={step.uploads}
-            isCompleted={isCompleted}
-            onComplete={(fileId) => handleComplete(fileId)}
-          />
-        )}
-      </div>
-      
+    <div className="space-y-6">
+      {/* Display appropriate component based on current step type */}
+      {currentStepData.type === "content" && (
+        <ContentStep
+          content={
+            Array.isArray(currentStepData.content)
+              ? currentStepData.content
+              : [currentStepData.content]
+          }
+        />
+      )}
+
+      {currentStepData.type === "question" && (
+        <QuestionStep
+          question={currentStepData.question}
+          options={currentStepData.options}
+          selectedAnswer={answers[currentStep] || ""}
+          onAnswerSelect={handleAnswerSelect}
+          disabled={readOnly}
+        />
+      )}
+
+      {currentStepData.type === "upload" && (
+        <UploadStep
+          uploads={currentStepData.uploads}
+          action={currentStepData.action}
+          onFileUploaded={handleFileUploaded}
+          readOnly={readOnly}
+        />
+      )}
+
       {/* Navigation buttons */}
-      <div className="flex justify-between mt-4">
+      <div className="flex justify-between mt-6">
         <Button
+          type="button"
           variant="outline"
-          onClick={goToPreviousStep}
-          disabled={currentStep === 0}
-          size={isMobile ? "sm" : "default"}
+          onClick={() => setCurrentStep(Math.max(0, currentStep - 1))}
+          disabled={currentStep === 0 || readOnly}
+          className={currentStep === 0 ? "invisible" : ""}
         >
-          <ArrowLeft className={`${isMobile ? 'mr-1 h-3 w-3' : 'mr-2 h-4 w-4'}`} /> 
-          {isMobile ? "Prev" : "Previous"}
+          Previous
         </Button>
-        
-        {step.type === 'upload' ? (
-          // For upload steps, the Complete button is handled by UploadStep component
-          <div></div>
-        ) : isLastStep ? (
-          <Button
-            onClick={() => handleComplete()}
-            disabled={!hasAnswer || isSubmitting}
-            size={isMobile ? "sm" : "default"}
-          >
-            {isSubmitting ? 'Saving...' : 'Complete'}
-          </Button>
-        ) : (
-          <Button
-            onClick={goToNextStep}
-            disabled={!hasAnswer}
-            size={isMobile ? "sm" : "default"}
-          >
-            Next <ArrowRight className={`${isMobile ? 'ml-1 h-3 w-3' : 'ml-2 h-4 w-4'}`} />
-          </Button>
-        )}
+
+        <Button
+          type="button"
+          onClick={handleNext}
+          disabled={!isNextEnabled()}
+        >
+          {currentStep < steps.length - 1 ? "Next" : "Complete"}
+        </Button>
       </div>
     </div>
   );
