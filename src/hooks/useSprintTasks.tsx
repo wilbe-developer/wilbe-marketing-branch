@@ -58,6 +58,7 @@ export const useSprintTasks = () => {
         completed: progress.completed,
         file_id: progress.file_id,
         answers: progress.answers as Record<string, any> | null,
+        task_answers: progress.task_answers as Record<string, any> | null,
         completed_at: progress.completed_at
       }));
     },
@@ -79,13 +80,14 @@ export const useSprintTasks = () => {
       taskId: string; 
       completed?: boolean; 
       answers?: Record<string, any>; 
+      taskAnswers?: Record<string, any>;
       fileId?: string | null;
     }) => {
       if (!user || !currentSprintOwnerId) {
         throw new Error("User not authenticated");
       }
       
-      const { taskId, completed, answers, fileId } = params;
+      const { taskId, completed, answers, taskAnswers, fileId } = params;
       
       // Check if progress entry exists
       const { data: existingProgress } = await supabase
@@ -107,6 +109,7 @@ export const useSprintTasks = () => {
         }
         
         if (answers !== undefined) updateData.answers = answers;
+        if (taskAnswers !== undefined) updateData.task_answers = taskAnswers;
         if (fileId !== undefined) updateData.file_id = fileId;
         
         const { error } = await supabase
@@ -124,6 +127,7 @@ export const useSprintTasks = () => {
             task_id: taskId,
             completed: completed || false,
             answers: answers || null,
+            task_answers: taskAnswers || null,
             file_id: fileId || null,
             completed_at: completed ? now : null
           });

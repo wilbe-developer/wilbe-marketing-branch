@@ -24,6 +24,7 @@ export interface UserSprintProgress {
   completed: boolean;
   file_id: string | null;
   answers: Record<string, any> | null;
+  task_answers: Record<string, any> | null;
   completed_at: string | null;
 }
 
