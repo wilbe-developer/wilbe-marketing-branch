@@ -1,28 +1,21 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "./use-toast";
 import { SharedSprint, SharedTask, UserTaskProgress } from "@/types/sprint";
 
 // Adapter function to convert a SharedTask to UserTaskProgress format
-export const adaptSharedTaskToUserTaskProgress = (task: SharedTask): UserTaskProgress => {
+const adaptSharedTaskToUserTaskProgress = (task: SharedTask): UserTaskProgress => {
   return {
-    id: task.id,
-    title: task.title,
-    description: task.description,
-    order_index: task.order_index,
-    upload_required: task.upload_required,
-    content: null,
-    question: null,
-    options: null,
-    category: task.category || null,
+    ...task,
+    upload_required: !!task.upload_required,
     progress: task.progress ? {
       id: task.progress.id,
-      user_id: "", // This will be filled by the component if needed
+      user_id: '', // Will be set by the client
       task_id: task.id,
       completed: task.progress.completed,
       file_id: task.progress.file_id,
       answers: task.progress.answers,
+      task_answers: {}, // Add this empty object for the task_answers field
       completed_at: task.progress.completed_at
     } : undefined
   };

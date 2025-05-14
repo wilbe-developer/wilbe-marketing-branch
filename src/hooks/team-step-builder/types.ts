@@ -1,5 +1,5 @@
 
-import { TeamMember } from "../team-members/types";
+import { TeamMember } from "../useTeamMembers";
 import { StepType } from "@/components/sprint/StepBasedTaskLogic";
 
 // Define step contexts to be used for displaying the right profile info

@@ -5,13 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Trash2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
-
-interface TeamMember {
-  name: string;
-  profile: string;
-  employmentStatus: string;
-  triggerPoints: string;
-}
+import { TeamMember } from "@/hooks/useTeamMembers";
 
 interface TeamMemberFormProps {
   teamMembers: TeamMember[];
@@ -63,8 +57,8 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
               <Textarea
                 id={`profile-${index}`}
                 placeholder={`Why is this ${memberType} essential to your venture? Describe their personal and professional strengths.`}
-                value={member.profile}
-                onChange={(e) => onUpdate(index, 'profile', e.target.value)}
+                value={member.profile_description}
+                onChange={(e) => onUpdate(index, 'profile_description', e.target.value)}
                 rows={isMobile ? 3 : 4}
                 className={isMobile ? "text-sm" : ""}
               />
@@ -74,8 +68,8 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
               <Input
                 id={`status-${index}`}
                 placeholder="Full-time/Part-time status"
-                value={member.employmentStatus}
-                onChange={(e) => onUpdate(index, 'employmentStatus', e.target.value)}
+                value={member.employment_status}
+                onChange={(e) => onUpdate(index, 'employment_status', e.target.value)}
                 className={isMobile ? "h-9 text-sm" : ""}
               />
             </div>
@@ -84,8 +78,8 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
               <Input
                 id={`triggers-${index}`}
                 placeholder="Trigger points for going full-time"
-                value={member.triggerPoints}
-                onChange={(e) => onUpdate(index, 'triggerPoints', e.target.value)}
+                value={member.trigger_points || ''}
+                onChange={(e) => onUpdate(index, 'trigger_points', e.target.value)}
                 className={isMobile ? "h-9 text-sm" : ""}
               />
             </div>
