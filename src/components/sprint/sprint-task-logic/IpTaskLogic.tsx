@@ -7,14 +7,12 @@ interface IpTaskLogicProps {
   onComplete: (fileId?: string) => void;
   task: any;
   hideMainQuestion?: boolean;
-  readOnly?: boolean;
 }
 
 const IpTaskLogic: React.FC<IpTaskLogicProps> = ({ 
   isCompleted, 
   onComplete, 
-  hideMainQuestion = false,
-  readOnly = false
+  hideMainQuestion = false 
 }) => {
   // This task has complex branching, so we'll define multiple possible paths
   // The StepBasedTaskLogic should handle the appropriate flow based on answers
@@ -90,7 +88,6 @@ const IpTaskLogic: React.FC<IpTaskLogicProps> = ({
       steps={steps}
       isCompleted={isCompleted}
       onComplete={onComplete}
-      readOnly={readOnly}
     />
   );
 };

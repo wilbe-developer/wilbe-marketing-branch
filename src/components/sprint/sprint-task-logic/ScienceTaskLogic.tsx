@@ -7,14 +7,12 @@ interface ScienceTaskLogicProps {
   onComplete: (fileId?: string) => void;
   task: any;
   hideMainQuestion?: boolean;
-  readOnly?: boolean;
 }
 
 const ScienceTaskLogic: React.FC<ScienceTaskLogicProps> = ({ 
   isCompleted, 
   onComplete, 
-  hideMainQuestion = false,
-  readOnly = false
+  hideMainQuestion = false 
 }) => {
   const steps = [
     ...(hideMainQuestion ? [] : [
@@ -41,7 +39,6 @@ const ScienceTaskLogic: React.FC<ScienceTaskLogicProps> = ({
       steps={steps}
       isCompleted={isCompleted}
       onComplete={onComplete}
-      readOnly={readOnly}
     />
   );
 };

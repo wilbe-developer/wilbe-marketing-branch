@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { SprintSignupAnswers } from "@/types/sprint-signup";
 import { useSprintAnswers } from "./useSprintAnswers";
@@ -27,7 +26,7 @@ export const useSprintSignup = () => {
   
   const {
     isSubmitting,
-    handleSubmit
+    silentSignup
   } = useSprintSubmission();
 
   useEffect(() => {
@@ -123,13 +122,6 @@ export const useSprintSignup = () => {
 
   const goToPreviousWindow = () => {
     setCurrentWindow(prevWindow => prevWindow - 1);
-  };
-
-  // Create a simple silentSignup function that wraps handleSubmit 
-  const silentSignup = async (data: any) => {
-    if (handleSubmit) {
-      return handleSubmit("signup", data, false);
-    }
   };
 
   return {

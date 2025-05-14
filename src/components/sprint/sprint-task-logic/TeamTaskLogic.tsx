@@ -10,7 +10,6 @@ interface TeamTaskLogicProps {
   onComplete: (fileId?: string) => void;
   task: any;
   hideMainQuestion?: boolean;
-  readOnly?: boolean;
   children?: React.ReactNode;
 }
 
@@ -18,8 +17,7 @@ const TeamTaskLogic: React.FC<TeamTaskLogicProps> = ({
   isCompleted, 
   onComplete, 
   task,
-  hideMainQuestion,
-  readOnly = false,
+  hideMainQuestion, 
   children 
 }) => {
   const { sprintProfile } = useSprintProfileQuickEdit();
@@ -65,7 +63,6 @@ const TeamTaskLogic: React.FC<TeamTaskLogicProps> = ({
         isCompleted={isCompleted}
         onComplete={handleTaskComplete}
         onStepChange={handleStepChange}
-        readOnly={readOnly}
       />
     </div>
   );

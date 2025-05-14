@@ -9,18 +9,10 @@ interface ExperimentTaskLogicProps {
   onComplete: (fileId?: string) => void;
   task: any;
   hideMainQuestion?: boolean;
-  readOnly?: boolean;
   children?: React.ReactNode;
 }
 
-const ExperimentTaskLogic: React.FC<ExperimentTaskLogicProps> = ({ 
-  isCompleted, 
-  onComplete, 
-  task, 
-  hideMainQuestion, 
-  readOnly = false, 
-  children 
-}) => {
+const ExperimentTaskLogic: React.FC<ExperimentTaskLogicProps> = ({ isCompleted, onComplete, task, hideMainQuestion, children }) => {
   const [answer, setAnswer] = useState<string | null>(null);
   
   // Skip asking if hideMainQuestion is true (meaning we're showing value from profile)
@@ -41,18 +33,10 @@ const ExperimentTaskLogic: React.FC<ExperimentTaskLogicProps> = ({
                 Have you recently run an experiment to validate your idea?
               </h2>
               <div className="flex gap-3 mb-4">
-                <Button 
-                  variant={answer === "Yes" ? "default" : "outline"} 
-                  onClick={() => setAnswer("Yes")}
-                  disabled={readOnly}
-                >
+                <Button variant={answer === "Yes" ? "default" : "outline"} onClick={() => setAnswer("Yes")}>
                   Yes
                 </Button>
-                <Button 
-                  variant={answer === "No" ? "default" : "outline"} 
-                  onClick={() => setAnswer("No")}
-                  disabled={readOnly}
-                >
+                <Button variant={answer === "No" ? "default" : "outline"} onClick={() => setAnswer("No")}>
                   No
                 </Button>
               </div>
@@ -73,7 +57,7 @@ const ExperimentTaskLogic: React.FC<ExperimentTaskLogicProps> = ({
                 <li>Upload milestone plan (technical + commercial, based on template)</li>
               </ul>
               
-              <FileUploader isCompleted={isCompleted} onFileUploaded={() => onComplete()} readOnly={readOnly} />
+              <FileUploader isCompleted={isCompleted} onFileUploaded={() => onComplete()} />
             </div>
           )}
         </CardContent>

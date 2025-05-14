@@ -7,14 +7,12 @@ interface ProblemTaskLogicProps {
   onComplete: (fileId?: string) => void;
   task?: any;
   hideMainQuestion?: boolean;
-  readOnly?: boolean;
 }
 
 const ProblemTaskLogic: React.FC<ProblemTaskLogicProps> = ({ 
   isCompleted, 
   onComplete, 
-  hideMainQuestion = false,
-  readOnly = false
+  hideMainQuestion = false 
 }) => {
   const steps = [
     {
@@ -43,7 +41,6 @@ const ProblemTaskLogic: React.FC<ProblemTaskLogicProps> = ({
       steps={steps}
       isCompleted={isCompleted}
       onComplete={onComplete}
-      readOnly={readOnly}
     />
   );
 };

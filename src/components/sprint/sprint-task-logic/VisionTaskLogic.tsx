@@ -7,14 +7,12 @@ interface VisionTaskLogicProps {
   onComplete: (fileId?: string) => void;
   task: any;
   hideMainQuestion?: boolean;
-  readOnly?: boolean;
 }
 
 const VisionTaskLogic: React.FC<VisionTaskLogicProps> = ({ 
   isCompleted, 
   onComplete, 
-  hideMainQuestion = false,
-  readOnly = false
+  hideMainQuestion = false 
 }) => {
   const steps = [
     ...(hideMainQuestion ? [] : [
@@ -42,7 +40,6 @@ const VisionTaskLogic: React.FC<VisionTaskLogicProps> = ({
       steps={steps}
       isCompleted={isCompleted}
       onComplete={onComplete}
-      readOnly={readOnly}
     />
   );
 };
