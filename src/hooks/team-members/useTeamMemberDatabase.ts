@@ -132,6 +132,7 @@ export const useTeamMemberDatabase = (
           .from('team_members')
           .insert({
             user_id: user.id,
+            owner_id: user.id, // Add the owner_id field, defaulting to the current user
             name: member.name,
             profile_description: member.profile_description,
             employment_status: member.employment_status,
