@@ -1,14 +1,20 @@
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { SprintTask, UserSprintProgress, UserTaskProgress, TaskOption } from "@/types/sprint";
 import { useAuth } from "./useAuth";
+import { useSharedSprint } from "./useSharedSprint";
 
 export const useSprintTasks = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const { isSharedSprint, sprintOwnerId } = useSharedSprint();
+  
+  // The userId to use for progress tracking - either the current user's or the sprint owner's
+  const progressUserId = isSharedSprint && sprintOwnerId ? sprintOwnerId : user?.id;
 
-  // Fetch all sprint tasks
-  const { data: tasks, isLoading, error } = useQuery({
+  // Fetch all sprint tasks (now global templates, not filtered by user)
+  const { data: tasks, isLoading: isTasksLoading, error } = useQuery({
     queryKey: ["sprintTasks"],
     queryFn: async (): Promise<SprintTask[]> => {
       const { data, error } = await supabase
@@ -53,15 +59,15 @@ export const useSprintTasks = () => {
   });
 
   // Fetch user progress for sprint tasks
-  const { data: userProgress, isLoading: isLoadingProgress } = useQuery({
-    queryKey: ["userSprintProgress", user?.id],
+  const { data: userProgress, isLoading: isProgressLoading } = useQuery({
+    queryKey: ["userSprintProgress", progressUserId],
     queryFn: async (): Promise<UserSprintProgress[]> => {
-      if (!user) return [];
+      if (!progressUserId) return [];
       
       const { data, error } = await supabase
         .from("user_sprint_progress")
         .select("*")
-        .eq("user_id", user.id);
+        .eq("user_id", progressUserId);
       
       if (error) throw error;
       
@@ -95,7 +101,7 @@ export const useSprintTasks = () => {
         } as UserSprintProgress;
       });
     },
-    enabled: !!user,
+    enabled: !!progressUserId,
   });
 
   // Get combined task and progress data
@@ -117,13 +123,16 @@ export const useSprintTasks = () => {
     }) => {
       if (!user) throw new Error("User not authenticated");
       
+      // Determine which user ID to use based on whether we're in a shared sprint
+      const userId = isSharedSprint && sprintOwnerId ? sprintOwnerId : user.id;
+      
       const { taskId, completed, answers, fileId } = params;
       
       // Check if progress entry exists
       const { data: existingProgress } = await supabase
         .from("user_sprint_progress")
         .select("id")
-        .eq("user_id", user.id)
+        .eq("user_id", userId)
         .eq("task_id", taskId)
         .maybeSingle();
       
@@ -152,7 +161,7 @@ export const useSprintTasks = () => {
         const { error } = await supabase
           .from("user_sprint_progress")
           .insert({
-            user_id: user.id,
+            user_id: userId,
             task_id: taskId,
             completed: completed || false,
             answers: answers || null,
@@ -164,7 +173,7 @@ export const useSprintTasks = () => {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["userSprintProgress", user?.id] });
+      queryClient.invalidateQueries({ queryKey: ["userSprintProgress", progressUserId] });
     }
   });
 
@@ -172,7 +181,7 @@ export const useSprintTasks = () => {
     tasks,
     userProgress,
     tasksWithProgress,
-    isLoading: isLoading || isLoadingProgress,
+    isLoading: isTasksLoading || isProgressLoading,
     error,
     updateProgress
   };
