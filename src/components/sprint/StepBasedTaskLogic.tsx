@@ -61,7 +61,12 @@ const StepBasedTaskLogic: React.FC<StepBasedTaskLogicProps> = ({
   // Call onStepChange when the current step changes
   React.useEffect(() => {
     if (onStepChange) {
-      onStepChange(currentStep, steps[currentStep]?.context);
+      // Convert StepContextType to StepContext object if it exists
+      const contextObject = steps[currentStep]?.context 
+        ? { type: steps[currentStep].context as StepContextType } 
+        : undefined;
+      
+      onStepChange(currentStep, contextObject);
     }
   }, [currentStep, onStepChange, steps]);
   
