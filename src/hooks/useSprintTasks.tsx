@@ -31,7 +31,7 @@ export const useSprintTasks = () => {
         upload_required: task.upload_required,
         content: task.content,
         question: task.question,
-        options: task.options,
+        options: task.options as unknown as TaskOption[] | null,
         status: task.status
       }));
     },
@@ -51,7 +51,15 @@ export const useSprintTasks = () => {
       
       if (error) throw error;
       
-      return (data || []);
+      return (data || []).map(progress => ({
+        id: progress.id,
+        user_id: progress.user_id,
+        task_id: progress.task_id,
+        completed: progress.completed,
+        file_id: progress.file_id,
+        answers: progress.answers as unknown as Record<string, any> | null,
+        completed_at: progress.completed_at
+      }));
     },
     enabled: !!currentSprintOwnerId,
   });
@@ -145,3 +153,9 @@ export const useSprintTasks = () => {
     updateProgress
   };
 };
+
+// Add this to make TypeScript happy with the import in sprint-task-logic
+interface TaskOption {
+  label: string;
+  value: string;
+}
