@@ -1,11 +1,10 @@
 
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import StepBasedTaskLogic from "../../StepBasedTaskLogic";
+import StepBasedTaskLogic, { Step } from "../../StepBasedTaskLogic";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { StepContext } from "@/hooks/useTeamStepBuilder";
 import { EnhancedStep } from "@/hooks/team-step-builder/types";
-import { Step } from "../../StepBasedTaskLogic";
 
 interface TeamStepContentProps {
   steps: EnhancedStep[];
@@ -22,11 +21,16 @@ const TeamStepContent: React.FC<TeamStepContentProps> = ({
 }) => {
   const isMobile = useIsMobile();
 
-  // Convert EnhancedStep to Step with explicit type assertion
+  // Convert EnhancedStep to Step with proper type conversion
   const stepBasedTasks: Step[] = steps.map(step => ({
-    type: step.type as any,
+    type: step.type === 'content' ? 'content' : 'question',
     content: step.content,
-    context: step.context as any
+    context: step.context,
+    // Add any other required properties with sensible defaults
+    question: '',
+    options: [],
+    uploads: [],
+    action: ''
   }));
 
   return (

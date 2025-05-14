@@ -1,10 +1,11 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTeamMembers } from "./useTeamMembers";
 import { TeamMember } from "./team-members/types";
 import { useTeamTaskState } from "./useTeamTaskState";
 import { useTeamStepBuilder, StepContext } from "./useTeamStepBuilder";
 import { useTeamTaskSave } from "./useTeamTaskSave";
+import { toast } from "sonner";
 
 export const useTeamTaskData = (task: any, sprintProfile: any) => {
   const { 
@@ -54,6 +55,12 @@ export const useTeamTaskData = (task: any, sprintProfile: any) => {
 
   const { saveTeamData } = useTeamTaskSave();
   const [currentStepContext, setCurrentStepContext] = useState<StepContext | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  // Load team members when component initializes or task data changes
+  useEffect(() => {
+    loadTeamMembers();
+  }, [task, loadTeamMembers]);
 
   const steps = useTeamStepBuilder({
     teamStatus,
@@ -77,9 +84,26 @@ export const useTeamTaskData = (task: any, sprintProfile: any) => {
     equityConcerns,
     
     // Handlers
-    onTeamMemberAdd: addTeamMember,
-    onTeamMemberRemove: removeTeamMember,
-    onTeamMemberUpdate: updateTeamMember,
+    onTeamMemberAdd: () => {
+      addTeamMember({ 
+        name: '', 
+        profile_description: '', 
+        employment_status: '',
+        trigger_points: '' 
+      });
+    },
+    onTeamMemberRemove: (index: number) => {
+      const member = teamMembers[index];
+      if (member && member.id) {
+        removeTeamMember(member.id);
+      }
+    },
+    onTeamMemberUpdate: (index: number, field: keyof TeamMember, value: string) => {
+      const member = teamMembers[index];
+      if (member && member.id) {
+        updateTeamMember(member.id, { [field]: value });
+      }
+    },
     onSkillsChange: setNeededSkills,
     onFileUpload: setUploadedFileId,
     onHiringPlanStepChange: setHiringPlanStep,
@@ -103,28 +127,50 @@ export const useTeamTaskData = (task: any, sprintProfile: any) => {
   };
 
   const handleComplete = async () => {
-    // Always save team data to both tables
-    const success = await saveTeamData(
-      task.id,
-      teamMembers,
-      neededSkills,
-      uploadedFileId,
-      companyReasons,
+    setIsLoading(true);
+    try {
+      // Always save team data to both tables
+      console.log("Attempting to save team data with members:", JSON.stringify(teamMembers));
       
-      // Incorporation data
-      companyFormationDate,
-      companyFormationLocation,
-      plannedFormationDate,
-      plannedFormationLocation,
-      formationLocationReason,
+      // Validate team members data
+      const hasInvalidTeamMembers = teamMembers.some(
+        member => !member.name || !member.profile_description || !member.employment_status
+      );
       
-      // Equity data
-      equityAgreed,
-      equitySplit,
-      equityConcerns
-    );
+      if (hasInvalidTeamMembers && teamStatus !== 'solo') {
+        toast.error("Please complete all required team member fields");
+        setIsLoading(false);
+        return false;
+      }
+      
+      const success = await saveTeamData(
+        task.id,
+        teamMembers,
+        neededSkills,
+        uploadedFileId,
+        companyReasons,
+        
+        // Incorporation data
+        companyFormationDate,
+        companyFormationLocation,
+        plannedFormationDate,
+        plannedFormationLocation,
+        formationLocationReason,
+        
+        // Equity data
+        equityAgreed,
+        equitySplit,
+        equityConcerns
+      );
 
-    return success;
+      return success;
+    } catch (error) {
+      console.error("Error in handleComplete:", error);
+      toast.error("Failed to save your progress");
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return {
@@ -135,6 +181,7 @@ export const useTeamTaskData = (task: any, sprintProfile: any) => {
     loadTeamMembers,
     teamStatus,
     isIncorporated,
-    uploadedFileId
+    uploadedFileId,
+    isLoading
   };
 };

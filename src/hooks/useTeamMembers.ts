@@ -16,20 +16,32 @@ export const useTeamMembers = (savedAnswers?: Record<string, any> | null) => {
         if ('profile' in member || 'employmentStatus' in member || 'triggerPoints' in member) {
           return {
             id: member.id || crypto.randomUUID(),
-            name: member.name,
-            profile_description: member.profile || member.profile_description,
-            employment_status: member.employmentStatus || member.employment_status,
-            trigger_points: member.triggerPoints || member.trigger_points
+            name: member.name || '',
+            profile_description: member.profile || member.profile_description || '',
+            employment_status: member.employmentStatus || member.employment_status || '',
+            trigger_points: member.triggerPoints || member.trigger_points || ''
           };
         }
         // Already in the correct format
         return {
           id: member.id || crypto.randomUUID(),
-          ...member
+          name: member.name || '',
+          profile_description: member.profile_description || '',
+          employment_status: member.employment_status || '',
+          trigger_points: member.trigger_points || ''
         };
       });
       
       setTeamMembers(members);
+    } else {
+      // Initialize with an empty member if no saved answers
+      setTeamMembers([{
+        id: crypto.randomUUID(),
+        name: '',
+        profile_description: '',
+        employment_status: '',
+        trigger_points: ''
+      }]);
     }
   }, [savedAnswers]);
 

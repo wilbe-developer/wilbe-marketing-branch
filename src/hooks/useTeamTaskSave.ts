@@ -1,6 +1,7 @@
 
 import { useSprintTasks } from "./useSprintTasks.tsx";
-import { TeamMember } from './team-members/types';
+import { TeamMember, serializeTeamMembers } from './team-members/types';
+import { toast } from "sonner";
 
 export const useTeamTaskSave = () => {
   const { updateProgress } = useSprintTasks();
@@ -25,13 +26,24 @@ export const useTeamTaskSave = () => {
     equityConcerns?: string
   ) => {
     try {
+      // Ensure all required fields are present on team members
+      const serializedTeamMembers = teamMembers.map(member => ({
+        id: member.id || crypto.randomUUID(),
+        name: member.name || '',
+        profile_description: member.profile_description || '',
+        employment_status: member.employment_status || '',
+        trigger_points: member.trigger_points || ''
+      }));
+      
+      console.log("Saving team members:", JSON.stringify(serializedTeamMembers));
+      
       // Save to task_answers for the team task
       await updateProgress.mutateAsync({
         taskId,
         completed: true,
         fileId: uploadedFileId,
         taskAnswers: {
-          team_members: teamMembers,
+          team_members: serializedTeamMembers,
           needed_skills: neededSkills,
           company_reasons: companyReasons,
           
@@ -49,9 +61,11 @@ export const useTeamTaskSave = () => {
         }
       });
       
+      toast.success("Team information saved successfully!");
       return true;
     } catch (error) {
       console.error("Error saving team data:", error);
+      toast.error("Failed to save team information. Please try again.");
       return false;
     }
   };
