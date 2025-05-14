@@ -22,6 +22,7 @@ import RegisterPage from "@/pages/RegisterPage";
 import PendingApprovalPage from "@/pages/PendingApprovalPage";
 import AdminPage from "@/pages/AdminPage";
 import ProfilePage from "@/pages/ProfilePage";
+import SprintProfilePage from "@/pages/SprintProfilePage";
 import NotFoundPage from "@/pages/NotFoundPage";
 import LandingPage from "@/components/LandingPageOld";
 import BsfPage from "@/components/BsfOld";
@@ -75,6 +76,7 @@ const App = () => (
                 <Route element={<ProtectedRoute />}>
                   <Route path={PATHS.SPRINT_DASHBOARD} element={<SprintDashboardPage />} />
                   <Route path={`${PATHS.SPRINT_TASK}/:taskId`} element={<SprintTaskPage />} />
+                  <Route path={PATHS.SPRINT_PROFILE} element={<SprintProfilePage />} />
                 </Route>
               </Route>
 

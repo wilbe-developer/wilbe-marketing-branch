@@ -30,7 +30,7 @@ const SprintLayout = () => {
   };
 
   const handleProfileClick = () => {
-    navigate(PATHS.PROFILE);
+    navigate(PATHS.SPRINT_PROFILE);
   };
 
   return (
