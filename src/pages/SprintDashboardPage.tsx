@@ -20,7 +20,8 @@ interface TaskProgress {
   task_answers: any;
 }
 
-interface SupabaseTaskProgress {
+// The raw task progress as returned by Supabase (as an array)
+interface RawTaskProgress {
   id: string;
   completed: boolean;
   completed_at: string | null;
@@ -28,7 +29,8 @@ interface SupabaseTaskProgress {
   task_answers: any;
 }
 
-interface SharedTask {
+// Basic Task interface without nested progress object
+interface BasicTask {
   id: string;
   title: string;
   description: string | null;
@@ -39,13 +41,23 @@ interface SharedTask {
   options: any | null;
   upload_required: boolean;
   status: string | null;
+}
+
+// Shared Task interface with optional progress property
+interface SharedTask extends BasicTask {
   progress?: TaskProgress;
 }
 
+// Used for the state to avoid deep nesting
 interface SharedSprint {
   ownerId: string;
   ownerName: string;
   tasks: SharedTask[];
+}
+
+// Raw task interface as returned from Supabase
+interface RawTask extends BasicTask {
+  progress: RawTaskProgress[] | null;
 }
 
 const SprintDashboardPage = () => {
@@ -93,7 +105,7 @@ const SprintDashboardPage = () => {
             console.error("Error fetching owner profile:", ownerError);
           }
 
-          // Fetch tasks directly with a straightforward query
+          // Fetch tasks with progress data
           const { data: rawTasks, error: tasksError } = await supabase
             .from("sprint_tasks")
             .select("*, progress:user_sprint_progress(id, completed, completed_at, file_id, task_answers)")
@@ -102,33 +114,38 @@ const SprintDashboardPage = () => {
 
           if (tasksError) throw tasksError;
 
-          // Transform tasks to match our SharedTask interface
-          const tasks: SharedTask[] = (rawTasks || []).map(task => {
-            // Extract the first progress item if it exists (from the array)
-            const progressArray = task.progress as SupabaseTaskProgress[] | null;
+          // Transform data to match our interfaces
+          const transformedTasks: SharedTask[] = (rawTasks || []).map((rawTask: RawTask) => {
+            // Extract the progress data, if it exists
+            const progressArray = rawTask.progress;
             const firstProgress = progressArray && progressArray.length > 0 ? progressArray[0] : undefined;
             
-            // Create a properly structured task with progress as a single object, not an array
-            return {
-              id: task.id,
-              title: task.title,
-              description: task.description,
-              category: task.category,
-              order_index: task.order_index,
-              content: task.content,
-              question: task.question,
-              options: task.options,
-              upload_required: task.upload_required,
-              status: task.status,
-              // Convert from array to single object
-              progress: firstProgress ? {
+            // Create a SharedTask with properly transformed progress
+            const sharedTask: SharedTask = {
+              id: rawTask.id,
+              title: rawTask.title,
+              description: rawTask.description,
+              category: rawTask.category,
+              order_index: rawTask.order_index,
+              content: rawTask.content,
+              question: rawTask.question,
+              options: rawTask.options,
+              upload_required: rawTask.upload_required,
+              status: rawTask.status
+            };
+            
+            // Add progress if it exists
+            if (firstProgress) {
+              sharedTask.progress = {
                 id: firstProgress.id,
                 completed: firstProgress.completed,
                 completed_at: firstProgress.completed_at,
                 file_id: firstProgress.file_id,
                 task_answers: firstProgress.task_answers
-              } : undefined
-            };
+              };
+            }
+            
+            return sharedTask;
           });
 
           const ownerFullName = [
@@ -136,10 +153,11 @@ const SprintDashboardPage = () => {
             ownerData?.last_name
           ].filter(Boolean).join(" ") || "Sprint Owner";
 
+          // Return a properly typed SharedSprint object
           return {
             ownerId: collab.sprint_owner_id,
             ownerName: ownerFullName,
-            tasks
+            tasks: transformedTasks
           };
         });
 
@@ -256,14 +274,24 @@ const SprintDashboardPage = () => {
                       </div>
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-6">
-                        {sprint.tasks.map((task) => (
-                          <TaskCard 
-                            key={task.id} 
-                            // Type cast shared task to UserTaskProgress to avoid type errors
-                            task={task as unknown as UserTaskProgress} 
-                            disabled={false}
-                          />
-                        ))}
+                        {sprint.tasks.map((task) => {
+                          // Create a compatible task object for TaskCard
+                          const compatibleTask = {
+                            ...task,
+                            // Ensure these fields exist to satisfy TaskCard's requirements
+                            question: task.question || null,
+                            options: task.options || null,
+                            progress: task.progress
+                          } as UserTaskProgress;
+                          
+                          return (
+                            <TaskCard 
+                              key={task.id} 
+                              task={compatibleTask}
+                              disabled={false}
+                            />
+                          );
+                        })}
                       </div>
                     </div>
                   ))}

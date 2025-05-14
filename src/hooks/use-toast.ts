@@ -9,6 +9,15 @@ type ToastProps = {
   variant?: "default" | "destructive";
 };
 
+// For ShadcnUI Toast compatibility
+export type Toast = {
+  id: string;
+  title?: string;
+  description?: string;
+  action?: ToastActionElement;
+  variant?: "default" | "destructive";
+};
+
 export function toast({ title, description, action, variant = "default" }: ToastProps) {
   const options: Record<string, any> = {
     description,
@@ -27,5 +36,11 @@ export function toast({ title, description, action, variant = "default" }: Toast
 }
 
 export function useToast() {
-  return { toast };
+  // Return an empty toasts array for Shadcn UI Toaster compatibility
+  // but still use Sonner for actual toast functionality
+  return { 
+    toast,
+    // Dummy empty array for Shadcn UI Toaster component
+    toasts: [] as Toast[]
+  };
 }
