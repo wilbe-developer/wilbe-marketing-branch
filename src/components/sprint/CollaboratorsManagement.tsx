@@ -2,7 +2,8 @@
 import { useState, useEffect } from "react";
 import { 
   useSprintCollaborators, 
-  type Collaborator 
+  type Collaborator,
+  type AccessLevel
 } from "@/hooks/useSprintCollaborators";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,8 +24,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Users, UserPlus, AlertTriangle, Trash2 } from "lucide-react";
+import { Users, UserPlus, AlertTriangle, Trash2, ShieldCheck } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 export const CollaboratorsManagement = () => {
   const { 
@@ -32,9 +41,11 @@ export const CollaboratorsManagement = () => {
     isLoading, 
     fetchCollaborators, 
     addCollaborator, 
+    updateCollaboratorAccess,
     removeCollaborator 
   } = useSprintCollaborators();
   const [email, setEmail] = useState("");
+  const [accessLevel, setAccessLevel] = useState<AccessLevel>("edit");
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
   const [selectedCollaborator, setSelectedCollaborator] = useState<Collaborator | null>(null);
@@ -46,8 +57,9 @@ export const CollaboratorsManagement = () => {
 
   const handleAddCollaborator = async () => {
     if (!email) return;
-    await addCollaborator(email);
+    await addCollaborator(email, accessLevel);
     setEmail("");
+    setAccessLevel("edit");
     setAddDialogOpen(false);
   };
 
@@ -62,12 +74,42 @@ export const CollaboratorsManagement = () => {
     setRemoveDialogOpen(false);
   };
 
+  const getAccessLevelText = (level: AccessLevel) => {
+    switch (level) {
+      case 'view':
+        return 'View only';
+      case 'edit':
+        return 'Can edit';
+      case 'manage':
+        return 'Can manage';
+      default:
+        return 'Custom access';
+    }
+  };
+
+  const getAccessLevelIcon = (level: AccessLevel) => {
+    switch (level) {
+      case 'view':
+        return <ShieldCheck className="h-4 w-4 text-gray-400" />;
+      case 'edit':
+        return <ShieldCheck className="h-4 w-4 text-blue-500" />;
+      case 'manage':
+        return <ShieldCheck className="h-4 w-4 text-green-500" />;
+      default:
+        return <ShieldCheck className="h-4 w-4 text-gray-400" />;
+    }
+  };
+
+  const handleChangeAccess = async (collaboratorId: string, newLevel: AccessLevel) => {
+    await updateCollaboratorAccess(collaboratorId, newLevel);
+  };
+
   return (
-    <Card className="mt-4">
+    <Card className="mt-0">
       <CardHeader>
         <CardTitle className="flex items-center">
           <Users className="mr-2 h-5 w-5" /> 
-          <span>Collaborators</span>
+          <span>Sprint Collaborators</span>
         </CardTitle>
         <CardDescription>
           Invite team members to collaborate on your sprint projects
@@ -93,7 +135,7 @@ export const CollaboratorsManagement = () => {
                 key={collaborator.id} 
                 className="flex items-center justify-between p-3 bg-gray-50 rounded-md"
               >
-                <div>
+                <div className="flex-1">
                   <p className="font-medium">
                     {collaborator.firstName || ''} {collaborator.lastName || ''}
                     {!collaborator.firstName && !collaborator.lastName && (
@@ -102,13 +144,35 @@ export const CollaboratorsManagement = () => {
                   </p>
                   <p className="text-sm text-gray-500">{collaborator.email}</p>
                 </div>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => handleRemoveDialog(collaborator)}
-                >
-                  <Trash2 className="h-4 w-4 text-gray-500" />
-                </Button>
+                
+                <div className="flex items-center gap-2">
+                  <Select 
+                    value={collaborator.access_level} 
+                    onValueChange={(value: string) => handleChangeAccess(collaborator.id, value as AccessLevel)}
+                  >
+                    <SelectTrigger className="w-[140px]">
+                      <div className="flex items-center">
+                        {getAccessLevelIcon(collaborator.access_level as AccessLevel)}
+                        <span className="ml-2 text-sm">
+                          {getAccessLevelText(collaborator.access_level as AccessLevel)}
+                        </span>
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="view">View only</SelectItem>
+                      <SelectItem value="edit">Can edit</SelectItem>
+                      <SelectItem value="manage">Can manage</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => handleRemoveDialog(collaborator)}
+                  >
+                    <Trash2 className="h-4 w-4 text-gray-500" />
+                  </Button>
+                </div>
               </div>
             ))}
           </div>
@@ -129,13 +193,57 @@ export const CollaboratorsManagement = () => {
                 Enter the email address of the person you want to collaborate with.
               </DialogDescription>
             </DialogHeader>
-            <div className="py-4">
-              <Input
-                type="email"
-                placeholder="collaborator@example.com"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-              />
+            <div className="py-4 space-y-4">
+              <div>
+                <label className="text-sm font-medium mb-1 block">Email</label>
+                <Input
+                  type="email"
+                  placeholder="collaborator@example.com"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                />
+              </div>
+              
+              <div>
+                <label className="text-sm font-medium mb-1 block">Access Level</label>
+                <Select
+                  value={accessLevel}
+                  onValueChange={(value: string) => setAccessLevel(value as AccessLevel)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select access level" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="view">
+                      <div className="flex items-center">
+                        <ShieldCheck className="h-4 w-4 text-gray-400 mr-2" />
+                        <div>
+                          <p>View only</p>
+                          <p className="text-xs text-gray-500">Can view the data room but not edit tasks</p>
+                        </div>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="edit">
+                      <div className="flex items-center">
+                        <ShieldCheck className="h-4 w-4 text-blue-500 mr-2" />
+                        <div>
+                          <p>Can edit</p>
+                          <p className="text-xs text-gray-500">Can view and edit tasks</p>
+                        </div>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="manage">
+                      <div className="flex items-center">
+                        <ShieldCheck className="h-4 w-4 text-green-500 mr-2" />
+                        <div>
+                          <p>Can manage</p>
+                          <p className="text-xs text-gray-500">Can view, edit, and manage collaborators</p>
+                        </div>
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
             <DialogFooter>
               <Button 

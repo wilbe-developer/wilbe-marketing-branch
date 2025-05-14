@@ -2,19 +2,21 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/components/ui/use-toast";
+import { toast as showToast } from "@/hooks/use-toast";
 
 export interface Collaborator {
   id: string;
   sprint_owner_id: string;
   collaborator_id: string;
-  access_level: string;
+  access_level: AccessLevel;
   created_at: string;
   created_by: string;
   email?: string; // From profiles join
   firstName?: string; // From profiles join
   lastName?: string; // From profiles join
 }
+
+export type AccessLevel = 'view' | 'edit' | 'manage';
 
 export const useSprintCollaborators = () => {
   const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
@@ -65,7 +67,7 @@ export const useSprintCollaborators = () => {
       setCollaborators(collaboratorsWithProfiles);
     } catch (error: any) {
       console.error("Error fetching collaborators:", error);
-      toast({
+      showToast({
         title: "Error fetching collaborators",
         description: error.message || "Please try again later",
         variant: "destructive"
@@ -75,7 +77,7 @@ export const useSprintCollaborators = () => {
     }
   };
 
-  const addCollaborator = async (email: string) => {
+  const addCollaborator = async (email: string, accessLevel: AccessLevel = 'edit') => {
     if (!user?.id) return;
     
     setIsLoading(true);
@@ -119,12 +121,12 @@ export const useSprintCollaborators = () => {
           sprint_owner_id: user.id,
           collaborator_id: userData.id,
           created_by: user.id,
-          access_level: "edit" // Default for now
+          access_level: accessLevel
         });
 
       if (insertError) throw insertError;
 
-      toast({
+      showToast({
         title: "Collaborator added",
         description: "Successfully added collaborator to your sprint."
       });
@@ -133,8 +135,45 @@ export const useSprintCollaborators = () => {
       await fetchCollaborators();
     } catch (error: any) {
       console.error("Error adding collaborator:", error);
-      toast({
+      showToast({
         title: "Error adding collaborator",
+        description: error.message || "Please try again later",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const updateCollaboratorAccess = async (collaboratorId: string, accessLevel: AccessLevel) => {
+    if (!user?.id) return;
+    
+    setIsLoading(true);
+    try {
+      const { error } = await supabase
+        .from("sprint_collaborators")
+        .update({ access_level: accessLevel })
+        .eq("id", collaboratorId)
+        .eq("sprint_owner_id", user.id); // Ensure owner is making this change
+
+      if (error) throw error;
+
+      showToast({
+        title: "Access level updated",
+        description: "Successfully updated collaborator access level."
+      });
+
+      // Update state by updating the changed collaborator
+      setCollaborators(prev => 
+        prev.map(c => c.id === collaboratorId 
+          ? { ...c, access_level: accessLevel } 
+          : c
+        )
+      );
+    } catch (error: any) {
+      console.error("Error updating collaborator access:", error);
+      showToast({
+        title: "Error updating access",
         description: error.message || "Please try again later",
         variant: "destructive"
       });
@@ -156,7 +195,7 @@ export const useSprintCollaborators = () => {
 
       if (error) throw error;
 
-      toast({
+      showToast({
         title: "Collaborator removed",
         description: "Successfully removed collaborator from your sprint."
       });
@@ -165,7 +204,7 @@ export const useSprintCollaborators = () => {
       setCollaborators(prev => prev.filter(c => c.id !== collaboratorId));
     } catch (error: any) {
       console.error("Error removing collaborator:", error);
-      toast({
+      showToast({
         title: "Error removing collaborator",
         description: error.message || "Please try again later",
         variant: "destructive"
@@ -180,6 +219,7 @@ export const useSprintCollaborators = () => {
     isLoading,
     fetchCollaborators,
     addCollaborator,
+    updateCollaboratorAccess,
     removeCollaborator
   };
 };

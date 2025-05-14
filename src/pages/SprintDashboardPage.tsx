@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Users } from "lucide-react";
+import { CollaborateButton } from "@/components/sprint/CollaborateButton";
 
 interface SharedSprint {
   ownerId: string;
@@ -114,7 +115,10 @@ const SprintDashboardPage = () => {
   return (
     <div>
       <div className={isMobile ? "mb-4" : "mb-8"}>
-        <h1 className={`${isMobile ? 'text-2xl mb-1' : 'text-3xl mb-2'} font-bold`}>Your Sprint Journey</h1>
+        <div className="flex justify-between items-center mb-2">
+          <h1 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold`}>Your Sprint Journey</h1>
+          {user?.id && <CollaborateButton />}
+        </div>
         <p className={`text-gray-600 ${isMobile ? 'text-sm mb-3' : 'mb-4'}`}>
           Complete all tasks to finish your sprint and develop your full project plan.
         </p>

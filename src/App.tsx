@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -38,6 +37,7 @@ import ThreadPage from "@/pages/ThreadPage";
 import SprintWaitlistPage from "@/pages/SprintWaitlistPage";
 import SprintReferralPage from "@/pages/SprintReferralPage";
 import LeadGeneratorPage from "@/pages/LeadGeneratorPage";
+import SprintDataRoomPage from "./pages/SprintDataRoomPage";
 
 // Auth Route component
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -118,6 +118,9 @@ const App = () => (
               </Route>
 
               {/* Catch-all route */}
+              <Route path="/sprint/data-room/:sprintId" element={
+                <SprintDataRoomPage />
+              } />
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </MetaWrapper>
