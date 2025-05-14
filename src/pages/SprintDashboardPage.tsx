@@ -8,10 +8,31 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Users } from "lucide-react";
 import { CollaborateButton } from "@/components/sprint/CollaborateButton";
 
+// Define simple interfaces to avoid circular type references
+interface TaskProgress {
+  id: string;
+  completed: boolean;
+  completed_at: string | null;
+  file_id: string | null;
+  task_answers: any;
+}
+
+interface SharedTask {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  order_index: number;
+  content: string | null;
+  upload_required: boolean;
+  progress?: TaskProgress;
+  [key: string]: any; // Allow for additional properties
+}
+
 interface SharedSprint {
   ownerId: string;
   ownerName: string;
-  tasks: any[];
+  tasks: SharedTask[];
 }
 
 const SprintDashboardPage = () => {
@@ -59,27 +80,12 @@ const SprintDashboardPage = () => {
             console.error("Error fetching owner profile:", ownerError);
           }
 
-          // Fetch tasks for this owner with explicit type assertion to avoid deep recursion
-          const result = await supabase
+          // Break circular references by using a simpler query approach
+          const { data: tasks, error: tasksError } = await supabase
             .from("sprint_tasks")
-            .select(`
-              *,
-              progress:user_sprint_progress(
-                id,
-                completed,
-                completed_at,
-                file_id,
-                task_answers
-              )
-            `)
+            .select("*, progress:user_sprint_progress(id, completed, completed_at, file_id, task_answers)")
             .eq("user_id", collab.sprint_owner_id)
             .order("order_index");
-            
-          // Use type assertion to break circular references
-          const { data: tasks, error: tasksError } = result as unknown as { 
-            data: any[]; 
-            error: any;
-          };
 
           if (tasksError) throw tasksError;
 

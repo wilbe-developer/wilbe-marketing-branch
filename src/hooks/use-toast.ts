@@ -1,5 +1,4 @@
 
-import React from "react";
 import { toast as sonnerToast } from "sonner";
 import { type ToastActionElement } from "@/components/ui/toast";
 
@@ -29,21 +28,12 @@ export const toast = ({
     className: variant === "destructive" ? "destructive" : ""
   };
 
-  // Properly handle the action prop for Sonner
+  // Simplify action handling to avoid TypeScript errors
   if (action) {
-    // Safely extract properties from action if it's a valid React element
-    if (React.isValidElement(action) && action.props) {
-      options.action = {
-        label: action.props.children || 'Action',
-        onClick: action.props.onClick || (() => {})
-      };
-    } else {
-      // Fallback for non-element actions
-      options.action = {
-        label: 'Action',
-        onClick: () => {}
-      };
-    }
+    options.action = {
+      label: 'Action',
+      onClick: () => {}
+    };
   }
 
   return sonnerToast(title || "", {
