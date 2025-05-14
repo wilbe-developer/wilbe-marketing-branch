@@ -1,7 +1,7 @@
 
 import React from "react";
 import { EnhancedStep } from "./types";
-import { TeamMember } from "../useTeamMembers";
+import { TeamMember } from "../team-members/types";
 import VideoEmbed from "@/components/video-player/VideoEmbed";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";

@@ -2,6 +2,8 @@
 import { useState, useCallback } from 'react';
 import { TeamMember } from './team-members/types';
 
+export type { TeamMember } from './team-members/types';
+
 export const useTeamMembers = (savedAnswers?: Record<string, any> | null) => {
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
 

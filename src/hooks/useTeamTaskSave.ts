@@ -1,6 +1,6 @@
 
 import { useSprintTasks } from "./useSprintTasks.tsx";
-import { TeamMember } from './useTeamMembers';
+import { TeamMember } from './team-members/types';
 
 export const useTeamTaskSave = () => {
   const { updateProgress } = useSprintTasks();

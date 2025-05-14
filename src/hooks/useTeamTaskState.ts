@@ -1,92 +1,60 @@
 
 import { useState, useEffect } from 'react';
-import { TeamMember } from '@/hooks/useTeamMembers';
+import { useSprintProfileQuickEdit } from './useSprintProfileQuickEdit';
+import { TeamMember } from './team-members/types';
 
+// If this file doesn't exist yet, we're creating it
 export const useTeamTaskState = (task: any, sprintProfile: any) => {
-  // Original states
-  const [neededSkills, setNeededSkills] = useState('');
-  const [uploadedFileId, setUploadedFileId] = useState<string | undefined>();
+  // Task state
+  const [neededSkills, setNeededSkills] = useState<string>('');
+  const [uploadedFileId, setUploadedFileId] = useState<string | undefined>(undefined);
   const [hiringPlanStep, setHiringPlanStep] = useState<'download' | 'upload'>('download');
   
-  // Company reasons state
+  // Company reasons
   const [companyReasons, setCompanyReasons] = useState<string[]>([]);
   
-  // Incorporation related states
-  const [companyFormationDate, setCompanyFormationDate] = useState<string>('');
-  const [companyFormationLocation, setCompanyFormationLocation] = useState<string>('');
-  const [plannedFormationDate, setPlannedFormationDate] = useState<string>('');
-  const [plannedFormationLocation, setPlannedFormationLocation] = useState<string>('');
-  const [formationLocationReason, setFormationLocationReason] = useState<string>('');
+  // Incorporation data
+  const [companyFormationDate, setCompanyFormationDate] = useState<string | undefined>(undefined);
+  const [companyFormationLocation, setCompanyFormationLocation] = useState<string | undefined>(undefined);
+  const [plannedFormationDate, setPlannedFormationDate] = useState<string | undefined>(undefined);
+  const [plannedFormationLocation, setPlannedFormationLocation] = useState<string | undefined>(undefined);
+  const [formationLocationReason, setFormationLocationReason] = useState<string | undefined>(undefined);
   
-  // Equity related states
+  // Equity data
   const [equityAgreed, setEquityAgreed] = useState<boolean | null>(null);
   const [equitySplit, setEquitySplit] = useState<string>('');
   const [equityConcerns, setEquityConcerns] = useState<string>('');
   
-  // Extract values from profile
+  // Extract from profile for context
   const teamStatus = sprintProfile?.team_status;
-  const isIncorporated = sprintProfile?.company_incorporated || false;
-
-  // Load saved answers if available
+  const isIncorporated = sprintProfile?.company_incorporated;
+  
+  // Load existing answers if available
   useEffect(() => {
     if (task?.progress?.task_answers) {
       const answers = task.progress.task_answers;
       
-      // Original answers
-      if (answers.needed_skills) {
-        setNeededSkills(answers.needed_skills);
-      }
+      // Load basic fields
+      if (answers.needed_skills) setNeededSkills(answers.needed_skills);
+      if (answers.company_reasons) setCompanyReasons(answers.company_reasons);
+      if (answers.file_id) setUploadedFileId(answers.file_id);
       
-      // Company reasons
-      if (answers.company_reasons) {
-        setCompanyReasons(answers.company_reasons);
-      }
+      // Load incorporation data
+      if (answers.company_formation_date) setCompanyFormationDate(answers.company_formation_date);
+      if (answers.company_formation_location) setCompanyFormationLocation(answers.company_formation_location);
+      if (answers.planned_formation_date) setPlannedFormationDate(answers.planned_formation_date);
+      if (answers.planned_formation_location) setPlannedFormationLocation(answers.planned_formation_location);
+      if (answers.formation_location_reason) setFormationLocationReason(answers.formation_location_reason);
       
-      // Incorporation data
-      if (answers.company_formation_date) {
-        setCompanyFormationDate(answers.company_formation_date);
-      }
-      
-      if (answers.company_formation_location) {
-        setCompanyFormationLocation(answers.company_formation_location);
-      }
-      
-      if (answers.planned_formation_date) {
-        setPlannedFormationDate(answers.planned_formation_date);
-      }
-      
-      if (answers.planned_formation_location) {
-        setPlannedFormationLocation(answers.planned_formation_location);
-      }
-      
-      if (answers.formation_location_reason) {
-        setFormationLocationReason(answers.formation_location_reason);
-      }
-      
-      // Equity data
-      if (answers.equity_agreed !== undefined) {
-        setEquityAgreed(answers.equity_agreed);
-      }
-      
-      if (answers.equity_split) {
-        setEquitySplit(answers.equity_split);
-      }
-      
-      if (answers.equity_concerns) {
-        setEquityConcerns(answers.equity_concerns);
-      }
+      // Load equity data
+      if (answers.hasOwnProperty('equity_agreed')) setEquityAgreed(answers.equity_agreed);
+      if (answers.equity_split) setEquitySplit(answers.equity_split);
+      if (answers.equity_concerns) setEquityConcerns(answers.equity_concerns);
     }
-  }, [task?.progress?.task_answers]);
-
-  // Load uploaded file ID if available
-  useEffect(() => {
-    if (task?.progress?.file_id) {
-      setUploadedFileId(task.progress.file_id);
-    }
-  }, [task?.progress?.file_id]);
-
+  }, [task]);
+  
   return {
-    // Original returns
+    // Basic fields
     neededSkills,
     setNeededSkills,
     uploadedFileId,

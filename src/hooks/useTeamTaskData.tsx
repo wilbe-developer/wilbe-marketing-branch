@@ -1,6 +1,7 @@
 
 import { useState } from "react";
-import { useTeamMembers, TeamMember } from "./useTeamMembers";
+import { useTeamMembers } from "./useTeamMembers";
+import { TeamMember } from "./team-members/types";
 import { useTeamTaskState } from "./useTeamTaskState";
 import { useTeamStepBuilder, StepContext } from "./useTeamStepBuilder";
 import { useTeamTaskSave } from "./useTeamTaskSave";
