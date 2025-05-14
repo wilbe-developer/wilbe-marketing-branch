@@ -26,30 +26,43 @@ export const useSprintCollaborators = () => {
     
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
+      // First fetch the collaborator links
+      const { data: collabData, error: collabError } = await supabase
         .from("sprint_collaborators")
-        .select(`
-          *,
-          collaborator:collaborator_id (
-            id,
-            email,
-            first_name,
-            last_name
-          )
-        `)
+        .select("*")
         .eq("sprint_owner_id", user.id);
 
-      if (error) throw error;
+      if (collabError) throw collabError;
+      
+      if (!collabData || collabData.length === 0) {
+        setCollaborators([]);
+        setIsLoading(false);
+        return;
+      }
+      
+      // Fetch profile details for each collaborator separately
+      const collaboratorsWithProfiles = await Promise.all(
+        collabData.map(async (collab) => {
+          const { data: profileData, error: profileError } = await supabase
+            .from("profiles")
+            .select("email, first_name, last_name")
+            .eq("id", collab.collaborator_id)
+            .single();
+            
+          if (profileError && profileError.code !== 'PGRST116') {
+            console.error("Error fetching profile:", profileError);
+          }
 
-      // Transform the data to include user details
-      const transformedData = data.map(item => ({
-        ...item,
-        email: item.collaborator?.email,
-        firstName: item.collaborator?.first_name,
-        lastName: item.collaborator?.last_name,
-      }));
-
-      setCollaborators(transformedData);
+          return {
+            ...collab,
+            email: profileData?.email,
+            firstName: profileData?.first_name,
+            lastName: profileData?.last_name
+          };
+        })
+      );
+      
+      setCollaborators(collaboratorsWithProfiles);
     } catch (error: any) {
       console.error("Error fetching collaborators:", error);
       toast({

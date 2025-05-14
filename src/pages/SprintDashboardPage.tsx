@@ -36,19 +36,30 @@ const SprintDashboardPage = () => {
         // Get all sprints where the user is a collaborator
         const { data: collaborations, error: collabError } = await supabase
           .from("sprint_collaborators")
-          .select(`
-            sprint_owner_id,
-            owner:sprint_owner_id(
-              id,
-              first_name,
-              last_name
-            )
-          `)
+          .select("sprint_owner_id")
           .eq("collaborator_id", user.id);
 
         if (collabError) throw collabError;
+        
+        if (!collaborations || collaborations.length === 0) {
+          setSharedSprints([]);
+          setLoadingShared(false);
+          return;
+        }
 
         const sharedSprintPromises = collaborations.map(async (collab) => {
+          // Fetch owner profile data separately
+          const { data: ownerData, error: ownerError } = await supabase
+            .from("profiles")
+            .select("first_name, last_name")
+            .eq("id", collab.sprint_owner_id)
+            .single();
+            
+          if (ownerError && ownerError.code !== 'PGRST116') {
+            console.error("Error fetching owner profile:", ownerError);
+          }
+
+          // Fetch tasks for this owner
           const { data: tasks, error: tasksError } = await supabase
             .from("sprint_tasks")
             .select(`
@@ -67,8 +78,8 @@ const SprintDashboardPage = () => {
           if (tasksError) throw tasksError;
 
           const ownerFullName = [
-            collab.owner?.first_name,
-            collab.owner?.last_name
+            ownerData?.first_name,
+            ownerData?.last_name
           ].filter(Boolean).join(" ") || "Sprint Owner";
 
           return {
