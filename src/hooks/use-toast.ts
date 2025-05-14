@@ -1,4 +1,5 @@
 
+import React from "react";
 import { toast as sonnerToast } from "sonner";
 import { type ToastActionElement } from "@/components/ui/toast";
 
@@ -30,11 +31,19 @@ export const toast = ({
 
   // Properly handle the action prop for Sonner
   if (action) {
-    // Check if action is a React element with props
-    options.action = {
-      label: typeof action === 'object' && action.props ? action.props.children : 'Action',
-      onClick: typeof action === 'object' && action.props && action.props.onClick ? action.props.onClick : () => {}
-    };
+    // Safely extract properties from action if it's a valid React element
+    if (React.isValidElement(action) && action.props) {
+      options.action = {
+        label: action.props.children || 'Action',
+        onClick: action.props.onClick || (() => {})
+      };
+    } else {
+      // Fallback for non-element actions
+      options.action = {
+        label: 'Action',
+        onClick: () => {}
+      };
+    }
   }
 
   return sonnerToast(title || "", {

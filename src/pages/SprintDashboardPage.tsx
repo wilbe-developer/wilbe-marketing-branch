@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useSprintTasks } from "@/hooks/useSprintTasks.tsx";
 import TaskCard from "@/components/sprint/TaskCard";
@@ -60,8 +59,8 @@ const SprintDashboardPage = () => {
             console.error("Error fetching owner profile:", ownerError);
           }
 
-          // Fetch tasks for this owner with a type assertion to avoid deep recursion
-          const { data: tasks, error: tasksError } = await supabase
+          // Fetch tasks for this owner with explicit type assertion to avoid deep recursion
+          const result = await supabase
             .from("sprint_tasks")
             .select(`
               *,
@@ -74,7 +73,13 @@ const SprintDashboardPage = () => {
               )
             `)
             .eq("user_id", collab.sprint_owner_id)
-            .order("order_index") as { data: any[], error: any };
+            .order("order_index");
+            
+          // Use type assertion to break circular references
+          const { data: tasks, error: tasksError } = result as unknown as { 
+            data: any[]; 
+            error: any;
+          };
 
           if (tasksError) throw tasksError;
 
