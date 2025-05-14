@@ -1,12 +1,6 @@
 
 import { Json } from "@/integrations/supabase/types";
-
-export interface TeamMember {
-  name: string;
-  profile: string;
-  employmentStatus: string;
-  triggerPoints: string;
-}
+import { TeamMember } from "../useTeamMembers";
 
 // Helper function to ensure TeamMember objects are JSON serializable
 export const serializeTeamMembers = (teamMembers: TeamMember[]): Json => {

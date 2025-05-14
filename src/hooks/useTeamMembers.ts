@@ -15,7 +15,26 @@ export const useTeamMembers = (savedAnswers?: Record<string, any> | null) => {
   // Initialize team members from saved answers if available
   const loadTeamMembers = useCallback(() => {
     if (savedAnswers?.team_members) {
-      setTeamMembers(savedAnswers.team_members);
+      // Convert from task_answers format to our standardized format if needed
+      const members = savedAnswers.team_members.map((member: any) => {
+        // Check if the member is using the old format (profile, employmentStatus, triggerPoints)
+        if ('profile' in member || 'employmentStatus' in member || 'triggerPoints' in member) {
+          return {
+            id: member.id || crypto.randomUUID(),
+            name: member.name,
+            profile_description: member.profile || member.profile_description,
+            employment_status: member.employmentStatus || member.employment_status,
+            trigger_points: member.triggerPoints || member.trigger_points
+          };
+        }
+        // Already in the correct format
+        return {
+          id: member.id || crypto.randomUUID(),
+          ...member
+        };
+      });
+      
+      setTeamMembers(members);
     }
   }, [savedAnswers]);
 
