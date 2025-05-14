@@ -1,20 +1,10 @@
 
-import { toast as sonnerToast } from "sonner";
-import { type ToastActionElement } from "@/components/ui/toast";
+import { toast as sonnerToast, type Toast as SonnerToast } from "sonner";
 
 type ToastProps = {
   title?: string;
   description?: string;
-  action?: ToastActionElement;
-  variant?: "default" | "destructive";
-};
-
-// For ShadcnUI Toast compatibility
-export type Toast = {
-  id: string;
-  title?: string;
-  description?: string;
-  action?: ToastActionElement;
+  action?: React.ReactNode;
   variant?: "default" | "destructive";
 };
 
@@ -24,23 +14,22 @@ export function toast({ title, description, action, variant = "default" }: Toast
     className: variant === "destructive" ? "destructive" : ""
   };
 
-  // Simple action handling to avoid type issues
   if (action) {
-    options.action = {
-      label: 'Action',
-      onClick: () => {}
-    };
+    options.action = action;
   }
 
   return sonnerToast(title || "", options);
 }
 
+// We're fully committing to Sonner, but providing compatibility with any components
+// that might expect the old Shadcn interface
 export function useToast() {
-  // Return an empty toasts array for Shadcn UI Toaster compatibility
-  // but still use Sonner for actual toast functionality
   return { 
     toast,
-    // Dummy empty array for Shadcn UI Toaster component
-    toasts: [] as Toast[]
+    // Empty array for compatibility with old components
+    toasts: []
   };
 }
+
+// Re-export Sonner toast for direct usage
+export { sonnerToast };
