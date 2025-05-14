@@ -1,76 +1,50 @@
 
-import React, { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import React from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 
-interface QuestionStepProps {
+export interface QuestionStepProps {
   question: string;
-  initialValue?: string;
-  onSave: (answer: string) => void;
-  isSubmitting?: boolean;
-  readOnly?: boolean;
+  selectedAnswer?: string;
+  onAnswerSelect: (value: string) => void;
+  options?: Array<{
+    label: string;
+    value: string;
+  }>;
 }
 
-export const QuestionStep: React.FC<QuestionStepProps> = ({
+const QuestionStep: React.FC<QuestionStepProps> = ({
   question,
-  initialValue = "",
-  onSave,
-  isSubmitting = false,
-  readOnly = false
+  selectedAnswer,
+  onAnswerSelect,
+  options
 }) => {
-  const [answer, setAnswer] = useState(initialValue || "");
-  const [isModified, setIsModified] = useState(false);
-
-  useEffect(() => {
-    // Update answer if initialValue changes (e.g. from loading progress)
-    if (initialValue !== undefined && initialValue !== null) {
-      setAnswer(initialValue);
-      setIsModified(false);
-    }
-  }, [initialValue]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setAnswer(e.target.value);
-    setIsModified(true);
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSave(answer);
-    setIsModified(false);
-  };
-
   return (
-    <div className="space-y-4">
-      <div className="text-lg font-medium">{question}</div>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <Textarea
-          value={answer}
-          onChange={handleChange}
-          rows={6}
-          placeholder="Enter your answer here..."
-          className="w-full p-3"
-          disabled={isSubmitting || readOnly}
-        />
+    <Card>
+      <CardContent className="pt-6">
+        <h3 className="text-xl font-semibold mb-4">{question}</h3>
         
-        {!readOnly && (
-          <div className="flex justify-end">
-            <Button 
-              type="submit"
-              disabled={!isModified || isSubmitting}
-            >
-              {isSubmitting ? "Saving..." : "Save Answer"}
-            </Button>
-          </div>
+        {options && options.length > 0 ? (
+          <RadioGroup 
+            value={selectedAnswer} 
+            onValueChange={onAnswerSelect}
+            className="space-y-3"
+          >
+            {options.map((option) => (
+              <div key={option.value} className="flex items-center space-x-2">
+                <RadioGroupItem value={option.value} id={option.value} />
+                <Label htmlFor={option.value} className="cursor-pointer">
+                  {option.label}
+                </Label>
+              </div>
+            ))}
+          </RadioGroup>
+        ) : (
+          <div className="text-muted-foreground">No options available</div>
         )}
-        
-        {readOnly && answer && (
-          <div className="p-3 bg-gray-50 border border-gray-200 rounded text-sm text-gray-600">
-            This is a view-only sprint. You cannot edit this response.
-          </div>
-        )}
-      </form>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 

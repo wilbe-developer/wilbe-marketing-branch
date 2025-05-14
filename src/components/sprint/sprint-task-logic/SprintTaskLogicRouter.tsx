@@ -13,24 +13,21 @@ import VisionTaskLogic from "./VisionTaskLogic";
 
 interface SprintTaskLogicRouterProps {
   task: any;
-  progress?: any;
-  isSubmitting?: boolean;
-  onSubmit?: (taskId: string, data: any, isUpload?: boolean) => Promise<void>;
+  isCompleted: boolean;
+  onComplete: (fileId?: string) => void;
   readOnly?: boolean;
 }
 
 export const SprintTaskLogicRouter: React.FC<SprintTaskLogicRouterProps> = ({
   task,
-  progress,
-  isSubmitting = false,
-  onSubmit,
+  isCompleted,
+  onComplete,
   readOnly = false
 }) => {
   const commonProps = {
     task,
-    progress,
-    isSubmitting,
-    onSubmit,
+    isCompleted,
+    onComplete,
     readOnly
   };
 

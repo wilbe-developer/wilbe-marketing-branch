@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { SprintTaskLogicRouter } from "@/components/sprint/sprint-task-logic";
 import { useSharedSprint } from "@/hooks/useSharedSprint";
 import { SharedSprintNotification } from "@/components/sprint/SharedSprintNotification";
-import { SprintLayout } from "@/components/sprint/SprintLayout";
+import SprintLayout from "@/components/sprint/SprintLayout";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 
@@ -106,6 +106,13 @@ const SprintTaskPage = () => {
       </SprintLayout>
     );
   }
+
+  const isCompleted = progress?.completed || false;
+  const onComplete = (fileId?: string) => {
+    if (taskId) {
+      handleSubmit(taskId, {}, fileId !== undefined);
+    }
+  };
   
   return (
     <SprintLayout>
@@ -129,9 +136,8 @@ const SprintTaskPage = () => {
       
       <SprintTaskLogicRouter 
         task={task} 
-        progress={progress}
-        isSubmitting={isSubmitting}
-        onSubmit={handleSubmit}
+        isCompleted={isCompleted}
+        onComplete={onComplete}
         readOnly={isReadOnly}
       />
     </SprintLayout>

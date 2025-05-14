@@ -88,9 +88,9 @@ const StepBasedTaskLogic: React.FC<StepBasedTaskLogicProps> = ({
         {step.type === 'question' && (
           <QuestionStep
             question={step.question || ''}
-            options={step.options}
             selectedAnswer={answers[currentStep]}
             onAnswerSelect={handleAnswerSelect}
+            options={step.options}
           />
         )}
         
