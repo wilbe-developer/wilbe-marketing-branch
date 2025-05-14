@@ -1,10 +1,12 @@
 
 import { toast as sonnerToast } from "sonner";
+import { type ToastActionElement } from "@/components/ui/toast";
 
-type ToastOptions = {
+type ToastProps = {
+  id?: string;
   title?: string;
   description?: React.ReactNode;
-  action?: React.ReactElement;
+  action?: ToastActionElement;
   variant?: "default" | "destructive";
   duration?: number;
   open?: boolean;
@@ -19,25 +21,34 @@ export const toast = ({
   variant = "default",
   duration = 5000,
   ...rest
-}: ToastOptions) => {
-  const options = {
+}: ToastProps) => {
+  const options: any = {
     ...rest,
     duration,
     className: variant === "destructive" ? "destructive" : ""
   };
 
+  // Properly handle the action prop for Sonner
   if (action) {
-    options.action = action;
+    options.action = {
+      label: action.props.children,
+      onClick: action.props.onClick
+    };
   }
 
-  return sonnerToast(title, {
+  return sonnerToast(title || "", {
     description,
     ...options
   });
 };
 
+// Add backward compatibility with shadcn/ui Toaster
 export const useToast = () => {
+  // Return dummy toasts array for backward compatibility
+  const dummyToasts: ToastProps[] = [];
+  
   return {
-    toast
+    toast,
+    toasts: dummyToasts // This makes the shadcn/ui Toaster component happy
   };
 };
