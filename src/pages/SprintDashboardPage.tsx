@@ -1,28 +1,25 @@
 
-import { useEffect, useState } from "react";
-import { useSprintTasks } from "@/hooks/useSprintTasks.tsx";
+import { useEffect } from "react";
+import { useSprintTasks } from "@/hooks/useSprintTasks";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/hooks/useAuth";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Users } from "lucide-react";
 import { CollaborateButton } from "@/components/sprint/CollaborateButton";
-import { toast } from "@/hooks/use-toast";
 import { ProgressDisplay } from "@/components/sprint/ProgressDisplay";
-import { SharedSprintsList } from "@/components/sprint/SharedSprintsList";
 import { MySprintsList } from "@/components/sprint/MySprintsList";
-import { useSharedSprints } from "@/hooks/useSharedSprints";
+import { SharedSprintsSelector } from "@/components/sprint/SharedSprintsSelector";
+import { SharedSprintBanner } from "@/components/sprint/SharedSprintBanner";
+import { useSprintContext } from "@/hooks/useSprintContext";
 
 const SprintDashboardPage = () => {
   const { tasksWithProgress, isLoading } = useSprintTasks();
   const isMobile = useIsMobile();
   const { user } = useAuth();
-  const { sharedSprints, isLoading: loadingShared } = useSharedSprints(user?.id);
+  const { isSharedSprint, sprintOwnerName } = useSprintContext();
 
   // Calculate overall completion percentage
   const completedTasks = tasksWithProgress.filter(task => task.progress?.completed).length;
   const totalTasks = tasksWithProgress.length;
-
-  const hasSharedSprints = sharedSprints.length > 0;
 
   if (isLoading) {
     return (
@@ -32,47 +29,29 @@ const SprintDashboardPage = () => {
     );
   }
 
+  const pageTitle = isSharedSprint ? `${sprintOwnerName}'s Sprint` : "Your Sprint Journey";
+
   return (
     <div>
       <div className={isMobile ? "mb-4" : "mb-8"}>
         <div className="flex justify-between items-center mb-2">
-          <h1 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold`}>Your Sprint Journey</h1>
-          {user?.id && <CollaborateButton />}
+          <h1 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold`}>{pageTitle}</h1>
+          {!isSharedSprint && user?.id && <CollaborateButton />}
         </div>
+        
         <p className={`text-gray-600 ${isMobile ? 'text-sm mb-3' : 'mb-4'}`}>
           Complete all tasks to finish your sprint and develop your full project plan.
         </p>
         
-        {!hasSharedSprints ? (
-          <ProgressDisplay completedTasks={completedTasks} totalTasks={totalTasks} />
-        ) : (
-          <Tabs defaultValue="my-sprint" className="w-full">
-            <TabsList className="mb-4">
-              <TabsTrigger value="my-sprint">My Sprint</TabsTrigger>
-              <TabsTrigger value="shared-sprints" className="flex items-center">
-                <Users className="mr-2 h-4 w-4" />
-                <span>Shared With Me</span>
-              </TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="my-sprint">
-              <ProgressDisplay completedTasks={completedTasks} totalTasks={totalTasks} />
-              <MySprintsList tasks={tasksWithProgress} />
-            </TabsContent>
-            
-            <TabsContent value="shared-sprints">
-              <SharedSprintsList 
-                sharedSprints={sharedSprints} 
-                isLoading={loadingShared} 
-              />
-            </TabsContent>
-          </Tabs>
-        )}
+        <SharedSprintBanner />
+        
+        {/* Displays the selector for shared sprints if they exist */}
+        <SharedSprintsSelector />
+        
+        <ProgressDisplay completedTasks={completedTasks} totalTasks={totalTasks} />
       </div>
 
-      {!hasSharedSprints && (
-        <MySprintsList tasks={tasksWithProgress} />
-      )}
+      <MySprintsList tasks={tasksWithProgress} />
     </div>
   );
 };

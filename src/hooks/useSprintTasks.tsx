@@ -1,18 +1,16 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { SprintTask, UserSprintProgress, UserTaskProgress, TaskOption } from "@/types/sprint";
+import { SprintTask, UserSprintProgress, UserTaskProgress } from "@/types/sprint";
 import { useAuth } from "./useAuth";
-import { useSharedSprint } from "./useSharedSprint";
+import { useSprintContext } from "./useSprintContext";
+import { toast } from "./use-toast";
 
 export const useSprintTasks = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const { isSharedSprint, sprintOwnerId } = useSharedSprint();
+  const { currentSprintOwnerId, isSharedSprint } = useSprintContext();
   
-  // The userId to use for progress tracking - either the current user's or the sprint owner's
-  const progressUserId = isSharedSprint && sprintOwnerId ? sprintOwnerId : user?.id;
-
   // Fetch all sprint tasks (now global templates, not filtered by user)
   const { data: tasks, isLoading: isTasksLoading, error } = useQuery({
     queryKey: ["sprintTasks"],
@@ -24,84 +22,38 @@ export const useSprintTasks = () => {
       
       if (error) throw error;
       
-      // Process and transform the data to ensure type safety
-      return (data || []).map(task => {
-        // Convert options to proper format if needed
-        let parsedOptions: TaskOption[] | null = null;
-        
-        if (task.options) {
-          try {
-            if (typeof task.options === 'string') {
-              parsedOptions = JSON.parse(task.options);
-            } else {
-              // If it's already an object/array from Supabase
-              parsedOptions = task.options as unknown as TaskOption[];
-            }
-          } catch (e) {
-            console.error('Failed to parse options for task:', task.id, e);
-            parsedOptions = null;
-          }
-        }
-        
-        return {
-          id: task.id,
-          title: task.title,
-          description: task.description,
-          order_index: task.order_index,
-          upload_required: task.upload_required,
-          content: task.content,
-          question: task.question,
-          options: parsedOptions
-        } as SprintTask;
-      });
+      return (data || []).map(task => ({
+        id: task.id,
+        title: task.title,
+        description: task.description,
+        category: task.category,
+        order_index: task.order_index,
+        upload_required: task.upload_required,
+        content: task.content,
+        question: task.question,
+        options: task.options,
+        status: task.status
+      }));
     },
     enabled: !!user,
   });
 
   // Fetch user progress for sprint tasks
   const { data: userProgress, isLoading: isProgressLoading } = useQuery({
-    queryKey: ["userSprintProgress", progressUserId],
+    queryKey: ["userSprintProgress", currentSprintOwnerId],
     queryFn: async (): Promise<UserSprintProgress[]> => {
-      if (!progressUserId) return [];
+      if (!currentSprintOwnerId) return [];
       
       const { data, error } = await supabase
         .from("user_sprint_progress")
         .select("*")
-        .eq("user_id", progressUserId);
+        .eq("user_id", currentSprintOwnerId);
       
       if (error) throw error;
       
-      // Process and transform the data to ensure type safety
-      return (data || []).map(progress => {
-        // Convert answers to proper Record type if needed
-        let parsedAnswers: Record<string, any> | null = null;
-        
-        if (progress.answers) {
-          try {
-            if (typeof progress.answers === 'string') {
-              parsedAnswers = JSON.parse(progress.answers);
-            } else {
-              // If it's already an object from Supabase
-              parsedAnswers = progress.answers as Record<string, any>;
-            }
-          } catch (e) {
-            console.error('Failed to parse answers for progress:', progress.id, e);
-            parsedAnswers = null;
-          }
-        }
-        
-        return {
-          id: progress.id,
-          user_id: progress.user_id,
-          task_id: progress.task_id,
-          completed: progress.completed,
-          file_id: progress.file_id,
-          answers: parsedAnswers,
-          completed_at: progress.completed_at
-        } as UserSprintProgress;
-      });
+      return (data || []);
     },
-    enabled: !!progressUserId,
+    enabled: !!currentSprintOwnerId,
   });
 
   // Get combined task and progress data
@@ -121,10 +73,9 @@ export const useSprintTasks = () => {
       answers?: Record<string, any>; 
       fileId?: string | null;
     }) => {
-      if (!user) throw new Error("User not authenticated");
-      
-      // Determine which user ID to use based on whether we're in a shared sprint
-      const userId = isSharedSprint && sprintOwnerId ? sprintOwnerId : user.id;
+      if (!user || !currentSprintOwnerId) {
+        throw new Error("User not authenticated");
+      }
       
       const { taskId, completed, answers, fileId } = params;
       
@@ -132,7 +83,7 @@ export const useSprintTasks = () => {
       const { data: existingProgress } = await supabase
         .from("user_sprint_progress")
         .select("id")
-        .eq("user_id", userId)
+        .eq("user_id", currentSprintOwnerId)
         .eq("task_id", taskId)
         .maybeSingle();
       
@@ -161,7 +112,7 @@ export const useSprintTasks = () => {
         const { error } = await supabase
           .from("user_sprint_progress")
           .insert({
-            user_id: userId,
+            user_id: currentSprintOwnerId,
             task_id: taskId,
             completed: completed || false,
             answers: answers || null,
@@ -173,7 +124,15 @@ export const useSprintTasks = () => {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["userSprintProgress", progressUserId] });
+      queryClient.invalidateQueries({ queryKey: ["userSprintProgress", currentSprintOwnerId] });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to update progress. Please try again.",
+        variant: "destructive"
+      });
+      console.error("Update progress error:", error);
     }
   });
 
