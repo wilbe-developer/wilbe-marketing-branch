@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useSprintTasks } from "@/hooks/useSprintTasks.tsx";
 import TaskCard from "@/components/sprint/TaskCard";
@@ -7,6 +8,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Users } from "lucide-react";
 import { CollaborateButton } from "@/components/sprint/CollaborateButton";
+import { UserTaskProgress } from "@/types/sprint";
+import { toast } from "@/components/ui/use-toast";
 
 // Define simple interfaces to avoid circular type references
 interface TaskProgress {
@@ -17,16 +20,26 @@ interface TaskProgress {
   task_answers: any;
 }
 
+interface SupabaseTaskProgress {
+  id: string;
+  completed: boolean;
+  completed_at: string | null;
+  file_id: string | null;
+  task_answers: any;
+}
+
 interface SharedTask {
   id: string;
   title: string;
-  description: string;
-  category: string;
+  description: string | null;
+  category: string | null;
   order_index: number;
   content: string | null;
+  question: string | null;
+  options: any | null;
   upload_required: boolean;
+  status: string | null;
   progress?: TaskProgress;
-  [key: string]: any; // Allow for additional properties
 }
 
 interface SharedSprint {
@@ -80,14 +93,43 @@ const SprintDashboardPage = () => {
             console.error("Error fetching owner profile:", ownerError);
           }
 
-          // Break circular references by using a simpler query approach
-          const { data: tasks, error: tasksError } = await supabase
+          // Fetch tasks directly with a straightforward query
+          const { data: rawTasks, error: tasksError } = await supabase
             .from("sprint_tasks")
             .select("*, progress:user_sprint_progress(id, completed, completed_at, file_id, task_answers)")
             .eq("user_id", collab.sprint_owner_id)
             .order("order_index");
 
           if (tasksError) throw tasksError;
+
+          // Transform tasks to match our SharedTask interface
+          const tasks: SharedTask[] = (rawTasks || []).map(task => {
+            // Extract the first progress item if it exists (from the array)
+            const progressArray = task.progress as SupabaseTaskProgress[] | null;
+            const firstProgress = progressArray && progressArray.length > 0 ? progressArray[0] : undefined;
+            
+            // Create a properly structured task with progress as a single object, not an array
+            return {
+              id: task.id,
+              title: task.title,
+              description: task.description,
+              category: task.category,
+              order_index: task.order_index,
+              content: task.content,
+              question: task.question,
+              options: task.options,
+              upload_required: task.upload_required,
+              status: task.status,
+              // Convert from array to single object
+              progress: firstProgress ? {
+                id: firstProgress.id,
+                completed: firstProgress.completed,
+                completed_at: firstProgress.completed_at,
+                file_id: firstProgress.file_id,
+                task_answers: firstProgress.task_answers
+              } : undefined
+            };
+          });
 
           const ownerFullName = [
             ownerData?.first_name,
@@ -97,7 +139,7 @@ const SprintDashboardPage = () => {
           return {
             ownerId: collab.sprint_owner_id,
             ownerName: ownerFullName,
-            tasks: tasks || []
+            tasks
           };
         });
 
@@ -105,6 +147,11 @@ const SprintDashboardPage = () => {
         setSharedSprints(resolvedSharedSprints.filter(sprint => sprint.tasks.length > 0));
       } catch (error) {
         console.error("Error fetching shared sprints:", error);
+        toast({
+          title: "Error",
+          description: "Could not load shared sprints. Please try again later.",
+          variant: "destructive"
+        });
       } finally {
         setLoadingShared(false);
       }
@@ -212,7 +259,8 @@ const SprintDashboardPage = () => {
                         {sprint.tasks.map((task) => (
                           <TaskCard 
                             key={task.id} 
-                            task={task} 
+                            // Type cast shared task to UserTaskProgress to avoid type errors
+                            task={task as unknown as UserTaskProgress} 
                             disabled={false}
                           />
                         ))}

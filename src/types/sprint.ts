@@ -1,3 +1,4 @@
+
 export interface SprintTask {
   id: string;
   title: string;
@@ -67,3 +68,4 @@ export interface SprintProfile {
   sprint_completed: boolean;
   created_at: string;
 }
+
