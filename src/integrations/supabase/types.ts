@@ -317,6 +317,33 @@ export type Database = {
         }
         Relationships: []
       }
+      sprint_collaborators: {
+        Row: {
+          access_level: string
+          collaborator_id: string
+          created_at: string
+          created_by: string
+          id: string
+          sprint_owner_id: string
+        }
+        Insert: {
+          access_level?: string
+          collaborator_id: string
+          created_at?: string
+          created_by: string
+          id?: string
+          sprint_owner_id: string
+        }
+        Update: {
+          access_level?: string
+          collaborator_id?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          sprint_owner_id?: string
+        }
+        Relationships: []
+      }
       sprint_profiles: {
         Row: {
           commercializing_invention: boolean | null
@@ -965,6 +992,10 @@ export type Database = {
       }
       is_approved: {
         Args: { user_id: string }
+        Returns: boolean
+      }
+      is_sprint_collaborator: {
+        Args: { p_user_id: string; p_owner_id: string }
         Returns: boolean
       }
     }

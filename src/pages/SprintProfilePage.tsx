@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { ProfileForm } from "@/components/profile/ProfileForm";
 import { AccountSettings } from "@/components/profile/AccountSettings";
 import { PrivacySettings } from "@/components/profile/PrivacySettings";
+import { CollaboratorsManagement } from "@/components/sprint/CollaboratorsManagement";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const SprintProfilePage = () => {
@@ -38,6 +39,7 @@ const SprintProfilePage = () => {
           <TabsTrigger value="profile">Profile Information</TabsTrigger>
           <TabsTrigger value="account">Account Settings</TabsTrigger>
           <TabsTrigger value="privacy">Privacy Settings</TabsTrigger>
+          <TabsTrigger value="collaboration">Collaboration</TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile">
@@ -50,6 +52,10 @@ const SprintProfilePage = () => {
 
         <TabsContent value="privacy">
           <PrivacySettings />
+        </TabsContent>
+
+        <TabsContent value="collaboration">
+          <CollaboratorsManagement />
         </TabsContent>
       </Tabs>
     </div>

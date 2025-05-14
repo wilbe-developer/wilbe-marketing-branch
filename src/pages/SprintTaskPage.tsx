@@ -9,6 +9,7 @@ import UploadedFileView from '@/components/sprint/UploadedFileView';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
 import { MessageCircle } from 'lucide-react';
+import { SharedSprintBanner } from '@/components/sprint/SharedSprintBanner';
 
 const SprintTaskPage = () => {
   const { taskId } = useParams<{ taskId: string }>();
@@ -61,6 +62,8 @@ const SprintTaskPage = () => {
 
   return (
     <div className={`mx-auto ${isMobile ? 'max-w-full' : 'max-w-4xl'}`}>
+      <SharedSprintBanner />
+      
       <div className="flex justify-between items-center">
         <h1 className={`${isMobile ? 'text-2xl mb-1' : 'text-3xl mb-2'} font-bold`}>{currentTask.title}</h1>
         
