@@ -1,10 +1,9 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { SprintSignupAnswers } from "@/types/sprint-signup";
-import { useSprintTasksManager } from "./useSprintTasks";
 import { useSprintFileUpload } from "./useSprintFileUpload";
 
 export const useSprintProfile = () => {
-  const { createSprintTasks } = useSprintTasksManager();
   const { uploadFounderProfile } = useSprintFileUpload();
 
   const updateUserSprintData = async (userId: string | null, answers: SprintSignupAnswers, uploadedFile: File | null) => {
@@ -19,9 +18,6 @@ export const useSprintProfile = () => {
       if (uploadedFile) {
         cvUrl = await uploadFounderProfile(userId);
       }
-
-      // Create personalized sprint tasks for this user
-      await createSprintTasks(userId, answers);
 
       // Call the create_sprint_profile RPC
       const { error: profileError } = await supabase.rpc('create_sprint_profile', {

@@ -4,13 +4,11 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { PATHS } from "@/lib/constants";
 import { supabase } from "@/integrations/supabase/client";
-import { useSprintTasksManager } from "@/hooks/useSprintTasks";
 import { toast } from "sonner";
 
 const SprintPage = () => {
   const { isAuthenticated, loading, user } = useAuth();
   const navigate = useNavigate();
-  const { createSprintTasks } = useSprintTasksManager();
 
   useEffect(() => {
     const checkSprintOnboarding = async () => {
@@ -45,59 +43,7 @@ const SprintPage = () => {
             return;
           }
 
-          // Check if tasks exist for this user
-          const { data: existingTasks, error: tasksError } = await supabase
-            .from('sprint_tasks')
-            .select('id')
-            .eq('user_id', user.id);
-            
-          if (tasksError) {
-            console.error('Error checking existing tasks:', tasksError);
-          }
-          
-          // If no tasks exist, create them based on the user's profile
-          if (!existingTasks || existingTasks.length === 0) {
-            try {
-              // Get user's sprint profile
-              const { data: profile, error: profileFetchError } = await supabase
-                .from('sprint_profiles')
-                .select('*')
-                .eq('user_id', user.id)
-                .single();
-                
-              if (profileFetchError) {
-                console.error('Error fetching profile:', profileFetchError);
-                toast.error("Failed to load your sprint profile.");
-              } else if (profile) {
-                // Convert the profile to the expected format for createSprintTasks
-                const profileData = {
-                  deck: profile.has_deck ? 'yes' : 'no',
-                  team: profile.team_status,
-                  invention: profile.commercializing_invention ? 'yes' : 'no',
-                  ip: profile.university_ip 
-                    ? (profile.tto_engaged ? 'tto_yes' : 'tto_no') 
-                    : 'own',
-                  problem: profile.problem_defined ? 'yes' : 'no',
-                  customers: profile.customer_engagement,
-                  market_known: profile.market_known ? 'yes' : 'no',
-                  funding_plan: profile.has_financial_plan ? 'yes' : 'no',
-                  funding_received: profile.received_funding ? 'yes' : 'no',
-                  funding_details: profile.funding_details,
-                  funding_amount_text: profile.funding_amount,
-                  funding_sources: profile.funding_sources,
-                  experiment: profile.experiment_validated ? 'yes' : 'no',
-                  vision: profile.industry_changing_vision ? 'yes' : 'no'
-                };
-                
-                await createSprintTasks(user.id, profileData);
-                console.log("Created tasks for user based on profile");
-              }
-            } catch (error) {
-              console.error('Error creating tasks from profile:', error);
-            }
-          }
-
-          // Redirect to dashboard
+          // Redirect to dashboard - tasks are now global and don't need to be created per user
           console.log("User has sprint profile, redirecting to dashboard");
           navigate(PATHS.SPRINT_DASHBOARD);
         } catch (error) {
@@ -108,7 +54,7 @@ const SprintPage = () => {
     };
 
     checkSprintOnboarding();
-  }, [isAuthenticated, loading, navigate, user, createSprintTasks]);
+  }, [isAuthenticated, loading, navigate, user]);
 
   // Show loading spinner while checking
   if (loading || isAuthenticated) {
