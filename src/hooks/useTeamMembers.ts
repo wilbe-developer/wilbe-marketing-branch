@@ -1,13 +1,6 @@
 
 import { useState, useCallback } from 'react';
-
-export interface TeamMember {
-  id: string;
-  name: string;
-  profile_description: string;
-  employment_status: 'cofounder' | 'employee' | 'advisor' | 'other';
-  trigger_points?: string | null;
-}
+import { TeamMember } from './team-members/types';
 
 export const useTeamMembers = (savedAnswers?: Record<string, any> | null) => {
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
