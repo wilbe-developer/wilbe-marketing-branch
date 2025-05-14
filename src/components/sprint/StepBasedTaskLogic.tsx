@@ -8,13 +8,13 @@ import QuestionStep from "./step-types/QuestionStep";
 import ContentStep from "./step-types/ContentStep";
 import UploadStep from "./step-types/UploadStep";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { StepContext } from "@/hooks/useTeamStepBuilder";
+import { StepContext, StepContextType } from "@/hooks/team-step-builder/types";
 
 export type StepType = "question" | "content" | "upload";
 
 export interface Step {
   type: StepType;
-  context?: StepContext;
+  context?: StepContextType;
   question?: string;
   content?: string | React.ReactNode | (string | React.ReactNode)[];
   options?: Array<{

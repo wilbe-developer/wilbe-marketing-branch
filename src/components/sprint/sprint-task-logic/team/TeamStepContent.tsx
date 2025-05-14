@@ -22,8 +22,12 @@ const TeamStepContent: React.FC<TeamStepContentProps> = ({
 }) => {
   const isMobile = useIsMobile();
 
-  // Convert EnhancedStep to Step - this ensures type compatibility
-  const stepBasedTasks: Step[] = steps as Step[];
+  // Convert EnhancedStep to Step with explicit type assertion
+  const stepBasedTasks: Step[] = steps.map(step => ({
+    type: step.type as any,
+    content: step.content,
+    context: step.context as any
+  }));
 
   return (
     <Card className={`mb-6 ${isMobile ? 'shadow-sm' : 'mb-8'}`}>

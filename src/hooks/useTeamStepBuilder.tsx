@@ -1,10 +1,10 @@
 
-import { EnhancedStep, StepContext } from "./team-step-builder/types";
+import { EnhancedStep, StepContext, StepContextType } from "./team-step-builder/types";
 import { getCompanySteps } from "./team-step-builder/company-steps";
 import { getIncorporationSteps } from "./team-step-builder/incorporation-steps";
 import { getTeamSteps } from "./team-step-builder/team-steps";
 
-export type { StepContext } from "./team-step-builder/types";
+export type { StepContext, StepContextType } from "./team-step-builder/types";
 
 export const useTeamStepBuilder = (props: any): EnhancedStep[] => {
   // Get all steps from the different modules

@@ -10,7 +10,7 @@ export const getCompanySteps = (
   return [
     {
       type: "content", // This matches a valid StepType
-      context: "company_reason",
+      context: "company_reason", // Now this is a valid StepContextType
       content: [
         <CompanyReasonStep
           key="company-reasons" 

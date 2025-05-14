@@ -1,7 +1,7 @@
 
 import React from "react";
 import { SprintProfileShowOrAsk } from "@/components/sprint/SprintProfileShowOrAsk";
-import { StepContext } from "@/hooks/useTeamStepBuilder";
+import { StepContext, StepContextType } from "@/hooks/team-step-builder/types";
 
 export const useTeamProfileInfo = (
   currentStepContext: StepContext | undefined,
@@ -12,7 +12,7 @@ export const useTeamProfileInfo = (
   const renderContextBasedProfileInfo = () => {
     if (!currentStepContext) return null;
     
-    if (currentStepContext === "incorporation" && isIncorporated !== undefined) {
+    if (currentStepContext.type === "incorporation" && isIncorporated !== undefined) {
       return (
         <SprintProfileShowOrAsk 
           profileKey="company_incorporated" 
@@ -24,7 +24,7 @@ export const useTeamProfileInfo = (
       );
     }
     
-    if (currentStepContext === "team" && teamStatus) {
+    if (currentStepContext.type === "team" && teamStatus) {
       return (
         <SprintProfileShowOrAsk 
           profileKey="team_status" 

@@ -1,3 +1,4 @@
+
 import { ReactNode } from "react";
 import { TeamMember } from "../team-members/types";
 
@@ -12,6 +13,7 @@ export interface EnhancedStep {
 
 export type StepContextType =
   | "company"
+  | "company_reason"
   | "incorporation"
   | "team";
 
