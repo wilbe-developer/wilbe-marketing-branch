@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Trash2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { TeamMember } from "@/hooks/useTeamMembers";
+import { TeamMember } from "@/hooks/team-members/types";
 
 interface TeamMemberFormProps {
   teamMembers: TeamMember[];

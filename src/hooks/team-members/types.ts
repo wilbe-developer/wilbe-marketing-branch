@@ -1,6 +1,14 @@
 
 import { Json } from "@/integrations/supabase/types";
-import { TeamMember } from "../useTeamMembers";
+
+// Standardized TeamMember interface using snake_case field names to match database structure
+export interface TeamMember {
+  id?: string;
+  name: string;
+  profile_description: string;
+  employment_status: string;
+  trigger_points?: string;
+}
 
 // Helper function to ensure TeamMember objects are JSON serializable
 export const serializeTeamMembers = (teamMembers: TeamMember[]): Json => {

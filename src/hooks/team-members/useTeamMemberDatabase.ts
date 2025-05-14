@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -24,7 +25,23 @@ export const useTeamMemberDatabase = (
       // First try to get from task answers if available
       if (taskAnswers?.team_members && taskAnswers.team_members.length > 0) {
         console.log("Using team members from task answers:", taskAnswers.team_members);
-        setTeamMembers(taskAnswers.team_members);
+        
+        // Convert from task_answers format to our standardized format if needed
+        const members = taskAnswers.team_members.map((member: any) => {
+          // Check if the member is using the old format (profile, employmentStatus, triggerPoints)
+          if ('profile' in member || 'employmentStatus' in member || 'triggerPoints' in member) {
+            return {
+              name: member.name,
+              profile_description: member.profile || member.profile_description || '',
+              employment_status: member.employmentStatus || member.employment_status || '',
+              trigger_points: member.triggerPoints || member.trigger_points || ''
+            };
+          }
+          // Already in the correct format
+          return member;
+        });
+        
+        setTeamMembers(members);
         setInitialDataLoaded(true);
         setLoading(false);
         return;
@@ -44,12 +61,13 @@ export const useTeamMemberDatabase = (
       
       if (data && data.length > 0) {
         console.log("Loaded team members from database:", data);
+        
         // Transform from database format to TeamMember format
         const loadedMembers = data.map(member => ({
           name: member.name,
-          profile: member.profile_description,
-          employmentStatus: member.employment_status,
-          triggerPoints: member.trigger_points || ''
+          profile_description: member.profile_description,
+          employment_status: member.employment_status,
+          trigger_points: member.trigger_points || ''
         }));
         
         setTeamMembers(loadedMembers);
@@ -58,9 +76,9 @@ export const useTeamMemberDatabase = (
         // If no team members found, and we haven't loaded any initial data yet, reset to default
         setTeamMembers([{ 
           name: '', 
-          profile: '', 
-          employmentStatus: '',
-          triggerPoints: '' 
+          profile_description: '', 
+          employment_status: '',
+          trigger_points: '' 
         }]);
         setInitialDataLoaded(true);
       }
@@ -115,9 +133,9 @@ export const useTeamMemberDatabase = (
           .insert({
             user_id: user.id,
             name: member.name,
-            profile_description: member.profile,
-            employment_status: member.employmentStatus,
-            trigger_points: member.triggerPoints
+            profile_description: member.profile_description,
+            employment_status: member.employment_status,
+            trigger_points: member.trigger_points
           });
 
         if (error) {
