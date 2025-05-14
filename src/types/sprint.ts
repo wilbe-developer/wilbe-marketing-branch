@@ -8,6 +8,8 @@ export interface SprintTask {
   content: string | null;
   question: string | null;
   options: TaskOption[] | null;
+  category?: string | null;
+  status?: string;
 }
 
 export interface TaskOption {
@@ -69,3 +71,26 @@ export interface SprintProfile {
   created_at: string;
 }
 
+// Shared sprint types
+export interface SharedTask {
+  id: string;
+  title: string;
+  description: string | null;
+  category?: string | null;
+  order_index: number;
+  upload_required: boolean;
+  progress?: {
+    id: string;
+    completed: boolean;
+    completed_at: string | null;
+    answers: Record<string, any> | null;
+    file_id: string | null;
+  };
+}
+
+export interface SharedSprint {
+  ownerId: string;
+  ownerName: string;
+  ownerEmail?: string;
+  tasks: SharedTask[];
+}

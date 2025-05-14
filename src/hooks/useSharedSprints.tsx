@@ -2,30 +2,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "./use-toast";
-import { UserTaskProgress } from "@/types/sprint";
-
-export interface SharedTask {
-  id: string;
-  title: string;
-  description: string | null;
-  category: string | null;
-  order_index: number;
-  upload_required: boolean;
-  progress?: {
-    id: string;
-    completed: boolean;
-    completed_at: string | null;
-    answers: Record<string, any> | null;
-    file_id: string | null;
-  };
-}
-
-export interface SharedSprint {
-  ownerId: string;
-  ownerName: string;
-  ownerEmail?: string;
-  tasks: SharedTask[];
-}
+import { SharedSprint, SharedTask, UserTaskProgress } from "@/types/sprint";
 
 // Adapter function to convert a SharedTask to UserTaskProgress format
 export const adaptSharedTaskToUserTaskProgress = (task: SharedTask): UserTaskProgress => {
@@ -33,12 +10,12 @@ export const adaptSharedTaskToUserTaskProgress = (task: SharedTask): UserTaskPro
     id: task.id,
     title: task.title,
     description: task.description,
-    category: task.category,
     order_index: task.order_index,
     upload_required: task.upload_required,
     content: null,
     question: null,
     options: null,
+    category: task.category || null,
     progress: task.progress ? {
       id: task.progress.id,
       user_id: "", // This will be filled by the component if needed
@@ -123,7 +100,7 @@ export function useSharedSprints(userId: string | undefined) {
                     id: taskProgress.id,
                     completed: taskProgress.completed,
                     completed_at: taskProgress.completed_at,
-                    answers: taskProgress.answers,
+                    answers: taskProgress.answers as Record<string, any> | null,
                     file_id: taskProgress.file_id
                   } : undefined
                 };

@@ -1,7 +1,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { SprintTask, UserSprintProgress, UserTaskProgress } from "@/types/sprint";
+import { SprintTask, UserSprintProgress, UserTaskProgress, TaskOption } from "@/types/sprint";
 import { useAuth } from "./useAuth";
 import { useSprintContext } from "./useSprintContext";
 import { toast } from "./use-toast";
@@ -26,12 +26,12 @@ export const useSprintTasks = () => {
         id: task.id,
         title: task.title,
         description: task.description,
-        category: task.category,
         order_index: task.order_index,
         upload_required: task.upload_required,
         content: task.content,
         question: task.question,
         options: task.options as unknown as TaskOption[] | null,
+        category: task.category,
         status: task.status
       }));
     },
@@ -57,7 +57,7 @@ export const useSprintTasks = () => {
         task_id: progress.task_id,
         completed: progress.completed,
         file_id: progress.file_id,
-        answers: progress.answers as unknown as Record<string, any> | null,
+        answers: progress.answers as Record<string, any> | null,
         completed_at: progress.completed_at
       }));
     },
@@ -153,9 +153,3 @@ export const useSprintTasks = () => {
     updateProgress
   };
 };
-
-// Add this to make TypeScript happy with the import in sprint-task-logic
-interface TaskOption {
-  label: string;
-  value: string;
-}
