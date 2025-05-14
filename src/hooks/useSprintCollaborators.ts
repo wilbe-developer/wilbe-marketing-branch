@@ -18,6 +18,11 @@ export interface Collaborator {
 
 export type AccessLevel = 'view' | 'edit' | 'manage';
 
+// Helper function to validate if a string is a valid AccessLevel
+const isValidAccessLevel = (level: string): level is AccessLevel => {
+  return ['view', 'edit', 'manage'].includes(level);
+};
+
 export const useSprintCollaborators = () => {
   const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -55,12 +60,19 @@ export const useSprintCollaborators = () => {
             console.error("Error fetching profile:", profileError);
           }
 
+          // Ensure access_level is a valid AccessLevel type
+          let accessLevel: AccessLevel = 'edit'; // Default fallback
+          if (isValidAccessLevel(collab.access_level)) {
+            accessLevel = collab.access_level;
+          }
+
           return {
             ...collab,
+            access_level: accessLevel,
             email: profileData?.email,
             firstName: profileData?.first_name,
             lastName: profileData?.last_name
-          };
+          } as Collaborator;
         })
       );
       

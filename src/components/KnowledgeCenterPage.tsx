@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -56,8 +55,7 @@ const KnowledgeCenterPage = () => {
     if (!isAuthenticated && !loading) {
       toast({
         title: "Not authenticated",
-        description: "You're viewing placeholder content. Please log in to see real data.",
-        duration: 5000
+        description: "You're viewing placeholder content. Please log in to see real data."
       });
     }
   }, [isAuthenticated, loading, toast]);

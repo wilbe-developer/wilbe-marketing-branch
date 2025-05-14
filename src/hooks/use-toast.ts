@@ -7,6 +7,7 @@ export type ToastProps = {
   description?: React.ReactNode;
   action?: React.ReactElement;
   variant?: "default" | "destructive";
+  duration?: number; // Added duration property
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 };
