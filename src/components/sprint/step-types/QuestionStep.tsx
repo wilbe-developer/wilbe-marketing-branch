@@ -1,38 +1,76 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 
 interface QuestionStepProps {
   question: string;
-  options?: Array<{ label: string; value: string }>;
-  selectedAnswer?: string;
-  onAnswerSelect: (value: string) => void;
+  initialValue?: string;
+  onSave: (answer: string) => void;
+  isSubmitting?: boolean;
+  readOnly?: boolean;
 }
 
-const QuestionStep: React.FC<QuestionStepProps> = ({
+export const QuestionStep: React.FC<QuestionStepProps> = ({
   question,
-  options,
-  selectedAnswer,
-  onAnswerSelect,
+  initialValue = "",
+  onSave,
+  isSubmitting = false,
+  readOnly = false
 }) => {
+  const [answer, setAnswer] = useState(initialValue || "");
+  const [isModified, setIsModified] = useState(false);
+
+  useEffect(() => {
+    // Update answer if initialValue changes (e.g. from loading progress)
+    if (initialValue !== undefined && initialValue !== null) {
+      setAnswer(initialValue);
+      setIsModified(false);
+    }
+  }, [initialValue]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setAnswer(e.target.value);
+    setIsModified(true);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSave(answer);
+    setIsModified(false);
+  };
+
   return (
-    <>
-      <h2 className="text-lg font-semibold mb-4">{question}</h2>
-      {options && (
-        <div className="flex flex-wrap gap-3 mb-4">
-          {options.map(option => (
-            <Button
-              key={option.value}
-              variant={selectedAnswer === option.value ? "default" : "outline"}
-              onClick={() => onAnswerSelect(option.value)}
-              className="flex-grow md:flex-grow-0"
+    <div className="space-y-4">
+      <div className="text-lg font-medium">{question}</div>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <Textarea
+          value={answer}
+          onChange={handleChange}
+          rows={6}
+          placeholder="Enter your answer here..."
+          className="w-full p-3"
+          disabled={isSubmitting || readOnly}
+        />
+        
+        {!readOnly && (
+          <div className="flex justify-end">
+            <Button 
+              type="submit"
+              disabled={!isModified || isSubmitting}
             >
-              {option.label}
+              {isSubmitting ? "Saving..." : "Save Answer"}
             </Button>
-          ))}
-        </div>
-      )}
-    </>
+          </div>
+        )}
+        
+        {readOnly && answer && (
+          <div className="p-3 bg-gray-50 border border-gray-200 rounded text-sm text-gray-600">
+            This is a view-only sprint. You cannot edit this response.
+          </div>
+        )}
+      </form>
+    </div>
   );
 };
 

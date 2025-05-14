@@ -23,18 +23,28 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Users, UserPlus, AlertTriangle, Trash2 } from "lucide-react";
+import { toast } from "@/components/ui/use-toast";
+import { Users, UserPlus, AlertTriangle, Trash2, Share2, Lock } from "lucide-react";
 
-export const CollaboratorsManagement = () => {
+export const CollaboratorsManagement = ({ isDialog = false }: { isDialog?: boolean }) => {
   const { 
     collaborators, 
     isLoading, 
     fetchCollaborators, 
     addCollaborator, 
-    removeCollaborator 
+    removeCollaborator,
+    updateCollaboratorAccess
   } = useSprintCollaborators();
   const [email, setEmail] = useState("");
+  const [accessLevel, setAccessLevel] = useState("edit");
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
   const [selectedCollaborator, setSelectedCollaborator] = useState<Collaborator | null>(null);
@@ -46,8 +56,9 @@ export const CollaboratorsManagement = () => {
 
   const handleAddCollaborator = async () => {
     if (!email) return;
-    await addCollaborator(email);
+    await addCollaborator(email, accessLevel);
     setEmail("");
+    setAccessLevel("edit");
     setAddDialogOpen(false);
   };
 
@@ -62,18 +73,29 @@ export const CollaboratorsManagement = () => {
     setRemoveDialogOpen(false);
   };
 
+  const handleAccessLevelChange = async (collaboratorId: string, newLevel: string) => {
+    await updateCollaboratorAccess(collaboratorId, newLevel);
+  };
+
+  const CardComponent = isDialog ? DialogContent : Card;
+  const CardHeaderComponent = isDialog ? DialogHeader : CardHeader;
+  const CardTitleComponent = isDialog ? DialogTitle : CardTitle;
+  const CardDescriptionComponent = isDialog ? DialogDescription : CardDescription;
+  const CardContentComponent = isDialog ? "div" : CardContent;
+  const CardFooterComponent = isDialog ? DialogFooter : CardFooter;
+
   return (
-    <Card className="mt-4">
-      <CardHeader>
-        <CardTitle className="flex items-center">
+    <CardComponent className={isDialog ? "" : "mt-4"}>
+      <CardHeaderComponent>
+        <CardTitleComponent className="flex items-center">
           <Users className="mr-2 h-5 w-5" /> 
           <span>Collaborators</span>
-        </CardTitle>
-        <CardDescription>
+        </CardTitleComponent>
+        <CardDescriptionComponent>
           Invite team members to collaborate on your sprint projects
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+        </CardDescriptionComponent>
+      </CardHeaderComponent>
+      <CardContentComponent className={isDialog ? "py-4" : ""}>
         {isLoading ? (
           <div className="py-8 text-center">
             <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
@@ -102,19 +124,43 @@ export const CollaboratorsManagement = () => {
                   </p>
                   <p className="text-sm text-gray-500">{collaborator.email}</p>
                 </div>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => handleRemoveDialog(collaborator)}
-                >
-                  <Trash2 className="h-4 w-4 text-gray-500" />
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Select
+                    defaultValue={collaborator.access_level}
+                    onValueChange={(value) => handleAccessLevelChange(collaborator.id, value)}
+                  >
+                    <SelectTrigger className="w-24">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="view">
+                        <div className="flex items-center">
+                          <Lock className="h-3.5 w-3.5 mr-1" />
+                          <span>View</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="edit">
+                        <div className="flex items-center">
+                          <Share2 className="h-3.5 w-3.5 mr-1" />
+                          <span>Edit</span>
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => handleRemoveDialog(collaborator)}
+                  >
+                    <Trash2 className="h-4 w-4 text-gray-500" />
+                  </Button>
+                </div>
               </div>
             ))}
           </div>
         )}
-      </CardContent>
-      <CardFooter>
+      </CardContentComponent>
+      <CardFooterComponent className={isDialog ? "" : ""}>
         <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
           <DialogTrigger asChild>
             <Button className="w-full">
@@ -126,16 +172,48 @@ export const CollaboratorsManagement = () => {
             <DialogHeader>
               <DialogTitle>Add Collaborator</DialogTitle>
               <DialogDescription>
-                Enter the email address of the person you want to collaborate with.
+                Enter the email address of the person you want to collaborate with and select their access level.
               </DialogDescription>
             </DialogHeader>
-            <div className="py-4">
-              <Input
-                type="email"
-                placeholder="collaborator@example.com"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-              />
+            <div className="space-y-4 py-4">
+              <div>
+                <Input
+                  type="email"
+                  placeholder="collaborator@example.com"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                />
+              </div>
+              <div>
+                <Select
+                  value={accessLevel}
+                  onValueChange={setAccessLevel}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select access level" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="view">
+                      <div className="flex items-center">
+                        <Lock className="h-4 w-4 mr-2" />
+                        <div>
+                          <p>Can view</p>
+                          <p className="text-xs text-gray-500">Can view but not edit your sprint</p>
+                        </div>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="edit">
+                      <div className="flex items-center">
+                        <Share2 className="h-4 w-4 mr-2" />
+                        <div>
+                          <p>Can edit</p>
+                          <p className="text-xs text-gray-500">Can make changes to your sprint</p>
+                        </div>
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
             <DialogFooter>
               <Button 
@@ -192,7 +270,9 @@ export const CollaboratorsManagement = () => {
             </DialogFooter>
           </DialogContent>
         </Dialog>
-      </CardFooter>
-    </Card>
+      </CardFooterComponent>
+    </CardComponent>
   );
 };
+
+export default CollaboratorsManagement;

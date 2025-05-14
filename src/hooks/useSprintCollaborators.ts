@@ -75,7 +75,7 @@ export const useSprintCollaborators = () => {
     }
   };
 
-  const addCollaborator = async (email: string) => {
+  const addCollaborator = async (email: string, accessLevel: string = "edit") => {
     if (!user?.id) return;
     
     setIsLoading(true);
@@ -119,10 +119,19 @@ export const useSprintCollaborators = () => {
           sprint_owner_id: user.id,
           collaborator_id: userData.id,
           created_by: user.id,
-          access_level: "edit" // Default for now
+          access_level: accessLevel
         });
 
       if (insertError) throw insertError;
+
+      // Notify the user about being added as a collaborator
+      try {
+        // This will be a server-side notification in the future
+        console.log(`Notifying user ${userData.id} that they have been added as a collaborator`);
+      } catch (notifyError) {
+        console.error("Failed to send notification:", notifyError);
+        // Don't block the flow if notification fails
+      }
 
       toast({
         title: "Collaborator added",
@@ -135,6 +144,40 @@ export const useSprintCollaborators = () => {
       console.error("Error adding collaborator:", error);
       toast({
         title: "Error adding collaborator",
+        description: error.message || "Please try again later",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const updateCollaboratorAccess = async (collaboratorId: string, accessLevel: string) => {
+    if (!user?.id) return;
+    
+    setIsLoading(true);
+    try {
+      const { error } = await supabase
+        .from("sprint_collaborators")
+        .update({ access_level: accessLevel })
+        .eq("id", collaboratorId)
+        .eq("sprint_owner_id", user.id); // Ensure owner is making this change
+
+      if (error) throw error;
+
+      toast({
+        title: "Access level updated",
+        description: "Successfully updated collaborator's access level."
+      });
+
+      // Update state with the new access level
+      setCollaborators(prev => 
+        prev.map(c => c.id === collaboratorId ? {...c, access_level: accessLevel} : c)
+      );
+    } catch (error: any) {
+      console.error("Error updating access level:", error);
+      toast({
+        title: "Error updating access level",
         description: error.message || "Please try again later",
         variant: "destructive"
       });
@@ -180,6 +223,7 @@ export const useSprintCollaborators = () => {
     isLoading,
     fetchCollaborators,
     addCollaborator,
+    updateCollaboratorAccess,
     removeCollaborator
   };
 };

@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 export const useSharedSprint = () => {
   const [isSharedSprint, setIsSharedSprint] = useState(false);
   const [sprintOwnerId, setSprintOwnerId] = useState<string | null>(null);
+  const [accessLevel, setAccessLevel] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
   const { taskId } = useParams<{ taskId: string }>();
@@ -42,10 +43,10 @@ export const useSharedSprint = () => {
           return;
         }
 
-        // Check if the current user is a collaborator
+        // Check if the current user is a collaborator and get access level
         const { data: collabData, error: collabError } = await supabase
           .from("sprint_collaborators")
-          .select("id")
+          .select("id, access_level")
           .eq("sprint_owner_id", ownerId)
           .eq("collaborator_id", user.id)
           .single();
@@ -54,7 +55,13 @@ export const useSharedSprint = () => {
           console.error("Error checking collaborator status:", collabError);
         }
 
-        setIsSharedSprint(!!collabData);
+        if (collabData) {
+          setIsSharedSprint(true);
+          setAccessLevel(collabData.access_level);
+        } else {
+          setIsSharedSprint(false);
+        }
+        
         setIsLoading(false);
       } catch (error) {
         console.error("Error in shared sprint check:", error);
@@ -65,5 +72,11 @@ export const useSharedSprint = () => {
     checkIfSharedSprint();
   }, [user?.id, taskId]);
 
-  return { isSharedSprint, sprintOwnerId, isLoading };
+  return { 
+    isSharedSprint, 
+    sprintOwnerId, 
+    accessLevel,
+    isReadOnly: accessLevel === "view",
+    isLoading 
+  };
 };
