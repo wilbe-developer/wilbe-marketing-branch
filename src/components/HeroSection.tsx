@@ -25,10 +25,11 @@ const HeroSection: React.FC = () => {
           <strong>Scientists and engineers</strong> hold the keys to the solutions we need for the century. 
         </p>
         <p className="text-lg md:text-xl text-white/90 max-w-3xl mx-auto">
-          Go from scientist to founder in 10 days. Unlock all our templates, guidance and the clarity to 
-          make critical decisions. Put together your most investable venture plan and tell us how much 
-          you need to make it happen. Stand out, and you'll get your first $100K–250K investment from 
-          us, and join a world-class community of scientist-founders.
+          Go from scientist to founder in 10 days. Use our tailored guided path to make critical decisions
+          and put together your most ambitious company. With momentum and a solid plan, we can invest
+          $100K–250K to help you build the company only you can, joining our world-class community of
+          scientist-founders. Base case, you leave with a plan and the largest network of
+          entrepreneurial scientists.
         </p>
         <div className="pt-4">
           <Button 
