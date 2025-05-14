@@ -2,7 +2,8 @@
 import React from "react";
 import { Users } from "lucide-react";
 import TaskCard from "@/components/sprint/TaskCard";
-import { SharedSprint, adaptSharedTaskToUserTaskProgress } from "@/hooks/useSharedSprints";
+import { adaptSharedTaskToUserTaskProgress } from "@/hooks/useSharedSprints";
+import { SharedSprint } from "@/types/sprint";
 
 interface SharedSprintsListProps {
   sharedSprints: SharedSprint[];

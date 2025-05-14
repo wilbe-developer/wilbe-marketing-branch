@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -9,23 +8,57 @@ import { ChevronLeft, Download, File } from "lucide-react";
 import { DataRoomSection } from "@/components/sprint/data-room/DataRoomSection";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/use-toast";
+
+// Define simpler interfaces to avoid deep nesting
+interface SprintTaskWithProgress {
+  id: string;
+  title: string;
+  category: string | null;
+  progress: {
+    id: string;
+    completed: boolean;
+    task_answers: Record<string, any> | null;
+    file_id: string | null;
+  }[];
+}
+
+interface FileData {
+  id: string;
+  file_name: string;
+  download_url: string;
+  uploaded_at: string;
+}
+
+interface TeamMemberData {
+  id: string;
+  name: string;
+  employment_status: string;
+  profile_description: string;
+}
 
 interface SprintData {
   profile: any;
-  tasks: any[];
-  files: any[];
-  teamMembers: any[];
+  tasks: SprintTaskWithProgress[];
+  files: FileData[];
+  teamMembers: TeamMemberData[];
+}
+
+interface OwnerData {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  institution?: string;
 }
 
 const SprintDataRoomPage = () => {
   const { sprintId } = useParams<{ sprintId: string }>();
   const [loading, setLoading] = useState(true);
   const [sprintData, setSprintData] = useState<SprintData | null>(null);
-  const [owner, setOwner] = useState<any>(null);
+  const [owner, setOwner] = useState<OwnerData | null>(null);
   const { user } = useAuth();
   const isMobile = useIsMobile();
-  const { toast } = useToast();
 
   useEffect(() => {
     const fetchSprintData = async () => {
@@ -56,16 +89,17 @@ const SprintDataRoomPage = () => {
         const { data: tasksData, error: tasksError } = await supabase
           .from("sprint_tasks")
           .select(`
-            *,
+            id,
+            title,
+            category,
             progress:user_sprint_progress(
               id,
               completed,
-              completed_at,
               file_id,
               task_answers
             )
           `)
-          .eq("user_id", sprintId)
+          .eq("progress.user_id", sprintId)
           .order("order_index");
         
         if (tasksError) throw tasksError;
@@ -73,7 +107,7 @@ const SprintDataRoomPage = () => {
         // Fetch uploaded files
         const { data: filesData, error: filesError } = await supabase
           .from("user_files")
-          .select("*")
+          .select("id, file_name, download_url, uploaded_at")
           .eq("user_id", sprintId);
         
         if (filesError) throw filesError;
@@ -81,7 +115,7 @@ const SprintDataRoomPage = () => {
         // Fetch team members
         const { data: teamData, error: teamError } = await supabase
           .from("team_members")
-          .select("*")
+          .select("id, name, employment_status, profile_description")
           .eq("user_id", sprintId);
         
         if (teamError) throw teamError;
@@ -105,7 +139,7 @@ const SprintDataRoomPage = () => {
     };
     
     fetchSprintData();
-  }, [sprintId, toast]);
+  }, [sprintId]);
 
   // Organize tasks by category
   const organizeTasksByCategory = () => {

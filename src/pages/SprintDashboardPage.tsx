@@ -3,7 +3,6 @@ import { useEffect } from "react";
 import { useSprintTasks } from "@/hooks/useSprintTasks";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/hooks/useAuth";
-import { Users } from "lucide-react";
 import { CollaborateButton } from "@/components/sprint/CollaborateButton";
 import { ProgressDisplay } from "@/components/sprint/ProgressDisplay";
 import { MySprintsList } from "@/components/sprint/MySprintsList";
