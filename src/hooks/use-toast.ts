@@ -30,9 +30,10 @@ export const toast = ({
 
   // Properly handle the action prop for Sonner
   if (action) {
+    // Check if action is a React element with props
     options.action = {
-      label: action.props.children,
-      onClick: action.props.onClick
+      label: typeof action === 'object' && action.props ? action.props.children : 'Action',
+      onClick: typeof action === 'object' && action.props && action.props.onClick ? action.props.onClick : () => {}
     };
   }
 

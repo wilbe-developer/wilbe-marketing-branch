@@ -60,7 +60,7 @@ const SprintDashboardPage = () => {
             console.error("Error fetching owner profile:", ownerError);
           }
 
-          // Fetch tasks for this owner
+          // Fetch tasks for this owner with a type assertion to avoid deep recursion
           const { data: tasks, error: tasksError } = await supabase
             .from("sprint_tasks")
             .select(`
@@ -74,7 +74,7 @@ const SprintDashboardPage = () => {
               )
             `)
             .eq("user_id", collab.sprint_owner_id)
-            .order("order_index");
+            .order("order_index") as { data: any[], error: any };
 
           if (tasksError) throw tasksError;
 
