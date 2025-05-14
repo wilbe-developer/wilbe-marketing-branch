@@ -12,180 +12,157 @@ import ExperimentTaskLogic from "./ExperimentTaskLogic";
 import VisionTaskLogic from "./VisionTaskLogic";
 import { SprintProfileShowOrAsk } from "../SprintProfileShowOrAsk";
 
-export const SprintTaskLogicRouter = ({
-  task,
-  isCompleted,
-  onComplete
-}: {
+interface SprintTaskLogicRouterProps {
   task: any;
   isCompleted: boolean;
   onComplete: (fileId?: string) => void;
+  readOnly?: boolean;
+}
+
+export const SprintTaskLogicRouter: React.FC<SprintTaskLogicRouterProps> = ({
+  task,
+  isCompleted,
+  onComplete,
+  readOnly = false
 }) => {
-  // Main router for each logic task
-  switch (task.title) {
-    case "Create Your Pitch Deck":
-      return (
-        <SprintProfileShowOrAsk 
-          profileKey="has_deck" 
-          label="Do you have a deck?"
-          type="boolean"
-        >
-          <DeckTaskLogic
-            isCompleted={isCompleted}
-            onComplete={onComplete}
-            task={task}
-            hideMainQuestion={true}
-          />
-        </SprintProfileShowOrAsk>
-      );
-      
-    case "Develop Team Building Plan":
-    case "Team Profile":
+  const commonProps = {
+    task,
+    isCompleted,
+    onComplete,
+    readOnly
+  };
+
+  // Depending on task category, render the appropriate component
+  switch (task?.category?.toLowerCase()) {
+    case "team":
       return (
         <TeamTaskLogic
           task={task}
           isCompleted={isCompleted}
           onComplete={onComplete}
           hideMainQuestion={true}
+          readOnly={readOnly}
         />
       );
       
-    case "Scientific Foundation":
+    case "problem":
       return (
-        <SprintProfileShowOrAsk 
-          profileKey="commercializing_invention" 
-          label="Did you come up with an invention?"
-          type="boolean"
-        >
-          <ScienceTaskLogic
-            task={task}
-            isCompleted={isCompleted}
-            onComplete={onComplete}
-            hideMainQuestion={true}
-          />
-        </SprintProfileShowOrAsk>
+        <ProblemTaskLogic
+          task={task}
+          isCompleted={isCompleted}
+          onComplete={onComplete}
+          hideMainQuestion={true}
+          readOnly={readOnly}
+        />
       );
       
-    case "IP Strategy":
+    case "science":
       return (
-        <SprintProfileShowOrAsk 
-          profileKey="university_ip" 
-          label="Is your company reliant on a university invention?"
-          type="boolean"
-        >
-          <IpTaskLogic
-            task={task}
-            isCompleted={isCompleted}
-            onComplete={onComplete}
-            hideMainQuestion={true}
-          />
-        </SprintProfileShowOrAsk>
+        <ScienceTaskLogic
+          task={task}
+          isCompleted={isCompleted}
+          onComplete={onComplete}
+          hideMainQuestion={true}
+          readOnly={readOnly}
+        />
       );
       
-    case "Problem Definition":
+    case "customer":
       return (
-        <SprintProfileShowOrAsk 
-          profileKey="problem_defined" 
-          label="Identified a problem to solve?"
-          type="boolean"
-        >
-          <ProblemTaskLogic
-            task={task}
-            isCompleted={isCompleted}
-            onComplete={onComplete}
-            hideMainQuestion={true}
-          />
-        </SprintProfileShowOrAsk>
+        <CustomerTaskLogic
+          task={task}
+          isCompleted={isCompleted}
+          onComplete={onComplete}
+          hideMainQuestion={true}
+          readOnly={readOnly}
+        />
       );
       
-    case "Customer Insights":
-    case "Customer Discovery":
+    case "market":
       return (
-        <SprintProfileShowOrAsk 
-          profileKey="customer_engagement" 
-          label="Spoken to customers?"
-          type="select"
-          options={[
-            { value: "yes", label: "Yes" },
-            { value: "no", label: "No" },
-            { value: "early", label: "It's too early" }
-          ]}
-        >
-          <CustomerTaskLogic
-            task={task}
-            isCompleted={isCompleted}
-            onComplete={onComplete}
-            hideMainQuestion={true}
-          />
-        </SprintProfileShowOrAsk>
+        <MarketTaskLogic
+          task={task}
+          isCompleted={isCompleted}
+          onComplete={onComplete}
+          hideMainQuestion={true}
+          readOnly={readOnly}
+        />
       );
       
-    case "Market Validation":
-    case "Market Analysis":
+    case "ip":
       return (
-        <SprintProfileShowOrAsk 
-          profileKey="market_known" 
-          label="Do you know your target market?"
-          type="boolean"
-        >
-          <MarketTaskLogic
-            task={task}
-            isCompleted={isCompleted}
-            onComplete={onComplete}
-            hideMainQuestion={true}
-          />
-        </SprintProfileShowOrAsk>
+        <IpTaskLogic
+          task={task}
+          isCompleted={isCompleted}
+          onComplete={onComplete}
+          hideMainQuestion={true}
+          readOnly={readOnly}
+        />
       );
       
-    case "Financial Strategy":
+    case "experiment":
       return (
-        <SprintProfileShowOrAsk 
-          profileKey="has_financial_plan" 
-          label="Do you have a financial plan?"
-          type="boolean"
-        >
-          <FundingTaskLogic
-            task={task}
-            isCompleted={isCompleted}
-            onComplete={onComplete}
-            hideMainQuestion={true}
-          />
-        </SprintProfileShowOrAsk>
+        <ExperimentTaskLogic
+          task={task}
+          isCompleted={isCompleted}
+          onComplete={onComplete}
+          hideMainQuestion={true}
+          readOnly={readOnly}
+        />
       );
       
-    case "Milestone Planning":
+    case "vision":
       return (
-        <SprintProfileShowOrAsk 
-          profileKey="experiment_validated" 
-          label="Have you run an experiment to validate your idea?"
-          type="boolean"
-        >
-          <ExperimentTaskLogic
-            task={task}
-            isCompleted={isCompleted}
-            onComplete={onComplete}
-            hideMainQuestion={true}
-          />
-        </SprintProfileShowOrAsk>
+        <VisionTaskLogic
+          task={task}
+          isCompleted={isCompleted}
+          onComplete={onComplete}
+          hideMainQuestion={true}
+          readOnly={readOnly}
+        />
       );
       
-    case "Vision Document":
+    case "deck":
       return (
-        <SprintProfileShowOrAsk 
-          profileKey="industry_changing_vision" 
-          label="Will your company change the industry?"
-          type="boolean"
-        >
-          <VisionTaskLogic
-            task={task}
-            isCompleted={isCompleted}
-            onComplete={onComplete}
-            hideMainQuestion={true}
-          />
-        </SprintProfileShowOrAsk>
+        <DeckTaskLogic
+          task={task}
+          isCompleted={isCompleted}
+          onComplete={onComplete}
+          hideMainQuestion={true}
+          readOnly={readOnly}
+        />
+      );
+      
+    case "funding":
+      return (
+        <FundingTaskLogic
+          task={task}
+          isCompleted={isCompleted}
+          onComplete={onComplete}
+          hideMainQuestion={true}
+          readOnly={readOnly}
+        />
       );
       
     default:
-      return null;
+      return (
+        <div className="p-4 bg-red-50 rounded border border-red-200">
+          <h3 className="text-red-600 font-medium">
+            Task Type Not Supported: {task?.category || "unknown"}
+          </h3>
+          <p className="text-red-500 mt-2">
+            This task type is not yet implemented or there was an error with the task data.
+          </p>
+          {readOnly && (
+            <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded">
+              <p className="text-yellow-700 text-sm font-medium">
+                You are in view-only mode. You cannot edit this sprint.
+              </p>
+            </div>
+          )}
+        </div>
+      );
   }
 };
+
+export default SprintTaskLogicRouter;

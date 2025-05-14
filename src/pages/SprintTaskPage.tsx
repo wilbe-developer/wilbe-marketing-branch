@@ -126,7 +126,7 @@ const SprintTaskPage = () => {
           Back to Dashboard
         </Button>
         
-        <SharedSprintNotification taskId={taskId} />
+        {taskId && <SharedSprintNotification taskId={taskId} />}
         
         <h1 className="text-2xl font-bold">{task.title}</h1>
         {task.description && (
@@ -138,7 +138,6 @@ const SprintTaskPage = () => {
         task={task} 
         isCompleted={isCompleted}
         onComplete={onComplete}
-        readOnly={isReadOnly}
       />
     </SprintLayout>
   );
