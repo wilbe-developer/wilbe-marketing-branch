@@ -529,33 +529,36 @@ export type Database = {
       }
       team_members: {
         Row: {
-          created_at: string | null
+          created_at: string
           employment_status: string
           id: string
           name: string
+          owner_id: string
           profile_description: string
           trigger_points: string | null
-          updated_at: string | null
+          updated_at: string
           user_id: string
         }
         Insert: {
-          created_at?: string | null
+          created_at?: string
           employment_status: string
           id?: string
           name: string
+          owner_id: string
           profile_description: string
           trigger_points?: string | null
-          updated_at?: string | null
+          updated_at?: string
           user_id: string
         }
         Update: {
-          created_at?: string | null
+          created_at?: string
           employment_status?: string
           id?: string
           name?: string
+          owner_id?: string
           profile_description?: string
           trigger_points?: string | null
-          updated_at?: string | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
