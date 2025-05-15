@@ -14,7 +14,7 @@ export const useIPTaskData = (task: any, sprintProfile: any) => {
     ipOwnershipStatus, setIpOwnershipStatus,
     patentsFiled, setPatentsFiled,
     uploadedFileId, setUploadedFileId,
-    universityIP, ttoEngaged
+    universityIP
   } = useIPTaskState(task, sprintProfile);
   
   const { saveIPTaskData } = useIPTaskSave(task.id);
@@ -47,7 +47,6 @@ export const useIPTaskData = (task: any, sprintProfile: any) => {
   // Generate steps based on current state
   const steps = getIPSteps(
     universityIP,
-    ttoEngaged,
     {
       ttoConversationSummary,
       preliminaryTerms,
@@ -98,7 +97,6 @@ export const useIPTaskData = (task: any, sprintProfile: any) => {
     handleStepChange,
     handleComplete,
     universityIP,
-    ttoEngaged,
     patentsFiled,
     uploadedFileId
   };

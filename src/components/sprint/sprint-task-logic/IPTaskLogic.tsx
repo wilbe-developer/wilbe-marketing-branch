@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { useSprintProfileQuickEdit } from "@/hooks/useSprintProfileQuickEdit";
 import { useIPTaskData } from "@/hooks/useIPTaskData";
 import { useIPProfileInfo } from "@/hooks/useIPProfileInfo";
@@ -30,14 +30,12 @@ const IPTaskLogic: React.FC<IPTaskLogicProps> = ({
     handleStepChange,
     handleComplete,
     universityIP,
-    ttoEngaged,
     uploadedFileId
   } = useIPTaskData(task, sprintProfile);
 
   const { renderContextBasedProfileInfo } = useIPProfileInfo(
     currentStepContext,
-    universityIP,
-    ttoEngaged
+    universityIP
   );
 
   // Handle completion callback
@@ -58,7 +56,7 @@ const IPTaskLogic: React.FC<IPTaskLogicProps> = ({
           <InfoIcon className="h-4 w-4" />
           <AlertTitle>Profile Information Needed</AlertTitle>
           <AlertDescription>
-            Please answer the profile questions above to customize your IP & Technology Transfer task experience.
+            Please answer the profile question above to customize your IP & Technology Transfer task experience.
           </AlertDescription>
         </Alert>
       )}

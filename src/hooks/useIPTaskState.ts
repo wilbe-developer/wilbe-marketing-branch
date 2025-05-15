@@ -9,13 +9,12 @@ export const useIPTaskState = (task: any, sprintProfile: any) => {
   const [patentsFilingPlans, setPatentsFilingPlans] = useState<string>('');
   const [ipOwnershipStatus, setIpOwnershipStatus] = useState<string>('');
   
-  // Patent filed state and file upload
+  // Questions state
   const [patentsFiled, setPatentsFiled] = useState<boolean | undefined>(undefined);
   const [uploadedFileId, setUploadedFileId] = useState<string | undefined>(undefined);
   
   // Extract from profile for context
   const universityIP = sprintProfile?.university_ip;
-  const ttoEngaged = sprintProfile?.tto_engaged;
   
   // Load existing answers if available
   useEffect(() => {
@@ -48,14 +47,13 @@ export const useIPTaskState = (task: any, sprintProfile: any) => {
     ipOwnershipStatus,
     setIpOwnershipStatus,
     
-    // Patent status and file
+    // Questions state
     patentsFiled,
     setPatentsFiled,
     uploadedFileId,
     setUploadedFileId,
     
     // Profile data
-    universityIP,
-    ttoEngaged
+    universityIP
   };
 };

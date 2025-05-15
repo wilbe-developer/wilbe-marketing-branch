@@ -2,16 +2,11 @@
 import React from "react";
 import { EnhancedStep } from "./types";
 import { Textarea } from "@/components/ui/textarea";
-import VideoEmbed from "@/components/video-player/VideoEmbed";
 import FileUploader from "@/components/sprint/FileUploader";
 import UploadedFileView from "@/components/sprint/UploadedFileView";
 
-// Sample video ID - replace with actual IP/TTO video when available
-const IP_TTO_VIDEO_ID = "j5TEYCrLDYo";
-
 export const getIPSteps = (
   universityIP: boolean | undefined,
-  ttoEngaged: boolean | undefined,
   formData: {
     ttoConversationSummary: string;
     preliminaryTerms: string;
@@ -39,41 +34,44 @@ export const getIPSteps = (
         <p>Intellectual property plays a crucial role in science and deep tech startups. Here's why:</p>
         <ul className="list-disc pl-5 space-y-2">
           <li>IP protects your innovations from competitors</li>
-          <li>IP can be a significant asset for fundraising</li>
-          <li>IP strategy should match your market validation and business strategy</li>
+          <li>IP is a significant asset for fundraising, especially for science companies</li>
+          <li>Your IP is highly relevant to your company's success</li>
+          <li>Defining an IP strategy should match your market validation and business strategy</li>
         </ul>
-        <VideoEmbed 
-          youtubeEmbedId={IP_TTO_VIDEO_ID} 
-          title="Intellectual Property Strategy" 
-        />
       </div>
     ]
   });
 
   // Conditional steps based on universityIP
   if (universityIP === true) {
-    // University IP path
+    // TTO conversation question
     steps.push({
-      type: "content",
-      context: "tto_status",
-      title: "Tech Transfer Office (TTO) Engagement",
+      type: "form",
+      context: "ip_status",
+      title: "Tech Transfer Office Engagement",
       content: [
-        <div key="tto-info" className="space-y-4">
-          <h3 className="text-lg font-medium">Working with Technology Transfer Offices</h3>
-          <p>Tech Transfer Offices (TTOs) are responsible for commercializing university research and managing IP that was created using university resources.</p>
-          <p>Key considerations when working with TTOs:</p>
-          <ul className="list-disc pl-5 space-y-2">
-            <li>Understand your university's IP policy</li>
-            <li>Know what IP is actually owned by the university vs. what you own</li>
-            <li>Approach negotiations strategically and prepare thoroughly</li>
-            <li>Consider alternative approaches if TTO terms are unfavorable</li>
-          </ul>
+        <div key="tto-question" className="space-y-4">
+          <h3 className="text-lg font-medium">Have you begun conversations with the Tech Transfer Office (TTO)?</h3>
+          <div className="flex gap-4 mt-2">
+            <button 
+              onClick={() => onPatentsFiledChange(true)}
+              className={`px-4 py-2 rounded ${patentsFiled === true ? 'bg-brand-pink text-white' : 'bg-gray-100'}`}
+            >
+              Yes
+            </button>
+            <button 
+              onClick={() => onPatentsFiledChange(false)}
+              className={`px-4 py-2 rounded ${patentsFiled === false ? 'bg-brand-pink text-white' : 'bg-gray-100'}`}
+            >
+              No
+            </button>
+          </div>
         </div>
       ]
     });
 
     // TTO engagement dependent questions
-    if (ttoEngaged === true) {
+    if (patentsFiled === true) {
       steps.push({
         type: "form",
         context: "tto_status",
@@ -81,7 +79,7 @@ export const getIPSteps = (
         content: [
           <div key="tto-conversation" className="space-y-4">
             <div>
-              <h3 className="font-medium mb-2">Summarize your conversations with the TTO:</h3>
+              <h3 className="font-medium mb-2">Summarize the conversation with the TTO:</h3>
               <Textarea 
                 value={formData.ttoConversationSummary}
                 onChange={(e) => onFormDataChange('ttoConversationSummary', e.target.value)}
@@ -103,7 +101,7 @@ export const getIPSteps = (
           </div>
         ]
       });
-    } else {
+    } else if (patentsFiled === false) {
       steps.push({
         type: "form",
         context: "tto_status",
@@ -134,19 +132,22 @@ export const getIPSteps = (
         <div key="tto-strategy" className="space-y-4">
           <h3 className="text-lg font-medium">Strategic Approaches to TTO Negotiations</h3>
           <ul className="list-disc pl-5 space-y-2">
+            <li>What is a Tech Transfer Office (TTO) and how do they evaluate inventions</li>
+            <li>Do they actually own your IP? Understanding ownership clearly</li>
+            <li>When and how you should approach them for negotiations</li>
             <li>Switch from employee mindset to founder of an independent company</li>
             <li>Nobody else can negotiate on your behalf effectively (not lawyers, investors, or advisors)</li>
             <li>This is a key opportunity to evolve as a founder</li>
-            <li>Do not start negotiations until all your preparation is complete</li>
-            <li>Consider alternative approaches if terms aren't favorable</li>
+            <li>The mother of all tricks: do not start negotiations until all your preparation is complete</li>
+            <li>The nuclear option: consider if you can build without this IP</li>
           </ul>
         </div>
       ]
     });
   } else if (universityIP === false) {
-    // Non-university IP path
+    // IP ownership question
     steps.push({
-      type: "content",
+      type: "form",
       context: "ip_status",
       title: "IP Ownership",
       content: [
@@ -170,32 +171,81 @@ export const getIPSteps = (
       ]
     });
 
-    // Patent status dependent questions
+    // IP ownership dependent questions
     if (patentsFiled === true) {
+      // Patent status question
       steps.push({
-        type: "content",
+        type: "form",
         context: "ip_status",
-        title: "Patent Documentation",
+        title: "Patent Status",
         content: [
-          <div key="patent-upload" className="space-y-4">
-            <h3 className="font-medium mb-2">Upload your patent documentation</h3>
-            <p className="text-sm text-gray-600 mb-4">
-              This can include patent applications, granted patents, or relevant correspondence with patent offices.
-            </p>
-            {uploadedFileId ? (
-              <UploadedFileView
-                fileId={uploadedFileId}
-                isCompleted={false}
-              />
-            ) : (
-              <FileUploader
-                onFileUploaded={onFileUpload}
-                isCompleted={false}
-              />
-            )}
+          <div key="patent-status-question" className="space-y-4">
+            <h3 className="text-lg font-medium">Have patents been filed?</h3>
+            <div className="flex gap-4 mt-2">
+              <button 
+                onClick={() => onPatentsFiledChange(true)}
+                className={`px-4 py-2 rounded ${patentsFiled === true ? 'bg-brand-pink text-white' : 'bg-gray-100'}`}
+              >
+                Yes
+              </button>
+              <button 
+                onClick={() => onPatentsFiledChange(false)}
+                className={`px-4 py-2 rounded ${patentsFiled === false ? 'bg-brand-pink text-white' : 'bg-gray-100'}`}
+              >
+                No
+              </button>
+            </div>
           </div>
         ]
       });
+      
+      // Patents filed dependent actions
+      if (patentsFiled === true) {
+        steps.push({
+          type: "content",
+          context: "ip_status",
+          title: "Patent Documentation",
+          content: [
+            <div key="patent-upload" className="space-y-4">
+              <h3 className="font-medium mb-2">Upload your patent documentation</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                This can include patent applications, granted patents, or relevant correspondence with patent offices.
+              </p>
+              {uploadedFileId ? (
+                <UploadedFileView
+                  fileId={uploadedFileId}
+                  isCompleted={false}
+                />
+              ) : (
+                <FileUploader
+                  onFileUploaded={onFileUpload}
+                  isCompleted={false}
+                />
+              )}
+            </div>
+          ]
+        });
+      } else if (patentsFiled === false) {
+        steps.push({
+          type: "form",
+          context: "ip_status",
+          title: "Patent Filing Plans",
+          content: [
+            <div key="patent-filing-plans" className="space-y-4">
+              <div>
+                <h3 className="font-medium mb-2">Explain your plans for filing patents:</h3>
+                <Textarea 
+                  value={formData.patentsFilingPlans}
+                  onChange={(e) => onFormDataChange('patentsFilingPlans', e.target.value)}
+                  placeholder="Describe your patent filing strategy, timeline, and approach..."
+                  rows={4}
+                  className="w-full"
+                />
+              </div>
+            </div>
+          ]
+        });
+      }
     } else if (patentsFiled === false) {
       steps.push({
         type: "form",
