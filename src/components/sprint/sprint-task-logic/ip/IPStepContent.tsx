@@ -24,10 +24,12 @@ const IPStepContent: React.FC<IPStepContentProps> = ({
   // Convert EnhancedStep to Step with proper type conversion
   const stepBasedTasks: Step[] = steps.map(step => ({
     type: step.type === 'content' ? 'content' : 'question',
-    content: step.content,
+    title: step.title || '',
     context: step.context,
-    // Add any other required properties with sensible defaults
-    question: '',
+    content: step.content,
+    // For form steps, ensure we extract the question and options if available
+    question: step.title || '',
+    // We'll handle options in the rendering component
     options: [],
     uploads: [],
     action: ''

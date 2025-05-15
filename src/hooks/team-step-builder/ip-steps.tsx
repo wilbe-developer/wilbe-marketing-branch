@@ -44,24 +44,23 @@ export const getIPSteps = (
 
   // Conditional steps based on universityIP
   if (universityIP === true) {
-    // TTO conversation question
+    // TTO conversation question - Convert to question type with explicit options
     steps.push({
       type: "form",
       context: "ip_status",
-      title: "Tech Transfer Office Engagement",
+      title: "Have you begun conversations with the Tech Transfer Office (TTO)?",
       content: [
         <div key="tto-question" className="space-y-4">
-          <h3 className="text-lg font-medium">Have you begun conversations with the Tech Transfer Office (TTO)?</h3>
           <div className="flex gap-4 mt-2">
             <button 
               onClick={() => onPatentsFiledChange(true)}
-              className={`px-4 py-2 rounded ${patentsFiled ? 'bg-brand-pink text-white' : 'bg-gray-100'}`}
+              className={`px-4 py-2 rounded ${patentsFiled === true ? 'bg-brand-pink text-white' : 'bg-gray-100'}`}
             >
               Yes
             </button>
             <button 
               onClick={() => onPatentsFiledChange(false)}
-              className={`px-4 py-2 rounded ${patentsFiled !== undefined && patentsFiled === false ? 'bg-brand-pink text-white' : 'bg-gray-100'}`}
+              className={`px-4 py-2 rounded ${patentsFiled === false ? 'bg-brand-pink text-white' : 'bg-gray-100'}`}
             >
               No
             </button>
@@ -70,8 +69,8 @@ export const getIPSteps = (
       ]
     });
 
-    // TTO engagement dependent questions - Handle both true and undefined cases
-    if (patentsFiled) {
+    // TTO engagement dependent questions
+    if (patentsFiled === true) {
       steps.push({
         type: "form",
         context: "tto_status",
@@ -101,7 +100,7 @@ export const getIPSteps = (
           </div>
         ]
       });
-    } else if (patentsFiled !== undefined && patentsFiled === false) {
+    } else if (patentsFiled === false) {
       steps.push({
         type: "form",
         context: "tto_status",
@@ -149,20 +148,19 @@ export const getIPSteps = (
     steps.push({
       type: "form",
       context: "ip_status",
-      title: "IP Ownership",
+      title: "Do you own all the IP?",
       content: [
         <div key="ip-ownership-question" className="space-y-4">
-          <h3 className="text-lg font-medium">Do you own all the IP?</h3>
           <div className="flex gap-4 mt-2">
             <button 
               onClick={() => onPatentsFiledChange(true)}
-              className={`px-4 py-2 rounded ${patentsFiled ? 'bg-brand-pink text-white' : 'bg-gray-100'}`}
+              className={`px-4 py-2 rounded ${patentsFiled === true ? 'bg-brand-pink text-white' : 'bg-gray-100'}`}
             >
               Yes
             </button>
             <button 
               onClick={() => onPatentsFiledChange(false)}
-              className={`px-4 py-2 rounded ${patentsFiled !== undefined && patentsFiled === false ? 'bg-brand-pink text-white' : 'bg-gray-100'}`}
+              className={`px-4 py-2 rounded ${patentsFiled === false ? 'bg-brand-pink text-white' : 'bg-gray-100'}`}
             >
               No
             </button>
@@ -171,27 +169,25 @@ export const getIPSteps = (
       ]
     });
 
-    // IP ownership dependent questions - Handle undefined case for patentsFiled
-    if (patentsFiled) {
+    // IP ownership dependent questions
+    if (patentsFiled === true) {
       // Patent status question
       steps.push({
         type: "form",
         context: "ip_status",
-        title: "Patent Status",
+        title: "Have patents been filed?",
         content: [
           <div key="patent-status-question" className="space-y-4">
-            <h3 className="text-lg font-medium">Have patents been filed?</h3>
             <div className="flex gap-4 mt-2">
               <button 
                 onClick={() => onPatentsFiledChange(true)}
-                className={`px-4 py-2 rounded ${patentsFiled ? 'bg-brand-pink text-white' : 'bg-gray-100'}`}
+                className={`px-4 py-2 rounded ${patentsFiled === true ? 'bg-brand-pink text-white' : 'bg-gray-100'}`}
               >
                 Yes
               </button>
               <button 
                 onClick={() => onPatentsFiledChange(false)}
-                // Fix: Remove the problematic comparison since we're in a context where patentsFiled is already truthy
-                className="px-4 py-2 rounded bg-gray-100"
+                className={`px-4 py-2 rounded ${patentsFiled === false ? 'bg-brand-pink text-white' : 'bg-gray-100'}`}
               >
                 No
               </button>
@@ -200,7 +196,7 @@ export const getIPSteps = (
         ]
       });
       
-      // Boolean checks with proper undefined handling
+      // Patent file upload
       if (patentsFiled === true) {
         steps.push({
           type: "content",
@@ -226,7 +222,7 @@ export const getIPSteps = (
             </div>
           ]
         });
-      } else if (patentsFiled !== undefined && patentsFiled === false) {
+      } else if (patentsFiled === false) {
         steps.push({
           type: "form",
           context: "ip_status",
@@ -247,7 +243,7 @@ export const getIPSteps = (
           ]
         });
       }
-    } else if (patentsFiled !== undefined && patentsFiled === false) {
+    } else if (patentsFiled === false) {
       steps.push({
         type: "form",
         context: "ip_status",
