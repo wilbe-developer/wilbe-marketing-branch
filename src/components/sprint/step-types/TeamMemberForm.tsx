@@ -24,6 +24,68 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
 }) => {
   const isMobile = useIsMobile();
 
+  // Get field labels and placeholders based on member type
+  const getFieldConfig = (field: keyof TeamMember) => {
+    if (memberType.toLowerCase() === "co-founder") {
+      switch(field) {
+        case "profile_description":
+          return {
+            label: "Why is this person essential to your venture?",
+            placeholder: "Describe their personal and professional strengths that make them critical to your venture's success."
+          };
+        case "employment_status":
+          return {
+            label: "What is their current commitment?",
+            placeholder: "Full-time/Part-time status and other current obligations"
+          };
+        case "trigger_points":
+          return {
+            label: "What are the trigger points for them going full-time?",
+            placeholder: "E.g., Securing funding, reaching X paying customers, etc."
+          };
+        case "relationship_description":
+          return {
+            label: "How do you know them?",
+            placeholder: "Describe your relationship and how long you've known each other"
+          };
+        default:
+          return {
+            label: "Name",
+            placeholder: "Name"
+          };
+      }
+    } else {
+      // Default labels for team members
+      switch(field) {
+        case "profile_description":
+          return {
+            label: "Profile",
+            placeholder: `Why is this ${memberType} essential to your venture? Describe their personal and professional strengths.`
+          };
+        case "employment_status":
+          return {
+            label: "Employment Status",
+            placeholder: "Full-time/Part-time status"
+          };
+        case "trigger_points":
+          return {
+            label: "Trigger Points",
+            placeholder: "Trigger points for going full-time"
+          };
+        case "relationship_description":
+          return {
+            label: "Working Relationship",
+            placeholder: "Describe how you work together"
+          };
+        default:
+          return {
+            label: "Name",
+            placeholder: "Name"
+          };
+      }
+    }
+  };
+
   return (
     <div className="space-y-4">
       {teamMembers.map((member, index) => (
@@ -53,10 +115,12 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
               />
             </div>
             <div className="space-y-1">
-              <label htmlFor={`profile-${index}`} className="text-sm font-medium">Profile</label>
+              <label htmlFor={`profile-${index}`} className="text-sm font-medium">
+                {getFieldConfig("profile_description").label}
+              </label>
               <Textarea
                 id={`profile-${index}`}
-                placeholder={`Why is this ${memberType} essential to your venture? Describe their personal and professional strengths.`}
+                placeholder={getFieldConfig("profile_description").placeholder}
                 value={member.profile_description}
                 onChange={(e) => onUpdate(index, 'profile_description', e.target.value)}
                 rows={isMobile ? 3 : 4}
@@ -64,20 +128,37 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
               />
             </div>
             <div className="space-y-1">
-              <label htmlFor={`status-${index}`} className="text-sm font-medium">Employment Status</label>
+              <label htmlFor={`relationship-${index}`} className="text-sm font-medium">
+                {getFieldConfig("relationship_description").label}
+              </label>
+              <Textarea
+                id={`relationship-${index}`}
+                placeholder={getFieldConfig("relationship_description").placeholder}
+                value={member.relationship_description || ''}
+                onChange={(e) => onUpdate(index, 'relationship_description', e.target.value)}
+                rows={isMobile ? 3 : 4}
+                className={isMobile ? "text-sm" : ""}
+              />
+            </div>
+            <div className="space-y-1">
+              <label htmlFor={`status-${index}`} className="text-sm font-medium">
+                {getFieldConfig("employment_status").label}
+              </label>
               <Input
                 id={`status-${index}`}
-                placeholder="Full-time/Part-time status"
+                placeholder={getFieldConfig("employment_status").placeholder}
                 value={member.employment_status}
                 onChange={(e) => onUpdate(index, 'employment_status', e.target.value)}
                 className={isMobile ? "h-9 text-sm" : ""}
               />
             </div>
             <div className="space-y-1">
-              <label htmlFor={`triggers-${index}`} className="text-sm font-medium">Trigger Points</label>
+              <label htmlFor={`triggers-${index}`} className="text-sm font-medium">
+                {getFieldConfig("trigger_points").label}
+              </label>
               <Input
                 id={`triggers-${index}`}
-                placeholder="Trigger points for going full-time"
+                placeholder={getFieldConfig("trigger_points").placeholder}
                 value={member.trigger_points || ''}
                 onChange={(e) => onUpdate(index, 'trigger_points', e.target.value)}
                 className={isMobile ? "h-9 text-sm" : ""}

@@ -46,7 +46,8 @@ export const useTeamTaskSave = () => {
         name: member.name || '',
         profile_description: member.profile_description || '',
         employment_status: member.employment_status || '',
-        trigger_points: member.trigger_points || ''
+        trigger_points: member.trigger_points || '',
+        relationship_description: member.relationship_description || ''
       }));
       
       console.log("Saving team members:", JSON.stringify(serializedTeamMembers));
@@ -105,7 +106,8 @@ export const useTeamTaskSave = () => {
           name: member.name,
           profile_description: member.profile_description,
           employment_status: member.employment_status,
-          trigger_points: member.trigger_points
+          trigger_points: member.trigger_points,
+          relationship_description: member.relationship_description
         }));
         
         // Insert team members to the database

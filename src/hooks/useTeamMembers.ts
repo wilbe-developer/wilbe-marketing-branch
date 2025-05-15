@@ -19,7 +19,8 @@ export const useTeamMembers = (savedAnswers?: Record<string, any> | null) => {
             name: member.name || '',
             profile_description: member.profile || member.profile_description || '',
             employment_status: member.employmentStatus || member.employment_status || '',
-            trigger_points: member.triggerPoints || member.trigger_points || ''
+            trigger_points: member.triggerPoints || member.trigger_points || '',
+            relationship_description: member.relationship_description || ''
           };
         }
         // Already in the correct format
@@ -28,7 +29,8 @@ export const useTeamMembers = (savedAnswers?: Record<string, any> | null) => {
           name: member.name || '',
           profile_description: member.profile_description || '',
           employment_status: member.employment_status || '',
-          trigger_points: member.trigger_points || ''
+          trigger_points: member.trigger_points || '',
+          relationship_description: member.relationship_description || ''
         };
       });
       
@@ -40,7 +42,8 @@ export const useTeamMembers = (savedAnswers?: Record<string, any> | null) => {
         name: '',
         profile_description: '',
         employment_status: '',
-        trigger_points: ''
+        trigger_points: '',
+        relationship_description: ''
       }]);
     }
   }, [savedAnswers]);

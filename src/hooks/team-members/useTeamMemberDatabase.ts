@@ -31,14 +31,23 @@ export const useTeamMemberDatabase = (
           // Check if the member is using the old format (profile, employmentStatus, triggerPoints)
           if ('profile' in member || 'employmentStatus' in member || 'triggerPoints' in member) {
             return {
+              id: member.id || crypto.randomUUID(),
               name: member.name,
               profile_description: member.profile || member.profile_description || '',
               employment_status: member.employmentStatus || member.employment_status || '',
-              trigger_points: member.triggerPoints || member.trigger_points || ''
+              trigger_points: member.triggerPoints || member.trigger_points || '',
+              relationship_description: member.relationship_description || ''
             };
           }
           // Already in the correct format
-          return member;
+          return {
+            id: member.id || crypto.randomUUID(),
+            name: member.name || '',
+            profile_description: member.profile_description || '',
+            employment_status: member.employment_status || '',
+            trigger_points: member.trigger_points || '',
+            relationship_description: member.relationship_description || ''
+          };
         });
         
         setTeamMembers(members);
@@ -64,10 +73,12 @@ export const useTeamMemberDatabase = (
         
         // Transform from database format to TeamMember format
         const loadedMembers = data.map(member => ({
+          id: member.id,
           name: member.name,
           profile_description: member.profile_description,
           employment_status: member.employment_status,
-          trigger_points: member.trigger_points || ''
+          trigger_points: member.trigger_points || '',
+          relationship_description: member.relationship_description || ''
         }));
         
         setTeamMembers(loadedMembers);
@@ -75,10 +86,12 @@ export const useTeamMemberDatabase = (
       } else if (!initialDataLoaded) {
         // If no team members found, and we haven't loaded any initial data yet, reset to default
         setTeamMembers([{ 
+          id: crypto.randomUUID(),
           name: '', 
           profile_description: '', 
           employment_status: '',
-          trigger_points: '' 
+          trigger_points: '',
+          relationship_description: ''
         }]);
         setInitialDataLoaded(true);
       }
@@ -136,7 +149,8 @@ export const useTeamMemberDatabase = (
             name: member.name,
             profile_description: member.profile_description,
             employment_status: member.employment_status,
-            trigger_points: member.trigger_points
+            trigger_points: member.trigger_points,
+            relationship_description: member.relationship_description
           });
 
         if (error) {

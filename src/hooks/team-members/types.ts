@@ -8,6 +8,7 @@ export interface TeamMember {
   profile_description: string;
   employment_status: string;
   trigger_points?: string | null;
+  relationship_description?: string | null;
 }
 
 // Helper function to ensure TeamMember objects are JSON serializable

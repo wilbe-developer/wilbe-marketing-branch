@@ -535,6 +535,7 @@ export type Database = {
           name: string
           owner_id: string
           profile_description: string
+          relationship_description: string | null
           trigger_points: string | null
           updated_at: string
           user_id: string
@@ -546,6 +547,7 @@ export type Database = {
           name: string
           owner_id: string
           profile_description: string
+          relationship_description?: string | null
           trigger_points?: string | null
           updated_at?: string
           user_id: string
@@ -557,6 +559,7 @@ export type Database = {
           name?: string
           owner_id?: string
           profile_description?: string
+          relationship_description?: string | null
           trigger_points?: string | null
           updated_at?: string
           user_id?: string
