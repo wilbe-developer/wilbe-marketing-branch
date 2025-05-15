@@ -8,7 +8,8 @@ import { toast } from "sonner";
 import { useSprintProfileQuickEdit } from "@/hooks/useSprintProfileQuickEdit";
 import { useSprintAnswers } from "@/hooks/useSprintAnswers";
 import { Card } from "@/components/ui/card";
-import StepBasedTaskLogic, { StepType, Step } from "../StepBasedTaskLogic";
+import StepBasedTaskLogic from "../StepBasedTaskLogic";
+import { Step, StepType } from "../StepBasedTaskLogic";
 
 interface IpDetailedTaskLogicProps {
   task: any;
@@ -128,7 +129,7 @@ const IpDetailedTaskLogic = ({
               </p>
               
               <div className="space-y-4">
-                <p className="font-medium">Have you begun conversations with the university's Technology Transfer Office?</p>
+                <p className="font-medium">Have you begun conversations with the Tech Transfer Office (TTO)?</p>
                 <RadioGroup value={ttoConversation} onValueChange={setTtoConversation} className="space-y-2">
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="yes" id="tto-yes" />
@@ -144,7 +145,7 @@ const IpDetailedTaskLogic = ({
               {ttoConversation === "yes" ? (
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="tto-details">Summarize your conversations with the TTO so far:</Label>
+                    <Label htmlFor="tto-details">Summarize conversation:</Label>
                     <Textarea 
                       id="tto-details" 
                       value={ttoConversationDetails} 
@@ -155,7 +156,7 @@ const IpDetailedTaskLogic = ({
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="licensing-terms">What are the preliminary licensing terms being discussed?</Label>
+                    <Label htmlFor="licensing-terms">Preliminary licensing terms (especially % equity) the TTO is expecting:</Label>
                     <Textarea 
                       id="licensing-terms" 
                       value={ttoLicensingTerms} 
@@ -167,7 +168,7 @@ const IpDetailedTaskLogic = ({
                 </div>
               ) : (
                 <div className="space-y-2">
-                  <Label htmlFor="tto-plans">Explain your current plans for engaging with the TTO:</Label>
+                  <Label htmlFor="tto-plans">What is your plan to approach the TTO?</Label>
                   <Textarea 
                     id="tto-plans" 
                     value={ttoPlans} 
@@ -224,32 +225,30 @@ const IpDetailedTaskLogic = ({
           content: (
             <div className="space-y-6">
               <Card className="p-4 bg-slate-50">
-                <h3 className="text-lg font-semibold mb-2">Understanding Technology Transfer Offices</h3>
+                <h3 className="text-lg font-semibold mb-2">Technology Transfer Office Strategies</h3>
                 <p className="text-sm text-slate-600 mb-4">
-                  TTOs are responsible for managing and commercializing a university's intellectual property. Here's what you need to know:
+                  When working with university TTOs, keep these key strategies in mind:
                 </p>
                 <ul className="list-disc pl-5 space-y-2 text-sm text-slate-600">
-                  <li><span className="font-medium">How TTOs think:</span> They aim to commercialize university research while generating revenue for the institution.</li>
-                  <li><span className="font-medium">IP ownership:</span> Determine if the university actually owns your IP by reviewing your employment contract and how/when the invention was created.</li>
-                  <li><span className="font-medium">Approach timing:</span> Engage early, but be prepared with a clear valuation argument.</li>
+                  <li><span className="font-medium">The TTO's mission:</span> TTOs aim to commercialize university research and generate revenue for the university.</li>
+                  <li><span className="font-medium">TTO incentives:</span> TTOs typically get paid when the license starts producing income, not when it's signed.</li>
                   <li><span className="font-medium">Founder mindset:</span> When talking to the TTO, you're no longer just a researcher or employee - you're a founder negotiating a business deal.</li>
-                  <li><span className="font-medium">Negotiation:</span> Nobody else can negotiate on your behalf. The terms you agree to will profoundly impact your company's future.</li>
-                  <li><span className="font-medium">Opportunity framing:</span> Position your startup as the best vehicle to bring the technology to market and generate returns for the university.</li>
+                  <li><span className="font-medium">The nuclear option:</span> Consider commercially developing technology adjacent to your research that doesn't use university IP.</li>
                 </ul>
               </Card>
               
               <Card className="p-4 bg-slate-50">
-                <h3 className="text-lg font-semibold mb-2">Negotiation Strategies</h3>
-                <p className="text-sm text-slate-600 mb-2">
-                  Here are some key strategies when negotiating with TTOs:
+                <h3 className="text-lg font-semibold mb-2">The Mother of All Tricks</h3>
+                <p className="text-sm text-slate-600 mb-4">
+                  The biggest problem startups face in TTO licensing:
                 </p>
                 <ul className="list-disc pl-5 space-y-2 text-sm text-slate-600">
-                  <li>Focus on future value, not past investment by the university</li>
-                  <li>Consider milestone-based payments rather than large equity stakes</li>
-                  <li>Distinguish between exclusive and non-exclusive licensing terms</li>
-                  <li>Prepare a market analysis showing the commercialization path</li>
-                  <li>Demonstrate your unique ability to bring this technology to market</li>
-                  <li>Remember you can walk away and develop alternative technologies</li>
+                  <li>TTOs often demand 5-10% equity in the company.</li>
+                  <li>Investors generally view this as a red flag and may pass on your company.</li>
+                  <li>Even 1% more dilution can materially impact founder outcomes.</li>
+                  <li><span className="font-medium">Solution:</span> Structure milestone-based cash payments instead of equity.</li>
+                  <li>Example: $1k at incorporation + $10k at $1m funding + $50k at exit/IPO.</li>
+                  <li>This is actually better for the TTO as most startups fail, but successful ones can generate meaningful returns.</li>
                 </ul>
               </Card>
             </div>
@@ -268,7 +267,7 @@ const IpDetailedTaskLogic = ({
               </p>
               
               <div className="space-y-4">
-                <p className="font-medium">Does your company own all the intellectual property it needs?</p>
+                <p className="font-medium">Do you own all the IP?</p>
                 <RadioGroup value={ownsAllIp} onValueChange={setOwnsAllIp} className="space-y-2">
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="yes" id="owns-ip-yes" />
@@ -283,7 +282,7 @@ const IpDetailedTaskLogic = ({
               
               {ownsAllIp === "yes" ? (
                 <div className="space-y-4">
-                  <p className="font-medium">Have patents been filed for your key innovations?</p>
+                  <p className="font-medium">Have you filed patents?</p>
                   <RadioGroup value={patentsFiled} onValueChange={setPatentsFiled} className="space-y-2">
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="yes" id="patents-yes" />
@@ -310,7 +309,7 @@ const IpDetailedTaskLogic = ({
                 </div>
               ) : (
                 <div className="space-y-2">
-                  <Label htmlFor="ip-ownership-status">Explain the current status of your IP ownership:</Label>
+                  <Label htmlFor="ip-ownership-status">Who currently owns the IP? What's your plan to secure rights to use it?</Label>
                   <Textarea 
                     id="ip-ownership-status" 
                     value={ipOwnershipStatus} 
@@ -369,28 +368,26 @@ const IpDetailedTaskLogic = ({
               <Card className="p-4 bg-slate-50">
                 <h3 className="text-lg font-semibold mb-2">Understanding IP Protection Options</h3>
                 <p className="text-sm text-slate-600 mb-4">
-                  Different types of IP protection serve different purposes. Consider your options:
+                  Different types of IP protection serve different purposes:
                 </p>
                 <ul className="list-disc pl-5 space-y-2 text-sm text-slate-600">
-                  <li><span className="font-medium">Patents:</span> Protect novel, non-obvious inventions for 20 years, but require public disclosure.</li>
-                  <li><span className="font-medium">Trade secrets:</span> Can potentially last indefinitely but offer no protection if discovered independently.</li>
-                  <li><span className="font-medium">Copyrights:</span> Protect creative expressions (software code, content) for decades.</li>
-                  <li><span className="font-medium">Trademarks:</span> Protect brand identifiers indefinitely with proper maintenance.</li>
+                  <li><span className="font-medium">Patents:</span> Protect novel, non-obvious inventions for 20 years. Requires detailed public disclosure.</li>
+                  <li><span className="font-medium">Trade secrets:</span> Protected indefinitely, but must remain secret. No protection if reverse-engineered.</li>
+                  <li><span className="font-medium">Copyrights:</span> Protect creative works (like software) automatically, but not the underlying ideas.</li>
+                  <li><span className="font-medium">Trademarks:</span> Protect your brand identity and prevent customer confusion.</li>
                 </ul>
               </Card>
               
               <Card className="p-4 bg-slate-50">
-                <h3 className="text-lg font-semibold mb-2">Building an IP Strategy</h3>
+                <h3 className="text-lg font-semibold mb-2">Critical IP Mistakes to Avoid</h3>
                 <p className="text-sm text-slate-600 mb-2">
-                  Consider these elements when developing your IP strategy:
+                  Common pitfalls that can undermine your IP strategy:
                 </p>
                 <ul className="list-disc pl-5 space-y-2 text-sm text-slate-600">
-                  <li>Focus on protecting what provides your competitive advantage</li>
-                  <li>Balance cost of protection against the value of the IP</li>
-                  <li>Consider geographic markets where protection is most important</li>
-                  <li>Develop a timeline for filing patents based on development progress</li>
-                  <li>Implement internal processes to document innovations and maintain trade secrets</li>
-                  <li>Create clear IP ownership agreements with all employees, contractors, and partners</li>
+                  <li><span className="font-medium">Unclear ownership:</span> Always use clear contracts with employees/contractors specifying that the company owns all IP they create.</li>
+                  <li><span className="font-medium">Public disclosure:</span> In most countries, publicly disclosing your invention before filing can eliminate patent rights.</li>
+                  <li><span className="font-medium">Inadequate documentation:</span> Keep detailed records of invention development with dates and signatures.</li>
+                  <li><span className="font-medium">Ignoring international markets:</span> File in all countries where you plan to operate or have competitors.</li>
                 </ul>
               </Card>
             </div>
