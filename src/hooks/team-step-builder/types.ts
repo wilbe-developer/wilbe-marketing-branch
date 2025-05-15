@@ -15,7 +15,8 @@ export type StepContextType =
   | "company"
   | "company_reason"
   | "incorporation"
-  | "team";
+  | "team"
+  | "ip";
 
 export type StepContext = {
   type: StepContextType;

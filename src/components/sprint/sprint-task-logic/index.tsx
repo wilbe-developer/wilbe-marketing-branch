@@ -1,4 +1,5 @@
 
 import { SprintTaskLogicRouter } from "./SprintTaskLogicRouter";
+import IPTaskLogic from "./IPTaskLogic";
 
-export { SprintTaskLogicRouter };
+export { SprintTaskLogicRouter, IPTaskLogic };
