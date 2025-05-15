@@ -10,6 +10,12 @@ export const useTeamTaskState = (task: any, sprintProfile: any) => {
   const [uploadedFileId, setUploadedFileId] = useState<string | undefined>(undefined);
   const [hiringPlanStep, setHiringPlanStep] = useState<'download' | 'upload'>('download');
   
+  // New solo founder specific fields
+  const [missingSkills, setMissingSkills] = useState<string>('');
+  const [skillsJustification, setSkillsJustification] = useState<string>('');
+  const [hireProfile, setHireProfile] = useState<string>('');
+  const [fullTimeTrigger, setFullTimeTrigger] = useState<string>('');
+  
   // Company reasons
   const [companyReasons, setCompanyReasons] = useState<string[]>([]);
   
@@ -39,6 +45,12 @@ export const useTeamTaskState = (task: any, sprintProfile: any) => {
       if (answers.company_reasons) setCompanyReasons(answers.company_reasons);
       if (answers.file_id) setUploadedFileId(answers.file_id);
       
+      // Load solo founder fields
+      if (answers.missing_skills) setMissingSkills(answers.missing_skills);
+      if (answers.skills_justification) setSkillsJustification(answers.skills_justification);
+      if (answers.hire_profile) setHireProfile(answers.hire_profile);
+      if (answers.full_time_trigger) setFullTimeTrigger(answers.full_time_trigger);
+      
       // Load incorporation data
       if (answers.company_formation_date) setCompanyFormationDate(answers.company_formation_date);
       if (answers.company_formation_location) setCompanyFormationLocation(answers.company_formation_location);
@@ -63,6 +75,16 @@ export const useTeamTaskState = (task: any, sprintProfile: any) => {
     setHiringPlanStep,
     teamStatus,
     isIncorporated,
+    
+    // Solo founder fields
+    missingSkills,
+    setMissingSkills,
+    skillsJustification,
+    setSkillsJustification,
+    hireProfile,
+    setHireProfile,
+    fullTimeTrigger,
+    setFullTimeTrigger,
     
     // Company reasons
     companyReasons,

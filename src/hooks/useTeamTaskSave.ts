@@ -16,6 +16,12 @@ export const useTeamTaskSave = () => {
     uploadedFileId?: string,
     companyReasons?: string[],
     
+    // Solo founder fields
+    missingSkills?: string,
+    skillsJustification?: string,
+    hireProfile?: string,
+    fullTimeTrigger?: string,
+    
     // Incorporation data
     companyFormationDate?: string,
     companyFormationLocation?: string,
@@ -54,6 +60,12 @@ export const useTeamTaskSave = () => {
           team_members: serializedTeamMembers,
           needed_skills: neededSkills,
           company_reasons: companyReasons,
+          
+          // Solo founder fields
+          missing_skills: missingSkills,
+          skills_justification: skillsJustification,
+          hire_profile: hireProfile,
+          full_time_trigger: fullTimeTrigger,
           
           // Incorporation data
           company_formation_date: companyFormationDate,

@@ -39,10 +39,18 @@ export const useTeamStepBuilder = (props: any): EnhancedStep[] => {
     props.neededSkills,
     props.uploadedFileId,
     props.hiringPlanStep,
+    props.missingSkills || "",
+    props.skillsJustification || "",
+    props.hireProfile || "",
+    props.fullTimeTrigger || "",
     props.onTeamMemberAdd,
     props.onTeamMemberRemove,
     props.onTeamMemberUpdate,
     props.onSkillsChange,
+    props.onMissingSkillsChange || ((s: string) => {}),
+    props.onSkillsJustificationChange || ((s: string) => {}),
+    props.onHireProfileChange || ((s: string) => {}),
+    props.onFullTimeTriggerChange || ((s: string) => {}),
     props.onFileUpload,
     props.onHiringPlanStepChange
   );

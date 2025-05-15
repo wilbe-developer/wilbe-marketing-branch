@@ -28,6 +28,16 @@ export const useTeamTaskData = (task: any, sprintProfile: any) => {
     teamStatus,
     isIncorporated,
     
+    // Solo founder fields
+    missingSkills,
+    setMissingSkills,
+    skillsJustification,
+    setSkillsJustification,
+    hireProfile,
+    setHireProfile,
+    fullTimeTrigger,
+    setFullTimeTrigger,
+    
     // Company reasons
     companyReasons,
     setCompanyReasons,
@@ -71,6 +81,12 @@ export const useTeamTaskData = (task: any, sprintProfile: any) => {
     hiringPlanStep,
     companyReasons,
     
+    // Solo founder fields
+    missingSkills,
+    skillsJustification,
+    hireProfile,
+    fullTimeTrigger,
+    
     // Incorporation data
     companyFormationDate,
     companyFormationLocation,
@@ -105,6 +121,10 @@ export const useTeamTaskData = (task: any, sprintProfile: any) => {
       }
     },
     onSkillsChange: setNeededSkills,
+    onMissingSkillsChange: setMissingSkills,
+    onSkillsJustificationChange: setSkillsJustification,
+    onHireProfileChange: setHireProfile,
+    onFullTimeTriggerChange: setFullTimeTrigger,
     onFileUpload: setUploadedFileId,
     onHiringPlanStepChange: setHiringPlanStep,
     onCompanyReasonsChange: setCompanyReasons,
@@ -149,6 +169,12 @@ export const useTeamTaskData = (task: any, sprintProfile: any) => {
         neededSkills,
         uploadedFileId,
         companyReasons,
+        
+        // Solo founder fields
+        missingSkills,
+        skillsJustification,
+        hireProfile,
+        fullTimeTrigger,
         
         // Incorporation data
         companyFormationDate,
