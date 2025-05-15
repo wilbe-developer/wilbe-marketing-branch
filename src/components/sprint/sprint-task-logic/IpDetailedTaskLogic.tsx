@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { useSprintProfileQuickEdit } from "@/hooks/useSprintProfileQuickEdit";
 import { useSprintAnswers } from "@/hooks/useSprintAnswers";
 import { Card } from "@/components/ui/card";
-import StepBasedTaskLogic from "../StepBasedTaskLogic";
+import StepBasedTaskLogic, { StepType, Step } from "../StepBasedTaskLogic";
 
 interface IpDetailedTaskLogicProps {
   task: any;
@@ -120,7 +120,7 @@ const IpDetailedTaskLogic = ({
       // University IP path
       return [
         {
-          type: "content",
+          type: "content" as StepType,
           content: (
             <div className="space-y-6">
               <p className="text-sm text-slate-600">
@@ -181,7 +181,7 @@ const IpDetailedTaskLogic = ({
           )
         },
         {
-          type: "content",
+          type: "content" as StepType,
           content: (
             <div className="space-y-6">
               <div className="space-y-2">
@@ -220,7 +220,7 @@ const IpDetailedTaskLogic = ({
           )
         },
         {
-          type: "content",
+          type: "content" as StepType,
           content: (
             <div className="space-y-6">
               <Card className="p-4 bg-slate-50">
@@ -260,7 +260,7 @@ const IpDetailedTaskLogic = ({
       // Non-university IP path
       return [
         {
-          type: "content",
+          type: "content" as StepType,
           content: (
             <div className="space-y-6">
               <p className="text-sm text-slate-600">
@@ -324,7 +324,7 @@ const IpDetailedTaskLogic = ({
           )
         },
         {
-          type: "content",
+          type: "content" as StepType,
           content: (
             <div className="space-y-6">
               <div className="space-y-2">
@@ -363,7 +363,7 @@ const IpDetailedTaskLogic = ({
           )
         },
         {
-          type: "content",
+          type: "content" as StepType,
           content: (
             <div className="space-y-6">
               <Card className="p-4 bg-slate-50">
