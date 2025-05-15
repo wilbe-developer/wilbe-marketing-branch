@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,12 +8,13 @@ import ContentStep from "./step-types/ContentStep";
 import UploadStep from "./step-types/UploadStep";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { StepContext, StepContextType } from "@/hooks/team-step-builder/types";
+import { IPStepContext } from "@/hooks/team-step-builder/ip-types";
 
 export type StepType = "question" | "content" | "upload";
 
 export interface Step {
   type: StepType;
-  context?: StepContextType;
+  context?: StepContextType | IPStepContext;
   question?: string;
   content?: string | React.ReactNode | (string | React.ReactNode)[];
   options?: Array<{
@@ -61,9 +61,9 @@ const StepBasedTaskLogic: React.FC<StepBasedTaskLogicProps> = ({
   // Call onStepChange when the current step changes
   React.useEffect(() => {
     if (onStepChange) {
-      // Convert StepContextType to StepContext object if it exists
+      // Convert context to StepContext object if it exists
       const contextObject = steps[currentStep]?.context 
-        ? { type: steps[currentStep].context as StepContextType } 
+        ? { type: steps[currentStep].context } 
         : undefined;
       
       onStepChange(currentStep, contextObject);
