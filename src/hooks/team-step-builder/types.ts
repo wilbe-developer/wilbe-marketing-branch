@@ -1,13 +1,12 @@
 
 import { ReactNode } from "react";
 import { TeamMember } from "../team-members/types";
-import { IPStepContext } from "./ip-types";
 
 export interface EnhancedStep {
   type: "content" | "form";
   title?: string;
   description?: string;
-  context?: StepContextType | IPStepContext;
+  context?: StepContextType;
   content: ReactNode[] | ReactNode;
   hidden?: boolean;
 }
@@ -19,7 +18,6 @@ export type StepContextType =
   | "team";
 
 export type StepContext = {
-  type: StepContextType | IPStepContext;
+  type: StepContextType;
   data?: any;
 };
-

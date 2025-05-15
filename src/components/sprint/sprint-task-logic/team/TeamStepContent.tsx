@@ -3,7 +3,8 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import StepBasedTaskLogic, { Step } from "../../StepBasedTaskLogic";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { StepContext, EnhancedStep } from "@/hooks/team-step-builder/types";
+import { StepContext } from "@/hooks/useTeamStepBuilder";
+import { EnhancedStep } from "@/hooks/team-step-builder/types";
 
 interface TeamStepContentProps {
   steps: EnhancedStep[];
