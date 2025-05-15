@@ -21,49 +21,16 @@ const IPStepContent: React.FC<IPStepContentProps> = ({
 }) => {
   const isMobile = useIsMobile();
 
-  // Convert EnhancedStep to Step with proper type conversion
+  // Safely convert EnhancedStep to Step with proper type handling
   const stepBasedTasks: Step[] = steps.map(step => {
-    // Convert form types to question types for StepBasedTaskLogic
+    // For form types, convert to question types for StepBasedTaskLogic
     if (step.type === 'form') {
-      // Extract question from content if it exists
-      let question = '';
-      let options: Array<{ label: string; value: string }> = [];
-      
-      // Try to extract question from h3 elements in the content
-      if (React.isValidElement(step.content)) {
-        const content = step.content as React.ReactElement;
-        
-        // Look for h3 elements in the content
-        React.Children.forEach(content.props.children, (child) => {
-          if (React.isValidElement(child) && child.type === 'h3') {
-            question = child.props.children;
-          }
-          
-          // Look for radio inputs to extract options
-          if (React.isValidElement(child) && child.props.className?.includes('flex space-x-4')) {
-            React.Children.forEach(child.props.children, (radioLabel) => {
-              if (React.isValidElement(radioLabel) && radioLabel.props.children) {
-                const radioInput = radioLabel.props.children[0];
-                const radioText = radioLabel.props.children[1];
-                
-                if (radioInput && radioText) {
-                  options.push({
-                    label: radioText.props?.children || '',
-                    value: radioInput.props?.value || ''
-                  });
-                }
-              }
-            });
-          }
-        });
-      }
-      
       return {
         type: 'question',
         content: step.content,
         context: step.context,
-        question: question || step.title || '',
-        options: options,
+        question: step.title || '',
+        options: [],  // Will be populated if needed during rendering
         uploads: [],
         action: ''
       };
@@ -74,7 +41,7 @@ const IPStepContent: React.FC<IPStepContentProps> = ({
       type: step.type,
       content: step.content,
       context: step.context,
-      question: '',
+      question: step.title || '',
       options: [],
       uploads: [],
       action: ''
