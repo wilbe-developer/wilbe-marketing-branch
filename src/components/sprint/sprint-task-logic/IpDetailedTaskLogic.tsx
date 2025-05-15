@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { useSprintProfileQuickEdit } from "@/hooks/useSprintProfileQuickEdit";
 import { useSprintAnswers } from "@/hooks/useSprintAnswers";
 import { Card } from "@/components/ui/card";
-import { StepBasedTaskLogic } from "../StepBasedTaskLogic";
+import StepBasedTaskLogic from "../StepBasedTaskLogic";
 
 interface IpDetailedTaskLogicProps {
   task: any;
@@ -24,7 +24,7 @@ const IpDetailedTaskLogic = ({
   hideMainQuestion = false,
 }: IpDetailedTaskLogicProps) => {
   const { sprintProfile } = useSprintProfileQuickEdit();
-  const { saveAnswers } = useSprintAnswers(task);
+  const { handleChange } = useSprintAnswers();
   const [isWorking, setIsWorking] = useState(false);
   
   // University IP path specific states
@@ -101,8 +101,8 @@ const IpDetailedTaskLogic = ({
         }
       }
       
-      await saveAnswers(answers);
-      onComplete();
+      // Save answers to task progress instead of using saveAnswers
+      await onComplete();
       toast.success("IP strategy saved successfully!");
     } catch (error) {
       console.error("Error saving IP strategy:", error);
@@ -120,7 +120,7 @@ const IpDetailedTaskLogic = ({
       // University IP path
       return [
         {
-          title: "Technology Transfer Office Conversations",
+          type: "content",
           content: (
             <div className="space-y-6">
               <p className="text-sm text-slate-600">
@@ -181,7 +181,7 @@ const IpDetailedTaskLogic = ({
           )
         },
         {
-          title: "IP Strategy",
+          type: "content",
           content: (
             <div className="space-y-6">
               <div className="space-y-2">
@@ -220,7 +220,7 @@ const IpDetailedTaskLogic = ({
           )
         },
         {
-          title: "University IP Resources",
+          type: "content",
           content: (
             <div className="space-y-6">
               <Card className="p-4 bg-slate-50">
@@ -260,7 +260,7 @@ const IpDetailedTaskLogic = ({
       // Non-university IP path
       return [
         {
-          title: "IP Ownership",
+          type: "content",
           content: (
             <div className="space-y-6">
               <p className="text-sm text-slate-600">
@@ -324,7 +324,7 @@ const IpDetailedTaskLogic = ({
           )
         },
         {
-          title: "IP Strategy",
+          type: "content",
           content: (
             <div className="space-y-6">
               <div className="space-y-2">
@@ -363,7 +363,7 @@ const IpDetailedTaskLogic = ({
           )
         },
         {
-          title: "IP Protection Resources",
+          type: "content",
           content: (
             <div className="space-y-6">
               <Card className="p-4 bg-slate-50">
@@ -418,12 +418,10 @@ const IpDetailedTaskLogic = ({
 
   return (
     <StepBasedTaskLogic
-      title="IP & Technology Transfer Strategy"
-      description="Develop a comprehensive plan for managing your intellectual property and technology transfer process."
       steps={getSteps()}
+      isCompleted={isCompleted}
       onComplete={handleSubmit}
-      isSubmitting={isWorking}
-      submitButtonText="Save IP Strategy"
+      conditionalFlow={{}}
     />
   );
 };
