@@ -1,7 +1,6 @@
 
 import React from "react";
 import TeamTaskLogic from "./TeamTaskLogic";
-import IPTaskLogic from "./IPTaskLogic";
 import { SprintProfileShowOrAsk } from "../SprintProfileShowOrAsk";
 
 export const SprintTaskLogicRouter = ({
@@ -19,16 +18,6 @@ export const SprintTaskLogicRouter = ({
     case "Team Profile":
       return (
         <TeamTaskLogic
-          task={task}
-          isCompleted={isCompleted}
-          onComplete={onComplete}
-          hideMainQuestion={true}
-        />
-      );
-      
-    case "IP & Technology Transfer":
-      return (
-        <IPTaskLogic
           task={task}
           isCompleted={isCompleted}
           onComplete={onComplete}
