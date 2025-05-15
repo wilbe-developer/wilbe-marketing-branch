@@ -1,7 +1,6 @@
-
 import React from "react";
 import { EnhancedStep } from "./types";
-import { FileUploader } from "@/components/sprint/FileUploader";
+import FileUploader from "@/components/sprint/FileUploader";
 
 export const getIPSteps = (
   universityIP: boolean | undefined,
