@@ -190,7 +190,8 @@ export const getIPSteps = (
               </button>
               <button 
                 onClick={() => onPatentsFiledChange(false)}
-                className={`px-4 py-2 rounded ${patentsFiled !== undefined && patentsFiled === false ? 'bg-brand-pink text-white' : 'bg-gray-100'}`}
+                // Fix: Remove the problematic comparison since we're in a context where patentsFiled is already truthy
+                className="px-4 py-2 rounded bg-gray-100"
               >
                 No
               </button>
