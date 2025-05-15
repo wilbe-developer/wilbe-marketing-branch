@@ -1,15 +1,5 @@
 
 import { ReactNode } from "react";
-import { StepContextType } from "@/hooks/team-step-builder/types";
-
-// Extend the StepContextType to include IP-specific context types
-export type IpStepContextType = StepContextType | 
-  "reliance" | 
-  "tto" | 
-  "ownership" | 
-  "patents" | 
-  "general" | 
-  "uni_specific";
 
 export interface EnhancedIpStep {
   type: "content" | "form" | "question" | "upload";
@@ -22,6 +12,14 @@ export interface EnhancedIpStep {
   uploads?: string[];
   hidden?: boolean;
 }
+
+export type IpStepContextType =
+  | "reliance"
+  | "tto"
+  | "ownership"
+  | "patents"
+  | "general"
+  | "uni_specific";
 
 export type IpStepContext = {
   type: IpStepContextType;

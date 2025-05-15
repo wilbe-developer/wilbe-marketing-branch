@@ -3,8 +3,8 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import StepBasedTaskLogic, { Step } from "../../StepBasedTaskLogic";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { IpStepContext, EnhancedIpStep } from "@/hooks/ip-step-builder/types";
-import { StepContext } from "@/hooks/team-step-builder/types";
+import { IpStepContext } from "@/hooks/ip-step-builder/types";
+import { EnhancedIpStep } from "@/hooks/ip-step-builder/types";
 
 interface IpStepContentProps {
   steps: EnhancedIpStep[];
@@ -27,8 +27,7 @@ const IpStepContent: React.FC<IpStepContentProps> = ({
   const stepBasedTasks: Step[] = steps.map(step => ({
     type: step.type === 'content' ? 'content' : 'question',
     content: step.content,
-    // Here we're using a type assertion to ensure the context is treated as compatible
-    context: step.context as any, // This is safe because we extended the type in our definition
+    context: step.context,
     question: step.question || '',
     options: step.options || [],
     uploads: step.uploads || [],
@@ -36,9 +35,9 @@ const IpStepContent: React.FC<IpStepContentProps> = ({
   }));
 
   // Handle answer selection to store context for step change
-  const handleEnhancedStepChange = (stepIndex: number, context?: StepContext) => {
+  const handleEnhancedStepChange = (stepIndex: number, context?: any) => {
     // Extract the value from the answer to enrich our context
-    const answer = context?.type === 'answer' ? context.data : undefined;
+    const answer = context?.answer;
     
     // Create an enhanced context with the answer data if available
     const enhancedContext = context?.type 
