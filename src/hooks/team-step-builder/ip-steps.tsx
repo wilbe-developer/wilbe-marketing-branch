@@ -55,7 +55,7 @@ export const getIPSteps = (
           <div className="flex gap-4 mt-2">
             <button 
               onClick={() => onPatentsFiledChange(true)}
-              className={`px-4 py-2 rounded ${patentsFiled === true ? 'bg-brand-pink text-white' : 'bg-gray-100'}`}
+              className={`px-4 py-2 rounded ${patentsFiled ? 'bg-brand-pink text-white' : 'bg-gray-100'}`}
             >
               Yes
             </button>
@@ -71,7 +71,7 @@ export const getIPSteps = (
     });
 
     // TTO engagement dependent questions
-    if (patentsFiled === true) {
+    if (patentsFiled) {
       steps.push({
         type: "form",
         context: "tto_status",
@@ -156,7 +156,7 @@ export const getIPSteps = (
           <div className="flex gap-4 mt-2">
             <button 
               onClick={() => onPatentsFiledChange(true)}
-              className={`px-4 py-2 rounded ${patentsFiled === true ? 'bg-brand-pink text-white' : 'bg-gray-100'}`}
+              className={`px-4 py-2 rounded ${patentsFiled ? 'bg-brand-pink text-white' : 'bg-gray-100'}`}
             >
               Yes
             </button>
@@ -172,9 +172,8 @@ export const getIPSteps = (
     });
 
     // IP ownership dependent questions
-    if (patentsFiled === true) {
-      // Patent status question - THIS IS WHERE THE ERROR IS OCCURRING
-      // We need to ensure we're not directly comparing true and false literal types
+    if (patentsFiled) {
+      // Patent status question
       steps.push({
         type: "form",
         context: "ip_status",
