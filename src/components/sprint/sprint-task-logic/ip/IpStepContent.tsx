@@ -5,6 +5,7 @@ import StepBasedTaskLogic, { Step } from "../../StepBasedTaskLogic";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { IpStepContext } from "@/hooks/ip-step-builder/types";
 import { EnhancedIpStep } from "@/hooks/ip-step-builder/types";
+import { StepContextType } from "@/hooks/team-step-builder/types";
 
 interface IpStepContentProps {
   steps: EnhancedIpStep[];
@@ -27,7 +28,8 @@ const IpStepContent: React.FC<IpStepContentProps> = ({
   const stepBasedTasks: Step[] = steps.map(step => ({
     type: step.type === 'content' ? 'content' : 'question',
     content: step.content,
-    context: step.context,
+    // Use type assertion to convert IpStepContextType to StepContextType
+    context: step.context as unknown as StepContextType,
     question: step.question || '',
     options: step.options || [],
     uploads: step.uploads || [],
