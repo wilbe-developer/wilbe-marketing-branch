@@ -61,7 +61,7 @@ export const getIPSteps = (
             </button>
             <button 
               onClick={() => onPatentsFiledChange(false)}
-              className={`px-4 py-2 rounded ${patentsFiled === false ? 'bg-brand-pink text-white' : 'bg-gray-100'}`}
+              className={`px-4 py-2 rounded ${patentsFiled !== undefined && patentsFiled === false ? 'bg-brand-pink text-white' : 'bg-gray-100'}`}
             >
               No
             </button>
@@ -70,7 +70,7 @@ export const getIPSteps = (
       ]
     });
 
-    // TTO engagement dependent questions
+    // TTO engagement dependent questions - Handle both true and undefined cases
     if (patentsFiled) {
       steps.push({
         type: "form",
@@ -101,7 +101,7 @@ export const getIPSteps = (
           </div>
         ]
       });
-    } else if (patentsFiled === false) {
+    } else if (patentsFiled !== undefined && patentsFiled === false) {
       steps.push({
         type: "form",
         context: "tto_status",
@@ -162,7 +162,7 @@ export const getIPSteps = (
             </button>
             <button 
               onClick={() => onPatentsFiledChange(false)}
-              className={`px-4 py-2 rounded ${patentsFiled === false ? 'bg-brand-pink text-white' : 'bg-gray-100'}`}
+              className={`px-4 py-2 rounded ${patentsFiled !== undefined && patentsFiled === false ? 'bg-brand-pink text-white' : 'bg-gray-100'}`}
             >
               No
             </button>
@@ -171,7 +171,7 @@ export const getIPSteps = (
       ]
     });
 
-    // IP ownership dependent questions
+    // IP ownership dependent questions - Handle undefined case for patentsFiled
     if (patentsFiled) {
       // Patent status question
       steps.push({
@@ -190,7 +190,7 @@ export const getIPSteps = (
               </button>
               <button 
                 onClick={() => onPatentsFiledChange(false)}
-                className={`px-4 py-2 rounded ${patentsFiled === false ? 'bg-brand-pink text-white' : 'bg-gray-100'}`}
+                className={`px-4 py-2 rounded ${patentsFiled !== undefined && patentsFiled === false ? 'bg-brand-pink text-white' : 'bg-gray-100'}`}
               >
                 No
               </button>
@@ -199,8 +199,8 @@ export const getIPSteps = (
         ]
       });
       
-      // Patents filed dependent actions
-      if (patentsFiled) {
+      // Boolean checks with proper undefined handling
+      if (patentsFiled === true) {
         steps.push({
           type: "content",
           context: "ip_status",
@@ -225,7 +225,7 @@ export const getIPSteps = (
             </div>
           ]
         });
-      } else if (patentsFiled === false) {
+      } else if (patentsFiled !== undefined && patentsFiled === false) {
         steps.push({
           type: "form",
           context: "ip_status",
@@ -246,7 +246,7 @@ export const getIPSteps = (
           ]
         });
       }
-    } else if (patentsFiled === false) {
+    } else if (patentsFiled !== undefined && patentsFiled === false) {
       steps.push({
         type: "form",
         context: "ip_status",
