@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { SprintTask, UserTaskProgress } from '@/types/sprint';
+import { Json } from '@/integrations/supabase/types';
 
 export function useSprintTasks() {
   const [tasksWithProgress, setTasksWithProgress] = useState<UserTaskProgress[]>([]);
@@ -28,13 +29,15 @@ export function useSprintTasks() {
       if (progressError) throw progressError;
 
       // Combine tasks with progress
-      const tasksWithUserProgress = tasks.map((task: SprintTask) => {
-        const progress = userProgress.find((p: any) => p.task_id === task.id);
+      const tasksWithUserProgress = tasks.map((task) => {
+        const progress = userProgress.find((p) => p.task_id === task.id);
         return {
           ...task,
+          // Ensure that options is properly typed as TaskOption[] | null
+          options: task.options as unknown as SprintTask['options'],
           progress: progress || null
         };
-      });
+      }) as UserTaskProgress[];
 
       return tasksWithUserProgress;
     }
@@ -68,6 +71,11 @@ export function useSprintTasks() {
         .maybeSingle();
 
       const completedAt = completed ? new Date().toISOString() : null;
+      const userId = (await supabase.auth.getUser()).data.user?.id;
+      
+      if (!userId) {
+        throw new Error("User not authenticated");
+      }
 
       if (existingProgress) {
         // Update existing progress
@@ -77,7 +85,7 @@ export function useSprintTasks() {
             completed,
             completed_at: completedAt,
             file_id: fileId !== undefined ? fileId : existingProgress.file_id,
-            answers: answers !== undefined ? answers : existingProgress.answers
+            answers: answers as Json
           })
           .eq('id', existingProgress.id)
           .select()
@@ -91,10 +99,11 @@ export function useSprintTasks() {
           .from('user_sprint_progress')
           .insert({
             task_id: taskId,
+            user_id: userId,
             completed,
             completed_at: completedAt,
             file_id: fileId,
-            answers
+            answers: answers as Json
           })
           .select()
           .single();
