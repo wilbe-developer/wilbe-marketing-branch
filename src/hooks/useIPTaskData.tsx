@@ -50,7 +50,7 @@ export const useIPTaskData = (task: any, sprintProfile: any) => {
         taskId: task.id,
         completed: true,
         fileId: uploadedFileId,
-        task_answers: answers
+        taskAnswers: answers // Changed from task_answers to taskAnswers
       });
       return true;
     } catch (error) {
