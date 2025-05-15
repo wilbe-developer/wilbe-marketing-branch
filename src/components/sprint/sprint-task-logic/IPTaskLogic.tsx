@@ -114,15 +114,13 @@ const IPTaskLogic: React.FC<IPTaskLogicProps> = ({
 
   return (
     <div className="space-y-6">
-      {!hideMainQuestion && (
-        <SprintProfileShowOrAsk
-          profileKey="university_ip"
-          label="Is your company reliant on something you've invented / created at a university?"
-          type="boolean"
-        >
-          {null}
-        </SprintProfileShowOrAsk>
-      )}
+      <SprintProfileShowOrAsk
+        profileKey="university_ip"
+        label="Is your company reliant on something you've invented / created at a university?"
+        type="boolean"
+      >
+        {null}
+      </SprintProfileShowOrAsk>
 
       <IPStepContent
         steps={ipSteps}

@@ -1,6 +1,10 @@
+
 import React from "react";
 import { EnhancedStep } from "./types";
 import FileUploader from "@/components/sprint/FileUploader";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 export const getIPSteps = (
   universityIP: boolean | undefined,
@@ -37,28 +41,20 @@ export const getIPSteps = (
           <div>
             <h3 className="text-lg font-medium mb-2">Have you begun conversations with the Tech Transfer Office (TTO)?</h3>
             <div className="flex space-x-4">
-              <label className="flex items-center space-x-2">
-                <input 
-                  type="radio" 
-                  name="ttoEngaged" 
-                  value="yes" 
-                  checked={ttoEngaged === true}
-                  onChange={() => onTtoEngagedChange(true)}
-                  className="h-4 w-4"
-                />
-                <span>Yes</span>
-              </label>
-              <label className="flex items-center space-x-2">
-                <input 
-                  type="radio" 
-                  name="ttoEngaged" 
-                  value="no" 
-                  checked={ttoEngaged === false}
-                  onChange={() => onTtoEngagedChange(false)}
-                  className="h-4 w-4"
-                />
-                <span>No</span>
-              </label>
+              <RadioGroup
+                value={ttoEngaged === true ? "yes" : ttoEngaged === false ? "no" : undefined}
+                onValueChange={(val) => onTtoEngagedChange(val === "yes")}
+                className="flex space-x-4"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="yes" id="tto-yes" />
+                  <Label htmlFor="tto-yes">Yes</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="no" id="tto-no" />
+                  <Label htmlFor="tto-no">No</Label>
+                </div>
+              </RadioGroup>
             </div>
           </div>
         </div>
@@ -74,18 +70,18 @@ export const getIPSteps = (
         content: (
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium mb-2">Summarize the conversation with the TTO.</label>
-              <textarea 
-                className="w-full p-2 border rounded-md"
+              <Label className="block text-sm font-medium mb-2">Summarize the conversation with the TTO.</Label>
+              <Textarea 
+                className="w-full"
                 value={ttoConversation || ""}
                 onChange={(e) => onTtoConversationChange(e.target.value)}
                 rows={4}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">List the preliminary licensing terms (especially % equity) the TTO expects (agreed or mentioned).</label>
-              <textarea 
-                className="w-full p-2 border rounded-md"
+              <Label className="block text-sm font-medium mb-2">List the preliminary licensing terms (especially % equity) the TTO expects (agreed or mentioned).</Label>
+              <Textarea 
+                className="w-full"
                 value={ttoTerms || ""}
                 onChange={(e) => onTtoTermsChange(e.target.value)}
                 rows={4}
@@ -104,9 +100,9 @@ export const getIPSteps = (
         content: (
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium mb-2">Explain your current plans for engaging with the TTO.</label>
-              <textarea 
-                className="w-full p-2 border rounded-md"
+              <Label className="block text-sm font-medium mb-2">Explain your current plans for engaging with the TTO.</Label>
+              <Textarea 
+                className="w-full"
                 value={ttoPlans || ""}
                 onChange={(e) => onTtoPlansChange(e.target.value)}
                 rows={4}
@@ -127,30 +123,20 @@ export const getIPSteps = (
       <div className="space-y-6">
         <div>
           <h3 className="text-lg font-medium mb-2">Do you own all the IP?</h3>
-          <div className="flex space-x-4">
-            <label className="flex items-center space-x-2">
-              <input 
-                type="radio" 
-                name="ownAllIP" 
-                value="yes" 
-                checked={ownAllIP === true}
-                onChange={() => onOwnAllIPChange(true)}
-                className="h-4 w-4"
-              />
-              <span>Yes</span>
-            </label>
-            <label className="flex items-center space-x-2">
-              <input 
-                type="radio" 
-                name="ownAllIP" 
-                value="no" 
-                checked={ownAllIP === false}
-                onChange={() => onOwnAllIPChange(false)}
-                className="h-4 w-4"
-              />
-              <span>No</span>
-            </label>
-          </div>
+          <RadioGroup
+            value={ownAllIP === true ? "yes" : ownAllIP === false ? "no" : undefined}
+            onValueChange={(val) => onOwnAllIPChange(val === "yes")}
+            className="flex space-x-4"
+          >
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="yes" id="own-ip-yes" />
+              <Label htmlFor="own-ip-yes">Yes</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="no" id="own-ip-no" />
+              <Label htmlFor="own-ip-no">No</Label>
+            </div>
+          </RadioGroup>
         </div>
       </div>
     )
@@ -166,30 +152,20 @@ export const getIPSteps = (
         <div className="space-y-6">
           <div>
             <h3 className="text-lg font-medium mb-2">Have patents been filed?</h3>
-            <div className="flex space-x-4">
-              <label className="flex items-center space-x-2">
-                <input 
-                  type="radio" 
-                  name="patentsFiled" 
-                  value="yes" 
-                  checked={patentsFiled === true}
-                  onChange={() => onPatentsFiledChange(true)}
-                  className="h-4 w-4"
-                />
-                <span>Yes</span>
-              </label>
-              <label className="flex items-center space-x-2">
-                <input 
-                  type="radio" 
-                  name="patentsFiled" 
-                  value="no" 
-                  checked={patentsFiled === false}
-                  onChange={() => onPatentsFiledChange(false)}
-                  className="h-4 w-4"
-                />
-                <span>No</span>
-              </label>
-            </div>
+            <RadioGroup
+              value={patentsFiled === true ? "yes" : patentsFiled === false ? "no" : undefined}
+              onValueChange={(val) => onPatentsFiledChange(val === "yes")}
+              className="flex space-x-4"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="yes" id="patents-yes" />
+                <Label htmlFor="patents-yes">Yes</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="no" id="patents-no" />
+                <Label htmlFor="patents-no">No</Label>
+              </div>
+            </RadioGroup>
           </div>
         </div>
       )
@@ -204,7 +180,7 @@ export const getIPSteps = (
         content: (
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium mb-2">Upload your patent documents.</label>
+              <Label className="block text-sm font-medium mb-2">Upload your patent documents.</Label>
               <FileUploader 
                 onFileUploaded={onFileUpload}
                 isCompleted={!!patentDocuments}
@@ -223,9 +199,9 @@ export const getIPSteps = (
         content: (
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium mb-2">Explain your plans for filing patents.</label>
-              <textarea 
-                className="w-full p-2 border rounded-md"
+              <Label className="block text-sm font-medium mb-2">Explain your plans for filing patents.</Label>
+              <Textarea 
+                className="w-full"
                 value={patentPlans || ""}
                 onChange={(e) => onPatentPlansChange(e.target.value)}
                 rows={4}
@@ -245,9 +221,9 @@ export const getIPSteps = (
       content: (
         <div className="space-y-6">
           <div>
-            <label className="block text-sm font-medium mb-2">Explain the current status of IP ownership.</label>
-            <textarea 
-              className="w-full p-2 border rounded-md"
+            <Label className="block text-sm font-medium mb-2">Explain the current status of IP ownership.</Label>
+            <Textarea 
+              className="w-full"
               value={ipOwnershipStatus || ""}
               onChange={(e) => onIPOwnershipStatusChange(e.target.value)}
               rows={4}
