@@ -38,7 +38,7 @@ const IpStepContent: React.FC<IpStepContentProps> = ({
   // Handle answer selection to store context for step change
   const handleEnhancedStepChange = (stepIndex: number, context?: StepContext) => {
     // Extract the value from the answer to enrich our context
-    const answer = context?.answer;
+    const answer = context?.type === 'answer' ? context.data : undefined;
     
     // Create an enhanced context with the answer data if available
     const enhancedContext = context?.type 
