@@ -4,6 +4,7 @@ import DeckTaskLogic from "./DeckTaskLogic";
 import TeamTaskLogic from "./TeamTaskLogic";
 import ScienceTaskLogic from "./ScienceTaskLogic";
 import IpTaskLogic from "./IpTaskLogic";
+import IpDetailedTaskLogic from "./IpDetailedTaskLogic";
 import ProblemTaskLogic from "./ProblemTaskLogic";
 import CustomerTaskLogic from "./CustomerTaskLogic";
 import MarketTaskLogic from "./MarketTaskLogic";
@@ -74,6 +75,22 @@ export const SprintTaskLogicRouter = ({
           type="boolean"
         >
           <IpTaskLogic
+            task={task}
+            isCompleted={isCompleted}
+            onComplete={onComplete}
+            hideMainQuestion={true}
+          />
+        </SprintProfileShowOrAsk>
+      );
+      
+    case "IP & Technology Transfer":
+      return (
+        <SprintProfileShowOrAsk 
+          profileKey="university_ip" 
+          label="Is your company reliant on a university invention?"
+          type="boolean"
+        >
+          <IpDetailedTaskLogic
             task={task}
             isCompleted={isCompleted}
             onComplete={onComplete}
