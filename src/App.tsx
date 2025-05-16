@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -120,6 +119,7 @@ const App = () => (
                   {/* Admin routes with admin check */}
                   <Route element={<ProtectedRoute requireAdmin={true} />}>
                     <Route path={PATHS.ADMIN} element={<AdminPage />} />
+                    <Route path="/admin/task-builder/*" element={<TaskBuilderPage />} />
                     <Route path="/lead-generator" element={<LeadGeneratorPage />} />
                   </Route>
                 </Route>
