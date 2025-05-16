@@ -65,6 +65,13 @@ export const useFileUpload = () => {
       // Wait for upload to complete
       const response = await uploadPromise;
       
+      // Get current user ID
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        throw new Error("User not authenticated");
+      }
+      
       // Create entry in user_files table
       if (response && response.fileId) {
         const { data: fileData, error: fileError } = await supabase
@@ -73,7 +80,8 @@ export const useFileUpload = () => {
             file_name: file.name,
             drive_file_id: response.fileId,
             view_url: response.viewLink,
-            download_url: response.downloadLink
+            download_url: response.downloadLink,
+            user_id: user.id  // Add the user_id field
           })
           .select()
           .single();
