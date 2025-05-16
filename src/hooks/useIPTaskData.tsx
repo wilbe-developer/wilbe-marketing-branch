@@ -1,7 +1,6 @@
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useSprintTasks } from "./useSprintTasks";
-import { Step } from "@/components/sprint/StepBasedTaskLogic";
 
 export const useIPTaskData = (task: any, sprintProfile: any) => {
   const [uploadedFileId, setUploadedFileId] = useState<string | undefined>();

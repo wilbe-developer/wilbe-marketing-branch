@@ -4,6 +4,7 @@ import { useSprintProfileQuickEdit } from "@/hooks/useSprintProfileQuickEdit";
 import { SprintProfileShowOrAsk } from "@/components/sprint/SprintProfileShowOrAsk";
 import StepBasedTaskLogic, { Step } from "@/components/sprint/StepBasedTaskLogic";
 import { useIPTaskData } from "@/hooks/useIPTaskData";
+import { StepContext } from "@/hooks/team-step-builder/types";
 
 interface IPTaskLogicProps {
   task: any;
@@ -18,17 +19,18 @@ const IPTaskLogic: React.FC<IPTaskLogicProps> = ({
 }) => {
   const { sprintProfile } = useSprintProfileQuickEdit();
   const [steps, setSteps] = useState<Step[]>([]);
-  const [answers, setAnswers] = useState<Record<string, any>>({});
+  const [currentStepContext, setCurrentStepContext] = useState<StepContext | undefined>(undefined);
   
-  // Load existing answers if available
-  useEffect(() => {
-    if (task.progress?.task_answers) {
-      setAnswers(task.progress.task_answers);
-    }
-  }, [task.progress?.task_answers]);
+  // Use our data hook to handle the task data
+  const { 
+    uploadedFileId,
+    setUploadedFileId,
+    handleComplete
+  } = useIPTaskData(task, sprintProfile);
 
-  // Build steps based on the answers and profile
+  // Build steps based on the existing task answers and profile
   useEffect(() => {
+    const existingAnswers = task.progress?.task_answers || {};
     const hasUniversityIP = sprintProfile?.university_ip === true;
     const newSteps: Step[] = [];
     
@@ -40,27 +42,31 @@ const IPTaskLogic: React.FC<IPTaskLogicProps> = ({
         options: [
           { label: "Yes", value: "yes" },
           { label: "No", value: "no" }
-        ]
+        ],
+        context: "ip"
       });
 
       // Conditional follow-up based on TTO conversation answer
-      if (answers[0] === "yes") {
+      if (existingAnswers[0] === "yes") {
         newSteps.push({
           type: "question",
           question: "Summarize the conversation with the TTO.",
-          content: "Please provide details about your conversations with the Tech Transfer Office."
+          content: "Please provide details about your conversations with the Tech Transfer Office.",
+          context: "ip"
         });
         
         newSteps.push({
           type: "question",
           question: "List the preliminary licensing terms (especially % equity) the TTO expects (agreed or mentioned).",
-          content: "Please provide details about any licensing terms that have been discussed."
+          content: "Please provide details about any licensing terms that have been discussed.",
+          context: "ip"
         });
-      } else if (answers[0] === "no") {
+      } else if (existingAnswers[0] === "no") {
         newSteps.push({
           type: "question",
           question: "Explain your current plans for engaging with the TTO.",
-          content: "Please provide details about how you plan to engage with the Tech Transfer Office."
+          content: "Please provide details about how you plan to engage with the Tech Transfer Office.",
+          context: "ip"
         });
       }
     } else {
@@ -71,39 +77,44 @@ const IPTaskLogic: React.FC<IPTaskLogicProps> = ({
         options: [
           { label: "Yes", value: "yes" },
           { label: "No", value: "no" }
-        ]
+        ],
+        context: "ip"
       });
 
       // Follow-up based on IP ownership
-      if (answers[0] === "yes") {
+      if (existingAnswers[0] === "yes") {
         newSteps.push({
           type: "question",
           question: "Have patents been filed?",
           options: [
             { label: "Yes", value: "yes" },
             { label: "No", value: "no" }
-          ]
+          ],
+          context: "ip"
         });
 
         // Follow-up based on patent filing
-        if (answers[1] === "yes") {
+        if (existingAnswers[1] === "yes") {
           newSteps.push({
             type: "upload",
             action: "Upload your patent documents.",
-            uploads: ["Patent documentation"]
+            uploads: ["Patent documentation"],
+            context: "ip"
           });
-        } else if (answers[1] === "no") {
+        } else if (existingAnswers[1] === "no") {
           newSteps.push({
             type: "question",
             question: "Explain your plans for filing patents.",
-            content: "Please provide details about your patent filing strategy."
+            content: "Please provide details about your patent filing strategy.",
+            context: "ip"
           });
         }
-      } else if (answers[0] === "no") {
+      } else if (existingAnswers[0] === "no") {
         newSteps.push({
           type: "question",
           question: "Explain the current status of IP ownership.",
-          content: "Please provide details about who owns the IP and any arrangements in place."
+          content: "Please provide details about who owns the IP and any arrangements in place.",
+          context: "ip"
         });
       }
     }
@@ -118,7 +129,8 @@ const IPTaskLogic: React.FC<IPTaskLogicProps> = ({
         "• Why this IP is relevant to the company.",
         "• Raising funding for a science company without foundational IP.",
         "• Defining an IP strategy that matches market validation and strategy."
-      ]
+      ],
+      context: "ip"
     });
 
     // Add University-IP Deep-Dive panel for those with university IP
@@ -136,12 +148,13 @@ const IPTaskLogic: React.FC<IPTaskLogicProps> = ({
           "• Why this is the best opportunity to evolve as a founder.",
           "• The mother of all tricks: do not start negotiations until all the ducks are in a row.",
           "• The nuclear option: can you build without this IP?"
-        ]
+        ],
+        context: "ip"
       });
     }
 
     setSteps(newSteps);
-  }, [sprintProfile, answers]);
+  }, [sprintProfile, task.progress?.task_answers]);
 
   // Create a proper conditional flow configuration
   const buildConditionalFlow = () => {
@@ -156,33 +169,19 @@ const IPTaskLogic: React.FC<IPTaskLogicProps> = ({
     return conditionalFlow;
   };
 
-  // Handle answer updates
-  const handleAnswerUpdate = (stepIndex: number, value: string) => {
-    setAnswers(prev => ({
-      ...prev,
-      [stepIndex]: value
-    }));
+  // Handle step changes
+  const handleStepChange = (stepIndex: number, context?: StepContext) => {
+    setCurrentStepContext(context);
   };
 
-  // Save answers and complete the task
-  const handleComplete = async (fileId?: string) => {
-    try {
-      await updateProgress.mutateAsync({
-        taskId: task.id,
-        completed: true,
-        fileId,
-        taskAnswers: answers
-      });
+  // Wrap onComplete to use our handler with answers
+  const completeTask = async (fileId?: string) => {
+    const success = await handleComplete(task.progress?.task_answers || {}, fileId);
+    if (success) {
       onComplete(fileId);
-      return true;
-    } catch (error) {
-      console.error("Error saving IP task data:", error);
-      return false;
     }
+    return success;
   };
-
-  // Define the updateProgress variable
-  const { updateProgress } = useIPTaskData(task, sprintProfile);
 
   return (
     <div>
@@ -194,9 +193,9 @@ const IPTaskLogic: React.FC<IPTaskLogicProps> = ({
         <StepBasedTaskLogic
           steps={steps}
           isCompleted={isCompleted}
-          onComplete={handleComplete}
+          onComplete={completeTask}
           conditionalFlow={buildConditionalFlow()}
-          onAnswerSelect={handleAnswerUpdate}
+          onStepChange={handleStepChange}
         />
       </SprintProfileShowOrAsk>
     </div>
