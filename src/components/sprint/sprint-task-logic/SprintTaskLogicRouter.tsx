@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import TeamTaskLogic from "./TeamTaskLogic";
 import GenericTaskLogic from "../task-system/GenericTaskLogic";
@@ -7,6 +6,7 @@ import { getTaskDefinition } from "@/data/task-definitions";
 import { supabase } from "@/integrations/supabase/client";
 import { TaskDefinition } from "@/types/task-definition";
 import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
 
 export const SprintTaskLogicRouter = ({
   task,
@@ -30,28 +30,60 @@ export const SprintTaskLogicRouter = ({
           .from('task_definitions')
           .select('*')
           .eq('title', task.title)
-          .single();
+          .maybeSingle(); // Changed from single() to handle case when no task definition is found
           
-        if (error) {
+        if (error && error.code !== 'PGRST116') { // PGRST116 is the "not found" error code
           console.error('Error fetching task definition:', error);
-        } else if (data) {
+          throw error;
+        }
+        
+        if (data) {
+          console.log('Found task definition in database:', data.title);
           // Parse the JSON fields and ensure we handle non-string values
-          const parsedData = {
-            ...data,
-            steps: Array.isArray(data.steps) ? data.steps : JSON.parse(typeof data.steps === 'string' ? data.steps : JSON.stringify(data.steps)),
-            conditionalFlow: data.conditional_flow ? 
-              (typeof data.conditional_flow === 'object' ? data.conditional_flow : JSON.parse(typeof data.conditional_flow === 'string' ? data.conditional_flow : JSON.stringify(data.conditional_flow))) : 
-              {},
-            answerMapping: data.answer_mapping ? 
-              (typeof data.answer_mapping === 'object' ? data.answer_mapping : JSON.parse(typeof data.answer_mapping === 'string' ? data.answer_mapping : JSON.stringify(data.answer_mapping))) : 
-              {}
-          };
-          setDbTaskDefinition(parsedData);
+          try {
+            const parsedData = {
+              ...data,
+              steps: parseJsonField(data.steps),
+              conditionalFlow: parseJsonField(data.conditional_flow) || {},
+              answerMapping: parseJsonField(data.answer_mapping) || {}
+            };
+            
+            // Add profile options if present
+            if (data.profile_options) {
+              parsedData.profileOptions = parseJsonField(data.profile_options);
+            }
+            
+            setDbTaskDefinition(parsedData);
+          } catch (parseError) {
+            console.error('Failed to parse task definition fields:', parseError);
+            toast.error("There was an error loading this task. Please try again.");
+          }
+        } else {
+          console.log('No task definition found in database for:', task.title);
         }
       } catch (err) {
-        console.error('Failed to parse task definition:', err);
+        console.error('Failed to fetch task definition:', err);
       } finally {
         setIsLoading(false);
+      }
+    };
+    
+    // Helper function to parse JSON fields safely
+    const parseJsonField = (field: any): any => {
+      if (!field) return null;
+      
+      // If it's already an object, return it
+      if (typeof field === 'object' && !Array.isArray(field)) return field;
+      
+      // If it's an array, return it
+      if (Array.isArray(field)) return field;
+      
+      // Otherwise, try to parse it as JSON
+      try {
+        return JSON.parse(field);
+      } catch (e) {
+        console.warn('Could not parse field as JSON:', field);
+        return field;
       }
     };
     
@@ -75,6 +107,10 @@ export const SprintTaskLogicRouter = ({
   
   // First priority: Use database task definition if available
   if (dbTaskDefinition) {
+    console.log('Rendering task with database definition:', dbTaskDefinition.title);
+    console.log('Task has steps:', dbTaskDefinition.steps?.length || 0);
+    console.log('Task has conditional flow:', Object.keys(dbTaskDefinition.conditionalFlow || {}).length);
+    
     return (
       <GenericTaskLogic
         task={task}
@@ -88,6 +124,7 @@ export const SprintTaskLogicRouter = ({
   // Second priority: Use local JS task definition if available
   const localTaskDefinition = getTaskDefinition(task.title);
   if (localTaskDefinition) {
+    console.log('Rendering task with local definition:', localTaskDefinition.title);
     return (
       <GenericTaskLogic
         task={task}
@@ -99,6 +136,7 @@ export const SprintTaskLogicRouter = ({
   }
   
   // For backward compatibility, use existing task components
+  console.log('Falling back to specific task component for:', task.title);
   switch (task.title) {
     case "Develop Team Building Plan":
     case "Team Profile":

@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -106,6 +107,12 @@ const ConditionalFlowEditor: React.FC<ConditionalFlowEditorProps> = ({
     return steps[stepIndex].options;
   };
 
+  // Helper to ensure SelectItem always has a non-empty string value
+  const ensureValidValue = (value: any): string => {
+    if (value === undefined || value === null || value === '') return 'default_value';
+    return String(value);
+  };
+
   return (
     <div className="space-y-6">
       <Card>
@@ -138,7 +145,7 @@ const ConditionalFlowEditor: React.FC<ConditionalFlowEditorProps> = ({
                   </SelectTrigger>
                   <SelectContent>
                     {questionSteps.map((step, index) => (
-                      <SelectItem key={step.id} value={step.id}>
+                      <SelectItem key={step.id} value={ensureValidValue(step.id)}>
                         Step {steps.indexOf(step) + 1}: {step.question || step.id}
                       </SelectItem>
                     ))}
@@ -155,7 +162,7 @@ const ConditionalFlowEditor: React.FC<ConditionalFlowEditorProps> = ({
                   <SelectContent>
                     <SelectItem value="*">Any answer (*)</SelectItem>
                     {getSourceStepOptions(sourceStep).map((option: any) => (
-                      <SelectItem key={option.value} value={option.value}>
+                      <SelectItem key={ensureValidValue(option.value)} value={ensureValidValue(option.value)}>
                         {option.label} ({option.value})
                       </SelectItem>
                     ))}
@@ -171,7 +178,7 @@ const ConditionalFlowEditor: React.FC<ConditionalFlowEditorProps> = ({
                   </SelectTrigger>
                   <SelectContent>
                     {steps.map((step, index) => (
-                      <SelectItem key={step.id} value={step.id}>
+                      <SelectItem key={step.id} value={ensureValidValue(step.id)}>
                         Step {index + 1}: {step.question || step.content || step.action || step.id}
                       </SelectItem>
                     ))}
@@ -259,7 +266,7 @@ const ConditionalFlowEditor: React.FC<ConditionalFlowEditorProps> = ({
                   </SelectTrigger>
                   <SelectContent>
                     {steps.map((step, index) => (
-                      <SelectItem key={step.id} value={step.id}>
+                      <SelectItem key={step.id} value={ensureValidValue(step.id)}>
                         Step {index + 1}: {step.question || step.content || step.action || step.id}
                       </SelectItem>
                     ))}
