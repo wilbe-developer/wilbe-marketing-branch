@@ -38,9 +38,19 @@ export const useSprintTaskDefinitions = () => {
             let parsedDefinition: TaskDefinition;
             
             if (typeof item.definition === 'string') {
-              parsedDefinition = JSON.parse(item.definition);
+              parsedDefinition = JSON.parse(item.definition) as TaskDefinition;
             } else if (item.definition && typeof item.definition === 'object') {
-              parsedDefinition = item.definition as TaskDefinition;
+              // Add explicit type assertion with safety check
+              const definitionObj = item.definition as Record<string, any>;
+              parsedDefinition = {
+                taskName: definitionObj.taskName || item.name || "Unnamed Task",
+                steps: Array.isArray(definitionObj.steps) ? definitionObj.steps : [],
+                profileQuestions: Array.isArray(definitionObj.profileQuestions) 
+                  ? definitionObj.profileQuestions 
+                  : [],
+                // Copy any other properties
+                ...definitionObj
+              };
             } else {
               throw new Error("Invalid definition format");
             }
@@ -118,9 +128,19 @@ export const useSprintTaskDefinitions = () => {
       
       try {
         if (typeof data.definition === 'string') {
-          parsedDefinition = JSON.parse(data.definition);
+          parsedDefinition = JSON.parse(data.definition) as TaskDefinition;
         } else if (data.definition && typeof data.definition === 'object') {
-          parsedDefinition = data.definition as TaskDefinition;
+          // Add explicit type assertion with safety check
+          const definitionObj = data.definition as Record<string, any>;
+          parsedDefinition = {
+            taskName: definitionObj.taskName || data.name || "Unnamed Task",
+            steps: Array.isArray(definitionObj.steps) ? definitionObj.steps : [],
+            profileQuestions: Array.isArray(definitionObj.profileQuestions) 
+              ? definitionObj.profileQuestions 
+              : [],
+            // Copy any other properties
+            ...definitionObj
+          };
         } else {
           throw new Error("Invalid definition data format");
         }
@@ -217,9 +237,26 @@ export const useSprintTaskDefinitions = () => {
         
         // Parse definition if needed
         if (typeof data.definition === 'string') {
-          definition = JSON.parse(data.definition);
+          definition = JSON.parse(data.definition) as TaskDefinition;
+        } else if (data.definition && typeof data.definition === 'object') {
+          // Add explicit type assertion with safety check
+          const definitionObj = data.definition as Record<string, any>;
+          definition = {
+            taskName: definitionObj.taskName || data.name || "Unnamed Task",
+            steps: Array.isArray(definitionObj.steps) ? definitionObj.steps : [],
+            profileQuestions: Array.isArray(definitionObj.profileQuestions) 
+              ? definitionObj.profileQuestions 
+              : [],
+            // Copy any other properties
+            ...definitionObj
+          };
         } else {
-          definition = data.definition as TaskDefinition;
+          // Default minimal definition
+          definition = {
+            taskName: data.name || "Unnamed Task",
+            steps: [],
+            profileQuestions: []
+          };
         }
 
         return {
@@ -292,9 +329,26 @@ export const useSprintTaskDefinitions = () => {
         
         // Parse definition if needed
         if (typeof data.definition === 'string') {
-          definition = JSON.parse(data.definition);
+          definition = JSON.parse(data.definition) as TaskDefinition;
+        } else if (data.definition && typeof data.definition === 'object') {
+          // Add explicit type assertion with safety check
+          const definitionObj = data.definition as Record<string, any>;
+          definition = {
+            taskName: definitionObj.taskName || data.name || "Unnamed Task",
+            steps: Array.isArray(definitionObj.steps) ? definitionObj.steps : [],
+            profileQuestions: Array.isArray(definitionObj.profileQuestions) 
+              ? definitionObj.profileQuestions 
+              : [],
+            // Copy any other properties
+            ...definitionObj
+          };
         } else {
-          definition = data.definition as TaskDefinition;
+          // Default minimal definition
+          definition = {
+            taskName: data.name || "Unnamed Task",
+            steps: [],
+            profileQuestions: []
+          };
         }
 
         return {
