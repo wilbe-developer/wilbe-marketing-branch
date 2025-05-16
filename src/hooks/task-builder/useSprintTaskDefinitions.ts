@@ -30,20 +30,25 @@ export const useSprintTaskDefinitions = () => {
 
   // Fetch a single task definition by ID
   const fetchTaskDefinition = async (id: string) => {
-    const { data, error } = await supabase
-      .from("sprint_task_definitions")
-      .select("*")
-      .eq("id", id)
-      .single();
+    try {
+      const { data, error } = await supabase
+        .from("sprint_task_definitions")
+        .select("*")
+        .eq("id", id)
+        .single();
+          
+      if (error) {
+        throw new Error(`Error fetching task definition: ${error.message}`);
+      }
 
-    if (error) {
-      throw new Error(`Error fetching task definition: ${error.message}`);
+      return {
+        ...data,
+        definition: data.definition as unknown as TaskDefinition
+      } as SprintTaskDefinition;
+    } catch (error) {
+      console.error("Error fetching task definition:", error);
+      throw error; // Re-throw to be handled by the component
     }
-
-    return {
-      ...data,
-      definition: data.definition as unknown as TaskDefinition
-    } as SprintTaskDefinition;
   };
 
   // Create a new task definition

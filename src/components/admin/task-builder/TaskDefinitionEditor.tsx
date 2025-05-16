@@ -32,6 +32,7 @@ const TaskDefinitionEditor: React.FC = () => {
   } = useSprintTaskDefinitions();
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const [task, setTask] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<string>("basic");
   const [isSaving, setIsSaving] = useState<boolean>(false);
@@ -39,11 +40,16 @@ const TaskDefinitionEditor: React.FC = () => {
   useEffect(() => {
     const loadTask = async () => {
       setIsLoading(true);
+      setError(null);
+      
       try {
         if (taskId) {
+          console.log("Fetching task with ID:", taskId);
           const taskData = await fetchTaskDefinition(taskId);
+          console.log("Fetched task data:", taskData);
           setTask(taskData);
         } else {
+          console.log("Creating empty task");
           const emptyTask = createEmptyTaskDefinition();
           setTask({
             id: uuidv4(), // Temporary ID for new task
@@ -52,8 +58,9 @@ const TaskDefinitionEditor: React.FC = () => {
             updated_at: new Date().toISOString(),
           });
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error loading task:", error);
+        setError(error.message || "Failed to load task definition");
         toast.error("Failed to load task definition");
       } finally {
         setIsLoading(false);
@@ -192,6 +199,20 @@ const TaskDefinitionEditor: React.FC = () => {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
+        <span className="ml-2">Loading task definition...</span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center p-8">
+        <h2 className="text-2xl font-bold mb-4">Error Loading Task</h2>
+        <p className="text-red-500 mb-4">{error}</p>
+        <Button variant="outline" onClick={() => navigate("/admin/task-builder")}>
+          <ArrowLeft size={16} className="mr-2" />
+          Back to Task List
+        </Button>
       </div>
     );
   }
