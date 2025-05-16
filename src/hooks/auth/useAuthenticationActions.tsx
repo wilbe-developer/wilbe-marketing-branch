@@ -52,6 +52,96 @@ export const useAuthenticationActions = ({
     }
   };
 
+  // Login with email and password (for admins)
+  const loginWithPassword = async (email: string, password: string) => {
+    try {
+      setLoading(true);
+      
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+      
+      if (error) {
+        throw error;
+      }
+      
+      // Auth state change will handle session and user updates
+      toast({
+        title: "Login successful",
+        description: "You have been successfully logged in.",
+      });
+      
+      navigate(PATHS.HOME);
+    } catch (error) {
+      toast({
+        title: "Login failed",
+        description: error instanceof Error ? error.message : "Unknown error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Reset password function
+  const resetPassword = async (email: string) => {
+    try {
+      setLoading(true);
+      
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + PATHS.PROFILE,
+      });
+      
+      if (error) {
+        throw error;
+      }
+      
+      toast({
+        title: "Password reset email sent",
+        description: "Check your email for a password reset link.",
+      });
+      
+    } catch (error) {
+      toast({
+        title: "Failed to send password reset email",
+        description: error instanceof Error ? error.message : "Unknown error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Update password function
+  const updatePassword = async (newPassword: string) => {
+    try {
+      setLoading(true);
+      
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      });
+      
+      if (error) {
+        throw error;
+      }
+      
+      toast({
+        title: "Password updated",
+        description: "Your password has been successfully updated.",
+      });
+      
+    } catch (error) {
+      toast({
+        title: "Failed to update password",
+        description: error instanceof Error ? error.message : "Unknown error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Register function
   const register = async (userData: Partial<UserProfile>) => {
     try {
@@ -123,6 +213,9 @@ export const useAuthenticationActions = ({
 
   return {
     sendMagicLink,
+    loginWithPassword,
+    resetPassword,
+    updatePassword,
     register,
     logout
   };

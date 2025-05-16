@@ -15,6 +15,9 @@ interface AuthContextType {
   isAdmin: boolean;
   isApproved: boolean;
   sendMagicLink: (email: string) => Promise<void>;
+  loginWithPassword: (email: string, password: string) => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
+  updatePassword: (newPassword: string) => Promise<void>;
   register: (userData: Partial<UserProfile>) => Promise<void>;
   logout: () => void;
   updateProfile: (data: Partial<UserProfile>) => Promise<void>;
@@ -38,6 +41,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   
   const { 
     sendMagicLink, 
+    loginWithPassword,
+    resetPassword,
+    updatePassword,
     register, 
     logout, 
     updateProfile, 
@@ -115,6 +121,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isAdmin,
         isApproved,
         sendMagicLink,
+        loginWithPassword,
+        resetPassword,
+        updatePassword,
         register,
         logout,
         updateProfile,

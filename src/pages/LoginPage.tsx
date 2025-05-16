@@ -80,6 +80,12 @@ const LoginPage = () => {
           <div className="mt-2 p-4 bg-gray-50 rounded-md text-sm text-gray-600">
             <p>You'll receive an email with a login link. No password needed!</p>
           </div>
+          
+          <div className="mt-4 text-center text-xs text-gray-400">
+            <Link to="/admin-login" className="hover:underline">
+              Admin Login
+            </Link>
+          </div>
         </CardContent>
       </Card>
     </div>
