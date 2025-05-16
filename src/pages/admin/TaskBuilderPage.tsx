@@ -1,12 +1,19 @@
 
-import React, { Suspense } from "react";
+import React, { Suspense, useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import TaskDefinitionList from "@/components/admin/task-builder/TaskDefinitionList";
 import TaskDefinitionEditor from "@/components/admin/task-builder/TaskDefinitionEditor";
+import SimplifiedTaskEditor from "@/components/admin/task-builder/SimplifiedTaskEditor";
 import { ErrorBoundary } from "react-error-boundary";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
+import { 
+  Card, 
+  CardContent, 
+  CardHeader, 
+  CardTitle 
+} from "@/components/ui/card";
 
 // Error fallback component
 const ErrorFallback = ({ error, resetErrorBoundary }: { error: Error, resetErrorBoundary: () => void }) => {
@@ -42,6 +49,51 @@ const LoadingFallback = () => (
   </div>
 );
 
+// Editor wrapper component that allows switching between editor types
+const EditorWrapper = ({ simplified = false }) => {
+  const [useSimplifiedEditor, setUseSimplifiedEditor] = useState<boolean>(simplified);
+  const [editorKey, setEditorKey] = useState<number>(0);
+  
+  const toggleEditor = () => {
+    setUseSimplifiedEditor(prev => !prev);
+    setEditorKey(prev => prev + 1); // Force a complete remount
+  };
+  
+  return (
+    <ErrorBoundary FallbackComponent={ErrorFallback} resetKeys={[useSimplifiedEditor, editorKey]}>
+      <div className="mb-4">
+        <Card>
+          <CardHeader className="py-3">
+            <CardTitle className="flex items-center justify-between text-sm">
+              <span>Editor Type</span>
+              <Button 
+                size="sm" 
+                variant="outline" 
+                onClick={toggleEditor}
+              >
+                Switch to {useSimplifiedEditor ? "Advanced" : "Simplified"} Editor
+              </Button>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="py-3 text-sm text-gray-500">
+            {useSimplifiedEditor 
+              ? "You're using the simplified editor. It has fewer features but is more stable."
+              : "You're using the advanced editor with all features including drag-and-drop."
+            }
+          </CardContent>
+        </Card>
+      </div>
+      
+      <div key={editorKey}>
+        {useSimplifiedEditor 
+          ? <SimplifiedTaskEditor />
+          : <TaskDefinitionEditor />
+        }
+      </div>
+    </ErrorBoundary>
+  );
+};
+
 const TaskBuilderPage: React.FC = () => {
   return (
     <div className="container mx-auto py-6">
@@ -54,8 +106,10 @@ const TaskBuilderPage: React.FC = () => {
         <Suspense fallback={<LoadingFallback />}>
           <Routes>
             <Route path="/" element={<TaskDefinitionList />} />
-            <Route path="/edit/:taskId" element={<TaskDefinitionEditor />} />
-            <Route path="/new" element={<TaskDefinitionEditor />} />
+            <Route path="/edit/:taskId" element={<EditorWrapper simplified={false} />} />
+            <Route path="/simple/edit/:taskId" element={<EditorWrapper simplified={true} />} />
+            <Route path="/new" element={<EditorWrapper simplified={false} />} />
+            <Route path="/simple/new" element={<EditorWrapper simplified={true} />} />
             <Route path="*" element={<Navigate to="." />} />
           </Routes>
         </Suspense>
