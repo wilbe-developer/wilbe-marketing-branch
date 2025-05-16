@@ -5,7 +5,6 @@ import { SprintProfileShowOrAsk } from "@/components/sprint/SprintProfileShowOrA
 import { useTaskData } from "@/hooks/useTaskData";
 import GenericStepContent from "@/components/sprint/sprint-task-logic/generic/GenericStepContent";
 import { TaskDefinition } from "@/types/task-definition";
-import { Step } from "@/components/sprint/StepBasedTaskLogic";
 
 interface GenericTaskLogicProps {
   task: any;
@@ -28,6 +27,8 @@ const GenericTaskLogic: React.FC<GenericTaskLogicProps> = ({
     isLoading,
     handleComplete,
     handleStepChange,
+    currentStepContext,
+    uploadedFileId,
     conditionalFlow,
     answers,
     updateAnswers

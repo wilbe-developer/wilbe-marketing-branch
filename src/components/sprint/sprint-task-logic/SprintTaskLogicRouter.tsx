@@ -42,6 +42,16 @@ export const SprintTaskLogicRouter = ({
         />
       );
       
+    case "IP & Technology Transfer":
+      return (
+        <TeamTaskLogic
+          task={task}
+          isCompleted={isCompleted}
+          onComplete={onComplete}
+          hideMainQuestion={true}
+        />
+      );
+      
     default:
       return (
         <div className="p-6 text-center">

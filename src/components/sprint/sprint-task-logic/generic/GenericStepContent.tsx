@@ -7,7 +7,7 @@ import { StepContext } from "@/hooks/team-step-builder/types";
 import { TaskStep } from "@/types/task-definition";
 
 interface GenericStepContentProps {
-  steps: Step[] | TaskStep[];
+  steps: TaskStep[] | Step[];
   isCompleted: boolean;
   onComplete: (fileId?: string) => void;
   onStepChange: (stepIndex: number, context?: StepContext) => void;
@@ -53,24 +53,19 @@ const GenericStepContent: React.FC<GenericStepContentProps> = ({
   
   // Convert TaskStep to Step for compatibility with StepBasedTaskLogic
   const compatibleSteps = steps.map(step => {
-    const stepType = 
-      step.type === 'form' ? 'question' : step.type;
-    
-    // Convert context to StepContextType
-    const context = step.context || undefined;
-    
+    // Make sure we preserve all properties but adapt the types to match what StepBasedTaskLogic expects
     return {
       ...step,
-      type: stepType as any,
-      context: context as any
-    };
+      type: step.type === 'form' ? 'question' : step.type,
+      context: step.context || undefined
+    } as Step;
   });
 
   return (
     <Card className={`mb-6 ${isMobile ? 'shadow-sm' : 'mb-8'}`}>
       <CardContent className={isMobile ? "p-3 sm:p-4 md:p-6" : "p-6"}>
         <StepBasedTaskLogic
-          steps={compatibleSteps as Step[]}
+          steps={compatibleSteps}
           isCompleted={isCompleted}
           onComplete={onComplete}
           conditionalFlow={conditionalFlow}

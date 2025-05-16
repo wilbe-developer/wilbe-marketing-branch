@@ -211,5 +211,6 @@ export const taskDefinitions: Record<string, TaskDefinition> = {
 
 // Function to get task definition by title
 export const getTaskDefinition = (taskTitle: string): TaskDefinition | undefined => {
+  console.log('Looking up task definition for:', taskTitle);
   return taskDefinitions[taskTitle];
 };

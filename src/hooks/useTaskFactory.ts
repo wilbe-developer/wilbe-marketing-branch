@@ -15,6 +15,8 @@ export const useTaskFactory = (
   
   // Return the appropriate task data hook based on the task title
   return useMemo(() => {
+    console.log('useTaskFactory for task:', taskTitle, 'has definition:', !!taskDefinition);
+    
     // If we have a task definition, use the generic task data hook
     if (taskDefinition) {
       return useTaskData({ 
@@ -28,9 +30,11 @@ export const useTaskFactory = (
     switch (taskTitle) {
       case "Develop Team Building Plan":
       case "Team Profile":
+        console.log('Using dedicated team task data hook');
         return useTeamTaskData(task, sprintProfile);
         
       case "IP & Technology Transfer":
+        console.log('Using dedicated IP task data hook');
         return useGenericIPTaskData(task, sprintProfile);
         
       default:

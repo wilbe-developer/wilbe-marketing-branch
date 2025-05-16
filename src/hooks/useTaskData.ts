@@ -16,7 +16,7 @@ export const useTaskData = ({ task, sprintProfile, taskDefinition }: UseTaskData
     isLoading: baseIsLoading,
     handleStepChange,
     updateAnswer,
-    updateAnswers,
+    updateAnswers: baseUpdateAnswers,
     handleComplete,
     currentStepContext,
     setUploadedFileId
@@ -37,6 +37,8 @@ export const useTaskData = ({ task, sprintProfile, taskDefinition }: UseTaskData
     setIsLoading(true);
     
     try {
+      console.log('Building steps based on definition and profile:', taskDefinition.id, sprintProfile);
+      
       // Filter steps based on profile values and other conditions
       const filteredSteps = taskDefinition.steps.filter(step => {
         if (!step.profileDependencies || step.profileDependencies.length === 0) {
@@ -45,13 +47,25 @@ export const useTaskData = ({ task, sprintProfile, taskDefinition }: UseTaskData
         
         // Check if all profile dependencies are satisfied
         return step.profileDependencies.every(dependency => {
+          if (!dependency.includes('=')) {
+            // If no specific value expected, just check if the field exists
+            const key = dependency;
+            return !!sprintProfile[key];
+          }
+          
           const [key, expectedValue] = dependency.split('=');
-          return expectedValue ? 
-            sprintProfile[key] === expectedValue : 
-            !!sprintProfile[key];
+          // Handle boolean values correctly
+          if (expectedValue === 'true') {
+            return sprintProfile[key] === true;
+          } else if (expectedValue === 'false') {
+            return sprintProfile[key] === false;
+          }
+          // Otherwise compare as strings
+          return String(sprintProfile[key]) === expectedValue;
         });
       });
       
+      console.log('Filtered steps:', filteredSteps.length);
       setSteps(filteredSteps);
     } catch (error) {
       console.error("Error building task steps:", error);
@@ -78,7 +92,8 @@ export const useTaskData = ({ task, sprintProfile, taskDefinition }: UseTaskData
   };
 
   // Custom updateAnswers to map step index to semantic key
-  const handleUpdateAnswers = (stepIndex: number, answer: any) => {
+  const updateAnswers = (stepIndex: number, answer: any) => {
+    console.log('Updating answer for step:', stepIndex, answer);
     const key = getKeyForStep(stepIndex);
     updateAnswer(key, answer);
   };
@@ -93,7 +108,7 @@ export const useTaskData = ({ task, sprintProfile, taskDefinition }: UseTaskData
     currentStepContext,
     conditionalFlow,
     answers,
-    updateAnswers: handleUpdateAnswers,
+    updateAnswers,
     taskDefinition
   };
 };
