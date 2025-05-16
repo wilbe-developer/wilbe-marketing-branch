@@ -2,37 +2,36 @@
 import React from "react";
 import { useSprintProfileQuickEdit } from "@/hooks/useSprintProfileQuickEdit";
 import { SprintProfileShowOrAsk } from "@/components/sprint/SprintProfileShowOrAsk";
-import { useIPTaskData } from "@/hooks/useIPTaskData";
-import IPStepContent from "./IPStepContent";
+import { useGenericIPTaskData } from "@/hooks/useGenericIPTaskData";
+import GenericStepContent from "../generic/GenericStepContent";
 
-interface IPTaskLogicProps {
+interface GenericIPTaskLogicProps {
   task: any;
   isCompleted: boolean;
   onComplete: (fileId?: string) => void;
 }
 
-const IPTaskLogic: React.FC<IPTaskLogicProps> = ({ 
+const GenericIPTaskLogic: React.FC<GenericIPTaskLogicProps> = ({ 
   task, 
   isCompleted, 
   onComplete 
 }) => {
   const { sprintProfile } = useSprintProfileQuickEdit();
   
-  // Use our data hook to handle the task data
+  // Use our generic data hook to handle the task data
   const { 
     steps,
     isLoading,
     handleComplete,
     handleStepChange,
     conditionalFlow,
-    currentStepIndex,
     answers,
     updateAnswers
-  } = useIPTaskData(task, sprintProfile);
+  } = useGenericIPTaskData(task, sprintProfile);
 
   // Wrap onComplete to use our handler with answers
   const completeTask = async (fileId?: string) => {
-    const success = await handleComplete(answers || {}, fileId);
+    const success = await handleComplete(fileId);
     if (success) {
       onComplete(fileId);
     }
@@ -46,7 +45,7 @@ const IPTaskLogic: React.FC<IPTaskLogicProps> = ({
         label="Is your company reliant on something you've invented / created at a university?"
         type="boolean"
       >
-        <IPStepContent
+        <GenericStepContent
           steps={steps}
           isCompleted={isCompleted}
           onComplete={completeTask}
@@ -60,4 +59,4 @@ const IPTaskLogic: React.FC<IPTaskLogicProps> = ({
   );
 };
 
-export default IPTaskLogic;
+export default GenericIPTaskLogic;

@@ -1,8 +1,9 @@
 
 import React from "react";
 import TeamTaskLogic from "./TeamTaskLogic";
-import IPTaskLogic from "./ip/IPTaskLogic";
+import GenericIPTaskLogic from "./ip/GenericIPTaskLogic";
 import { SprintProfileShowOrAsk } from "../SprintProfileShowOrAsk";
+import { useTaskFactory } from "@/hooks/useTaskFactory";
 
 export const SprintTaskLogicRouter = ({
   task,
@@ -28,7 +29,7 @@ export const SprintTaskLogicRouter = ({
       
     case "IP & Technology Transfer":
       return (
-        <IPTaskLogic
+        <GenericIPTaskLogic
           task={task}
           isCompleted={isCompleted}
           onComplete={onComplete}
@@ -43,3 +44,5 @@ export const SprintTaskLogicRouter = ({
       );
   }
 };
+
+export default SprintTaskLogicRouter;
