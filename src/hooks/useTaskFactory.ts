@@ -30,15 +30,15 @@ export const useTaskFactory = (
         if (error) {
           console.error('Error fetching task definition:', error);
         } else if (data) {
-          // Parse the JSON fields
+          // Parse the JSON fields and ensure we handle non-string values
           const parsedData = {
             ...data,
-            steps: Array.isArray(data.steps) ? data.steps : JSON.parse(data.steps),
+            steps: Array.isArray(data.steps) ? data.steps : JSON.parse(typeof data.steps === 'string' ? data.steps : JSON.stringify(data.steps)),
             conditionalFlow: data.conditional_flow ? 
-              (typeof data.conditional_flow === 'object' ? data.conditional_flow : JSON.parse(data.conditional_flow)) : 
+              (typeof data.conditional_flow === 'object' ? data.conditional_flow : JSON.parse(typeof data.conditional_flow === 'string' ? data.conditional_flow : JSON.stringify(data.conditional_flow))) : 
               {},
             answerMapping: data.answer_mapping ? 
-              (typeof data.answer_mapping === 'object' ? data.answer_mapping : JSON.parse(data.answer_mapping)) : 
+              (typeof data.answer_mapping === 'object' ? data.answer_mapping : JSON.parse(typeof data.answer_mapping === 'string' ? data.answer_mapping : JSON.stringify(data.answer_mapping))) : 
               {}
           };
           setDbTaskDefinition(parsedData);
