@@ -54,7 +54,7 @@ const DraggableStepNode: React.FC<DraggableStepNodeProps> = ({
   const ref = useRef<HTMLDivElement>(null);
 
   const [{ handlerId }, drop] = useDrop({
-    accept: ITEM_TYPE,
+    accept: `${ITEM_TYPE}-${level}`,
     collect(monitor) {
       return {
         handlerId: monitor.getHandlerId(),
@@ -70,11 +70,6 @@ const DraggableStepNode: React.FC<DraggableStepNodeProps> = ({
       
       // Don't replace items with themselves
       if (dragIndex === hoverIndex) {
-        return;
-      }
-      
-      // Only proceed if we're at the same level of nesting
-      if (item.type !== `${ITEM_TYPE}-${level}`) {
         return;
       }
       

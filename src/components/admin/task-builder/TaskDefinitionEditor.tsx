@@ -28,6 +28,7 @@ const TaskDefinitionEditor: React.FC = () => {
   const {
     fetchTaskDefinition,
     updateTaskDefinition,
+    createTaskDefinition,
     createEmptyTaskDefinition,
   } = useSprintTaskDefinitions();
 
@@ -75,6 +76,8 @@ const TaskDefinitionEditor: React.FC = () => {
   ) => {
     const { name, value } = e.target;
     
+    if (!task) return;
+    
     if (name === "name" || name === "description") {
       setTask({
         ...task,
@@ -97,6 +100,8 @@ const TaskDefinitionEditor: React.FC = () => {
   };
 
   const updateSteps = (steps: any[]) => {
+    if (!task || !task.definition) return;
+    
     setTask({
       ...task,
       definition: {
@@ -107,6 +112,8 @@ const TaskDefinitionEditor: React.FC = () => {
   };
 
   const updateProfileQuestions = (profileQuestions: any[]) => {
+    if (!task || !task.definition) return;
+    
     setTask({
       ...task,
       definition: {
@@ -117,6 +124,8 @@ const TaskDefinitionEditor: React.FC = () => {
   };
 
   const updateStaticPanels = (staticPanels: any[]) => {
+    if (!task || !task.definition) return;
+    
     setTask({
       ...task,
       definition: {
@@ -127,6 +136,11 @@ const TaskDefinitionEditor: React.FC = () => {
   };
 
   const validateTaskDefinition = (definition: TaskDefinition): boolean => {
+    if (!definition) {
+      toast.error("Task definition is missing");
+      return false;
+    }
+    
     // Basic schema validation
     if (!definition.taskName || !definition.steps || !Array.isArray(definition.steps)) {
       toast.error("Task must have a name and valid steps array");
@@ -164,6 +178,11 @@ const TaskDefinitionEditor: React.FC = () => {
   };
 
   const handleSave = async () => {
+    if (!task) {
+      toast.error("No task data to save");
+      return;
+    }
+    
     if (!validateTaskDefinition(task.definition)) {
       return;
     }
@@ -178,18 +197,20 @@ const TaskDefinitionEditor: React.FC = () => {
           description: task.description,
           definition: task.definition,
         });
+        toast.success("Task definition updated successfully");
       } else {
-        // For new tasks, we'd normally create them, but we set this up to 
-        // create an empty one first and then navigate
-        toast.error("Please create a new task from the task list page");
-        navigate("/admin/task-builder");
-        return;
+        const result = await createTaskDefinition.mutateAsync({
+          name: task.name,
+          description: task.description,
+          definition: task.definition,
+        });
+        toast.success("Task definition created successfully");
+        // Navigate to edit the newly created task
+        navigate(`/admin/task-builder/edit/${result.id}`);
       }
-
-      toast.success("Task definition saved successfully");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving task:", error);
-      toast.error("Failed to save task definition");
+      toast.error(`Failed to save task definition: ${error.message}`);
     } finally {
       setIsSaving(false);
     }
@@ -266,7 +287,7 @@ const TaskDefinitionEditor: React.FC = () => {
           <CardTitle>
             <Input
               name="name"
-              value={task.name}
+              value={task.name || ""}
               onChange={handleBasicInfoChange}
               placeholder="Task Name"
               className="text-2xl font-bold border-none p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0"
@@ -299,21 +320,21 @@ const TaskDefinitionEditor: React.FC = () => {
 
             <TabsContent value="steps">
               <StepTreeEditor 
-                steps={task.definition.steps} 
+                steps={task.definition?.steps || []} 
                 onChange={updateSteps} 
               />
             </TabsContent>
 
             <TabsContent value="profileQuestions">
               <ProfileQuestionsEditor 
-                profileQuestions={task.definition.profileQuestions || []} 
+                profileQuestions={task.definition?.profileQuestions || []} 
                 onChange={updateProfileQuestions} 
               />
             </TabsContent>
 
             <TabsContent value="staticPanels">
               <StaticPanelsEditor 
-                staticPanels={task.definition.staticPanels || []} 
+                staticPanels={task.definition?.staticPanels || []} 
                 onChange={updateStaticPanels} 
               />
             </TabsContent>

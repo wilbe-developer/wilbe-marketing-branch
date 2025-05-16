@@ -129,35 +129,40 @@ const StepTreeEditor: React.FC<StepTreeEditorProps> = ({ steps, onChange }) => {
   const moveStep = (dragIndex: number, hoverIndex: number, parentSteps?: StepNode[]) => {
     const stepsToModify = parentSteps || steps;
     const newSteps = [...stepsToModify];
-    const [removed] = newSteps.splice(dragIndex, 1);
-    newSteps.splice(hoverIndex, 0, removed);
     
-    if (!parentSteps) {
-      onChange(newSteps);
-    } else {
-      // Need to find and update the parent in the main steps array
-      // This is a simplified version - a real implementation would need to track the path
-      const updateWithMovedChildren = (stepsArray: StepNode[]): StepNode[] => {
-        return stepsArray.map((step) => {
-          if (step.children === parentSteps) {
-            return {
-              ...step,
-              children: newSteps,
-            };
-          }
-          
-          if (step.children) {
-            return {
-              ...step,
-              children: updateWithMovedChildren(step.children),
-            };
-          }
-          
-          return step;
-        });
-      };
+    if (dragIndex >= 0 && dragIndex < newSteps.length && 
+        hoverIndex >= 0 && hoverIndex < newSteps.length) {
+      const [removed] = newSteps.splice(dragIndex, 1);
+      newSteps.splice(hoverIndex, 0, removed);
       
-      onChange(updateWithMovedChildren(steps));
+      if (!parentSteps) {
+        onChange(newSteps);
+      } else {
+        // Need to find and update the parent in the main steps array
+        const updateWithMovedChildren = (stepsArray: StepNode[]): StepNode[] => {
+          return stepsArray.map((step) => {
+            if (step.children === parentSteps) {
+              return {
+                ...step,
+                children: newSteps,
+              };
+            }
+            
+            if (step.children) {
+              return {
+                ...step,
+                children: updateWithMovedChildren(step.children),
+              };
+            }
+            
+            return step;
+          });
+        };
+        
+        onChange(updateWithMovedChildren(steps));
+      }
+    } else {
+      console.error("Invalid drag or hover index", { dragIndex, hoverIndex, stepsLength: stepsToModify.length });
     }
   };
 
