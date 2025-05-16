@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSprintTaskDefinitions } from "@/hooks/task-builder/useSprintTaskDefinitions";
@@ -21,6 +20,7 @@ import ProfileQuestionsEditor from "./ProfileQuestionsEditor";
 import { TaskDefinition, SprintTaskDefinition } from "@/types/task-builder";
 import { generateStableId, ensureValidIdsInObject } from "@/utils/stableId";
 import { ErrorBoundary } from "react-error-boundary";
+import { supabase } from "@/integrations/supabase/client";
 
 // Maximum loading time in milliseconds before showing timeout UI
 const LOADING_TIMEOUT = 8000;

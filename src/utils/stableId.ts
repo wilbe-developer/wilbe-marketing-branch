@@ -52,26 +52,27 @@ export const ensureValidIdsInObject = <T extends Record<string, any>>(
 ): T => {
   if (!obj) return obj;
   
-  const result = { ...obj };
+  const result = { ...obj } as T;
   
   // Process direct ID on the object
   if (idField in result) {
-    result[idField] = ensureValidId(result[idField]);
+    const objAny = result as any;
+    objAny[idField] = ensureValidId(objAny[idField]);
   }
   
   // Process arrays recursively
   Object.keys(result).forEach(key => {
-    const value = result[key];
+    const value = (result as any)[key];
     
     if (Array.isArray(value)) {
-      result[key] = value.map(item => {
+      (result as any)[key] = value.map(item => {
         if (item && typeof item === 'object') {
           return ensureValidIdsInObject(item, idField);
         }
         return item;
       });
     } else if (value && typeof value === 'object') {
-      result[key] = ensureValidIdsInObject(value, idField);
+      (result as any)[key] = ensureValidIdsInObject(value, idField);
     }
   });
   
