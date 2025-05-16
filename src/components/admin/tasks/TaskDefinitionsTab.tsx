@@ -14,6 +14,18 @@ import { Plus, Edit, Trash2, Eye, Copy } from "lucide-react";
 import TaskDefinitionEditor from "../tasks/TaskDefinitionEditor";
 import TaskDefinitionViewer from "../tasks/TaskDefinitionViewer";
 import { ipTaskDefinition, teamTaskDefinition } from "@/data/task-definitions";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const TaskDefinitionsTab = () => {
   const [tasks, setTasks] = useState<any[]>([]);
@@ -130,14 +142,22 @@ const TaskDefinitionsTab = () => {
               <Plus size={16} className="mr-2" />
               Create New Task
             </Button>
-            <Button variant="outline" onClick={() => handleCreatePreBuilt('team')}>
-              <Copy size={16} className="mr-2" />
-              Create Team Task
-            </Button>
-            <Button variant="outline" onClick={() => handleCreatePreBuilt('ip')}>
-              <Copy size={16} className="mr-2" />
-              Create IP Task
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline">
+                  <Copy size={16} className="mr-2" />
+                  Create From Template
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={() => handleCreatePreBuilt('team')}>
+                  Team Task
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleCreatePreBuilt('ip')}>
+                  IP Task
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       );
@@ -168,27 +188,50 @@ const TaskDefinitionsTab = () => {
                   </span>
                 </div>
                 <div className="flex gap-1">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setViewingTask(task.id)}
-                  >
-                    <Eye size={16} />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setEditingTask(task.id)}
-                  >
-                    <Edit size={16} />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleDelete(task.id)}
-                  >
-                    <Trash2 size={16} />
-                  </Button>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setViewingTask(task.id)}
+                        >
+                          <Eye size={16} />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>View task</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setEditingTask(task.id)}
+                        >
+                          <Edit size={16} />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Edit task</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDelete(task.id)}
+                        >
+                          <Trash2 size={16} />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Delete task</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
               </div>
             </CardContent>
@@ -221,7 +264,7 @@ const TaskDefinitionsTab = () => {
     return (
       <TaskDefinitionViewer
         taskId={viewingTask}
-        onClose={() => setViewingTask(null)}
+        onBack={() => setViewingTask(null)}
         onEdit={() => {
           setEditingTask(viewingTask);
           setViewingTask(null);
@@ -239,20 +282,22 @@ const TaskDefinitionsTab = () => {
             <Plus size={16} className="mr-2" />
             Create New Task
           </Button>
-          <div className="dropdown dropdown-end">
-            <Button variant="outline" className="dropdown-trigger">
-              <Copy size={16} className="mr-2" /> 
-              Create From Template
-            </Button>
-            <div className="dropdown-menu">
-              <Button variant="outline" onClick={() => handleCreatePreBuilt('team')} className="w-full text-left my-1">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">
+                <Copy size={16} className="mr-2" /> 
+                Create From Template
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={() => handleCreatePreBuilt('team')}>
                 Team Task
-              </Button>
-              <Button variant="outline" onClick={() => handleCreatePreBuilt('ip')} className="w-full text-left my-1">
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleCreatePreBuilt('ip')}>
                 IP Task
-              </Button>
-            </div>
-          </div>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
