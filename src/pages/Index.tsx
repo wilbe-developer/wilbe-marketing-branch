@@ -7,15 +7,20 @@ import HomePage from "./HomePage";
 
 // This is just a wrapper to redirect to the appropriate page based on auth status
 const Index = () => {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, isRecoveryMode } = useAuth();
   const navigate = useNavigate();
   
   useEffect(() => {
+    // Don't redirect if in recovery mode (let the password reset page handle it)
+    if (isRecoveryMode) {
+      return;
+    }
+    
     if (!loading && !isAuthenticated) {
       // Redirect to login if not authenticated
       navigate(PATHS.LOGIN);
     }
-  }, [isAuthenticated, loading, navigate]);
+  }, [isAuthenticated, loading, navigate, isRecoveryMode]);
   
   if (loading) {
     return (

@@ -22,6 +22,7 @@ interface AuthContextType {
   logout: () => void;
   updateProfile: (data: Partial<UserProfile>) => Promise<void>;
   loading: boolean;
+  isRecoveryMode: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -35,6 +36,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setSession, 
     setLoading 
   } = useAuthState();
+  
+  const [isRecoveryMode, setIsRecoveryMode] = useState(false);
   
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -56,6 +59,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     navigate, 
     toast 
   });
+
+  // Check for recovery mode
+  useEffect(() => {
+    // Check URL parameters for recovery mode
+    const url = new URL(window.location.href);
+    const type = url.searchParams.get("type");
+    
+    if (type === "recovery") {
+      setIsRecoveryMode(true);
+    }
+  }, []);
 
   // Setup auth state listener and check initial session
   useEffect(() => {
@@ -111,7 +125,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const isApproved = !!user?.approved;
   const isAuthenticated = !!user;
 
-  console.log("Auth provider state:", { isAuthenticated, isAdmin, isApproved, loading });
+  console.log("Auth provider state:", { isAuthenticated, isAdmin, isApproved, loading, isRecoveryMode });
 
   return (
     <AuthContext.Provider
@@ -128,6 +142,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         logout,
         updateProfile,
         loading,
+        isRecoveryMode
       }}
     >
       {children}

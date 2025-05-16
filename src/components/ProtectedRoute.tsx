@@ -8,7 +8,7 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ requireAdmin = false }: ProtectedRouteProps) => {
-  const { isAuthenticated, isAdmin, loading } = useAuth();
+  const { isAuthenticated, isAdmin, loading, isRecoveryMode } = useAuth();
   const location = useLocation();
   
   const isAdminRoute = location.pathname.startsWith(PATHS.ADMIN) || 
@@ -19,7 +19,8 @@ const ProtectedRoute = ({ requireAdmin = false }: ProtectedRouteProps) => {
     isAdmin, 
     loading, 
     isAdminRoute, 
-    pathname: location.pathname 
+    pathname: location.pathname,
+    isRecoveryMode
   });
 
   // Show loading state
@@ -32,6 +33,11 @@ const ProtectedRoute = ({ requireAdmin = false }: ProtectedRouteProps) => {
         </div>
       </div>
     );
+  }
+
+  // If in recovery mode and on password reset page, allow access
+  if (isRecoveryMode && location.pathname === PATHS.PASSWORD_RESET) {
+    return <Outlet />;
   }
 
   // Redirect to login if not authenticated

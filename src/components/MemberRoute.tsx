@@ -4,10 +4,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { PATHS } from "@/lib/constants";
 
 const MemberRoute = () => {
-  const { isAuthenticated, isApproved, loading } = useAuth();
+  const { isAuthenticated, isApproved, loading, isRecoveryMode } = useAuth();
   const location = useLocation();
 
-  console.log("MemberRoute - Auth state:", { isAuthenticated, isApproved, loading });
+  console.log("MemberRoute - Auth state:", { isAuthenticated, isApproved, loading, isRecoveryMode });
 
   // Show loading states
   if (loading) {
@@ -19,6 +19,11 @@ const MemberRoute = () => {
         </div>
       </div>
     );
+  }
+
+  // If in recovery mode and on password reset page, allow access
+  if (isRecoveryMode && location.pathname === PATHS.PASSWORD_RESET) {
+    return <Outlet />;
   }
 
   // Redirect to login if not authenticated
