@@ -78,10 +78,12 @@ const StaticPanelsEditor: React.FC<StaticPanelsEditorProps> = ({
     panelIndex: number,
     itemIndex: number,
     field: keyof StaticPanelItem,
-    value: any
+    value: string | number
   ) => {
     const newPanels = [...staticPanels];
-    newPanels[panelIndex].items[itemIndex][field] = value;
+    if (field === "text" || field === "order") {
+      newPanels[panelIndex].items[itemIndex][field] = value as any;
+    }
     onChange(newPanels);
   };
 

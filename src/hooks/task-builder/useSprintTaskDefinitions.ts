@@ -23,7 +23,7 @@ export const useSprintTaskDefinitions = () => {
 
       return data.map(item => ({
         ...item,
-        definition: item.definition as TaskDefinition
+        definition: item.definition as unknown as TaskDefinition
       })) as SprintTaskDefinition[];
     }
   });
@@ -42,7 +42,7 @@ export const useSprintTaskDefinitions = () => {
 
     return {
       ...data,
-      definition: data.definition as TaskDefinition
+      definition: data.definition as unknown as TaskDefinition
     } as SprintTaskDefinition;
   };
 
@@ -65,7 +65,7 @@ export const useSprintTaskDefinitions = () => {
 
       return {
         ...data,
-        definition: data.definition as TaskDefinition
+        definition: data.definition as unknown as TaskDefinition
       } as SprintTaskDefinition;
     },
     onSuccess: () => {
@@ -97,7 +97,7 @@ export const useSprintTaskDefinitions = () => {
 
       return {
         ...data,
-        definition: data.definition as TaskDefinition
+        definition: data.definition as unknown as TaskDefinition
       } as SprintTaskDefinition;
     },
     onSuccess: () => {

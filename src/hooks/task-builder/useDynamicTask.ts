@@ -32,7 +32,8 @@ export const useDynamicTask = ({ taskId, sprintProfile }: UseDynamicTaskProps) =
         throw new Error(`Error fetching task definition: ${error.message}`);
       }
 
-      return (data.definition as unknown) as TaskDefinition;
+      // Type assertion to convert from Json to TaskDefinition
+      return data.definition as unknown as TaskDefinition;
     },
     enabled: !!taskId,
   });
@@ -143,7 +144,7 @@ export const useDynamicTask = ({ taskId, sprintProfile }: UseDynamicTaskProps) =
         .upsert({
           user_id: user.id,
           task_id: taskId,
-          answers: newAnswers
+          answers: newAnswers as Record<string, any>
         })
         .select();
 
@@ -265,7 +266,7 @@ export const useDynamicTask = ({ taskId, sprintProfile }: UseDynamicTaskProps) =
   // Load saved answers from user progress
   useEffect(() => {
     if (userProgress?.answers) {
-      setAnswers(userProgress.answers);
+      setAnswers(userProgress.answers as Record<string, any>);
     }
   }, [userProgress]);
 
