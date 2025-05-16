@@ -1,29 +1,28 @@
-
 import { useMemo } from 'react';
 import { useTeamTaskData } from './useTeamTaskData';
-import { useGenericIPTaskData } from './useGenericIPTaskData';
-
-// Generic type for task data hooks
-type TaskDataHook = {
-  steps: any[];
-  isLoading: boolean;
-  handleComplete: (fileId?: string) => Promise<boolean>;
-  handleStepChange: (stepIndex: number, context?: any) => void;
-  currentStepContext?: any;
-  uploadedFileId?: string;
-  conditionalFlow?: Record<number, Record<string, number>>;
-  answers?: Record<string, any>;
-  updateAnswers?: (stepIndex: number, answer: any) => void;
-  [key: string]: any;
-};
+import { useTaskData } from './useTaskData';
+import { getTaskDefinition } from '@/data/task-definitions';
 
 export const useTaskFactory = (
   taskTitle: string,
   task: any,
   sprintProfile: any
-): TaskDataHook => {
+) => {
+  // Look up the task definition
+  const taskDefinition = useMemo(() => getTaskDefinition(taskTitle), [taskTitle]);
+  
   // Return the appropriate task data hook based on the task title
   return useMemo(() => {
+    // If we have a task definition, use the generic task data hook
+    if (taskDefinition) {
+      return useTaskData({ 
+        task, 
+        sprintProfile, 
+        taskDefinition 
+      });
+    }
+    
+    // Otherwise, fall back to specific task hooks for backward compatibility
     switch (taskTitle) {
       case "Develop Team Building Plan":
       case "Team Profile":
@@ -46,5 +45,5 @@ export const useTaskFactory = (
           answers: {}
         };
     }
-  }, [taskTitle, task, sprintProfile]);
+  }, [taskTitle, task, sprintProfile, taskDefinition]);
 };

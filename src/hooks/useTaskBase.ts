@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useSprintTasks } from './useSprintTasks.tsx';
 import { StepContext, StepContextType } from './team-step-builder/types';
@@ -9,7 +8,7 @@ export interface TaskState {
 }
 
 export interface TaskStep {
-  type: 'question' | 'content' | 'upload';
+  type: 'question' | 'content' | 'upload' | 'form';
   question?: string;
   options?: Array<{ label: string; value: string }>;
   content?: string | React.ReactNode | (string | React.ReactNode)[];
