@@ -41,6 +41,7 @@ import SprintReferralPage from "@/pages/SprintReferralPage";
 import LeadGeneratorPage from "@/pages/LeadGeneratorPage";
 import SprintDataRoomPage from "./pages/SprintDataRoomPage";
 import AdminLoginPage from "@/pages/AdminLoginPage";
+import PasswordResetPage from "@/pages/PasswordResetPage";
 
 // Auth Route component
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -67,6 +68,7 @@ const App = () => (
                 {/* Auth routes */}
                 <Route path={PATHS.LOGIN} element={<LoginPage />} />
                 <Route path="/admin-login" element={<AdminLoginPage />} />
+                <Route path="/password-reset" element={<PasswordResetPage />} />
                 <Route path={PATHS.REGISTER} element={<RegisterPage />} />
                 <Route path={PATHS.PENDING} element={<PendingApprovalPage />} />
                 <Route path={PATHS.LANDING_PAGE} element={<LandingPage />} />

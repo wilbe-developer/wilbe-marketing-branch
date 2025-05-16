@@ -90,7 +90,7 @@ export const useAuthenticationActions = ({
       setLoading(true);
       
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin + PATHS.PROFILE,
+        redirectTo: window.location.origin + PATHS.PASSWORD_RESET,
       });
       
       if (error) {
