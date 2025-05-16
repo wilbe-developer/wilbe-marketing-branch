@@ -195,7 +195,7 @@ export const useDynamicTask = ({ taskId, sprintProfile }: UseDynamicTaskProps) =
       }
 
       // Also store that we updated the profile as part of this task
-      const profileUpdates = userProgress?.profile_updates ? { ...userProgress.profile_updates } : {};
+      const profileUpdates = userProgress?.profile_updates ? { ...userProgress.profile_updates as Record<string, any> } : {};
       const { error: progressError } = await supabase
         .from("user_task_progress")
         .upsert({

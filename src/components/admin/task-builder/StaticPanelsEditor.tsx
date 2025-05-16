@@ -81,8 +81,11 @@ const StaticPanelsEditor: React.FC<StaticPanelsEditorProps> = ({
     value: string | number
   ) => {
     const newPanels = [...staticPanels];
-    if (field === "text" || field === "order") {
-      newPanels[panelIndex].items[itemIndex][field] = value as any;
+    // Fix type issue by using type assertion
+    if (field === "text") {
+      newPanels[panelIndex].items[itemIndex].text = value as string;
+    } else if (field === "order") {
+      newPanels[panelIndex].items[itemIndex].order = value as number;
     }
     onChange(newPanels);
   };
