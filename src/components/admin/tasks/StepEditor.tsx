@@ -74,6 +74,18 @@ const StepEditor: React.FC<StepEditorProps> = ({ steps, onChange }) => {
       return;
     }
     
+    // Validate options to ensure no empty values
+    if (editingStep.options && editingStep.options.length > 0) {
+      const hasEmptyValues = editingStep.options.some(
+        (option: any) => option.value === ""
+      );
+      
+      if (hasEmptyValues) {
+        toast.error("Option values cannot be empty");
+        return;
+      }
+    }
+    
     const newSteps = [...steps];
     
     if (editingIndex !== null) {
@@ -104,7 +116,7 @@ const StepEditor: React.FC<StepEditorProps> = ({ steps, onChange }) => {
     
     setEditingStep({
       ...editingStep,
-      options: [...(editingStep.options || []), { label: "", value: "" }]
+      options: [...(editingStep.options || []), { label: "", value: "option-" + Date.now() }]
     });
   };
 
@@ -112,6 +124,11 @@ const StepEditor: React.FC<StepEditorProps> = ({ steps, onChange }) => {
     if (!editingStep || !editingStep.options) return;
     
     const newOptions = [...editingStep.options];
+    // Ensure value is never empty
+    if (field === "value" && value === "") {
+      value = "option-" + Date.now();
+    }
+    
     newOptions[index] = { ...newOptions[index], [field]: value };
     
     setEditingStep({
@@ -341,6 +358,7 @@ const StepEditor: React.FC<StepEditorProps> = ({ steps, onChange }) => {
                     <SelectItem value="funding">Funding</SelectItem>
                     <SelectItem value="product">Product</SelectItem>
                     <SelectItem value="company">Company</SelectItem>
+                    <SelectItem value="company_reason">Company Reason</SelectItem>
                     <SelectItem value="incorporation">Incorporation</SelectItem>
                   </SelectContent>
                 </Select>
