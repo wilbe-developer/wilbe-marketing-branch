@@ -22,6 +22,7 @@ export interface TaskDefinition {
   coverImage?: string;
   estimatedTime?: string;
   difficulty?: string;
+  order_index?: number; // Add order_index field
   
   // Custom fields that can be extended as needed
   customFields?: Record<string, any>;

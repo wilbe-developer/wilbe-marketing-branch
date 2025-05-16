@@ -57,6 +57,8 @@ export interface TaskDefinition {
   profileQuestions: ProfileQuestion[];
   steps: StepNode[];
   staticPanels?: StaticPanel[];
+  order_index?: number; // Add order_index field
+  category?: string;
 }
 
 export interface SprintTaskDefinition {
