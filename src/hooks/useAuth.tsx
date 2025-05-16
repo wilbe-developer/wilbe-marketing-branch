@@ -62,13 +62,40 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Check for recovery mode
   useEffect(() => {
-    // Check URL parameters for recovery mode
-    const url = new URL(window.location.href);
-    const type = url.searchParams.get("type");
+    const checkRecoveryMode = () => {
+      // Check URL parameters for recovery mode
+      const url = new URL(window.location.href);
+      const type = url.searchParams.get("type");
+      
+      if (type === "recovery") {
+        console.log("Recovery mode detected from URL param");
+        setIsRecoveryMode(true);
+        return;
+      }
+      
+      // Check for hash fragment which might indicate password reset
+      if (window.location.pathname === PATHS.PASSWORD_RESET) {
+        console.log("On password reset page, checking for hash fragment...");
+        if (window.location.hash) {
+          console.log("Hash fragment found, likely a recovery token");
+          setIsRecoveryMode(true);
+          return;
+        }
+      }
+    };
     
-    if (type === "recovery") {
-      setIsRecoveryMode(true);
-    }
+    checkRecoveryMode();
+    
+    // Set up an event listener to catch changes to the URL
+    const handleHashChange = () => {
+      checkRecoveryMode();
+    };
+    
+    window.addEventListener('hashchange', handleHashChange);
+    
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+    };
   }, []);
 
   // Setup auth state listener and check initial session

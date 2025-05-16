@@ -10,6 +10,7 @@ import Logo from "@/components/Logo";
 import { Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { supabase } from "@/integrations/supabase/client";
 
 const PasswordResetPage = () => {
   const [password, setPassword] = useState("");
@@ -18,20 +19,47 @@ const PasswordResetPage = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchParams] = useSearchParams();
   
-  const { updatePassword, loading } = useAuth();
+  const { updatePassword, loading, isRecoveryMode } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Check if the user arrived via a password reset link
+  console.log("PasswordResetPage - Recovery mode:", isRecoveryMode);
+  console.log("PasswordResetPage - URL params:", Object.fromEntries(searchParams.entries()));
+
+  // Check if the user arrived via a password reset link or is in recovery mode
   useEffect(() => {
-    const type = searchParams.get("type");
-    const accessToken = searchParams.get("access_token");
+    const checkRecoveryStatus = async () => {
+      const type = searchParams.get("type");
+      const accessToken = searchParams.get("access_token");
+      
+      // Check URL parameters first
+      if (type === "recovery" && accessToken) {
+        console.log("Recovery parameters found in URL");
+        setIsDialogOpen(true);
+        return;
+      }
+      
+      // If we're in recovery mode from auth context, show the dialog
+      if (isRecoveryMode) {
+        console.log("In recovery mode from context, opening dialog");
+        setIsDialogOpen(true);
+        return;
+      }
+      
+      // Check hash fragment for recovery token
+      if (window.location.hash) {
+        console.log("Hash fragment found:", window.location.hash);
+        // The hash might contain the recovery token
+        const { data, error } = await supabase.auth.getSession();
+        if (data?.session) {
+          console.log("Active session found after hash fragment");
+          setIsDialogOpen(true);
+        }
+      }
+    };
     
-    if (type === "recovery" && accessToken) {
-      // User has arrived via a password reset link
-      setIsDialogOpen(true);
-    }
-  }, [searchParams]);
+    checkRecoveryStatus();
+  }, [searchParams, isRecoveryMode]);
 
   const handlePasswordUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
