@@ -49,12 +49,14 @@ export const SprintTaskLogicRouter = ({
               answerMapping: parseJsonField(data.answer_mapping) || {}
             };
             
-            // Add profile options if present - FIX: Use profile_options with underscore
+            // Fix: Convert snake_case profile_options to camelCase profileOptions
             if (data.profile_options) {
               parsedData.profileOptions = parseJsonField(data.profile_options);
+              // Remove the original snake_case property to avoid duplication
+              delete parsedData.profile_options;
             }
             
-            setDbTaskDefinition(parsedData);
+            setDbTaskDefinition(parsedData as TaskDefinition);
           } catch (parseError) {
             console.error('Failed to parse task definition fields:', parseError);
             toast.error("There was an error loading this task. Please try again.");

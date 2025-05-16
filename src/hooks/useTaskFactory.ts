@@ -31,20 +31,36 @@ export const useTaskFactory = (
           console.error('Error fetching task definition:', error);
         } else if (data) {
           // Parse the JSON fields and ensure we handle non-string values
-          const parsedData = {
-            ...data,
-            steps: Array.isArray(data.steps) ? data.steps : JSON.parse(typeof data.steps === 'string' ? data.steps : JSON.stringify(data.steps)),
-            conditionalFlow: data.conditional_flow ? 
-              (typeof data.conditional_flow === 'object' ? data.conditional_flow : JSON.parse(typeof data.conditional_flow === 'string' ? data.conditional_flow : JSON.stringify(data.conditional_flow))) : 
-              {},
-            answerMapping: data.answer_mapping ? 
-              (typeof data.answer_mapping === 'object' ? data.answer_mapping : JSON.parse(typeof data.answer_mapping === 'string' ? data.answer_mapping : JSON.stringify(data.answer_mapping))) : 
-              {}
-          };
-          setDbTaskDefinition(parsedData);
+          try {
+            const parsedData = {
+              ...data,
+              steps: Array.isArray(data.steps) ? data.steps : JSON.parse(typeof data.steps === 'string' ? data.steps : JSON.stringify(data.steps)),
+              conditionalFlow: data.conditional_flow ? 
+                (typeof data.conditional_flow === 'object' ? data.conditional_flow : JSON.parse(typeof data.conditional_flow === 'string' ? data.conditional_flow : JSON.stringify(data.conditional_flow))) : 
+                {},
+              answerMapping: data.answer_mapping ? 
+                (typeof data.answer_mapping === 'object' ? data.answer_mapping : JSON.parse(typeof data.answer_mapping === 'string' ? data.answer_mapping : JSON.stringify(data.answer_mapping))) : 
+                {}
+            };
+
+            // Convert snake_case profile_options to camelCase profileOptions
+            if (data.profile_options) {
+              const profileOpts = typeof data.profile_options === 'object' ? 
+                data.profile_options : 
+                JSON.parse(typeof data.profile_options === 'string' ? data.profile_options : JSON.stringify(data.profile_options));
+              
+              parsedData.profileOptions = profileOpts;
+              // Remove the original snake_case property to avoid duplication
+              delete parsedData.profile_options;
+            }
+            
+            setDbTaskDefinition(parsedData as TaskDefinition);
+          } catch (parseError) {
+            console.error('Failed to parse task definition:', parseError);
+          }
         }
       } catch (err) {
-        console.error('Failed to parse task definition:', err);
+        console.error('Failed to fetch task definition:', err);
       } finally {
         setIsLoading(false);
       }
