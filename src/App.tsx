@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -41,6 +42,7 @@ import LeadGeneratorPage from "@/pages/LeadGeneratorPage";
 import SprintDataRoomPage from "./pages/SprintDataRoomPage";
 import AdminLoginPage from "@/pages/AdminLoginPage";
 import PasswordResetPage from "@/pages/PasswordResetPage";
+import TaskBuilderPage from "@/pages/admin/TaskBuilderPage";
 
 // Auth Route component
 import ProtectedRoute from "@/components/ProtectedRoute";
