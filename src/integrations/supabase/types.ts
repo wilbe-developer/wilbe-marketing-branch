@@ -527,6 +527,54 @@ export type Database = {
         }
         Relationships: []
       }
+      task_definitions: {
+        Row: {
+          answer_mapping: Json | null
+          category: string | null
+          conditional_flow: Json | null
+          created_at: string
+          description: string | null
+          id: string
+          profile_key: string | null
+          profile_label: string | null
+          profile_options: Json | null
+          profile_type: string | null
+          steps: Json
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          answer_mapping?: Json | null
+          category?: string | null
+          conditional_flow?: Json | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          profile_key?: string | null
+          profile_label?: string | null
+          profile_options?: Json | null
+          profile_type?: string | null
+          steps: Json
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          answer_mapping?: Json | null
+          category?: string | null
+          conditional_flow?: Json | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          profile_key?: string | null
+          profile_label?: string | null
+          profile_options?: Json | null
+          profile_type?: string | null
+          steps?: Json
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       team_members: {
         Row: {
           created_at: string

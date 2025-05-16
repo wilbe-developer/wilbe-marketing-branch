@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useMemo } from "react";
 import { TaskDefinition, TaskStep, ConditionalFlow } from "@/types/task-definition";
 import { useTaskBase } from "./useTaskBase";
@@ -7,9 +8,10 @@ export interface UseTaskDataProps {
   task: any;
   sprintProfile: any;
   taskDefinition: TaskDefinition;
+  isLoadingDefinition?: boolean;
 }
 
-export const useTaskData = ({ task, sprintProfile, taskDefinition }: UseTaskDataProps) => {
+export const useTaskData = ({ task, sprintProfile, taskDefinition, isLoadingDefinition = false }: UseTaskDataProps) => {
   const {
     answers,
     uploadedFileId,
@@ -30,7 +32,7 @@ export const useTaskData = ({ task, sprintProfile, taskDefinition }: UseTaskData
   
   // Build steps based on task definition, existing answers and profile
   useEffect(() => {
-    if (!task || !taskDefinition) {
+    if (!task || !taskDefinition || isLoadingDefinition) {
       return;
     }
 
@@ -73,7 +75,7 @@ export const useTaskData = ({ task, sprintProfile, taskDefinition }: UseTaskData
     } finally {
       setIsLoading(false);
     }
-  }, [taskDefinition, sprintProfile, task, answers]);
+  }, [taskDefinition, sprintProfile, task, answers, isLoadingDefinition]);
 
   // Use the task definition's conditional flow or an empty object
   const conditionalFlow = useMemo(() => {
@@ -100,7 +102,7 @@ export const useTaskData = ({ task, sprintProfile, taskDefinition }: UseTaskData
 
   return {
     steps,
-    isLoading: isLoading || baseIsLoading,
+    isLoading: isLoading || baseIsLoading || isLoadingDefinition,
     uploadedFileId,
     setUploadedFileId,
     handleComplete,

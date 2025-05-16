@@ -1,9 +1,12 @@
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import TeamTaskLogic from "./TeamTaskLogic";
 import GenericTaskLogic from "../task-system/GenericTaskLogic";
 import { SprintProfileShowOrAsk } from "../SprintProfileShowOrAsk";
 import { getTaskDefinition } from "@/data/task-definitions";
+import { supabase } from "@/integrations/supabase/client";
+import { TaskDefinition } from "@/types/task-definition";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const SprintTaskLogicRouter = ({
   task,
@@ -14,17 +17,83 @@ export const SprintTaskLogicRouter = ({
   isCompleted: boolean;
   onComplete: (fileId?: string) => void;
 }) => {
-  // Get task definition from registry
-  const taskDefinition = getTaskDefinition(task.title);
+  const [dbTaskDefinition, setDbTaskDefinition] = useState<TaskDefinition | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   
-  // If we have a definition for this task, use the generic task logic
-  if (taskDefinition) {
+  // Try to load task definition from database
+  useEffect(() => {
+    const fetchTaskDefinition = async () => {
+      setIsLoading(true);
+      
+      try {
+        const { data, error } = await supabase
+          .from('task_definitions')
+          .select('*')
+          .eq('title', task.title)
+          .single();
+          
+        if (error) {
+          console.error('Error fetching task definition:', error);
+        } else if (data) {
+          // Parse the JSON fields
+          const parsedData = {
+            ...data,
+            steps: Array.isArray(data.steps) ? data.steps : JSON.parse(data.steps),
+            conditionalFlow: data.conditional_flow ? 
+              (typeof data.conditional_flow === 'object' ? data.conditional_flow : JSON.parse(data.conditional_flow)) : 
+              {},
+            answerMapping: data.answer_mapping ? 
+              (typeof data.answer_mapping === 'object' ? data.answer_mapping : JSON.parse(data.answer_mapping)) : 
+              {}
+          };
+          setDbTaskDefinition(parsedData);
+        }
+      } catch (err) {
+        console.error('Failed to parse task definition:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    if (task.title) {
+      fetchTaskDefinition();
+    } else {
+      setIsLoading(false);
+    }
+  }, [task.title]);
+  
+  // Check for loading state
+  if (isLoading) {
+    return (
+      <div className="space-y-4 p-6">
+        <Skeleton className="h-6 w-3/4" />
+        <Skeleton className="h-24 w-full" />
+        <Skeleton className="h-10 w-1/3" />
+      </div>
+    );
+  }
+  
+  // First priority: Use database task definition if available
+  if (dbTaskDefinition) {
     return (
       <GenericTaskLogic
         task={task}
         isCompleted={isCompleted}
         onComplete={onComplete}
-        taskDefinition={taskDefinition}
+        taskDefinition={dbTaskDefinition}
+      />
+    );
+  }
+  
+  // Second priority: Use local JS task definition if available
+  const localTaskDefinition = getTaskDefinition(task.title);
+  if (localTaskDefinition) {
+    return (
+      <GenericTaskLogic
+        task={task}
+        isCompleted={isCompleted}
+        onComplete={onComplete}
+        taskDefinition={localTaskDefinition}
       />
     );
   }
