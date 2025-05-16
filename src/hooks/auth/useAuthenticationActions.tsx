@@ -1,4 +1,3 @@
-
 import { NavigateFunction } from "react-router-dom";
 import { UserProfile } from "@/types";
 import { PATHS } from "@/lib/constants";

@@ -18,27 +18,20 @@ const PasswordResetPage = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchParams] = useSearchParams();
   
-  const { updatePassword, loading, isAuthenticated } = useAuth();
+  const { updatePassword, loading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
   // Check if the user arrived via a password reset link
   useEffect(() => {
-    const accessToken = searchParams.get("access_token");
-    const refreshToken = searchParams.get("refresh_token");
     const type = searchParams.get("type");
+    const accessToken = searchParams.get("access_token");
     
-    if (type === "recovery" && (accessToken || refreshToken)) {
+    if (type === "recovery" && accessToken) {
       // User has arrived via a password reset link
       setIsDialogOpen(true);
-    } else if (isAuthenticated) {
-      // If already authenticated and not resetting password, go to home
-      navigate(PATHS.HOME);
-    } else {
-      // If not authenticated and not resetting, go to login
-      navigate(PATHS.LOGIN);
     }
-  }, [isAuthenticated, navigate, searchParams]);
+  }, [searchParams]);
 
   const handlePasswordUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
