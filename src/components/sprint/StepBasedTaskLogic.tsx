@@ -31,6 +31,7 @@ interface StepBasedTaskLogicProps {
   onComplete: (fileId?: string) => void;
   conditionalFlow?: Record<number, Record<string, number>>;
   onStepChange?: (step: number, context?: StepContext) => void;
+  onAnswerUpdate?: (stepIndex: number, answer: any) => void;
 }
 
 const StepBasedTaskLogic: React.FC<StepBasedTaskLogicProps> = ({
@@ -38,7 +39,8 @@ const StepBasedTaskLogic: React.FC<StepBasedTaskLogicProps> = ({
   isCompleted,
   onComplete,
   conditionalFlow = {},
-  onStepChange
+  onStepChange,
+  onAnswerUpdate
 }) => {
   const isMobile = useIsMobile();
   
@@ -57,6 +59,16 @@ const StepBasedTaskLogic: React.FC<StepBasedTaskLogicProps> = ({
     onComplete, 
     conditionalFlow 
   });
+  
+  // Wrapper for handleAnswerSelect that also calls onAnswerUpdate
+  const handleAnswer = (value: string) => {
+    handleAnswerSelect(value);
+    
+    // Call the parent component's onAnswerUpdate if provided
+    if (onAnswerUpdate) {
+      onAnswerUpdate(currentStep, value);
+    }
+  };
   
   // Call onStepChange when the current step changes
   React.useEffect(() => {
@@ -104,7 +116,7 @@ const StepBasedTaskLogic: React.FC<StepBasedTaskLogicProps> = ({
             question={step.question || ''}
             options={step.options}
             selectedAnswer={answers[currentStep]}
-            onAnswerSelect={handleAnswerSelect}
+            onAnswerSelect={handleAnswer}
           />
         )}
         

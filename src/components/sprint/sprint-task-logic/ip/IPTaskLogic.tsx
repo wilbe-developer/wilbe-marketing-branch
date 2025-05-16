@@ -26,7 +26,8 @@ const IPTaskLogic: React.FC<IPTaskLogicProps> = ({
     handleStepChange,
     conditionalFlow,
     currentStepIndex,
-    answers
+    answers,
+    updateAnswers
   } = useIPTaskData(task, sprintProfile);
 
   // Wrap onComplete to use our handler with answers
@@ -50,6 +51,7 @@ const IPTaskLogic: React.FC<IPTaskLogicProps> = ({
           isCompleted={isCompleted}
           onComplete={completeTask}
           onStepChange={handleStepChange}
+          onAnswerUpdate={updateAnswers}
           isLoading={isLoading}
           conditionalFlow={conditionalFlow}
         />

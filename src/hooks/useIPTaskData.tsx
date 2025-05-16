@@ -167,7 +167,7 @@ export const useIPTaskData = (task: any, sprintProfile: any) => {
     } finally {
       setIsLoading(false);
     }
-  }, [sprintProfile, task, answers]); // Depend on answers to rebuild steps when answers change
+  }, [sprintProfile, task, answers]); // Keep answers as a dependency to rebuild steps when answers change
 
   // Create a proper conditional flow configuration
   const buildConditionalFlow = () => {
@@ -202,11 +202,14 @@ export const useIPTaskData = (task: any, sprintProfile: any) => {
 
   // Update answers when a user selects an option
   const updateAnswers = (stepIndex: number, answer: any) => {
+    console.log("IP task updateAnswers called with:", { stepIndex, answer });
+    
     const newAnswers = { ...answers, [stepIndex]: answer };
     setAnswers(newAnswers);
     
     // Immediately save to database when answers change
     if (task?.id) {
+      console.log("Saving IP task progress with answers:", newAnswers);
       updateProgress.mutate({
         taskId: task.id,
         completed: false,
