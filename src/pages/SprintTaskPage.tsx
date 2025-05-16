@@ -12,6 +12,7 @@ import { MessageCircle } from 'lucide-react';
 import { SharedSprintBanner } from '@/components/sprint/SharedSprintBanner';
 import { supabase } from '@/integrations/supabase/client';
 import { SprintTaskDefinition } from '@/types/task-builder';
+import { generateTaskSummary } from '@/utils/taskDefinitionAdapter';
 
 const SprintTaskPage = () => {
   const { taskId } = useParams<{ taskId: string }>();
@@ -83,6 +84,9 @@ const SprintTaskPage = () => {
 
   const isCompleted = currentTask.progress?.completed || false;
   const hasUploadedFile = !!currentTask.progress?.file_id;
+  
+  // Generate a display summary if we have the task definition
+  const taskSummary = taskDefinition ? generateTaskSummary(taskDefinition) : currentTask;
 
   const handleTaskCompletion = async (fileId?: string) => {
     await updateProgress.mutateAsync({
@@ -106,6 +110,7 @@ const SprintTaskPage = () => {
       task={currentTask}
       isCompleted={isCompleted}
       onComplete={handleTaskCompletion}
+      taskDefinition={taskDefinition?.definition}
     />
   );
 
@@ -114,7 +119,9 @@ const SprintTaskPage = () => {
       <SharedSprintBanner />
       
       <div className="flex justify-between items-center">
-        <h1 className={`${isMobile ? 'text-2xl mb-1' : 'text-3xl mb-2'} font-bold`}>{currentTask.title}</h1>
+        <h1 className={`${isMobile ? 'text-2xl mb-1' : 'text-3xl mb-2'} font-bold`}>
+          {taskSummary.title}
+        </h1>
         
         <Button 
           variant="outline" 
@@ -126,11 +133,13 @@ const SprintTaskPage = () => {
         </Button>
       </div>
       
-      <p className={`text-gray-600 ${isMobile ? 'mb-4 text-sm' : 'mb-8'}`}>{currentTask.description}</p>
+      <p className={`text-gray-600 ${isMobile ? 'mb-4 text-sm' : 'mb-8'}`}>
+        {taskSummary.description}
+      </p>
 
-      {currentTask.content && (
+      {taskSummary.content && (
         <div className={`bg-white rounded-lg shadow-sm border ${isMobile ? 'p-3 mb-4' : 'p-6 mb-8'}`}>
-          <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: currentTask.content }} />
+          <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: taskSummary.content }} />
         </div>
       )}
 

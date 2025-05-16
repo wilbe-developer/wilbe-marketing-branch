@@ -6,6 +6,7 @@ import { UserTaskProgress } from "@/types/sprint";
 import { useAuth } from "./useAuth";
 import { useSprintContext } from "./useSprintContext";
 import { toast } from "sonner";
+import { generateTaskSummary, requiresUpload, getMainContent, getMainQuestion } from "@/utils/taskDefinitionAdapter";
 
 export const useSprintTaskDefinitions = () => {
   const { user } = useAuth();
@@ -80,17 +81,20 @@ export const useSprintTaskDefinitions = () => {
     const taskId = taskDef.id;
     const progress = userProgress?.find(p => p.task_id === taskId);
 
+    // Generate task summary for display
+    const summary = generateTaskSummary(taskDef);
+
     // Convert task definition to UserTaskProgress format
     const taskProgress: UserTaskProgress = {
       id: taskDef.id,
-      title: taskDef.name,
-      description: taskDef.description || "",
+      title: summary.title,
+      description: summary.description || "",
       order_index: 0, // We'll need to add this to the definitions table later
-      upload_required: taskDef.definition?.requiresUpload || false,
-      content: taskDef.definition?.content || null,
-      question: taskDef.definition?.mainQuestion || null,
+      upload_required: summary.requiresUpload,
+      content: summary.content,
+      question: summary.mainQuestion,
       options: null,
-      category: taskDef.definition?.category || null,
+      category: summary.category,
       status: "active",
       progress: progress ? {
         ...progress,

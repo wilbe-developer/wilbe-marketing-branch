@@ -1,0 +1,114 @@
+
+export interface SprintTaskDefinition {
+  id: string;
+  name: string;
+  description?: string;
+  created_at?: string;
+  updated_at?: string;
+  definition: TaskDefinition;
+}
+
+export interface TaskDefinition {
+  taskName: string;
+  description?: string;
+  
+  // Core fields for task functionality
+  steps: StepNode[];
+  profileQuestions?: ProfileQuestion[];
+  staticPanels?: StaticPanel[];
+  
+  // Display and metadata fields
+  category?: string;
+  coverImage?: string;
+  estimatedTime?: string;
+  difficulty?: string;
+  
+  // Custom fields that can be extended as needed
+  customFields?: Record<string, any>;
+}
+
+export interface StepNode {
+  id: string;
+  type: StepType;
+  text: string;
+  description?: string;
+  
+  // Fields for different step types
+  inputType?: InputType;
+  options?: Option[];
+  uploadConfig?: UploadConfig;
+  content?: string;
+  
+  // Conditional visibility
+  conditions?: Condition[];
+  
+  // Parent-child structure for nested steps
+  parentId?: string;
+  children?: StepNode[];
+}
+
+export type StepType = 
+  | 'question'    // Multiple choice or input question
+  | 'content'     // Static content/info
+  | 'upload'      // File upload component
+  | 'feedback'    // Feedback or evaluation
+  | 'action'      // User needs to take some action
+  | 'container';  // Container for child steps
+
+export type InputType = 
+  | 'text' 
+  | 'textarea' 
+  | 'radio' 
+  | 'checkbox' 
+  | 'select' 
+  | 'multiselect'
+  | 'date'
+  | 'number'
+  | 'email'
+  | 'url'
+  | 'file';
+
+export interface Option {
+  label: string;
+  value: string;
+  description?: string;
+}
+
+export interface UploadConfig {
+  allowedFileTypes?: string[];
+  maxSizeInMB?: number;
+  required?: boolean;
+  multiple?: boolean;
+}
+
+export interface ProfileQuestion {
+  key: string;
+  text: string;
+  type: ProfileQuestionType;
+  description?: string;
+  options?: string[]; // For select/multiselect types
+  defaultValue?: any;
+  required?: boolean;
+}
+
+export type ProfileQuestionType = 'boolean' | 'text' | 'select' | 'multiselect';
+
+export interface StaticPanel {
+  id: string;
+  title?: string;
+  content: string;
+  type?: 'info' | 'warning' | 'success' | 'error';
+  conditions?: Condition[];
+}
+
+export interface Condition {
+  source: ConditionSource;
+  operator: ConditionOperator;
+  value: any;
+}
+
+export type ConditionOperator = 'equals' | 'not_equals' | 'in' | 'not_in';
+
+export type ConditionSource = 
+  | { profileKey: string }  // Source is a profile answer
+  | { stepId: string };     // Source is a step answer
