@@ -7,6 +7,15 @@ import { getTaskDefinition } from '@/data/task-definitions';
 import { supabase } from '@/integrations/supabase/client';
 import { TaskDefinition } from '@/types/task-definition';
 
+// Helper function to validate profile type
+const validateProfileType = (type: string | null | undefined): "string" | "boolean" | "select" | "multi-select" => {
+  if (type === "string" || type === "boolean" || type === "select" || type === "multi-select") {
+    return type;
+  }
+  // Default to "boolean" if invalid type is provided
+  return "boolean";
+};
+
 export const useTaskFactory = (
   taskTitle: string,
   task: any,
@@ -57,7 +66,7 @@ export const useTaskFactory = (
             // Convert other snake_case fields to camelCase
             if (data.profile_key) parsedData.profileKey = data.profile_key;
             if (data.profile_label) parsedData.profileLabel = data.profile_label;
-            if (data.profile_type) parsedData.profileType = data.profile_type;
+            if (data.profile_type) parsedData.profileType = validateProfileType(data.profile_type);
             
             setDbTaskDefinition(parsedData);
           } catch (parseError) {
