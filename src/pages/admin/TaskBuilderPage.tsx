@@ -1,19 +1,21 @@
 
-import React, { Suspense, useState, useEffect } from "react";
+import React, { Suspense, useState, useEffect, useRef } from "react";
 import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import TaskDefinitionList from "@/components/admin/task-builder/TaskDefinitionList";
 import TaskDefinitionEditor from "@/components/admin/task-builder/TaskDefinitionEditor";
 import SimplifiedTaskEditor from "@/components/admin/task-builder/SimplifiedTaskEditor";
 import { ErrorBoundary } from "react-error-boundary";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, AlertCircle, RefreshCw } from "lucide-react";
+import { ArrowLeft, AlertCircle, RefreshCw, AlertOctagon } from "lucide-react";
 import { toast } from "sonner";
 import { 
   Card, 
   CardContent, 
   CardHeader, 
-  CardTitle 
+  CardTitle,
+  CardFooter
 } from "@/components/ui/card";
+import { supabase } from "@/integrations/supabase/client";
 
 // Error fallback component
 const ErrorFallback = ({ error, resetErrorBoundary }: { error: Error, resetErrorBoundary: () => void }) => {
@@ -49,12 +51,144 @@ const LoadingFallback = () => (
   </div>
 );
 
+// Maximum loading time before showing recovery options
+const EDITOR_LOAD_TIMEOUT = 12000;
+
+// Emergency editor when all else fails
+const EmergencyJsonEditor = ({ taskId }: { taskId: string }) => {
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
+  const [taskData, setTaskData] = useState<any>(null);
+  const [jsonContent, setJsonContent] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  
+  useEffect(() => {
+    const fetchRawTask = async () => {
+      try {
+        setIsLoading(true);
+        const { data, error } = await supabase
+          .from("sprint_task_definitions")
+          .select("*")
+          .eq("id", taskId)
+          .single();
+          
+        if (error) throw error;
+        
+        setTaskData(data);
+        setJsonContent(JSON.stringify(data.definition, null, 2));
+      } catch (err: any) {
+        console.error("Error loading raw task data:", err);
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchRawTask();
+  }, [taskId]);
+  
+  const handleSave = async () => {
+    try {
+      setIsSaving(true);
+      
+      // Validate JSON
+      const parsedJson = JSON.parse(jsonContent);
+      
+      // Update the task
+      const { error } = await supabase
+        .from("sprint_task_definitions")
+        .update({
+          definition: parsedJson
+        })
+        .eq("id", taskId);
+        
+      if (error) throw error;
+      
+      toast.success("Task definition updated successfully");
+      // Redirect back to task list
+      setTimeout(() => navigate("/admin/task-builder"), 1000);
+    } catch (err: any) {
+      console.error("Error saving task:", err);
+      setError(err.message);
+      toast.error(`Failed to save: ${err.message}`);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+  
+  if (isLoading) {
+    return <LoadingFallback />;
+  }
+  
+  return (
+    <Card className="mb-4">
+      <CardHeader>
+        <CardTitle className="flex items-center">
+          <AlertOctagon className="text-amber-600 mr-2" size={20} />
+          Emergency Task Editor
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p className="text-sm mb-4 text-gray-600">
+          This is a simplified emergency editor for when the main editors are not working.
+          You can directly edit the JSON definition of the task.
+        </p>
+        {error && (
+          <div className="mb-4 text-red-500 text-sm p-2 bg-red-50 rounded">
+            Error: {error}
+          </div>
+        )}
+        <textarea
+          value={jsonContent}
+          onChange={(e) => setJsonContent(e.target.value)}
+          className="w-full h-[400px] font-mono text-sm p-4 border border-gray-300 rounded"
+        />
+      </CardContent>
+      <CardFooter className="flex justify-between">
+        <Button variant="outline" onClick={() => navigate("/admin/task-builder")}>
+          <ArrowLeft size={16} className="mr-2" />
+          Back to Task List
+        </Button>
+        <Button onClick={handleSave} disabled={isSaving}>
+          {isSaving ? "Saving..." : "Save Changes"}
+        </Button>
+      </CardFooter>
+    </Card>
+  );
+};
+
 // Editor wrapper component that allows switching between editor types
 const EditorWrapper = ({ simplified = false }) => {
   const [useSimplifiedEditor, setUseSimplifiedEditor] = useState<boolean>(simplified);
   const [editorKey, setEditorKey] = useState<number>(0);
+  const [editorError, setEditorError] = useState<boolean>(false);
+  const [editorTimedOut, setEditorTimedOut] = useState<boolean>(false);
+  const timeoutRef = useRef<number | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
+  
+  // Get taskId from URL
+  const taskId = location.pathname.split('/').pop() || "";
+  
+  // Clear previous timeout when component unmounts or editor type changes
+  useEffect(() => {
+    if (timeoutRef.current) {
+      window.clearTimeout(timeoutRef.current);
+    }
+    
+    // Set a timeout to show recovery options if editor takes too long to load
+    timeoutRef.current = window.setTimeout(() => {
+      setEditorTimedOut(true);
+    }, EDITOR_LOAD_TIMEOUT);
+    
+    return () => {
+      if (timeoutRef.current) {
+        window.clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+    };
+  }, [useSimplifiedEditor, editorKey]);
   
   // If we're on a simplified route but not using simplified editor, or vice versa, redirect
   useEffect(() => {
@@ -65,6 +199,11 @@ const EditorWrapper = ({ simplified = false }) => {
   }, [location.pathname, useSimplifiedEditor]);
   
   const toggleEditor = () => {
+    if (timeoutRef.current) {
+      window.clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+    
     const newEditorType = !useSimplifiedEditor;
     setUseSimplifiedEditor(newEditorType);
     
@@ -76,6 +215,24 @@ const EditorWrapper = ({ simplified = false }) => {
     
     navigate(newPath);
     setEditorKey(prev => prev + 1); // Force a complete remount
+    setEditorError(false);
+    setEditorTimedOut(false);
+  };
+  
+  const handleRefresh = () => {
+    if (timeoutRef.current) {
+      window.clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+    
+    setEditorKey(prev => prev + 1);
+    setEditorError(false);
+    setEditorTimedOut(false);
+    
+    // Set a new timeout
+    timeoutRef.current = window.setTimeout(() => {
+      setEditorTimedOut(true);
+    }, EDITOR_LOAD_TIMEOUT);
   };
   
   return (
@@ -84,6 +241,7 @@ const EditorWrapper = ({ simplified = false }) => {
       resetKeys={[useSimplifiedEditor, editorKey]}
       onReset={() => {
         console.log("Editor error boundary reset");
+        setEditorError(true);
         setEditorKey(prev => prev + 1); // Force fresh remount on recovery
       }}
     >
@@ -96,10 +254,10 @@ const EditorWrapper = ({ simplified = false }) => {
                 <Button 
                   size="sm" 
                   variant="outline" 
-                  onClick={() => window.location.reload()}
+                  onClick={handleRefresh}
                 >
                   <RefreshCw size={16} className="mr-2" />
-                  Refresh
+                  Refresh Editor
                 </Button>
                 <Button 
                   size="sm" 
@@ -116,16 +274,71 @@ const EditorWrapper = ({ simplified = false }) => {
               ? "You're using the simplified editor. It has fewer features but is more stable."
               : "You're using the advanced editor with all features including drag-and-drop."
             }
+            {editorError && (
+              <div className="mt-2 text-amber-600">
+                There was an error with the editor. You may want to switch to the 
+                {useSimplifiedEditor ? " advanced " : " simplified "}
+                editor or refresh.
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
       
-      <div key={editorKey}>
-        {useSimplifiedEditor 
-          ? <SimplifiedTaskEditor />
-          : <TaskDefinitionEditor />
-        }
-      </div>
+      {editorTimedOut && (
+        <Card className="mb-4 border-amber-200">
+          <CardHeader className="py-3 bg-amber-50">
+            <CardTitle className="flex items-center text-amber-700 text-sm">
+              <AlertOctagon className="mr-2 h-4 w-4" />
+              Editor Load Timeout
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="py-4">
+            <p className="text-sm mb-4">
+              The editor is taking longer than expected to load. You have several options:
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <Button size="sm" variant="outline" onClick={handleRefresh}>
+                <RefreshCw size={16} className="mr-2" />
+                Refresh Current Editor
+              </Button>
+              <Button size="sm" variant="outline" onClick={toggleEditor}>
+                Try {useSimplifiedEditor ? "Advanced" : "Simplified"} Editor
+              </Button>
+              <Button 
+                size="sm" 
+                variant="outline" 
+                onClick={() => navigate("/admin/task-builder")}
+              >
+                <ArrowLeft size={16} className="mr-2" />
+                Return to Task List
+              </Button>
+              {taskId && taskId !== "new" && (
+                <Button 
+                  size="sm" 
+                  variant="secondary"
+                  className="bg-amber-100 hover:bg-amber-200 text-amber-900"
+                  onClick={() => setEditorError(true)}
+                >
+                  <AlertOctagon size={16} className="mr-2" />
+                  Use Emergency Editor
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+      
+      {editorError && taskId && taskId !== "new" ? (
+        <EmergencyJsonEditor taskId={taskId} />
+      ) : (
+        <div key={editorKey}>
+          {useSimplifiedEditor 
+            ? <SimplifiedTaskEditor />
+            : <TaskDefinitionEditor />
+          }
+        </div>
+      )}
     </ErrorBoundary>
   );
 };

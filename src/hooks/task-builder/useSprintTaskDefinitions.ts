@@ -3,24 +3,15 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { SprintTaskDefinition, TaskDefinition } from "@/types/task-builder";
 import { toast } from "sonner";
-import { v4 as uuidv4 } from "uuid";
-
-// Stable ID generator with fallback
-const generateStableId = () => {
-  try {
-    return uuidv4();
-  } catch (error) {
-    console.error("UUID generation failed, using timestamp fallback:", error);
-    return `fallback-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-  }
-};
+import { ensureValidIdsInObject, generateStableId } from "@/utils/stableId";
 
 export const useSprintTaskDefinitions = () => {
   const queryClient = useQueryClient();
+  const fetchTasksQueryKey = "sprintTaskDefinitions";
 
   // Fetch all task definitions
   const { data: taskDefinitions, isLoading, error } = useQuery({
-    queryKey: ["sprintTaskDefinitions"],
+    queryKey: [fetchTasksQueryKey],
     queryFn: async () => {
       try {
         console.log("Fetching all task definitions");
@@ -50,8 +41,8 @@ export const useSprintTaskDefinitions = () => {
             if (typeof item.definition === 'string') {
               parsedDefinition = JSON.parse(item.definition) as TaskDefinition;
             } else if (item.definition && typeof item.definition === 'object') {
-              // Add explicit type assertion with safety check
-              const definitionObj = item.definition as Record<string, any>;
+              // Create a deep clone to avoid reference issues
+              const definitionObj = JSON.parse(JSON.stringify(item.definition)) as Record<string, any>;
               parsedDefinition = {
                 taskName: definitionObj.taskName || item.name || "Unnamed Task",
                 steps: Array.isArray(definitionObj.steps) ? definitionObj.steps : [],
@@ -65,7 +56,7 @@ export const useSprintTaskDefinitions = () => {
               throw new Error("Invalid definition format");
             }
               
-            // Ensure required properties exist
+            // Ensure required properties exist and validate IDs
             if (!parsedDefinition.taskName) {
               console.warn(`Task ${item.id} missing taskName, adding default`);
               parsedDefinition.taskName = item.name || "Unnamed Task";
@@ -74,12 +65,21 @@ export const useSprintTaskDefinitions = () => {
             if (!Array.isArray(parsedDefinition.steps)) {
               console.warn(`Task ${item.id} missing steps array, adding empty array`);
               parsedDefinition.steps = [];
+            } else {
+              // Ensure valid IDs for steps
+              parsedDefinition.steps = parsedDefinition.steps.map(step => ({
+                ...step,
+                id: ensureValidIdsInObject(step).id
+              }));
             }
             
             if (!Array.isArray(parsedDefinition.profileQuestions)) {
               console.warn(`Task ${item.id} missing profileQuestions array, adding empty array`);
               parsedDefinition.profileQuestions = [];
             }
+            
+            // Process the entire definition to ensure valid IDs
+            parsedDefinition = ensureValidIdsInObject(parsedDefinition);
             
             return {
               ...item,
@@ -104,12 +104,12 @@ export const useSprintTaskDefinitions = () => {
         throw err;
       }
     },
-    retry: 2,
+    retry: 3, // Increase retries for network/transient issues
     staleTime: 30000, // 30 seconds - don't refetch too frequently
     refetchOnWindowFocus: false
   });
 
-  // Fetch a single task definition by ID
+  // Fetch a single task definition by ID with improved handling
   const fetchTaskDefinition = async (id: string) => {
     try {
       if (!id) {
@@ -136,15 +136,15 @@ export const useSprintTaskDefinitions = () => {
 
       console.log("Raw task data from database:", data);
       
-      // Ensure definition is properly parsed
+      // Ensure definition is properly parsed and cloned to avoid reference issues
       let parsedDefinition: TaskDefinition;
       
       try {
         if (typeof data.definition === 'string') {
           parsedDefinition = JSON.parse(data.definition) as TaskDefinition;
         } else if (data.definition && typeof data.definition === 'object') {
-          // Add explicit type assertion with safety check
-          const definitionObj = data.definition as Record<string, any>;
+          // Deep clone the definition
+          const definitionObj = JSON.parse(JSON.stringify(data.definition)) as Record<string, any>;
           parsedDefinition = {
             taskName: definitionObj.taskName || data.name || "Unnamed Task",
             steps: Array.isArray(definitionObj.steps) ? definitionObj.steps : [],
@@ -157,7 +157,7 @@ export const useSprintTaskDefinitions = () => {
         } else {
           throw new Error("Invalid definition data format");
         }
-            
+        
         // Validate required fields exist
         if (!parsedDefinition.taskName || !Array.isArray(parsedDefinition.steps)) {
           console.warn("Task definition missing required fields, adding defaults");
@@ -172,6 +172,9 @@ export const useSprintTaskDefinitions = () => {
         if (!Array.isArray(parsedDefinition.profileQuestions)) {
           parsedDefinition.profileQuestions = [];
         }
+        
+        // Ensure all IDs are valid throughout the definition
+        parsedDefinition = ensureValidIdsInObject(parsedDefinition);
       } catch (parseError) {
         console.error("Failed to parse definition:", parseError, data.definition);
         // Provide a fallback minimal definition
@@ -189,6 +192,10 @@ export const useSprintTaskDefinitions = () => {
       } as SprintTaskDefinition;
       
       console.log("Processed task definition:", result);
+      
+      // Cache the result for faster access
+      queryClient.setQueryData([fetchTasksQueryKey, id], result);
+      
       return result;
     } catch (error: any) {
       console.error("Error fetching task definition:", error);
@@ -196,7 +203,7 @@ export const useSprintTaskDefinitions = () => {
     }
   };
 
-  // Create a new task definition
+  // Create a new task definition with valid IDs
   const createTaskDefinition = useMutation({
     mutationFn: async (taskDefinition: Omit<SprintTaskDefinition, "id" | "created_at" | "updated_at">) => {
       try {
@@ -213,37 +220,30 @@ export const useSprintTaskDefinitions = () => {
           throw new Error("Task name is required");
         }
         
+        // Deep clone the definition to avoid reference issues
+        const processedDefinition = JSON.parse(JSON.stringify(taskDefinition.definition)) as TaskDefinition;
+        
         // Make sure steps array exists
-        if (!Array.isArray(taskDefinition.definition.steps)) {
+        if (!Array.isArray(processedDefinition.steps)) {
           console.warn("No steps array found, creating empty one");
-          taskDefinition.definition.steps = [];
+          processedDefinition.steps = [];
         }
         
         // Make sure profileQuestions array exists
-        if (!Array.isArray(taskDefinition.definition.profileQuestions)) {
+        if (!Array.isArray(processedDefinition.profileQuestions)) {
           console.warn("No profileQuestions array found, creating empty one");
-          taskDefinition.definition.profileQuestions = [];
+          processedDefinition.profileQuestions = [];
         }
         
-        // Ensure all steps have stable IDs
-        if (taskDefinition.definition.steps) {
-          taskDefinition.definition.steps = taskDefinition.definition.steps.map(step => {
-            if (!step.id) {
-              return {
-                ...step,
-                id: generateStableId()
-              };
-            }
-            return step;
-          });
-        }
+        // Ensure all IDs throughout the definition are valid
+        const validatedDefinition = ensureValidIdsInObject(processedDefinition);
         
         const { data, error } = await supabase
           .from("sprint_task_definitions")
           .insert({
             name: taskDefinition.name,
             description: taskDefinition.description,
-            definition: taskDefinition.definition as any // Type cast to any for JSON compatibility
+            definition: validatedDefinition as any // Type cast to any for JSON compatibility
           })
           .select()
           .single();
@@ -266,7 +266,7 @@ export const useSprintTaskDefinitions = () => {
           definition = JSON.parse(data.definition) as TaskDefinition;
         } else if (data.definition && typeof data.definition === 'object') {
           // Add explicit type assertion with safety check
-          const definitionObj = data.definition as Record<string, any>;
+          const definitionObj = JSON.parse(JSON.stringify(data.definition)) as Record<string, any>;
           definition = {
             taskName: definitionObj.taskName || data.name || "Unnamed Task",
             steps: Array.isArray(definitionObj.steps) ? definitionObj.steps : [],
@@ -284,6 +284,9 @@ export const useSprintTaskDefinitions = () => {
             profileQuestions: []
           };
         }
+        
+        // Ensure all IDs are valid
+        definition = ensureValidIdsInObject(definition);
 
         return {
           ...data,
@@ -294,8 +297,9 @@ export const useSprintTaskDefinitions = () => {
         throw err;
       }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["sprintTaskDefinitions"] });
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: [fetchTasksQueryKey] });
+      queryClient.setQueryData([fetchTasksQueryKey, data.id], data);
     },
     onError: (error: Error) => {
       console.error("Task creation error:", error);
@@ -322,31 +326,24 @@ export const useSprintTaskDefinitions = () => {
           throw new Error("Task definition is required");
         }
         
+        // Deep clone the definition to avoid reference issues
+        const processedDefinition = JSON.parse(JSON.stringify(taskDefinition.definition)) as TaskDefinition;
+        
         // Make sure steps array exists
-        if (!Array.isArray(taskDefinition.definition.steps)) {
+        if (!Array.isArray(processedDefinition.steps)) {
           console.warn("No steps array found, creating empty one");
-          taskDefinition.definition.steps = [];
+          processedDefinition.steps = [];
         }
 
-        // Ensure all steps have stable IDs
-        if (taskDefinition.definition.steps) {
-          taskDefinition.definition.steps = taskDefinition.definition.steps.map(step => {
-            if (!step.id) {
-              return {
-                ...step,
-                id: generateStableId()
-              };
-            }
-            return step;
-          });
-        }
+        // Ensure all IDs are valid
+        const validatedDefinition = ensureValidIdsInObject(processedDefinition);
         
         const { data, error } = await supabase
           .from("sprint_task_definitions")
           .update({
             name: taskDefinition.name,
             description: taskDefinition.description,
-            definition: taskDefinition.definition as any // Type cast to any for JSON compatibility
+            definition: validatedDefinition as any // Type cast to any for JSON compatibility
           })
           .eq("id", taskDefinition.id)
           .select()
@@ -370,7 +367,7 @@ export const useSprintTaskDefinitions = () => {
           definition = JSON.parse(data.definition) as TaskDefinition;
         } else if (data.definition && typeof data.definition === 'object') {
           // Add explicit type assertion with safety check
-          const definitionObj = data.definition as Record<string, any>;
+          const definitionObj = JSON.parse(JSON.stringify(data.definition)) as Record<string, any>;
           definition = {
             taskName: definitionObj.taskName || data.name || "Unnamed Task",
             steps: Array.isArray(definitionObj.steps) ? definitionObj.steps : [],
@@ -388,18 +385,28 @@ export const useSprintTaskDefinitions = () => {
             profileQuestions: []
           };
         }
+        
+        // Ensure all IDs are valid
+        definition = ensureValidIdsInObject(definition);
 
-        return {
+        const result = {
           ...data,
           definition
         } as SprintTaskDefinition;
+        
+        // Update the cache
+        queryClient.setQueryData([fetchTasksQueryKey, result.id], result);
+        
+        return result;
       } catch (err: any) {
         console.error("Exception in updateTaskDefinition:", err);
         throw err;
       }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["sprintTaskDefinitions"] });
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: [fetchTasksQueryKey] });
+      queryClient.setQueryData([fetchTasksQueryKey, data.id], data);
+      toast.success("Task definition updated successfully");
     },
     onError: (error: Error) => {
       console.error("Task update error:", error);
@@ -430,8 +437,9 @@ export const useSprintTaskDefinitions = () => {
         throw err;
       }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["sprintTaskDefinitions"] });
+    onSuccess: (id) => {
+      queryClient.invalidateQueries({ queryKey: [fetchTasksQueryKey] });
+      queryClient.removeQueries({ queryKey: [fetchTasksQueryKey, id] });
     },
     onError: (error: Error) => {
       console.error("Task deletion error:", error);
@@ -439,7 +447,7 @@ export const useSprintTaskDefinitions = () => {
     }
   });
 
-  // Create a new empty task definition template
+  // Create a new empty task definition template with valid IDs
   const createEmptyTaskDefinition = (): Omit<SprintTaskDefinition, "id" | "created_at" | "updated_at"> => {
     try {
       console.log("Creating empty task definition template");
