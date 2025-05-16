@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import TeamTaskLogic from "./TeamTaskLogic";
 import GenericTaskLogic from "../task-system/GenericTaskLogic";
@@ -28,11 +27,49 @@ export const SprintTaskLogicRouter = ({
   onComplete: (fileId?: string) => void;
 }) => {
   const [dbTaskDefinition, setDbTaskDefinition] = useState<TaskDefinition | null>(null);
+  const [dynamicTaskDefinition, setDynamicTaskDefinition] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   
-  // Try to load task definition from database
+  // First check if we have a dynamic task definition
+  useEffect(() => {
+    const fetchDynamicTaskDefinition = async () => {
+      setIsLoading(true);
+      
+      try {
+        const { data, error } = await supabase
+          .from('sprint_task_definitions')
+          .select('*')
+          .eq('name', task.title)
+          .maybeSingle(); // Use maybeSingle to avoid errors when nothing is found
+          
+        if (error) {
+          console.error('Error fetching dynamic task definition:', error);
+        } else if (data) {
+          console.log('Found dynamic task definition:', data.name);
+          setDynamicTaskDefinition(data);
+        } else {
+          console.log('No dynamic task definition found for:', task.title);
+        }
+      } catch (err) {
+        console.error('Failed to fetch dynamic task definition:', err);
+      }
+    };
+    
+    // If we have a task title, try to fetch dynamic task definition
+    if (task.title) {
+      fetchDynamicTaskDefinition();
+    }
+  }, [task.title]);
+  
+  // If no dynamic task, fall back to old task definition
   useEffect(() => {
     const fetchTaskDefinition = async () => {
+      // Only try to fetch old definition if we didn't find a dynamic one
+      if (dynamicTaskDefinition) {
+        setIsLoading(false);
+        return;
+      }
+      
       setIsLoading(true);
       
       try {

@@ -7,9 +7,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import UserApprovalsTab from "../components/admin/tabs/UserApprovalsTab";
 import RolesManager from "../components/admin/RolesManager";
 import ContentManagementTab from "../components/admin/tabs/ContentManagementTab";
+import TaskDefinitionsTab from "../components/admin/tabs/TaskDefinitionsTab";
 import PlatformSettingsTab from "../components/admin/tabs/PlatformSettingsTab";
 import SprintActivityTab from "../components/admin/tabs/SprintActivityTab";
-import TaskDefinitionsTab from "../components/admin/tabs/TaskDefinitionsTab";
+import TaskBuilderPage from "./admin/TaskBuilderPage";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { 
   Select, 
@@ -54,7 +55,8 @@ const AdminPage = () => {
               <SelectItem value="approvals">User Approvals</SelectItem>
               <SelectItem value="roles">User Roles</SelectItem>
               <SelectItem value="content">Content Management</SelectItem>
-              <SelectItem value="tasks">Task Management</SelectItem>
+              <SelectItem value="tasks">Task Definitions</SelectItem>
+              <SelectItem value="task-builder">Task Builder</SelectItem>
               <SelectItem value="settings">Platform Settings</SelectItem>
               <SelectItem value="sprint">Sprint Activity</SelectItem>
             </SelectContent>
@@ -68,7 +70,8 @@ const AdminPage = () => {
             <TabsTrigger value="approvals">User Approvals</TabsTrigger>
             <TabsTrigger value="roles">User Roles</TabsTrigger>
             <TabsTrigger value="content">Content Management</TabsTrigger>
-            <TabsTrigger value="tasks">Task Management</TabsTrigger>
+            <TabsTrigger value="tasks">Task Definitions</TabsTrigger>
+            <TabsTrigger value="task-builder">Task Builder</TabsTrigger>
             <TabsTrigger value="settings">Platform Settings</TabsTrigger>
             <TabsTrigger value="sprint">Sprint Activity</TabsTrigger>
           </TabsList>
@@ -88,6 +91,10 @@ const AdminPage = () => {
         
         <TabsContent value="tasks">
           <TaskDefinitionsTab />
+        </TabsContent>
+        
+        <TabsContent value="task-builder">
+          <TaskBuilderPage />
         </TabsContent>
 
         <TabsContent value="settings">

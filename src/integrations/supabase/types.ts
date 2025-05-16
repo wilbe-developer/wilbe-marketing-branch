@@ -485,6 +485,33 @@ export type Database = {
         }
         Relationships: []
       }
+      sprint_task_definitions: {
+        Row: {
+          created_at: string | null
+          definition: Json
+          description: string | null
+          id: string
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          definition: Json
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          definition?: Json
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       sprint_tasks: {
         Row: {
           category: string | null
@@ -800,6 +827,50 @@ export type Database = {
             columns: ["task_id"]
             isOneToOne: false
             referencedRelation: "sprint_tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_task_progress: {
+        Row: {
+          answers: Json | null
+          completed: boolean
+          completed_at: string | null
+          created_at: string
+          id: string
+          profile_updates: Json | null
+          task_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          answers?: Json | null
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          profile_updates?: Json | null
+          task_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          answers?: Json | null
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          profile_updates?: Json | null
+          task_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_task_progress_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "sprint_task_definitions"
             referencedColumns: ["id"]
           },
         ]
