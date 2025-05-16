@@ -41,7 +41,23 @@ const SprintTaskPage = () => {
         if (error) {
           console.error('Error fetching task definition:', error);
         } else if (data) {
-          setTaskDefinition(data);
+          // Process the definition before setting it
+          let parsedDefinition;
+          if (typeof data.definition === 'string') {
+            try {
+              parsedDefinition = JSON.parse(data.definition);
+            } catch (e) {
+              console.error("Failed to parse definition JSON:", e);
+              parsedDefinition = {};
+            }
+          } else {
+            parsedDefinition = data.definition || {};
+          }
+          
+          setTaskDefinition({
+            ...data,
+            definition: parsedDefinition
+          } as SprintTaskDefinition);
         }
       } catch (err) {
         console.error('Failed to fetch task definition:', err);

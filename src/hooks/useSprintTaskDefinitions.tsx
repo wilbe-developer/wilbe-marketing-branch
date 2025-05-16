@@ -23,7 +23,26 @@ export const useSprintTaskDefinitions = () => {
       
       if (error) throw error;
       
-      return data || [];
+      // Parse JSON definition if it's a string
+      return (data || []).map(item => {
+        let parsedDefinition;
+        
+        if (typeof item.definition === 'string') {
+          try {
+            parsedDefinition = JSON.parse(item.definition);
+          } catch (e) {
+            console.error("Failed to parse definition JSON:", e);
+            parsedDefinition = {};
+          }
+        } else {
+          parsedDefinition = item.definition || {};
+        }
+        
+        return {
+          ...item,
+          definition: parsedDefinition
+        } as SprintTaskDefinition;
+      });
     },
     enabled: !!user,
   });
@@ -41,7 +60,16 @@ export const useSprintTaskDefinitions = () => {
       
       if (error) throw error;
       
-      return data || [];
+      // Parse JSON fields if they're strings
+      return (data || []).map(item => ({
+        ...item,
+        answers: typeof item.answers === 'string' 
+          ? JSON.parse(item.answers) 
+          : (item.answers || null),
+        task_answers: typeof item.task_answers === 'string'
+          ? JSON.parse(item.task_answers)
+          : (item.task_answers || null)
+      }));
     },
     enabled: !!currentSprintOwnerId,
   });
@@ -64,7 +92,11 @@ export const useSprintTaskDefinitions = () => {
       options: null,
       category: taskDef.definition?.category || null,
       status: "active",
-      progress
+      progress: progress ? {
+        ...progress,
+        answers: progress.answers || null,
+        task_answers: progress.task_answers || null
+      } : undefined
     };
 
     return taskProgress;
@@ -136,7 +168,6 @@ export const useSprintTaskDefinitions = () => {
     },
     onError: (error) => {
       toast({
-        title: "Error",
         description: "Failed to update progress. Please try again.",
         variant: "destructive"
       });
