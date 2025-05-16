@@ -171,10 +171,7 @@ export const useSprintTaskDefinitions = () => {
       queryClient.invalidateQueries({ queryKey: ["userSprintProgress", currentSprintOwnerId] });
     },
     onError: (error) => {
-      toast({
-        description: "Failed to update progress. Please try again.",
-        variant: "destructive"
-      });
+      toast("Failed to update progress. Please try again.");
       console.error("Update progress error:", error);
     }
   });

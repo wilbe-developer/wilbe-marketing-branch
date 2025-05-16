@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Condition, ConditionOperator } from "@/types/task-builder";
+import { Condition, ConditionOperator, ConditionSource } from "@/types/task-builder";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -18,7 +18,6 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Plus, Trash2 } from "lucide-react";
-import { v4 as uuidv4 } from "uuid";
 
 interface ConditionsEditorProps {
   conditions: Condition[];
@@ -55,9 +54,15 @@ const ConditionsEditor: React.FC<ConditionsEditorProps> = ({
         newConditions[index].source = { stepId: "" };
       }
     } else if (field === "profileKey") {
-      newConditions[index].source = { profileKey: value };
+      // Only set profileKey if the current source type is profile
+      if ('profileKey' in newConditions[index].source) {
+        newConditions[index].source = { profileKey: value };
+      }
     } else if (field === "stepId") {
-      newConditions[index].source = { stepId: value };
+      // Only set stepId if the current source type is step
+      if ('stepId' in newConditions[index].source) {
+        newConditions[index].source = { stepId: value };
+      }
     } else if (field === "operator") {
       newConditions[index].operator = value as ConditionOperator;
     } else if (field === "value") {
@@ -67,12 +72,14 @@ const ConditionsEditor: React.FC<ConditionsEditorProps> = ({
     onChange(newConditions);
   };
 
-  const getSourceType = (condition: Condition) => {
-    return condition.source.profileKey !== undefined ? "profile" : "step";
+  const getSourceType = (condition: Condition): "profile" | "step" => {
+    return 'profileKey' in condition.source ? "profile" : "step";
   };
 
-  const getSourceValue = (condition: Condition) => {
-    return condition.source.profileKey || condition.source.stepId || "";
+  const getSourceValue = (condition: Condition): string => {
+    return 'profileKey' in condition.source 
+      ? condition.source.profileKey || ""
+      : condition.source.stepId || "";
   };
 
   if (conditions.length === 0) {
@@ -112,8 +119,8 @@ const ConditionsEditor: React.FC<ConditionsEditorProps> = ({
             <AccordionTrigger className="px-4 py-2 hover:no-underline">
               <div className="flex-1 text-left text-sm">
                 {getSourceType(condition) === "profile"
-                  ? `Profile: ${condition.source.profileKey || "..."}`
-                  : `Step: ${condition.source.stepId || "..."}`}{" "}
+                  ? `Profile: ${'profileKey' in condition.source ? condition.source.profileKey || "..." : "..."}`
+                  : `Step: ${'stepId' in condition.source ? condition.source.stepId || "..." : "..."}`}{" "}
                 {condition.operator} {String(condition.value)}
               </div>
             </AccordionTrigger>
@@ -143,7 +150,7 @@ const ConditionsEditor: React.FC<ConditionsEditorProps> = ({
                       <Label htmlFor={`profileKey-${index}`}>Profile Key</Label>
                       <Input
                         id={`profileKey-${index}`}
-                        value={condition.source.profileKey || ""}
+                        value={'profileKey' in condition.source ? condition.source.profileKey : ""}
                         onChange={(e) =>
                           handleConditionChange(
                             index,
@@ -159,7 +166,7 @@ const ConditionsEditor: React.FC<ConditionsEditorProps> = ({
                       <Label htmlFor={`stepId-${index}`}>Step ID</Label>
                       <Input
                         id={`stepId-${index}`}
-                        value={condition.source.stepId || ""}
+                        value={'stepId' in condition.source ? condition.source.stepId : ""}
                         onChange={(e) =>
                           handleConditionChange(index, "stepId", e.target.value)
                         }

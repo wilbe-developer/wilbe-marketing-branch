@@ -1,5 +1,5 @@
 
-import { StepNode, TaskDefinition, SprintTaskDefinition, ProfileQuestion } from "@/types/task-builder";
+import { StepNode, TaskDefinition, SprintTaskDefinition, ProfileQuestion, Condition, ConditionSource, ConditionOperator } from "@/types/task-builder";
 
 /**
  * Finds a step by ID in the steps tree
@@ -50,9 +50,15 @@ export function evaluateStepVisibility(
   
   // All conditions must be true for the step to be visible
   return step.conditions.every(condition => {
-    const sourceValue = 'profileKey' in condition.source 
-      ? profileAnswers[condition.source.profileKey]
-      : stepAnswers[condition.source.stepId];
+    let sourceValue;
+    
+    if ('profileKey' in condition.source) {
+      sourceValue = profileAnswers[condition.source.profileKey];
+    } else if ('stepId' in condition.source) {
+      sourceValue = stepAnswers[condition.source.stepId];
+    } else {
+      return true; // Invalid condition source, assume true
+    }
     
     switch (condition.operator) {
       case 'equals':
@@ -89,7 +95,7 @@ export function requiresUpload(taskDef: TaskDefinition): boolean {
   if (!taskDef.steps) return false;
   
   const flattened = flattenSteps(taskDef.steps);
-  return flattened.some(step => step.type === 'upload');
+  return flattened.some(step => step.type === 'upload' || step.type === 'file');
 }
 
 /**

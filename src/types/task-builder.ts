@@ -53,6 +53,8 @@ export type StepType =
   | 'upload'      // File upload component
   | 'feedback'    // Feedback or evaluation
   | 'action'      // User needs to take some action
+  | 'file'        // Alternate name for upload
+  | 'exercise'    // Exercise step
   | 'container';  // Container for child steps
 
 export type InputType = 
@@ -66,6 +68,7 @@ export type InputType =
   | 'number'
   | 'email'
   | 'url'
+  | 'boolean'
   | 'file';
 
 export interface Option {
@@ -93,10 +96,16 @@ export interface ProfileQuestion {
 
 export type ProfileQuestionType = 'boolean' | 'text' | 'select' | 'multiselect';
 
+export interface StaticPanelItem {
+  text: string;
+  order?: number;
+}
+
 export interface StaticPanel {
   id: string;
   title?: string;
-  content: string;
+  content?: string;
+  items?: StaticPanelItem[]; // Support either content or items[]
   type?: 'info' | 'warning' | 'success' | 'error';
   conditions?: Condition[];
 }
@@ -109,6 +118,7 @@ export interface Condition {
 
 export type ConditionOperator = 'equals' | 'not_equals' | 'in' | 'not_in';
 
+// Using a proper discriminated union for ConditionSource
 export type ConditionSource = 
-  | { profileKey: string }  // Source is a profile answer
-  | { stepId: string };     // Source is a step answer
+  | { profileKey: string; stepId?: never }  // Source is a profile answer
+  | { stepId: string; profileKey?: never };  // Source is a step answer

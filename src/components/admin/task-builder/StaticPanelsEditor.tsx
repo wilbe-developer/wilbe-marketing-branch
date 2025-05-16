@@ -55,6 +55,8 @@ const StaticPanelsEditor: React.FC<StaticPanelsEditorProps> = ({
       newPanels[index].conditions = value as Condition[];
     } else if (field === "title") {
       newPanels[index].title = value as string;
+    } else if (field === "content") {
+      newPanels[index].content = value as string;
     }
     
     onChange(newPanels);
@@ -62,14 +64,17 @@ const StaticPanelsEditor: React.FC<StaticPanelsEditorProps> = ({
 
   const handleAddItem = (panelIndex: number) => {
     const newPanels = [...staticPanels];
-    const currentItems = newPanels[panelIndex].items || [];
-    newPanels[panelIndex].items = [
-      ...currentItems,
-      {
-        text: "New item",
-        order: currentItems.length + 1,
-      },
-    ];
+    const panel = newPanels[panelIndex];
+    
+    // Initialize items array if it doesn't exist
+    if (!panel.items) {
+      panel.items = [];
+    }
+    
+    panel.items.push({
+      text: "New item",
+      order: panel.items.length + 1,
+    });
     
     onChange(newPanels);
   };
@@ -81,20 +86,51 @@ const StaticPanelsEditor: React.FC<StaticPanelsEditorProps> = ({
     value: string | number
   ) => {
     const newPanels = [...staticPanels];
-    // Fix type issue by using type assertion
-    if (field === "text") {
-      newPanels[panelIndex].items[itemIndex].text = value as string;
-    } else if (field === "order") {
-      newPanels[panelIndex].items[itemIndex].order = value as number;
+    const panel = newPanels[panelIndex];
+    
+    if (!panel.items) {
+      panel.items = [];
+      return;
     }
+    
+    if (field === "text") {
+      panel.items[itemIndex].text = value as string;
+    } else if (field === "order") {
+      panel.items[itemIndex].order = value as number;
+    }
+    
     onChange(newPanels);
   };
 
   const handleDeleteItem = (panelIndex: number, itemIndex: number) => {
     const newPanels = [...staticPanels];
-    newPanels[panelIndex].items = newPanels[panelIndex].items.filter(
-      (_, i) => i !== itemIndex
-    );
+    const panel = newPanels[panelIndex];
+    
+    if (!panel.items) return;
+    
+    panel.items = panel.items.filter((_, i) => i !== itemIndex);
+    onChange(newPanels);
+  };
+
+  const handleContentChange = (panelIndex: number, content: string) => {
+    const newPanels = [...staticPanels];
+    newPanels[panelIndex].content = content;
+    // If switching to content mode, remove items
+    delete newPanels[panelIndex].items;
+    onChange(newPanels);
+  };
+
+  const togglePanelMode = (panelIndex: number, mode: 'items' | 'content') => {
+    const newPanels = [...staticPanels];
+    const panel = newPanels[panelIndex];
+    
+    if (mode === 'items' && !panel.items) {
+      panel.items = [{ text: "Panel item 1", order: 1 }];
+      delete panel.content;
+    } else if (mode === 'content' && !panel.content) {
+      panel.content = "Panel content goes here...";
+      delete panel.items;
+    }
     
     onChange(newPanels);
   };
@@ -143,7 +179,7 @@ const StaticPanelsEditor: React.FC<StaticPanelsEditorProps> = ({
                 <Label htmlFor={`panel-title-${panelIndex}`}>Panel Title</Label>
                 <Input
                   id={`panel-title-${panelIndex}`}
-                  value={panel.title}
+                  value={panel.title || ""}
                   onChange={(e) =>
                     handlePanelChange(panelIndex, "title", e.target.value)
                   }
@@ -160,75 +196,106 @@ const StaticPanelsEditor: React.FC<StaticPanelsEditorProps> = ({
                 />
               </div>
 
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <Label>Panel Items</Label>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleAddItem(panelIndex)}
+              <div className="pt-2 border-t">
+                <div className="flex space-x-2 mb-4">
+                  <Button 
+                    size="sm" 
+                    variant={panel.items ? "default" : "outline"}
+                    onClick={() => togglePanelMode(panelIndex, 'items')}
                   >
-                    <Plus size={16} className="mr-1" />
-                    Add Item
+                    Items Mode
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant={panel.content ? "default" : "outline"}
+                    onClick={() => togglePanelMode(panelIndex, 'content')}
+                  >
+                    Content Mode
                   </Button>
                 </div>
 
-                {panel.items.map((item, itemIndex) => (
-                  <div
-                    key={itemIndex}
-                    className="p-3 border rounded-md space-y-2"
-                  >
+                {panel.items ? (
+                  <div className="space-y-3">
                     <div className="flex justify-between items-center">
-                      <Label htmlFor={`item-text-${panelIndex}-${itemIndex}`}>
-                        Item Text
-                      </Label>
+                      <Label>Panel Items</Label>
                       <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDeleteItem(panelIndex, itemIndex)}
-                        className="text-red-500 hover:text-red-700"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleAddItem(panelIndex)}
                       >
-                        <Trash2 size={16} />
+                        <Plus size={16} className="mr-1" />
+                        Add Item
                       </Button>
                     </div>
-                    <Textarea
-                      id={`item-text-${panelIndex}-${itemIndex}`}
-                      value={item.text}
-                      onChange={(e) =>
-                        handleItemChange(
-                          panelIndex,
-                          itemIndex,
-                          "text",
-                          e.target.value
-                        )
-                      }
-                      placeholder="Item text"
-                      rows={2}
-                    />
-                    <div className="flex items-center space-x-2">
-                      <Label
-                        htmlFor={`item-order-${panelIndex}-${itemIndex}`}
-                        className="whitespace-nowrap"
+
+                    {panel.items.map((item, itemIndex) => (
+                      <div
+                        key={itemIndex}
+                        className="p-3 border rounded-md space-y-2"
                       >
-                        Display Order
-                      </Label>
-                      <Input
-                        id={`item-order-${panelIndex}-${itemIndex}`}
-                        type="number"
-                        value={item.order || itemIndex + 1}
-                        onChange={(e) =>
-                          handleItemChange(
-                            panelIndex,
-                            itemIndex,
-                            "order",
-                            parseInt(e.target.value) || itemIndex + 1
-                          )
-                        }
-                        className="w-24"
-                      />
-                    </div>
+                        <div className="flex justify-between items-center">
+                          <Label htmlFor={`item-text-${panelIndex}-${itemIndex}`}>
+                            Item Text
+                          </Label>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDeleteItem(panelIndex, itemIndex)}
+                            className="text-red-500 hover:text-red-700"
+                          >
+                            <Trash2 size={16} />
+                          </Button>
+                        </div>
+                        <Textarea
+                          id={`item-text-${panelIndex}-${itemIndex}`}
+                          value={item.text}
+                          onChange={(e) =>
+                            handleItemChange(
+                              panelIndex,
+                              itemIndex,
+                              "text",
+                              e.target.value
+                            )
+                          }
+                          placeholder="Item text"
+                          rows={2}
+                        />
+                        <div className="flex items-center space-x-2">
+                          <Label
+                            htmlFor={`item-order-${panelIndex}-${itemIndex}`}
+                            className="whitespace-nowrap"
+                          >
+                            Display Order
+                          </Label>
+                          <Input
+                            id={`item-order-${panelIndex}-${itemIndex}`}
+                            type="number"
+                            value={item.order || itemIndex + 1}
+                            onChange={(e) =>
+                              handleItemChange(
+                                panelIndex,
+                                itemIndex,
+                                "order",
+                                parseInt(e.target.value) || itemIndex + 1
+                              )
+                            }
+                            className="w-24"
+                          />
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                ) : (
+                  <div className="space-y-2">
+                    <Label>Panel Content (HTML)</Label>
+                    <Textarea
+                      value={panel.content || ""}
+                      onChange={(e) => handleContentChange(panelIndex, e.target.value)}
+                      placeholder="Enter HTML content"
+                      rows={6}
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="flex justify-end">

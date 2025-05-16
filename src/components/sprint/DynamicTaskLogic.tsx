@@ -96,10 +96,10 @@ export const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
   const handleComplete = async () => {
     try {
       await onComplete();
-      toast.success("Task completed successfully!");
+      toast("Task completed successfully!");
     } catch (error) {
       console.error("Error completing task:", error);
-      toast.error("Failed to complete task. Please try again.");
+      toast("Failed to complete task. Please try again.");
     }
   };
   
@@ -184,11 +184,40 @@ export const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
                 />
               )}
               
+              {currentStep.inputType === 'boolean' && (
+                <div className="space-y-2">
+                  <div className="flex items-start space-x-3">
+                    <input
+                      type="radio"
+                      id={`${currentStep.id}-yes`}
+                      name={currentStep.id}
+                      value="true"
+                      checked={answers[currentStep.id] === true}
+                      onChange={() => handleAnswer(currentStep.id, true)}
+                      className="mt-1"
+                    />
+                    <label htmlFor={`${currentStep.id}-yes`} className="font-medium">Yes</label>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <input
+                      type="radio"
+                      id={`${currentStep.id}-no`}
+                      name={currentStep.id}
+                      value="false"
+                      checked={answers[currentStep.id] === false}
+                      onChange={() => handleAnswer(currentStep.id, false)}
+                      className="mt-1"
+                    />
+                    <label htmlFor={`${currentStep.id}-no`} className="font-medium">No</label>
+                  </div>
+                </div>
+              )}
+              
               {/* Add other input types as needed */}
             </div>
           )}
           
-          {currentStep.type === 'upload' && (
+          {(currentStep.type === 'upload' || currentStep.type === 'file') && (
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
               <p className="text-gray-500 mb-2">
                 Upload a file
@@ -201,6 +230,18 @@ export const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
                   }
                 }}
                 className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primary/80"
+              />
+            </div>
+          )}
+          
+          {(currentStep.type === 'exercise') && (
+            <div className="space-y-4">
+              <textarea
+                value={answers[currentStep.id] || ''}
+                onChange={(e) => handleAnswer(currentStep.id, e.target.value)}
+                className="w-full p-2 border rounded"
+                rows={6}
+                placeholder="Enter your answer here..."
               />
             </div>
           )}
@@ -219,7 +260,7 @@ export const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
             onClick={handleNext}
             disabled={
               (currentStep.type === 'question' && !answers[currentStep.id]) ||
-              (currentStep.type === 'upload' && !answers[currentStep.id])
+              ((currentStep.type === 'upload' || currentStep.type === 'file') && !answers[currentStep.id])
             }
           >
             {currentStepIndex === visibleSteps.length - 1 ? 'Complete' : 'Next'}

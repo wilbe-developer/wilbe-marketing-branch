@@ -35,7 +35,7 @@ const StepNodeEditor: React.FC<StepNodeEditorProps> = ({ step, onChange }) => {
     const newStep = { ...step, type: value };
     
     // If changing to a type that doesn't use options, remove them
-    if (value === "content" || value === "file") {
+    if (value === "content" || value === "upload" || value === "file") {
       delete newStep.options;
       delete newStep.inputType;
     }
@@ -146,8 +146,12 @@ const StepNodeEditor: React.FC<StepNodeEditorProps> = ({ step, onChange }) => {
           <SelectContent>
             <SelectItem value="question">Question</SelectItem>
             <SelectItem value="content">Content</SelectItem>
-            <SelectItem value="file">File Upload</SelectItem>
+            <SelectItem value="upload">File Upload</SelectItem>
+            <SelectItem value="file">File (Alternative)</SelectItem>
             <SelectItem value="exercise">Exercise</SelectItem>
+            <SelectItem value="feedback">Feedback</SelectItem>
+            <SelectItem value="action">Action</SelectItem>
+            <SelectItem value="container">Container</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -169,6 +173,10 @@ const StepNodeEditor: React.FC<StepNodeEditorProps> = ({ step, onChange }) => {
               <SelectItem value="multiselect">Multi-Select</SelectItem>
               <SelectItem value="textarea">Text Area</SelectItem>
               <SelectItem value="text">Text Input</SelectItem>
+              <SelectItem value="number">Number</SelectItem>
+              <SelectItem value="date">Date</SelectItem>
+              <SelectItem value="email">Email</SelectItem>
+              <SelectItem value="url">URL</SelectItem>
             </SelectContent>
           </Select>
         </div>
