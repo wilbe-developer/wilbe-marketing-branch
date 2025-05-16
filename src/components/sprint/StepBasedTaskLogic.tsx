@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight } from "lucide-react";
@@ -70,15 +70,19 @@ const StepBasedTaskLogic: React.FC<StepBasedTaskLogicProps> = ({
     }
   };
   
-  // Call onStepChange when the current step changes
-  React.useEffect(() => {
-    if (onStepChange && steps[currentStep]) {
+  // Call onStepChange when the current step changes using a ref to prevent infinite loops
+  const prevStepRef = React.useRef(currentStep);
+  
+  useEffect(() => {
+    // Only call onStepChange when the step actually changes
+    if (onStepChange && steps[currentStep] && prevStepRef.current !== currentStep) {
       // Convert StepContextType to StepContext object if it exists
       const contextObject = steps[currentStep].context 
         ? { type: steps[currentStep].context as StepContextType } 
         : undefined;
       
       onStepChange(currentStep, contextObject);
+      prevStepRef.current = currentStep;
     }
   }, [currentStep, onStepChange, steps]);
 
@@ -114,6 +118,7 @@ const StepBasedTaskLogic: React.FC<StepBasedTaskLogicProps> = ({
         {step.type === 'question' && (
           <QuestionStep
             question={step.question || ''}
+            content={typeof step.content === 'string' ? step.content : undefined}
             options={step.options}
             selectedAnswer={answers[currentStep]}
             onAnswerSelect={handleAnswer}

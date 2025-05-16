@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import FileUploader from "../FileUploader";
 import UploadedFileView from "../UploadedFileView";
 
@@ -17,6 +17,21 @@ const UploadStep: React.FC<UploadStepProps> = ({
   onComplete,
 }) => {
   const [uploadedFileId, setUploadedFileId] = useState<string | undefined>();
+  
+  // Check if there's any file saved in the parent state
+  useEffect(() => {
+    // The file will be set by the FileUploader component
+  }, []);
+  
+  const handleFileUploaded = (fileId: string) => {
+    setUploadedFileId(fileId);
+  };
+  
+  const handleCompleteUpload = () => {
+    if (uploadedFileId) {
+      onComplete(uploadedFileId);
+    }
+  };
   
   return (
     <div>
@@ -44,12 +59,13 @@ const UploadStep: React.FC<UploadStepProps> = ({
             <button 
               className="text-sm text-blue-500 hover:underline"
               onClick={() => setUploadedFileId(undefined)}
+              disabled={isCompleted}
             >
               Upload a different file
             </button>
             <button
               className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:bg-gray-300"
-              onClick={() => onComplete(uploadedFileId)}
+              onClick={handleCompleteUpload}
               disabled={isCompleted}
             >
               {isCompleted ? "Completed" : "Confirm Upload"}
@@ -58,11 +74,8 @@ const UploadStep: React.FC<UploadStepProps> = ({
         </div>
       ) : (
         <FileUploader
-          onFileUploaded={(fileId) => {
-            setUploadedFileId(fileId);
-            // Don't auto-complete here, let the user confirm
-          }}
-          isCompleted={false} // Always allow uploads
+          onFileUploaded={handleFileUploaded}
+          isCompleted={isCompleted}
         />
       )}
     </div>
