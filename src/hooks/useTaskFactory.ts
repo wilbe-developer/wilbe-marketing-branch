@@ -32,7 +32,7 @@ export const useTaskFactory = (
         } else if (data) {
           // Parse the JSON fields and ensure we handle non-string values
           try {
-            const parsedData = {
+            const parsedData: TaskDefinition = {
               ...data,
               steps: Array.isArray(data.steps) ? data.steps : JSON.parse(typeof data.steps === 'string' ? data.steps : JSON.stringify(data.steps)),
               conditionalFlow: data.conditional_flow ? 
@@ -54,7 +54,12 @@ export const useTaskFactory = (
               delete parsedData.profile_options;
             }
             
-            setDbTaskDefinition(parsedData as TaskDefinition);
+            // Convert other snake_case fields to camelCase
+            if (data.profile_key) parsedData.profileKey = data.profile_key;
+            if (data.profile_label) parsedData.profileLabel = data.profile_label;
+            if (data.profile_type) parsedData.profileType = data.profile_type;
+            
+            setDbTaskDefinition(parsedData);
           } catch (parseError) {
             console.error('Failed to parse task definition:', parseError);
           }

@@ -42,21 +42,26 @@ export const SprintTaskLogicRouter = ({
           console.log('Found task definition in database:', data.title);
           // Parse the JSON fields and ensure we handle non-string values
           try {
-            const parsedData = {
+            const parsedData: TaskDefinition = {
               ...data,
               steps: parseJsonField(data.steps),
               conditionalFlow: parseJsonField(data.conditional_flow) || {},
               answerMapping: parseJsonField(data.answer_mapping) || {}
             };
             
-            // Fix: Convert snake_case profile_options to camelCase profileOptions
+            // Convert snake_case profile_options to camelCase profileOptions
             if (data.profile_options) {
               parsedData.profileOptions = parseJsonField(data.profile_options);
               // Remove the original snake_case property to avoid duplication
               delete parsedData.profile_options;
             }
             
-            setDbTaskDefinition(parsedData as TaskDefinition);
+            // Convert other snake_case fields to camelCase
+            if (data.profile_key) parsedData.profileKey = data.profile_key;
+            if (data.profile_label) parsedData.profileLabel = data.profile_label;
+            if (data.profile_type) parsedData.profileType = data.profile_type;
+            
+            setDbTaskDefinition(parsedData);
           } catch (parseError) {
             console.error('Failed to parse task definition fields:', parseError);
             toast.error("There was an error loading this task. Please try again.");
