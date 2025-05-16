@@ -1,6 +1,8 @@
+
 import { useMemo } from 'react';
 import { useTeamTaskData } from './useTeamTaskData';
 import { useTaskData } from './useTaskData';
+import { useGenericIPTaskData } from './useGenericIPTaskData';
 import { getTaskDefinition } from '@/data/task-definitions';
 
 export const useTaskFactory = (
