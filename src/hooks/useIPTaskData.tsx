@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useSprintTasks } from "./useSprintTasks";
 import { Step } from "@/components/sprint/StepBasedTaskLogic";
@@ -9,7 +10,7 @@ export const useIPTaskData = (task: any, sprintProfile: any) => {
   const [isLoading, setIsLoading] = useState(true);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [currentStepContext, setCurrentStepContext] = useState<StepContext | undefined>(undefined);
-  const [answers, setAnswers] = useState<Record<number, any>>({});
+  const [answers, setAnswers] = useState<Record<string, any>>({});
   const { updateProgress } = useSprintTasks();
   
   // Load existing file ID and answers if available
@@ -53,7 +54,7 @@ export const useIPTaskData = (task: any, sprintProfile: any) => {
         });
 
         // Follow-up questions based on TTO conversation
-        if (existingAnswers[0] === "yes") {
+        if (existingAnswers["tto_conversation"] === "yes") {
           newSteps.push({
             type: "question",
             question: "Summarize the conversation with the Tech Transfer Office.",
@@ -67,7 +68,7 @@ export const useIPTaskData = (task: any, sprintProfile: any) => {
             content: "Please provide details about any licensing terms that have been discussed.",
             context: "ip"
           });
-        } else if (existingAnswers[0] === "no") {
+        } else if (existingAnswers["tto_conversation"] === "no") {
           newSteps.push({
             type: "question",
             question: "Explain your current plans for engaging with the TTO.",
@@ -120,7 +121,7 @@ export const useIPTaskData = (task: any, sprintProfile: any) => {
         });
 
         // Follow-up based on IP ownership
-        if (existingAnswers[0] === "yes") {
+        if (existingAnswers["ip_ownership"] === "yes") {
           newSteps.push({
             type: "question",
             question: "Have patents been filed?",
@@ -132,14 +133,14 @@ export const useIPTaskData = (task: any, sprintProfile: any) => {
           });
 
           // Follow-up based on patent filing
-          if (existingAnswers[1] === "yes") {
+          if (existingAnswers["patents_filed"] === "yes") {
             newSteps.push({
               type: "upload",
               action: "Upload your patent documents.",
               uploads: ["Patent documentation"],
               context: "ip"
             });
-          } else if (existingAnswers[1] === "no") {
+          } else if (existingAnswers["patents_filed"] === "no") {
             newSteps.push({
               type: "question",
               question: "Explain your plans for filing patents.",
@@ -147,7 +148,7 @@ export const useIPTaskData = (task: any, sprintProfile: any) => {
               context: "ip"
             });
           }
-        } else if (existingAnswers[0] === "no") {
+        } else if (existingAnswers["ip_ownership"] === "no") {
           newSteps.push({
             type: "question",
             question: "Explain the current status of IP ownership.",
@@ -214,11 +215,48 @@ export const useIPTaskData = (task: any, sprintProfile: any) => {
     setCurrentStepContext(context);
   };
 
+  // Map numeric index to semantic key for current step
+  const getKeyForStep = (stepIndex: number): string => {
+    const hasUniversityIP = sprintProfile?.university_ip === true;
+    
+    if (hasUniversityIP) {
+      switch (stepIndex) {
+        case 0: return "tto_conversation";
+        case 1: 
+          return answers["tto_conversation"] === "yes" 
+            ? "tto_summary" 
+            : "tto_plans";
+        case 2:
+          return answers["tto_conversation"] === "yes" 
+            ? "licensing_terms" 
+            : "ip_fundamentals";
+        default: return `step_${stepIndex}`;
+      }
+    } else {
+      switch (stepIndex) {
+        case 0: return "ip_ownership";
+        case 1: 
+          return answers["ip_ownership"] === "yes" 
+            ? "patents_filed" 
+            : "ip_ownership_status";
+        case 2:
+          if (answers["ip_ownership"] === "yes") {
+            return answers["patents_filed"] === "yes" 
+              ? "patent_documents" 
+              : "patent_plans";
+          }
+          return "ip_fundamentals";
+        default: return `step_${stepIndex}`;
+      }
+    }
+  };
+
   // Update answers when a user selects an option
   const updateAnswers = (stepIndex: number, answer: any) => {
     console.log("IP task updateAnswers called with:", { stepIndex, answer });
     
-    const newAnswers = { ...answers, [stepIndex]: answer };
+    const key = getKeyForStep(stepIndex);
+    const newAnswers = { ...answers, [key]: answer };
     setAnswers(newAnswers);
     
     // Immediately save to database when answers change

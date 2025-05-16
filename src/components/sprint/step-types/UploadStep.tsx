@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import FileUploader from "../FileUploader";
 import UploadedFileView from "../UploadedFileView";
+import { toast } from "sonner";
 
 interface UploadStepProps {
   action?: string;
@@ -17,6 +18,7 @@ const UploadStep: React.FC<UploadStepProps> = ({
   onComplete,
 }) => {
   const [uploadedFileId, setUploadedFileId] = useState<string | undefined>();
+  const [uploadError, setUploadError] = useState<string | null>(null);
   
   // Check if there's any file saved in the parent state
   useEffect(() => {
@@ -25,12 +27,18 @@ const UploadStep: React.FC<UploadStepProps> = ({
   
   const handleFileUploaded = (fileId: string) => {
     setUploadedFileId(fileId);
+    setUploadError(null); // Clear any previous errors
   };
   
   const handleCompleteUpload = () => {
     if (uploadedFileId) {
       onComplete(uploadedFileId);
     }
+  };
+
+  const handleUploadError = (error: string) => {
+    setUploadError(error);
+    toast.error(`Upload failed: ${error}`);
   };
   
   return (
@@ -50,6 +58,13 @@ const UploadStep: React.FC<UploadStepProps> = ({
             ))}
           </ul>
         </>
+      )}
+      
+      {uploadError && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600">
+          <p className="text-sm font-medium">Upload error: {uploadError}</p>
+          <p className="text-xs mt-1">Please try again or contact support if the issue persists.</p>
+        </div>
       )}
       
       {uploadedFileId ? (
@@ -75,6 +90,7 @@ const UploadStep: React.FC<UploadStepProps> = ({
       ) : (
         <FileUploader
           onFileUploaded={handleFileUploaded}
+          onUploadError={handleUploadError}
           isCompleted={isCompleted}
         />
       )}

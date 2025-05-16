@@ -70,19 +70,16 @@ const StepBasedTaskLogic: React.FC<StepBasedTaskLogicProps> = ({
     }
   };
   
-  // Call onStepChange when the current step changes using a ref to prevent infinite loops
-  const prevStepRef = React.useRef(currentStep);
-  
+  // Call onStepChange when the current step changes
   useEffect(() => {
-    // Only call onStepChange when the step actually changes
-    if (onStepChange && steps[currentStep] && prevStepRef.current !== currentStep) {
+    // Only call onStepChange when the step actually changes and when the steps array is populated
+    if (onStepChange && steps[currentStep]) {
       // Convert StepContextType to StepContext object if it exists
       const contextObject = steps[currentStep].context 
         ? { type: steps[currentStep].context as StepContextType } 
         : undefined;
       
       onStepChange(currentStep, contextObject);
-      prevStepRef.current = currentStep;
     }
   }, [currentStep, onStepChange, steps]);
 

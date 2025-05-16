@@ -4,9 +4,11 @@ import { Button } from "@/components/ui/button";
 import { useFileUpload } from "@/hooks/useFileUpload";
 import { Progress } from "@/components/ui/progress";
 import { Upload, File, X } from "lucide-react";
+import { toast } from "sonner";
 
 interface FileUploaderProps {
   onFileUploaded: (fileId: string) => void;
+  onUploadError?: (error: string) => void;
   taskId?: string;
   onUploadComplete?: (fileId?: string) => Promise<void>;
   isCompleted?: boolean;
@@ -14,6 +16,7 @@ interface FileUploaderProps {
 
 const FileUploader = ({ 
   onFileUploaded, 
+  onUploadError,
   taskId, 
   onUploadComplete,
   isCompleted 
@@ -45,13 +48,36 @@ const FileUploader = ({
     if (selectedFile) {
       uploadFile(selectedFile, {
         onSuccess: (data) => {
-          // Use onUploadComplete if provided, otherwise fall back to onFileUploaded
-          if (onUploadComplete) {
-            onUploadComplete(data.id);
+          console.log("File upload succeeded:", data);
+          
+          if (data && data.fileId) {
+            // Use onUploadComplete if provided, otherwise fall back to onFileUploaded
+            if (onUploadComplete) {
+              onUploadComplete(data.fileId)
+                .then(() => {
+                  onFileUploaded(data.fileId);
+                  setSelectedFile(null);
+                })
+                .catch(err => {
+                  console.error("Error in onUploadComplete:", err);
+                  if (onUploadError) onUploadError("Failed to process upload.");
+                  else toast.error("Failed to process upload.");
+                });
+            } else {
+              onFileUploaded(data.fileId);
+              setSelectedFile(null);
+            }
           } else {
-            onFileUploaded(data.id);
+            console.error("Upload succeeded but no file ID returned:", data);
+            if (onUploadError) onUploadError("Upload succeeded but no file ID returned.");
+            else toast.error("Upload succeeded but no file ID returned.");
           }
-          setSelectedFile(null);
+        },
+        onError: (error) => {
+          console.error("File upload error:", error);
+          const errorMessage = error?.message || "Unknown upload error";
+          if (onUploadError) onUploadError(errorMessage);
+          else toast.error(`Upload failed: ${errorMessage}`);
         }
       });
     }

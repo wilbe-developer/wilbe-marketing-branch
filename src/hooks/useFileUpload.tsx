@@ -1,94 +1,116 @@
 
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "./useAuth";
-import { UploadedFile } from "@/types/sprint";
-import { useToast } from "@/components/ui/use-toast";
+
+interface UploadCallbacks {
+  onSuccess?: (data: any) => void;
+  onError?: (error: any) => void;
+}
 
 export const useFileUpload = () => {
-  const { user } = useAuth();
   const [isUploading, setIsUploading] = useState(false);
   const [progress, setProgress] = useState(0);
-  const queryClient = useQueryClient();
-  const { toast } = useToast();
 
-  const uploadFileMutation = useMutation({
-    mutationFn: async (file: File): Promise<UploadedFile> => {
-      if (!user) {
-        throw new Error("User not authenticated");
-      }
+  const uploadFile = async (file: File, callbacks?: UploadCallbacks) => {
+    setIsUploading(true);
+    setProgress(0);
+    
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
 
-      setIsUploading(true);
-      setProgress(10);
-
-      try {
-        // Create form data for the API
-        const formData = new FormData();
-        formData.append('file', file);
-
-        setProgress(25);
-
-        // Upload file to API endpoint
-        const response = await fetch('/api/upload-file', {
-          method: 'POST',
-          body: formData,
-        });
-
-        setProgress(75);
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to upload file');
+      // Create custom XMLHttpRequest to track upload progress
+      const xhr = new XMLHttpRequest();
+      
+      // Set up progress tracking
+      xhr.upload.addEventListener("progress", (event) => {
+        if (event.lengthComputable) {
+          const percentComplete = Math.round((event.loaded / event.total) * 100);
+          setProgress(percentComplete);
         }
+      });
 
-        const uploadResult = await response.json();
+      // Create a promise to handle the async upload
+      const uploadPromise = new Promise<any>((resolve, reject) => {
+        xhr.open("POST", "/api/upload-file");
         
-        // Save file metadata to Supabase
-        const { data, error } = await supabase
-          .from('user_files')
+        xhr.onload = function() {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try {
+              const response = JSON.parse(xhr.responseText);
+              resolve(response);
+            } catch (error) {
+              console.error("Error parsing response:", error);
+              console.error("Response text:", xhr.responseText);
+              reject(new Error("Failed to parse server response"));
+            }
+          } else {
+            try {
+              const errorData = JSON.parse(xhr.responseText);
+              reject(errorData);
+            } catch (e) {
+              reject(new Error(`Upload failed with status ${xhr.status}`));
+            }
+          }
+        };
+        
+        xhr.onerror = function() {
+          reject(new Error("Network error during upload"));
+        };
+        
+        xhr.send(formData);
+      });
+
+      // Wait for upload to complete
+      const response = await uploadPromise;
+      
+      // Create entry in user_files table
+      if (response && response.fileId) {
+        const { data: fileData, error: fileError } = await supabase
+          .from("user_files")
           .insert({
-            user_id: user.id,
-            file_name: uploadResult.fileName,
-            drive_file_id: uploadResult.fileId,
-            view_url: uploadResult.viewLink,
-            download_url: uploadResult.downloadLink
+            file_name: file.name,
+            drive_file_id: response.fileId,
+            view_url: response.viewLink,
+            download_url: response.downloadLink
           })
           .select()
           .single();
-
-        if (error) throw error;
-
-        setProgress(100);
+          
+        if (fileError) {
+          console.error("Error saving file to database:", fileError);
+          if (callbacks?.onError) {
+            callbacks.onError({ message: "Failed to save file information" });
+          }
+          return;
+        }
         
-        return data;
-      } catch (error) {
-        console.error('Upload error:', error);
-        throw error;
-      } finally {
-        setIsUploading(false);
+        // Success
+        if (callbacks?.onSuccess) {
+          callbacks.onSuccess({ 
+            ...response, 
+            id: fileData.id,
+            fileId: fileData.id
+          });
+        }
+      } else {
+        throw new Error("Invalid response from server");
       }
-    },
-    onSuccess: (data) => {
-      toast({
-        title: "File uploaded successfully",
-        description: `${data.file_name} has been uploaded.`,
-      });
-      queryClient.invalidateQueries({ queryKey: ["userFiles"] });
-    },
-    onError: (error) => {
-      toast({
-        title: "Upload failed",
-        description: error instanceof Error ? error.message : "An unknown error occurred",
-        variant: "destructive",
-      });
+    } catch (error: any) {
+      console.error("File upload error:", error);
+      
+      if (callbacks?.onError) {
+        callbacks.onError(error);
+      } else {
+        toast.error(`Upload failed: ${error.message || "Unknown error"}`);
+      }
+    } finally {
+      setIsUploading(false);
     }
-  });
-
-  return {
-    uploadFile: uploadFileMutation.mutate,
-    isUploading,
-    progress,
-    error: uploadFileMutation.error
   };
+
+  return { uploadFile, isUploading, progress };
 };
+
+export default useFileUpload;
