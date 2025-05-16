@@ -1,6 +1,6 @@
 
 import React from "react";
-import { StaticPanel, StaticPanelItem } from "@/types/task-builder";
+import { StaticPanel, StaticPanelItem, Condition } from "@/types/task-builder";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -47,14 +47,14 @@ const StaticPanelsEditor: React.FC<StaticPanelsEditorProps> = ({
   const handlePanelChange = (
     index: number,
     field: keyof StaticPanel,
-    value: any
+    value: string | Condition[]
   ) => {
     const newPanels = [...staticPanels];
     
     if (field === "conditions") {
-      newPanels[index].conditions = value;
-    } else {
-      newPanels[index][field] = value;
+      newPanels[index].conditions = value as Condition[];
+    } else if (field === "title") {
+      newPanels[index].title = value as string;
     }
     
     onChange(newPanels);

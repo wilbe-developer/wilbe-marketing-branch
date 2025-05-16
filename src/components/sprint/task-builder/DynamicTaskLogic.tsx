@@ -153,7 +153,10 @@ const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
           profileKey={currentQuestion.key}
           label={currentQuestion.text}
           type={mapProfileType(currentQuestion.type)}
-          options={currentQuestion.options}
+          options={currentQuestion.options ? currentQuestion.options.map(option => ({ 
+            value: option, 
+            label: option 
+          })) : undefined}
         >
           {/* This will only render when the profile question is answered */}
           {renderTaskContent()}

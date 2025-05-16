@@ -32,7 +32,7 @@ export const useDynamicTask = ({ taskId, sprintProfile }: UseDynamicTaskProps) =
         throw new Error(`Error fetching task definition: ${error.message}`);
       }
 
-      return data.definition as TaskDefinition;
+      return (data.definition as unknown) as TaskDefinition;
     },
     enabled: !!taskId,
   });
@@ -194,12 +194,13 @@ export const useDynamicTask = ({ taskId, sprintProfile }: UseDynamicTaskProps) =
       }
 
       // Also store that we updated the profile as part of this task
+      const profileUpdates = userProgress?.profile_updates ? { ...userProgress.profile_updates } : {};
       const { error: progressError } = await supabase
         .from("user_task_progress")
         .upsert({
           user_id: user.id,
           task_id: taskId,
-          profile_updates: { ...userProgress?.profile_updates, [key]: value }
+          profile_updates: { ...profileUpdates, [key]: value }
         });
 
       if (progressError) {

@@ -1,7 +1,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { SprintTaskDefinition } from "@/types/task-builder";
+import { SprintTaskDefinition, TaskDefinition } from "@/types/task-builder";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
 
@@ -21,7 +21,10 @@ export const useSprintTaskDefinitions = () => {
         throw new Error(`Error fetching task definitions: ${error.message}`);
       }
 
-      return data as SprintTaskDefinition[];
+      return data.map(item => ({
+        ...item,
+        definition: item.definition as TaskDefinition
+      })) as SprintTaskDefinition[];
     }
   });
 
@@ -37,7 +40,10 @@ export const useSprintTaskDefinitions = () => {
       throw new Error(`Error fetching task definition: ${error.message}`);
     }
 
-    return data as SprintTaskDefinition;
+    return {
+      ...data,
+      definition: data.definition as TaskDefinition
+    } as SprintTaskDefinition;
   };
 
   // Create a new task definition
@@ -45,7 +51,11 @@ export const useSprintTaskDefinitions = () => {
     mutationFn: async (taskDefinition: Omit<SprintTaskDefinition, "id" | "created_at" | "updated_at">) => {
       const { data, error } = await supabase
         .from("sprint_task_definitions")
-        .insert(taskDefinition)
+        .insert({
+          name: taskDefinition.name,
+          description: taskDefinition.description,
+          definition: taskDefinition.definition as any // Type cast to any for JSON compatibility
+        })
         .select()
         .single();
 
@@ -53,7 +63,10 @@ export const useSprintTaskDefinitions = () => {
         throw new Error(`Error creating task definition: ${error.message}`);
       }
 
-      return data as SprintTaskDefinition;
+      return {
+        ...data,
+        definition: data.definition as TaskDefinition
+      } as SprintTaskDefinition;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sprintTaskDefinitions"] });
@@ -72,7 +85,7 @@ export const useSprintTaskDefinitions = () => {
         .update({
           name: taskDefinition.name,
           description: taskDefinition.description,
-          definition: taskDefinition.definition
+          definition: taskDefinition.definition as any // Type cast to any for JSON compatibility
         })
         .eq("id", taskDefinition.id)
         .select()
@@ -82,7 +95,10 @@ export const useSprintTaskDefinitions = () => {
         throw new Error(`Error updating task definition: ${error.message}`);
       }
 
-      return data as SprintTaskDefinition;
+      return {
+        ...data,
+        definition: data.definition as TaskDefinition
+      } as SprintTaskDefinition;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sprintTaskDefinitions"] });
