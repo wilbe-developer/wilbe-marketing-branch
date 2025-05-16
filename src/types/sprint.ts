@@ -43,7 +43,7 @@ export interface UploadedFile {
   uploaded_at: string;
 }
 
-// Update the SharedSprint interface to use snake_case to match the database
+// Using snake_case for database fields as we're committing to the new system
 export interface SharedSprint {
   owner_id: string;
   owner_name: string;
@@ -51,7 +51,7 @@ export interface SharedSprint {
   tasks: SharedTask[];
 }
 
-// Update the SharedTask interface to include all fields used in components
+// Define interface matching what's actually used in components
 export interface SharedTask {
   id: string;
   title: string;
@@ -72,4 +72,17 @@ export interface SharedTask {
 export interface TaskOption {
   label: string;
   value: string;
+}
+
+// Add the UserSprintProgress interface that's missing
+export interface UserSprintProgress {
+  id: string;
+  user_id: string;
+  task_id: string;
+  completed: boolean;
+  file_id: string | null;
+  answers: Record<string, any> | null;
+  task_answers: Record<string, any> | null;
+  completed_at: string | null;
+  created_at: string;
 }

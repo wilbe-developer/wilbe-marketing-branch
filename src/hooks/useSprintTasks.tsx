@@ -59,7 +59,8 @@ export const useSprintTasks = () => {
         file_id: progress.file_id,
         answers: progress.answers as Record<string, any> | null,
         task_answers: progress.task_answers as Record<string, any> | null,
-        completed_at: progress.completed_at
+        completed_at: progress.completed_at,
+        created_at: progress.created_at
       }));
     },
     enabled: !!currentSprintOwnerId,
@@ -70,6 +71,7 @@ export const useSprintTasks = () => {
     const progress = userProgress?.find(p => p.task_id === task.id);
     return {
       ...task,
+      order_index: task.order_index || 0, // Ensure order_index is always present
       progress
     };
   }) || [];
