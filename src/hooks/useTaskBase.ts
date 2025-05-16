@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { useSprintTasks } from './useSprintTasks.tsx';
-import { StepContext } from './team-step-builder/types';
+import { StepContext, StepContextType } from './team-step-builder/types';
 import { toast } from 'sonner';
 
 export interface TaskState {
@@ -13,7 +13,7 @@ export interface TaskStep {
   question?: string;
   options?: Array<{ label: string; value: string }>;
   content?: string | React.ReactNode | (string | React.ReactNode)[];
-  context?: string;
+  context?: StepContextType;
   action?: string;
   uploads?: string[];
 }

@@ -4,6 +4,7 @@ import { useSprintProfileQuickEdit } from "@/hooks/useSprintProfileQuickEdit";
 import { SprintProfileShowOrAsk } from "@/components/sprint/SprintProfileShowOrAsk";
 import { useGenericIPTaskData } from "@/hooks/useGenericIPTaskData";
 import GenericStepContent from "../generic/GenericStepContent";
+import { TaskStep } from "@/hooks/useTaskBase";
 
 interface GenericIPTaskLogicProps {
   task: any;
@@ -46,7 +47,7 @@ const GenericIPTaskLogic: React.FC<GenericIPTaskLogicProps> = ({
         type="boolean"
       >
         <GenericStepContent
-          steps={steps}
+          steps={steps as any} // Type assertion to fix compatibility
           isCompleted={isCompleted}
           onComplete={completeTask}
           onStepChange={handleStepChange}

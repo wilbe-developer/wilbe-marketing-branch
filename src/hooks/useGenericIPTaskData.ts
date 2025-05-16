@@ -1,6 +1,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useTaskBase, TaskStep } from "./useTaskBase";
+import { StepContextType } from "./team-step-builder/types";
 
 export const useGenericIPTaskData = (task: any, sprintProfile: any) => {
   const {
@@ -54,7 +55,7 @@ export const useGenericIPTaskData = (task: any, sprintProfile: any) => {
             { label: "Yes", value: "yes" },
             { label: "No", value: "no" }
           ],
-          context: "ip"
+          context: "ip" as StepContextType
         });
 
         // Follow-up questions based on TTO conversation
@@ -63,21 +64,21 @@ export const useGenericIPTaskData = (task: any, sprintProfile: any) => {
             type: "question",
             question: "Summarize the conversation with the Tech Transfer Office.",
             content: "Please provide details about your conversations with the Tech Transfer Office.",
-            context: "ip"
+            context: "ip" as StepContextType
           });
           
           newSteps.push({
             type: "question",
             question: "List the preliminary licensing terms (especially % equity) the TTO expects.",
             content: "Please provide details about any licensing terms that have been discussed.",
-            context: "ip"
+            context: "ip" as StepContextType
           });
         } else if (answers["tto_conversation"] === "no") {
           newSteps.push({
             type: "question",
             question: "Explain your current plans for engaging with the TTO.",
             content: "Please provide details about how you plan to engage with the Tech Transfer Office.",
-            context: "ip"
+            context: "ip" as StepContextType
           });
         }
         
@@ -92,7 +93,7 @@ export const useGenericIPTaskData = (task: any, sprintProfile: any) => {
             "• Raising funding for a science company without foundational IP.",
             "• Defining an IP strategy that matches market validation and strategy."
           ],
-          context: "ip"
+          context: "ip" as StepContextType
         });
         
         // Add University-IP Deep-Dive panel
@@ -110,7 +111,7 @@ export const useGenericIPTaskData = (task: any, sprintProfile: any) => {
             "• The mother of all tricks: do not start negotiations until all the ducks are in a row.",
             "• The nuclear option: can you build without this IP?"
           ],
-          context: "ip"
+          context: "ip" as StepContextType
         });
       } else {
         // Non-university IP path
@@ -121,7 +122,7 @@ export const useGenericIPTaskData = (task: any, sprintProfile: any) => {
             { label: "Yes", value: "yes" },
             { label: "No", value: "no" }
           ],
-          context: "ip"
+          context: "ip" as StepContextType
         });
 
         // Follow-up based on IP ownership
@@ -133,7 +134,7 @@ export const useGenericIPTaskData = (task: any, sprintProfile: any) => {
               { label: "Yes", value: "yes" },
               { label: "No", value: "no" }
             ],
-            context: "ip"
+            context: "ip" as StepContextType
           });
 
           // Follow-up based on patent filing
@@ -142,14 +143,14 @@ export const useGenericIPTaskData = (task: any, sprintProfile: any) => {
               type: "upload",
               action: "Upload your patent documents.",
               uploads: ["Patent documentation"],
-              context: "ip"
+              context: "ip" as StepContextType
             });
           } else if (answers["patents_filed"] === "no") {
             newSteps.push({
               type: "question",
               question: "Explain your plans for filing patents.",
               content: "Please provide details about your patent filing strategy.",
-              context: "ip"
+              context: "ip" as StepContextType
             });
           }
         } else if (answers["ip_ownership"] === "no") {
@@ -157,7 +158,7 @@ export const useGenericIPTaskData = (task: any, sprintProfile: any) => {
             type: "question",
             question: "Explain the current status of IP ownership.",
             content: "Please provide details about who owns the IP and any arrangements in place.",
-            context: "ip"
+            context: "ip" as StepContextType
           });
         }
         
@@ -172,7 +173,7 @@ export const useGenericIPTaskData = (task: any, sprintProfile: any) => {
             "• Raising funding for a science company without foundational IP.",
             "• Defining an IP strategy that matches market validation and strategy."
           ],
-          context: "ip"
+          context: "ip" as StepContextType
         });
       }
 

@@ -4,9 +4,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import StepBasedTaskLogic, { Step } from "../../StepBasedTaskLogic";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { StepContext } from "@/hooks/team-step-builder/types";
+import { TaskStep } from "@/hooks/useTaskBase";
 
 interface GenericStepContentProps {
-  steps: Step[];
+  steps: Step[] | TaskStep[];
   isCompleted: boolean;
   onComplete: (fileId?: string) => void;
   onStepChange: (stepIndex: number, context?: StepContext) => void;
@@ -54,7 +55,7 @@ const GenericStepContent: React.FC<GenericStepContentProps> = ({
     <Card className={`mb-6 ${isMobile ? 'shadow-sm' : 'mb-8'}`}>
       <CardContent className={isMobile ? "p-3 sm:p-4 md:p-6" : "p-6"}>
         <StepBasedTaskLogic
-          steps={steps}
+          steps={steps as Step[]} // Type assertion to ensure compatibility
           isCompleted={isCompleted}
           onComplete={onComplete}
           conditionalFlow={conditionalFlow}
