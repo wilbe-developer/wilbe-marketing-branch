@@ -11,6 +11,7 @@ interface IPStepContentProps {
   onComplete: (fileId?: string) => void;
   onStepChange: (stepIndex: number, context?: StepContext) => void;
   isLoading?: boolean;
+  conditionalFlow: Record<number, Record<string, number>>;
 }
 
 const IPStepContent: React.FC<IPStepContentProps> = ({
@@ -18,7 +19,8 @@ const IPStepContent: React.FC<IPStepContentProps> = ({
   isCompleted,
   onComplete,
   onStepChange,
-  isLoading = false
+  isLoading = false,
+  conditionalFlow = {}
 }) => {
   const isMobile = useIsMobile();
 
@@ -53,7 +55,7 @@ const IPStepContent: React.FC<IPStepContentProps> = ({
           steps={steps}
           isCompleted={isCompleted}
           onComplete={onComplete}
-          conditionalFlow={{}}
+          conditionalFlow={conditionalFlow}
           onStepChange={onStepChange}
         />
       </CardContent>

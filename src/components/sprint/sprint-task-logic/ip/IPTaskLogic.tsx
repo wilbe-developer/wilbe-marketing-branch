@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useSprintProfileQuickEdit } from "@/hooks/useSprintProfileQuickEdit";
 import { SprintProfileShowOrAsk } from "@/components/sprint/SprintProfileShowOrAsk";
 import { useIPTaskData } from "@/hooks/useIPTaskData";
@@ -24,12 +24,14 @@ const IPTaskLogic: React.FC<IPTaskLogicProps> = ({
     isLoading,
     handleComplete,
     handleStepChange,
-    conditionalFlow
+    conditionalFlow,
+    currentStepIndex,
+    answers
   } = useIPTaskData(task, sprintProfile);
 
   // Wrap onComplete to use our handler with answers
   const completeTask = async (fileId?: string) => {
-    const success = await handleComplete(task.progress?.task_answers || {}, fileId);
+    const success = await handleComplete(answers || {}, fileId);
     if (success) {
       onComplete(fileId);
     }
@@ -49,6 +51,7 @@ const IPTaskLogic: React.FC<IPTaskLogicProps> = ({
           onComplete={completeTask}
           onStepChange={handleStepChange}
           isLoading={isLoading}
+          conditionalFlow={conditionalFlow}
         />
       </SprintProfileShowOrAsk>
     </div>

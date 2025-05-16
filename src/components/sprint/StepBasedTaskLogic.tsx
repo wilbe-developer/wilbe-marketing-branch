@@ -60,17 +60,26 @@ const StepBasedTaskLogic: React.FC<StepBasedTaskLogicProps> = ({
   
   // Call onStepChange when the current step changes
   React.useEffect(() => {
-    if (onStepChange) {
+    if (onStepChange && steps[currentStep]) {
       // Convert StepContextType to StepContext object if it exists
-      const contextObject = steps[currentStep]?.context 
+      const contextObject = steps[currentStep].context 
         ? { type: steps[currentStep].context as StepContextType } 
         : undefined;
       
       onStepChange(currentStep, contextObject);
     }
   }, [currentStep, onStepChange, steps]);
+
+  // If there are no steps, don't render anything
+  if (!steps || steps.length === 0) {
+    return null;
+  }
   
   const step = steps[currentStep];
+  if (!step) {
+    return null; // Safety check for invalid step
+  }
+  
   const hasAnswer = answers[currentStep] !== undefined || step.type === 'content' || step.type === 'upload';
   
   return (

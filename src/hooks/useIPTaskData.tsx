@@ -8,13 +8,22 @@ export const useIPTaskData = (task: any, sprintProfile: any) => {
   const [uploadedFileId, setUploadedFileId] = useState<string | undefined>();
   const [steps, setSteps] = useState<Step[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [currentStepContext, setCurrentStepContext] = useState<StepContext | undefined>(undefined);
+  const [answers, setAnswers] = useState<Record<number, any>>({});
   const { updateProgress } = useSprintTasks();
   
-  // Load existing file ID if available
+  // Load existing file ID and answers if available
   useEffect(() => {
-    if (task?.progress?.file_id) {
-      setUploadedFileId(task.progress.file_id);
+    if (task?.progress) {
+      if (task.progress.file_id) {
+        setUploadedFileId(task.progress.file_id);
+      }
+      
+      // Load existing answers from progress
+      if (task.progress.task_answers && Object.keys(task.progress.task_answers).length > 0) {
+        setAnswers(task.progress.task_answers);
+      }
     }
   }, [task?.progress]);
   
@@ -27,7 +36,8 @@ export const useIPTaskData = (task: any, sprintProfile: any) => {
     setIsLoading(true);
     
     try {
-      const existingAnswers = task.progress?.task_answers || {};
+      // Use the loaded answers
+      const existingAnswers = answers;
       const hasUniversityIP = sprintProfile?.university_ip === true;
       const newSteps: Step[] = [];
       
@@ -157,34 +167,63 @@ export const useIPTaskData = (task: any, sprintProfile: any) => {
     } finally {
       setIsLoading(false);
     }
-  }, [sprintProfile, task?.progress?.task_answers, task]);
+  }, [sprintProfile, task, answers]); // Depend on answers to rebuild steps when answers change
 
   // Create a proper conditional flow configuration
   const buildConditionalFlow = () => {
     const hasUniversityIP = sprintProfile?.university_ip === true;
-    const conditionalFlow: Record<number, Record<string, number>> = {
-      0: {
-        "yes": 1,
-        "no": 1
-      }
-    };
     
-    return conditionalFlow;
+    if (hasUniversityIP) {
+      return {
+        0: { // TTO conversation question
+          "yes": 1, // Go to summarize conversation
+          "no": 1   // Go to explain plans
+        }
+      };
+    } else {
+      return {
+        0: { // IP ownership question
+          "yes": 1, // Go to patents filed question
+          "no": 1   // Go to explain IP ownership
+        },
+        1: { // Patents filed question (if owner is yes)
+          "yes": 2, // Go to upload patents
+          "no": 2   // Go to explain patent plans
+        }
+      };
+    }
   };
 
-  // Handle step changes
+  // Handle step changes and update answers
   const handleStepChange = (stepIndex: number, context?: StepContext) => {
+    setCurrentStepIndex(stepIndex);
     setCurrentStepContext(context);
   };
 
+  // Update answers when a user selects an option
+  const updateAnswers = (stepIndex: number, answer: any) => {
+    const newAnswers = { ...answers, [stepIndex]: answer };
+    setAnswers(newAnswers);
+    
+    // Immediately save to database when answers change
+    if (task?.id) {
+      updateProgress.mutate({
+        taskId: task.id,
+        completed: false,
+        fileId: uploadedFileId,
+        taskAnswers: newAnswers
+      });
+    }
+  };
+
   // Complete the task and save data
-  const handleComplete = async (answers: Record<string, any>, fileId?: string) => {
+  const handleComplete = async (currentAnswers: Record<string, any> = {}, fileId?: string) => {
     try {
       await updateProgress.mutateAsync({
         taskId: task.id,
         completed: true,
         fileId: fileId || uploadedFileId,
-        taskAnswers: answers
+        taskAnswers: currentAnswers
       });
       return true;
     } catch (error) {
@@ -202,6 +241,9 @@ export const useIPTaskData = (task: any, sprintProfile: any) => {
     handleComplete,
     handleStepChange,
     currentStepContext,
-    conditionalFlow: buildConditionalFlow()
+    currentStepIndex,
+    conditionalFlow: buildConditionalFlow(),
+    answers,
+    updateAnswers
   };
 };

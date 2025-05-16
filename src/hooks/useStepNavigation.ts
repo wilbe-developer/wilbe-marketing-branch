@@ -75,6 +75,6 @@ export const useStepNavigation = ({
     goToNextStep,
     goToPreviousStep,
     handleComplete,
-    progress: ((currentStep + 1) / totalSteps) * 100
+    progress: totalSteps > 0 ? ((currentStep + 1) / totalSteps) * 100 : 0
   };
 };
