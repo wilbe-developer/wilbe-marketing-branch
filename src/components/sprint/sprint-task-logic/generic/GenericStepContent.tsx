@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import StepBasedTaskLogic, { Step } from "../../StepBasedTaskLogic";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { StepContext } from "@/hooks/team-step-builder/types";
-import { TaskStep } from "@/types/task-definition";
+import { TaskStep, ConditionalFlow } from "@/types/task-definition";
 
 interface GenericStepContentProps {
   steps: TaskStep[] | Step[];
@@ -13,7 +13,7 @@ interface GenericStepContentProps {
   onStepChange: (stepIndex: number, context?: StepContext) => void;
   onAnswerUpdate?: (stepIndex: number, answer: any) => void;
   isLoading?: boolean;
-  conditionalFlow?: Record<number, Record<string, number>>;
+  conditionalFlow?: ConditionalFlow;
 }
 
 const GenericStepContent: React.FC<GenericStepContentProps> = ({
