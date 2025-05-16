@@ -39,27 +39,44 @@ export const SprintTaskLogicRouter = ({
         const { data, error } = await supabase
           .from('sprint_task_definitions')
           .select('*')
-          .eq('name', task.title)
-          .maybeSingle(); // Use maybeSingle to avoid errors when nothing is found
+          .eq('id', task.id)
+          .maybeSingle();
           
         if (error) {
-          console.error('Error fetching dynamic task definition:', error);
+          console.error('Error fetching task definition by ID:', error);
+          // If we can't find by ID, try by name
+          const { data: nameData, error: nameError } = await supabase
+            .from('sprint_task_definitions')
+            .select('*')
+            .eq('name', task.title)
+            .maybeSingle();
+            
+          if (nameError) {
+            console.error('Error fetching task definition by name:', nameError);
+          } else if (nameData) {
+            console.log('Found dynamic task definition by name:', nameData.name);
+            setDynamicTaskDefinition(nameData);
+          }
         } else if (data) {
-          console.log('Found dynamic task definition:', data.name);
+          console.log('Found dynamic task definition by ID:', data.name);
           setDynamicTaskDefinition(data);
         } else {
-          console.log('No dynamic task definition found for:', task.title);
+          console.log('No dynamic task definition found for ID:', task.id);
         }
       } catch (err) {
         console.error('Failed to fetch dynamic task definition:', err);
+      } finally {
+        setIsLoading(false);
       }
     };
     
-    // If we have a task title, try to fetch dynamic task definition
-    if (task.title) {
+    // Try to fetch by task ID first
+    if (task.id) {
       fetchDynamicTaskDefinition();
+    } else {
+      setIsLoading(false);
     }
-  }, [task.title]);
+  }, [task.id, task.title]);
   
   // If no dynamic task, fall back to old task definition
   useEffect(() => {
@@ -159,7 +176,40 @@ export const SprintTaskLogicRouter = ({
     );
   }
   
-  // First priority: Use database task definition if available
+  // First priority: Use dynamic task definition if available
+  if (dynamicTaskDefinition) {
+    console.log('Rendering task with dynamic definition:', dynamicTaskDefinition.name);
+    
+    // Extract the task definition from the sprint_task_definitions record
+    let taskDefinition: TaskDefinition;
+    
+    if (typeof dynamicTaskDefinition.definition === 'string') {
+      try {
+        taskDefinition = JSON.parse(dynamicTaskDefinition.definition);
+      } catch (e) {
+        console.error('Failed to parse task definition JSON:', e);
+        taskDefinition = {
+          id: dynamicTaskDefinition.id,
+          title: dynamicTaskDefinition.name,
+          description: dynamicTaskDefinition.description || '',
+          steps: []
+        };
+      }
+    } else {
+      taskDefinition = dynamicTaskDefinition.definition;
+    }
+    
+    return (
+      <GenericTaskLogic
+        task={task}
+        isCompleted={isCompleted}
+        onComplete={onComplete}
+        taskDefinition={taskDefinition}
+      />
+    );
+  }
+  
+  // Second priority: Use database task definition if available
   if (dbTaskDefinition) {
     console.log('Rendering task with database definition:', dbTaskDefinition.title);
     console.log('Task has steps:', dbTaskDefinition.steps?.length || 0);
@@ -175,7 +225,7 @@ export const SprintTaskLogicRouter = ({
     );
   }
   
-  // Second priority: Use local JS task definition if available
+  // Third priority: Use local JS task definition if available
   const localTaskDefinition = getTaskDefinition(task.title);
   if (localTaskDefinition) {
     console.log('Rendering task with local definition:', localTaskDefinition.title);

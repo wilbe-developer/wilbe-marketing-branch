@@ -1,7 +1,7 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useSprintTasks } from '@/hooks/useSprintTasks.tsx';
+import { useSprintTaskDefinitions } from '@/hooks/useSprintTaskDefinitions';
 import { SprintTaskLogicRouter } from "@/components/sprint/sprint-task-logic";
 import QuestionForm from '@/components/sprint/QuestionForm';
 import FileUploader from '@/components/sprint/FileUploader';
@@ -10,17 +10,50 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
 import { MessageCircle } from 'lucide-react';
 import { SharedSprintBanner } from '@/components/sprint/SharedSprintBanner';
+import { supabase } from '@/integrations/supabase/client';
+import { SprintTaskDefinition } from '@/types/task-builder';
 
 const SprintTaskPage = () => {
   const { taskId } = useParams<{ taskId: string }>();
-  const { tasksWithProgress, updateProgress, isLoading } = useSprintTasks();
+  const { tasksWithProgress, updateProgress, isLoading } = useSprintTaskDefinitions();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+  const [taskDefinition, setTaskDefinition] = useState<SprintTaskDefinition | null>(null);
+  const [isLoadingDefinition, setIsLoadingDefinition] = useState(false);
 
   // Find the current task
   const currentTask = tasksWithProgress.find(task => task.id === taskId);
 
-  if (isLoading) {
+  // Fetch the full task definition if needed
+  useEffect(() => {
+    const fetchTaskDefinition = async () => {
+      if (!taskId) return;
+      
+      setIsLoadingDefinition(true);
+      
+      try {
+        const { data, error } = await supabase
+          .from('sprint_task_definitions')
+          .select('*')
+          .eq('id', taskId)
+          .maybeSingle();
+          
+        if (error) {
+          console.error('Error fetching task definition:', error);
+        } else if (data) {
+          setTaskDefinition(data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch task definition:', err);
+      } finally {
+        setIsLoadingDefinition(false);
+      }
+    };
+    
+    fetchTaskDefinition();
+  }, [taskId]);
+
+  if (isLoading || isLoadingDefinition) {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>

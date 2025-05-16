@@ -1,6 +1,6 @@
 
 import { useEffect } from "react";
-import { useSprintTasks } from "@/hooks/useSprintTasks";
+import { useSprintTaskDefinitions } from "@/hooks/useSprintTaskDefinitions";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/hooks/useAuth";
 import { CollaborateButton } from "@/components/sprint/CollaborateButton";
@@ -11,7 +11,7 @@ import { SharedSprintBanner } from "@/components/sprint/SharedSprintBanner";
 import { useSprintContext } from "@/hooks/useSprintContext";
 
 const SprintDashboardPage = () => {
-  const { tasksWithProgress, isLoading } = useSprintTasks();
+  const { tasksWithProgress, isLoading } = useSprintTaskDefinitions();
   const isMobile = useIsMobile();
   const { user } = useAuth();
   const { isSharedSprint, sprintOwnerName } = useSprintContext();
