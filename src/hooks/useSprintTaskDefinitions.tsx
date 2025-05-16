@@ -84,12 +84,15 @@ export const useSprintTaskDefinitions = () => {
     // Generate task summary for display
     const summary = generateTaskSummary(taskDef);
 
+    // Get order_index from definition or default to 0
+    const orderIndex = taskDef.definition.order_index || 0;
+
     // Convert task definition to UserTaskProgress format
     const taskProgress: UserTaskProgress = {
       id: taskDef.id,
       title: summary.title,
       description: summary.description || "",
-      order_index: 0, // We'll need to add this to the definitions table later
+      order_index: orderIndex, // Use order_index from definition
       upload_required: summary.requiresUpload,
       content: summary.content,
       question: summary.mainQuestion,

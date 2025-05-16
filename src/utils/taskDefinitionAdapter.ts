@@ -1,175 +1,78 @@
 
-import { StepNode, TaskDefinition, SprintTaskDefinition, ProfileQuestion, Condition, ConditionSource, ConditionOperator } from "@/types/task-builder";
+import { SprintTaskDefinition } from "@/types/task-builder";
 
-/**
- * Finds a step by ID in the steps tree
- */
-export function findStepById(steps: StepNode[], id: string): StepNode | null {
-  for (const step of steps) {
-    if (step.id === id) {
-      return step;
-    }
-    
-    if (step.children && step.children.length > 0) {
-      const found = findStepById(step.children, id);
-      if (found) return found;
-    }
-  }
-  
-  return null;
+export interface TaskSummary {
+  title: string;
+  description?: string;
+  content?: string | null;
+  mainQuestion?: string | null;
+  requiresUpload: boolean;
+  category?: string | null;
+  order_index: number;
 }
 
 /**
- * Flattens a nested step tree into a single array
+ * Extracts the main content from a task definition
  */
-export function flattenSteps(steps: StepNode[]): StepNode[] {
-  const result: StepNode[] = [];
+export const getMainContent = (taskDef: SprintTaskDefinition): string | null => {
+  if (!taskDef.definition || !taskDef.definition.steps) return null;
   
-  for (const step of steps) {
-    result.push(step);
-    
-    if (step.children && step.children.length > 0) {
-      result.push(...flattenSteps(step.children));
-    }
-  }
+  // Look for a content step
+  const contentStep = taskDef.definition.steps.find(step => 
+    step.type === 'content' || step.type === 'exercise'
+  );
   
-  return result;
-}
+  return contentStep?.text || null;
+};
 
 /**
- * Evaluates if a step should be visible based on its conditions
+ * Extracts the main question from a task definition
  */
-export function evaluateStepVisibility(
-  step: StepNode,
-  profileAnswers: Record<string, any>,
-  stepAnswers: Record<string, any>
-): boolean {
-  if (!step.conditions || step.conditions.length === 0) {
-    return true;
-  }
+export const getMainQuestion = (taskDef: SprintTaskDefinition): string | null => {
+  if (!taskDef.definition || !taskDef.definition.steps) return null;
   
-  // All conditions must be true for the step to be visible
-  return step.conditions.every(condition => {
-    let sourceValue;
-    
-    if ('profileKey' in condition.source) {
-      sourceValue = profileAnswers[condition.source.profileKey];
-    } else if ('stepId' in condition.source) {
-      sourceValue = stepAnswers[condition.source.stepId];
-    } else {
-      return true; // Invalid condition source, assume true
-    }
-    
-    switch (condition.operator) {
-      case 'equals':
-        return sourceValue === condition.value;
-      case 'not_equals':
-        return sourceValue !== condition.value;
-      case 'in':
-        return Array.isArray(condition.value) && condition.value.includes(sourceValue);
-      case 'not_in':
-        return Array.isArray(condition.value) && !condition.value.includes(sourceValue);
-      default:
-        return true;
-    }
-  });
-}
-
-/**
- * Gets the main question text from a task definition
- */
-export function getMainQuestion(taskDef: TaskDefinition): string | null {
-  if (!taskDef.steps || taskDef.steps.length === 0) {
-    return null;
-  }
+  // Look for a question step
+  const questionStep = taskDef.definition.steps.find(step => 
+    step.type === 'question'
+  );
   
-  // Find first question step
-  const firstQuestion = taskDef.steps.find(step => step.type === 'question');
-  return firstQuestion?.text || null;
-}
+  return questionStep?.text || null;
+};
 
 /**
  * Checks if a task requires file upload
  */
-export function requiresUpload(taskDef: TaskDefinition): boolean {
-  if (!taskDef.steps) return false;
+export const requiresUpload = (taskDef: SprintTaskDefinition): boolean => {
+  if (!taskDef.definition || !taskDef.definition.steps) return false;
   
-  const flattened = flattenSteps(taskDef.steps);
-  return flattened.some(step => step.type === 'upload' || step.type === 'file');
-}
+  // Check if any step requires upload
+  return taskDef.definition.steps.some(step => 
+    step.type === 'upload' || step.type === 'file'
+  );
+};
 
 /**
- * Gets the main content HTML if available
+ * Generates a concise summary of a task definition
  */
-export function getMainContent(taskDef: TaskDefinition): string | null {
-  if (!taskDef.steps) return null;
+export const generateTaskSummary = (taskDef: SprintTaskDefinition): TaskSummary => {
+  if (!taskDef.definition) {
+    return {
+      title: taskDef.name || "Unnamed Task",
+      description: taskDef.description || "",
+      requiresUpload: false,
+      order_index: 0
+    };
+  }
   
-  // Find first content step
-  const firstContent = taskDef.steps.find(step => step.type === 'content');
-  return firstContent?.content || null;
-}
-
-/**
- * Generates a summary of the task definition for display purposes
- */
-export function generateTaskSummary(taskDef: SprintTaskDefinition): {
-  title: string;
-  description: string;
-  category: string | null;
-  requiresUpload: boolean;
-  mainQuestion: string | null;
-  content: string | null;
-} {
+  const def = taskDef.definition;
+  
   return {
-    title: taskDef.name || taskDef.definition?.taskName || "Untitled Task",
-    description: taskDef.description || taskDef.definition?.description || "",
-    category: taskDef.definition?.category || null,
-    requiresUpload: requiresUpload(taskDef.definition),
-    mainQuestion: getMainQuestion(taskDef.definition),
-    content: getMainContent(taskDef.definition)
+    title: def.taskName || taskDef.name || "Unnamed Task",
+    description: def.description || taskDef.description || "",
+    content: getMainContent(taskDef),
+    mainQuestion: getMainQuestion(taskDef),
+    requiresUpload: requiresUpload(taskDef),
+    category: def.category,
+    order_index: def.order_index || 0 // Get order_index from the definition or default to 0
   };
-}
-
-/**
- * Ensures all IDs in the object and children have valid IDs
- */
-export function ensureValidIdsInObject(obj: any): any {
-  if (!obj) return obj;
-  
-  // If this is an array, process each element
-  if (Array.isArray(obj)) {
-    return obj.map(item => ensureValidIdsInObject(item));
-  }
-  
-  // If not an object, return as is
-  if (typeof obj !== 'object') return obj;
-  
-  // Create a copy to avoid mutating the original
-  const newObj = { ...obj };
-  
-  // Process ID if this object has one
-  if (newObj.id === undefined || newObj.id === null || newObj.id === '') {
-    newObj.id = generateStableId();
-  }
-  
-  // Process all properties that are objects or arrays
-  for (const key in newObj) {
-    if (typeof newObj[key] === 'object' && newObj[key] !== null) {
-      newObj[key] = ensureValidIdsInObject(newObj[key]);
-    }
-  }
-  
-  return newObj;
-}
-
-/**
- * Generate a stable ID that's UUID v4 compatible
- */
-export function generateStableId(): string {
-  // Simple implementation for generating random IDs
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    const r = Math.random() * 16 | 0, 
-          v = c === 'x' ? r : (r & 0x3 | 0x8);
-    return v.toString(16);
-  });
-}
+};

@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { SprintTask, UserSprintProgress, UserTaskProgress, TaskOption } from "@/types/sprint";
@@ -71,7 +70,6 @@ export const useSprintTasks = () => {
     const progress = userProgress?.find(p => p.task_id === task.id);
     return {
       ...task,
-      order_index: task.order_index || 0, // Ensure order_index is always present
       progress
     };
   }) || [];

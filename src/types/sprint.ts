@@ -27,6 +27,7 @@ export interface SprintTask {
   id: string;
   title: string;
   description: string;
+  order_index: number; // Add the missing field
   upload_required: boolean;
   content: string | null;
   question: string | null;
