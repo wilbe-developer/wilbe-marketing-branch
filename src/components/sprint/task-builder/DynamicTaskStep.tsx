@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { StepNode } from "@/types/task-builder";
 import { Label } from "@/components/ui/label";
@@ -91,6 +90,7 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
       );
 
     case "file":
+    case "upload":
       return (
         <Card>
           <CardContent className="pt-6">
@@ -149,6 +149,8 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
       );
 
     case "exercise":
+    case "feedback":
+    case "action":
       return (
         <Card>
           <CardContent className="pt-6">
@@ -206,17 +208,39 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
         return (
           <RadioGroup
             value={answer?.toString() || ""}
-            onValueChange={(value) => onAnswer(value === "true")}
+            onValueChange={(value) => {
+              if (step.inputType === "boolean") {
+                onAnswer(value === "true");
+              } else {
+                onAnswer(value);
+              }
+            }}
           >
             <div className="space-y-2">
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="true" id={`${step.id}-true`} />
-                <Label htmlFor={`${step.id}-true`}>Yes</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="false" id={`${step.id}-false`} />
-                <Label htmlFor={`${step.id}-false`}>No</Label>
-              </div>
+              {step.inputType === "boolean" ? (
+                <>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="true" id={`${step.id}-true`} />
+                    <Label htmlFor={`${step.id}-true`}>Yes</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="false" id={`${step.id}-false`} />
+                    <Label htmlFor={`${step.id}-false`}>No</Label>
+                  </div>
+                </>
+              ) : (
+                step.options?.map((option, i) => (
+                  <div key={i} className="flex items-center space-x-2">
+                    <RadioGroupItem
+                      value={option.value}
+                      id={`${step.id}-${option.value}`}
+                    />
+                    <Label htmlFor={`${step.id}-${option.value}`}>
+                      {option.label}
+                    </Label>
+                  </div>
+                ))
+              )}
             </div>
           </RadioGroup>
         );

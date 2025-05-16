@@ -1,26 +1,32 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "./use-toast";
+import { toast } from "sonner";
 import { SharedSprint, SharedTask, UserTaskProgress } from "@/types/sprint";
 
 // Adapter function to convert a SharedTask to UserTaskProgress format
 export const adaptSharedTaskToUserTaskProgress = (task: SharedTask): UserTaskProgress => {
   return {
-    ...task,
+    id: task.id,
+    title: task.title,
+    description: task.description,
+    order_index: task.order_index || 0,
     upload_required: !!task.upload_required,
     content: null,           // Add missing properties required by UserTaskProgress
     question: null,          // Add missing properties required by UserTaskProgress
     options: null,           // Add missing properties required by UserTaskProgress
+    category: task.category || null,
+    status: 'active',
     progress: task.progress ? {
       id: task.progress.id,
       user_id: '', // Will be set by the client
       task_id: task.id,
       completed: task.progress.completed,
-      file_id: task.progress.file_id,
-      answers: task.progress.answers,
-      task_answers: {}, // Add this empty object for the task_answers field
-      completed_at: task.progress.completed_at
+      completed_at: task.progress.completed_at || null,
+      created_at: new Date().toISOString(), // Default value since it's required
+      file_id: task.progress.file_id || null,
+      answers: task.progress.answers || null,
+      task_answers: {} // Add this empty object for the task_answers field
     } : undefined
   };
 };
@@ -93,20 +99,21 @@ export function useSharedSprints(userId: string | undefined) {
                   category: task.category,
                   order_index: task.order_index,
                   upload_required: task.upload_required,
+                  completed: taskProgress?.completed || false,
                   progress: taskProgress ? {
                     id: taskProgress.id,
-                    completed: taskProgress.completed,
-                    completed_at: taskProgress.completed_at,
+                    completed: !!taskProgress.completed,
+                    completed_at: taskProgress.completed_at || null,
                     answers: taskProgress.answers as Record<string, any> | null,
-                    file_id: taskProgress.file_id
+                    file_id: taskProgress.file_id || null
                   } : undefined
                 };
               });
               
               sharedSprintsList.push({
-                ownerId: collab.sprint_owner_id,
-                ownerName: ownerFullName,
-                ownerEmail: ownerData.email,
+                owner_id: collab.sprint_owner_id,
+                owner_name: ownerFullName,
+                owner_email: ownerData.email,
                 tasks: tasksWithProgress
               });
             }
@@ -118,11 +125,7 @@ export function useSharedSprints(userId: string | undefined) {
         setSharedSprints(sharedSprintsList);
       } catch (error) {
         console.error("Error fetching shared sprints:", error);
-        toast({
-          title: "Error",
-          description: "Could not load shared sprints. Please try again later.",
-          variant: "destructive"
-        });
+        toast("Could not load shared sprints. Please try again later.");
       } finally {
         setIsLoading(false);
       }

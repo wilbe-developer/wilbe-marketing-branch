@@ -43,12 +43,12 @@ export const SharedSprintsSelector = () => {
           <div className="space-y-2">
             {sharedSprints.map(sprint => (
               <Button
-                key={sprint.ownerId}
+                key={sprint.owner_id}
                 variant="outline"
                 className="w-full justify-between"
-                onClick={() => switchToSharedSprint(sprint.ownerId, sprint.ownerName)}
+                onClick={() => switchToSharedSprint(sprint.owner_id, sprint.owner_name)}
               >
-                <span>{sprint.ownerName}'s Sprint</span>
+                <span>{sprint.owner_name}'s Sprint</span>
                 <ChevronRight className="h-4 w-4 ml-2" />
               </Button>
             ))}

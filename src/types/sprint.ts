@@ -43,17 +43,30 @@ export interface UploadedFile {
   uploaded_at: string;
 }
 
+// Update the SharedSprint interface to use snake_case to match the database
 export interface SharedSprint {
   owner_id: string;
   owner_name: string;
+  owner_email?: string;
   tasks: SharedTask[];
 }
 
+// Update the SharedTask interface to include all fields used in components
 export interface SharedTask {
   id: string;
   title: string;
   description: string;
   completed: boolean;
+  upload_required?: boolean;
+  category?: string | null;
+  order_index?: number;
+  progress?: {
+    id: string;
+    completed: boolean;
+    completed_at: string | null;
+    answers: Record<string, any> | null;
+    file_id: string | null;
+  };
 }
 
 export interface TaskOption {

@@ -65,12 +65,13 @@ const ProfileQuestionsEditor: React.FC<ProfileQuestionsEditorProps> = ({
       
       // Remove options if not needed
       if (typedValue === "boolean" || typedValue === "text") {
-        delete newQuestions[index].options;
+        newQuestions[index].options = undefined;
       }
-    } else if (field === "options") {
+    } else if (field === "options" && Array.isArray(value)) {
       newQuestions[index].options = value;
     } else {
-      newQuestions[index][field] = value;
+      // Use type assertion to handle dynamic property assignment
+      (newQuestions[index] as Record<string, any>)[field] = value;
     }
     
     onChange(newQuestions);

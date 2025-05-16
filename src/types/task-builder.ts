@@ -45,6 +45,9 @@ export interface StepNode {
   // Parent-child structure for nested steps
   parentId?: string;
   children?: StepNode[];
+  
+  // Conditional navigation based on answers
+  onAnswer?: Record<string, StepNode[]>;
 }
 
 export type StepType = 

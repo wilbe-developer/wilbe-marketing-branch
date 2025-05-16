@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import {
   TaskDefinition,
@@ -263,6 +262,7 @@ const DynamicTaskRenderer: React.FC<DynamicTaskRendererProps> = ({
         );
 
       case "file":
+      case "upload":
         return (
           <div className="space-y-4">
             <div className="text-lg">{step.text}</div>
@@ -278,6 +278,8 @@ const DynamicTaskRenderer: React.FC<DynamicTaskRendererProps> = ({
         );
 
       case "exercise":
+      case "feedback":
+      case "action":
         return (
           <div className="space-y-4">
             <div className="text-lg">{step.text}</div>
@@ -438,13 +440,18 @@ const DynamicTaskRenderer: React.FC<DynamicTaskRendererProps> = ({
               <CardTitle>{panel.title}</CardTitle>
             </CardHeader>
             <CardContent>
-              <ul className="list-disc pl-5 space-y-2">
-                {panel.items
-                  .sort((a, b) => (a.order || 0) - (b.order || 0))
-                  .map((item, itemIndex) => (
-                    <li key={itemIndex}>{item.text}</li>
-                  ))}
-              </ul>
+              {panel.content && (
+                <div className="prose" dangerouslySetInnerHTML={{ __html: panel.content }}/>
+              )}
+              {panel.items && panel.items.length > 0 && (
+                <ul className="list-disc pl-5 space-y-2">
+                  {panel.items
+                    .sort((a, b) => (a.order || 0) - (b.order || 0))
+                    .map((item, itemIndex) => (
+                      <li key={itemIndex}>{item.text}</li>
+                    ))}
+                </ul>
+              )}
             </CardContent>
           </Card>
         ))}

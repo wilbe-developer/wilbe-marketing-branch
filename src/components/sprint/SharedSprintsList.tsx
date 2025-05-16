@@ -25,11 +25,11 @@ export const SharedSprintsList: React.FC<SharedSprintsListProps> = ({
   return (
     <div className="space-y-8">
       {sharedSprints.map((sprint) => (
-        <div key={sprint.ownerId} className="space-y-4">
+        <div key={sprint.owner_id} className="space-y-4">
           <div className="flex items-center">
             <Users className="mr-2 h-5 w-5 text-blue-600" />
             <h2 className="text-xl font-medium text-blue-800">
-              {sprint.ownerName}'s Sprint
+              {sprint.owner_name}'s Sprint
             </h2>
           </div>
           
