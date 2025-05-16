@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSprintTaskDefinitions } from "@/hooks/task-builder/useSprintTaskDefinitions";
 import { Button } from "@/components/ui/button";
@@ -13,13 +13,23 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { SaveAll, ArrowLeft, AlertCircle, Code } from "lucide-react";
+import { SaveAll, ArrowLeft, AlertCircle, Code, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import SimpleStepEditor from "./SimpleStepEditor";
 import ProfileQuestionsEditor from "./ProfileQuestionsEditor";
 import { TaskDefinition } from "@/types/task-builder";
 import { v4 as uuidv4 } from "uuid";
 import { ErrorBoundary } from "react-error-boundary";
+
+// Stable UUID generator that falls back to timestamp if UUID fails
+const generateStableId = () => {
+  try {
+    return uuidv4();
+  } catch (error) {
+    console.error("UUID generation failed, using timestamp fallback:", error);
+    return `fallback-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+  }
+};
 
 // Error fallback component
 const ErrorFallback = ({ error, resetErrorBoundary }: { error: Error, resetErrorBoundary: () => void }) => {
@@ -37,9 +47,47 @@ const ErrorFallback = ({ error, resetErrorBoundary }: { error: Error, resetError
   );
 };
 
+// JSON Editor component to avoid re-creating it on each render
+const JsonEditor = ({ 
+  value, 
+  onChange, 
+  error 
+}: { 
+  value: string, 
+  onChange: (value: string) => void,
+  error?: string
+}) => {
+  return (
+    <div className="space-y-4">
+      <Label htmlFor="jsonEditor" className="flex justify-between">
+        <span>Edit Task Definition JSON</span>
+        {error && <span className="text-red-500 text-sm">{error}</span>}
+      </Label>
+      <div className="relative">
+        <Textarea
+          id="jsonEditor"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="font-mono text-sm h-[500px] resize-none"
+          placeholder="Enter JSON task definition"
+        />
+      </div>
+      <div className="text-xs text-gray-500">
+        <p>Edit the task definition in JSON format. Required fields:</p>
+        <ul className="list-disc pl-5">
+          <li>taskName (string): The name of the task</li>
+          <li>steps (array): Array of step objects with id, type, and text properties</li>
+          <li>profileQuestions (array): Array of profile question objects</li>
+        </ul>
+      </div>
+    </div>
+  );
+};
+
 const SimplifiedTaskEditor: React.FC = () => {
   const { taskId } = useParams<{ taskId: string }>();
   const navigate = useNavigate();
+  const loadTimeoutRef = useRef<number | null>(null);
   
   console.log("SimplifiedTaskEditor initializing with taskId:", taskId);
   
@@ -51,18 +99,41 @@ const SimplifiedTaskEditor: React.FC = () => {
   } = useSprintTaskDefinitions();
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoadingTimedOut, setIsLoadingTimedOut] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [task, setTask] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<string>("basic");
   const [isSaving, setIsSaving] = useState<boolean>(false);
-  const [rawJsonMode, setRawJsonMode] = useState<boolean>(false);
+  const [jsonMode, setJsonMode] = useState<boolean>(false);
   const [rawJson, setRawJson] = useState<string>("");
+  const [jsonError, setJsonError] = useState<string | null>(null);
   const [loadAttempts, setLoadAttempts] = useState<number>(0);
+  // Use a stable ID that won't change between renders for new tasks
+  const tempIdRef = useRef<string>(generateStableId());
+
+  useEffect(() => {
+    // Set a timeout to show a message if loading takes too long
+    loadTimeoutRef.current = window.setTimeout(() => {
+      setIsLoadingTimedOut(true);
+    }, 10000); // 10 seconds timeout
+    
+    return () => {
+      if (loadTimeoutRef.current) {
+        clearTimeout(loadTimeoutRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const loadTask = async () => {
+      if (loadTimeoutRef.current) {
+        clearTimeout(loadTimeoutRef.current);
+        loadTimeoutRef.current = null;
+      }
+      
       setIsLoading(true);
       setError(null);
+      setJsonError(null);
       
       try {
         console.log(`Simplified Editor loading task, taskId: ${taskId}, attempt: ${loadAttempts + 1}`);
@@ -79,21 +150,14 @@ const SimplifiedTaskEditor: React.FC = () => {
           setTask(taskData);
           setRawJson(JSON.stringify(taskData.definition, null, 2));
         } else {
-          console.log("Creating empty task");
+          console.log("Creating empty task with stable ID:", tempIdRef.current);
           const emptyTask = createEmptyTaskDefinition();
           
-          // Generate a temporary ID for UI purposes
-          let tempId: string;
-          try {
-            tempId = uuidv4();
-          } catch (error) {
-            console.error("UUID generation error:", error);
-            tempId = `temp-${Date.now()}`;
-          }
-          
           const newTask = {
-            id: tempId,
-            ...emptyTask,
+            id: tempIdRef.current,
+            name: emptyTask.name,
+            description: emptyTask.description,
+            definition: emptyTask.definition,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
           };
@@ -106,14 +170,16 @@ const SimplifiedTaskEditor: React.FC = () => {
         setError(error.message || "Failed to load task definition");
         toast.error("Failed to load task definition");
         
-        // Try to create an empty task as fallback
+        // Create an empty task as fallback
         if (loadAttempts === 0) {
           console.log("Creating fallback empty task after load failure");
           try {
             const emptyTask = createEmptyTaskDefinition();
             const fallbackTask = {
-              id: taskId || `temp-${Date.now()}`,
-              ...emptyTask,
+              id: taskId || tempIdRef.current,
+              name: emptyTask.name,
+              description: emptyTask.description,
+              definition: emptyTask.definition,
               created_at: new Date().toISOString(),
               updated_at: new Date().toISOString(),
             };
@@ -133,10 +199,14 @@ const SimplifiedTaskEditor: React.FC = () => {
     loadTask();
   }, [taskId, fetchTaskDefinition, createEmptyTaskDefinition, loadAttempts]);
 
-  const toggleRawJsonMode = () => {
-    if (!rawJsonMode) {
+  const toggleJsonMode = () => {
+    if (!jsonMode) {
       // When switching to JSON mode, update the raw JSON
-      setRawJson(JSON.stringify(task?.definition || {}, null, 2));
+      if (task?.definition) {
+        setRawJson(JSON.stringify(task.definition, null, 2));
+      }
+      setJsonMode(true);
+      setJsonError(null);
     } else {
       // When switching back from JSON mode, try to parse the JSON
       try {
@@ -147,13 +217,15 @@ const SimplifiedTaskEditor: React.FC = () => {
             definition: parsedJson
           });
         }
+        setJsonMode(false);
+        setJsonError(null);
         toast.success("JSON successfully parsed");
-      } catch (error) {
+      } catch (error: any) {
+        setJsonError("Invalid JSON: " + error.message);
         toast.error("Invalid JSON. Please correct it before switching back.");
-        return; // Prevent toggling if JSON is invalid
+        // Don't toggle if JSON is invalid
       }
     }
-    setRawJsonMode(!rawJsonMode);
   };
 
   const handleBasicInfoChange = (
@@ -252,11 +324,12 @@ const SimplifiedTaskEditor: React.FC = () => {
     
     let definitionToSave = task.definition;
     
-    // If in raw JSON mode, use the raw JSON
-    if (rawJsonMode) {
+    // If in JSON mode, use the raw JSON
+    if (jsonMode) {
       try {
         definitionToSave = JSON.parse(rawJson);
-      } catch (error) {
+      } catch (error: any) {
+        setJsonError("Invalid JSON: " + error.message);
         toast.error("Invalid JSON. Please correct it before saving.");
         return;
       }
@@ -269,28 +342,41 @@ const SimplifiedTaskEditor: React.FC = () => {
     setIsSaving(true);
 
     try {
-      console.log("Saving task definition:", task);
+      console.log("Saving task definition:", {
+        id: taskId || task.id,
+        name: task.name,
+        description: task.description
+      });
       
       if (taskId) {
-        await updateTaskDefinition.mutateAsync({
+        const result = await updateTaskDefinition.mutateAsync({
           id: taskId,
           name: task.name,
           description: task.description,
           definition: definitionToSave,
         });
-        console.log("Task updated successfully");
+        
+        console.log("Task updated successfully:", result);
         toast.success("Task definition updated successfully");
+        
+        // Reset the editor after successful save to avoid state issues
+        setTimeout(() => {
+          setLoadAttempts(prev => prev + 1);
+        }, 500);
       } else {
-        console.log("Creating new task");
         const result = await createTaskDefinition.mutateAsync({
           name: task.name,
           description: task.description,
           definition: definitionToSave,
         });
+        
         console.log("Task created successfully:", result);
         toast.success("Task definition created successfully");
+        
         // Navigate to edit the newly created task
-        navigate(`/admin/task-builder/edit/${result.id}`);
+        setTimeout(() => {
+          navigate(`/admin/task-builder/simple/edit/${result.id}`);
+        }, 500);
       }
     } catch (error: any) {
       console.error("Error saving task:", error);
@@ -303,9 +389,24 @@ const SimplifiedTaskEditor: React.FC = () => {
   const renderContent = () => {
     if (isLoading) {
       return (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
-          <span className="ml-2">Loading task definition...</span>
+        <div className="flex flex-col justify-center items-center h-64">
+          <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mb-4"></div>
+          <p className="text-lg text-gray-600">Loading task definition...</p>
+          {isLoadingTimedOut && (
+            <div className="mt-6 text-center">
+              <p className="text-amber-600 mb-2">This is taking longer than expected.</p>
+              <div className="flex gap-2 justify-center mt-2">
+                <Button onClick={() => setLoadAttempts(prev => prev + 1)}>
+                  <RefreshCw size={16} className="mr-2" />
+                  Retry
+                </Button>
+                <Button variant="outline" onClick={() => navigate("/admin/task-builder")}>
+                  <ArrowLeft size={16} className="mr-2" />
+                  Back to List
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       );
     }
@@ -318,16 +419,21 @@ const SimplifiedTaskEditor: React.FC = () => {
           </div>
           <h2 className="text-2xl font-bold mb-4">Error Loading Task</h2>
           <p className="text-red-500 mb-4">{error}</p>
-          <div className="space-x-4">
+          <div className="space-y-4">
             <Button variant="outline" onClick={() => navigate("/admin/task-builder")}>
               <ArrowLeft size={16} className="mr-2" />
               Back to Task List
             </Button>
-            {loadAttempts < 3 && (
-              <Button onClick={() => setLoadAttempts(prev => prev + 1)}>
-                Try Again
+            <Button onClick={() => setLoadAttempts(prev => prev + 1)}>
+              <RefreshCw size={16} className="mr-2" />
+              Try Again
+            </Button>
+            <div className="pt-4 border-t border-gray-200 mt-4">
+              <Button variant="secondary" onClick={() => setJsonMode(true)}>
+                <Code size={16} className="mr-2" />
+                Try JSON Editor
               </Button>
-            )}
+            </div>
           </div>
         </div>
       );
@@ -365,14 +471,18 @@ const SimplifiedTaskEditor: React.FC = () => {
           <div className="flex space-x-2">
             <Button 
               variant="outline" 
-              onClick={toggleRawJsonMode}
+              onClick={toggleJsonMode}
               className="flex items-center"
             >
               <Code size={16} className="mr-2" />
-              {rawJsonMode ? "Visual Editor" : "JSON Editor"}
+              {jsonMode ? "Visual Editor" : "JSON Editor"}
             </Button>
             
-            <Button onClick={handleSave} disabled={isSaving}>
+            <Button 
+              onClick={handleSave} 
+              disabled={isSaving}
+              className="min-w-[120px]"
+            >
               {isSaving ? (
                 <>
                   <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
@@ -397,31 +507,17 @@ const SimplifiedTaskEditor: React.FC = () => {
                 onChange={handleBasicInfoChange}
                 placeholder="Task Name"
                 className="text-2xl font-bold border-none p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0"
+                disabled={jsonMode}
               />
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {rawJsonMode ? (
-              <div className="space-y-4">
-                <Label htmlFor="jsonEditor">Edit Task Definition JSON</Label>
-                <div className="relative">
-                  <Textarea
-                    id="jsonEditor"
-                    value={rawJson}
-                    onChange={(e) => setRawJson(e.target.value)}
-                    className="font-mono text-sm h-[500px] resize-none"
-                    placeholder="Enter JSON task definition"
-                  />
-                </div>
-                <div className="text-xs text-gray-500">
-                  <p>Edit the task definition in JSON format. Required fields:</p>
-                  <ul className="list-disc pl-5">
-                    <li>taskName (string): The name of the task</li>
-                    <li>steps (array): Array of step objects with id, type, and text properties</li>
-                    <li>profileQuestions (array): Array of profile question objects</li>
-                  </ul>
-                </div>
-              </div>
+            {jsonMode ? (
+              <JsonEditor 
+                value={rawJson}
+                onChange={setRawJson}
+                error={jsonError || undefined}
+              />
             ) : (
               <Tabs value={activeTab} onValueChange={setActiveTab}>
                 <TabsList className="mb-6">
@@ -445,7 +541,10 @@ const SimplifiedTaskEditor: React.FC = () => {
                 </TabsContent>
 
                 <TabsContent value="steps">
-                  <ErrorBoundary FallbackComponent={ErrorFallback} resetKeys={[task?.definition?.steps]}>
+                  <ErrorBoundary 
+                    FallbackComponent={ErrorFallback} 
+                    resetKeys={[JSON.stringify(task?.definition?.steps)]}
+                  >
                     <SimpleStepEditor 
                       steps={task.definition?.steps || []} 
                       onChange={updateSteps} 
@@ -454,7 +553,10 @@ const SimplifiedTaskEditor: React.FC = () => {
                 </TabsContent>
 
                 <TabsContent value="profileQuestions">
-                  <ErrorBoundary FallbackComponent={ErrorFallback} resetKeys={[task?.definition?.profileQuestions]}>
+                  <ErrorBoundary 
+                    FallbackComponent={ErrorFallback}
+                    resetKeys={[JSON.stringify(task?.definition?.profileQuestions)]}
+                  >
                     <ProfileQuestionsEditor 
                       profileQuestions={task.definition?.profileQuestions || []} 
                       onChange={updateProfileQuestions} 
@@ -470,7 +572,13 @@ const SimplifiedTaskEditor: React.FC = () => {
   };
 
   return (
-    <ErrorBoundary FallbackComponent={ErrorFallback}>
+    <ErrorBoundary 
+      FallbackComponent={ErrorFallback}
+      onReset={() => {
+        console.log("Main error boundary reset");
+        setLoadAttempts(prev => prev + 1);
+      }}
+    >
       {renderContent()}
     </ErrorBoundary>
   );

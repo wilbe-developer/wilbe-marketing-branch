@@ -5,6 +5,16 @@ import { SprintTaskDefinition, TaskDefinition } from "@/types/task-builder";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
 
+// Stable ID generator with fallback
+const generateStableId = () => {
+  try {
+    return uuidv4();
+  } catch (error) {
+    console.error("UUID generation failed, using timestamp fallback:", error);
+    return `fallback-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+  }
+};
+
 export const useSprintTaskDefinitions = () => {
   const queryClient = useQueryClient();
 
@@ -93,7 +103,10 @@ export const useSprintTaskDefinitions = () => {
         console.error("Error in task definitions query:", err);
         throw err;
       }
-    }
+    },
+    retry: 2,
+    staleTime: 30000, // 30 seconds - don't refetch too frequently
+    refetchOnWindowFocus: false
   });
 
   // Fetch a single task definition by ID
@@ -212,6 +225,19 @@ export const useSprintTaskDefinitions = () => {
           taskDefinition.definition.profileQuestions = [];
         }
         
+        // Ensure all steps have stable IDs
+        if (taskDefinition.definition.steps) {
+          taskDefinition.definition.steps = taskDefinition.definition.steps.map(step => {
+            if (!step.id) {
+              return {
+                ...step,
+                id: generateStableId()
+              };
+            }
+            return step;
+          });
+        }
+        
         const { data, error } = await supabase
           .from("sprint_task_definitions")
           .insert({
@@ -270,7 +296,6 @@ export const useSprintTaskDefinitions = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sprintTaskDefinitions"] });
-      toast.success("Task definition created successfully");
     },
     onError: (error: Error) => {
       console.error("Task creation error:", error);
@@ -301,6 +326,19 @@ export const useSprintTaskDefinitions = () => {
         if (!Array.isArray(taskDefinition.definition.steps)) {
           console.warn("No steps array found, creating empty one");
           taskDefinition.definition.steps = [];
+        }
+
+        // Ensure all steps have stable IDs
+        if (taskDefinition.definition.steps) {
+          taskDefinition.definition.steps = taskDefinition.definition.steps.map(step => {
+            if (!step.id) {
+              return {
+                ...step,
+                id: generateStableId()
+              };
+            }
+            return step;
+          });
         }
         
         const { data, error } = await supabase
@@ -362,7 +400,6 @@ export const useSprintTaskDefinitions = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sprintTaskDefinitions"] });
-      toast.success("Task definition updated successfully");
     },
     onError: (error: Error) => {
       console.error("Task update error:", error);
@@ -395,7 +432,6 @@ export const useSprintTaskDefinitions = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sprintTaskDefinitions"] });
-      toast.success("Task definition deleted successfully");
     },
     onError: (error: Error) => {
       console.error("Task deletion error:", error);
@@ -407,6 +443,7 @@ export const useSprintTaskDefinitions = () => {
   const createEmptyTaskDefinition = (): Omit<SprintTaskDefinition, "id" | "created_at" | "updated_at"> => {
     try {
       console.log("Creating empty task definition template");
+      const stableId = generateStableId();
       
       return {
         name: "New Task",
@@ -417,7 +454,7 @@ export const useSprintTaskDefinitions = () => {
           profileQuestions: [],
           steps: [
             {
-              id: uuidv4(),
+              id: stableId,
               type: "question",
               text: "Initial question",
               inputType: "radio",

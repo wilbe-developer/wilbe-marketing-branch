@@ -1,12 +1,12 @@
 
-import React, { Suspense, useState } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import React, { Suspense, useState, useEffect } from "react";
+import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import TaskDefinitionList from "@/components/admin/task-builder/TaskDefinitionList";
 import TaskDefinitionEditor from "@/components/admin/task-builder/TaskDefinitionEditor";
 import SimplifiedTaskEditor from "@/components/admin/task-builder/SimplifiedTaskEditor";
 import { ErrorBoundary } from "react-error-boundary";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, AlertCircle } from "lucide-react";
+import { ArrowLeft, AlertCircle, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { 
   Card, 
@@ -53,26 +53,62 @@ const LoadingFallback = () => (
 const EditorWrapper = ({ simplified = false }) => {
   const [useSimplifiedEditor, setUseSimplifiedEditor] = useState<boolean>(simplified);
   const [editorKey, setEditorKey] = useState<number>(0);
+  const location = useLocation();
+  const navigate = useNavigate();
+  
+  // If we're on a simplified route but not using simplified editor, or vice versa, redirect
+  useEffect(() => {
+    const isSimplifiedRoute = location.pathname.includes("/simple/");
+    if (isSimplifiedRoute !== useSimplifiedEditor) {
+      setUseSimplifiedEditor(isSimplifiedRoute);
+    }
+  }, [location.pathname, useSimplifiedEditor]);
   
   const toggleEditor = () => {
-    setUseSimplifiedEditor(prev => !prev);
+    const newEditorType = !useSimplifiedEditor;
+    setUseSimplifiedEditor(newEditorType);
+    
+    // Update the URL to match the editor type
+    const newPath = location.pathname.replace(
+      newEditorType ? "/edit/" : "/simple/edit/",
+      newEditorType ? "/simple/edit/" : "/edit/"
+    );
+    
+    navigate(newPath);
     setEditorKey(prev => prev + 1); // Force a complete remount
   };
   
   return (
-    <ErrorBoundary FallbackComponent={ErrorFallback} resetKeys={[useSimplifiedEditor, editorKey]}>
+    <ErrorBoundary 
+      FallbackComponent={ErrorFallback} 
+      resetKeys={[useSimplifiedEditor, editorKey]}
+      onReset={() => {
+        console.log("Editor error boundary reset");
+        setEditorKey(prev => prev + 1); // Force fresh remount on recovery
+      }}
+    >
       <div className="mb-4">
         <Card>
           <CardHeader className="py-3">
             <CardTitle className="flex items-center justify-between text-sm">
               <span>Editor Type</span>
-              <Button 
-                size="sm" 
-                variant="outline" 
-                onClick={toggleEditor}
-              >
-                Switch to {useSimplifiedEditor ? "Advanced" : "Simplified"} Editor
-              </Button>
+              <div className="flex gap-2">
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  onClick={() => window.location.reload()}
+                >
+                  <RefreshCw size={16} className="mr-2" />
+                  Refresh
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  onClick={toggleEditor}
+                >
+                  Switch to {useSimplifiedEditor ? "Advanced" : "Simplified"} Editor
+                </Button>
+              </div>
             </CardTitle>
           </CardHeader>
           <CardContent className="py-3 text-sm text-gray-500">
