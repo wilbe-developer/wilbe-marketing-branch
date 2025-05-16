@@ -52,9 +52,10 @@ const DraggableStepNode: React.FC<DraggableStepNodeProps> = ({
   onMoveStep,
 }) => {
   const ref = useRef<HTMLDivElement>(null);
+  const itemType = `${ITEM_TYPE}-${level}`;
 
   const [{ handlerId }, drop] = useDrop({
-    accept: `${ITEM_TYPE}-${level}`,
+    accept: itemType,
     collect(monitor) {
       return {
         handlerId: monitor.getHandlerId(),
@@ -84,7 +85,7 @@ const DraggableStepNode: React.FC<DraggableStepNodeProps> = ({
   });
 
   const [{ isDragging }, drag] = useDrag({
-    type: `${ITEM_TYPE}-${level}`,
+    type: itemType,
     item: () => {
       return { id: step.id, index };
     },

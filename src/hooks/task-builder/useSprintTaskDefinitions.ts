@@ -13,31 +13,60 @@ export const useSprintTaskDefinitions = () => {
     queryKey: ["sprintTaskDefinitions"],
     queryFn: async () => {
       try {
+        console.log("Fetching all task definitions");
         const { data, error } = await supabase
           .from("sprint_task_definitions")
           .select("*")
           .order("name");
 
         if (error) {
+          console.error("Supabase error when fetching task definitions:", error);
           throw new Error(`Error fetching task definitions: ${error.message}`);
         }
 
         if (!data) {
+          console.log("No task definitions found, returning empty array");
           return [] as SprintTaskDefinition[];
         }
 
+        console.log(`Found ${data.length} task definitions`);
+        
+        // Process and validate each task definition
         return data.map(item => {
           try {
-            const definition = typeof item.definition === 'string' 
-              ? JSON.parse(item.definition) 
-              : item.definition;
+            // Parse definition if it's a string
+            let parsedDefinition: TaskDefinition;
+            
+            if (typeof item.definition === 'string') {
+              parsedDefinition = JSON.parse(item.definition);
+            } else if (item.definition && typeof item.definition === 'object') {
+              parsedDefinition = item.definition as TaskDefinition;
+            } else {
+              throw new Error("Invalid definition format");
+            }
               
+            // Ensure required properties exist
+            if (!parsedDefinition.taskName) {
+              console.warn(`Task ${item.id} missing taskName, adding default`);
+              parsedDefinition.taskName = item.name || "Unnamed Task";
+            }
+            
+            if (!Array.isArray(parsedDefinition.steps)) {
+              console.warn(`Task ${item.id} missing steps array, adding empty array`);
+              parsedDefinition.steps = [];
+            }
+            
+            if (!Array.isArray(parsedDefinition.profileQuestions)) {
+              console.warn(`Task ${item.id} missing profileQuestions array, adding empty array`);
+              parsedDefinition.profileQuestions = [];
+            }
+            
             return {
               ...item,
-              definition: definition as TaskDefinition
+              definition: parsedDefinition
             };
           } catch (err) {
-            console.error("Error parsing task definition:", err, item);
+            console.error("Error processing task definition:", err, item);
             // Return a minimal valid task definition
             return {
               ...item,
@@ -60,6 +89,10 @@ export const useSprintTaskDefinitions = () => {
   // Fetch a single task definition by ID
   const fetchTaskDefinition = async (id: string) => {
     try {
+      if (!id) {
+        throw new Error("Task ID is required");
+      }
+      
       console.log(`Fetching task definition with ID: ${id}`);
       
       const { data, error } = await supabase
@@ -74,6 +107,7 @@ export const useSprintTaskDefinitions = () => {
       }
 
       if (!data) {
+        console.error(`Task definition with ID ${id} not found`);
         throw new Error(`Task definition with ID ${id} not found`);
       }
 
@@ -83,17 +117,26 @@ export const useSprintTaskDefinitions = () => {
       let parsedDefinition: TaskDefinition;
       
       try {
-        parsedDefinition = typeof data.definition === 'string'
-          ? JSON.parse(data.definition)
-          : data.definition;
+        if (typeof data.definition === 'string') {
+          parsedDefinition = JSON.parse(data.definition);
+        } else if (data.definition && typeof data.definition === 'object') {
+          parsedDefinition = data.definition as TaskDefinition;
+        } else {
+          throw new Error("Invalid definition data format");
+        }
             
         // Validate required fields exist
         if (!parsedDefinition.taskName || !Array.isArray(parsedDefinition.steps)) {
-          throw new Error("Invalid task definition structure");
+          console.warn("Task definition missing required fields, adding defaults");
+          parsedDefinition = {
+            ...parsedDefinition,
+            taskName: parsedDefinition.taskName || data.name || "Unnamed Task",
+            steps: Array.isArray(parsedDefinition.steps) ? parsedDefinition.steps : []
+          };
         }
         
         // Ensure profileQuestions is always an array
-        if (!parsedDefinition.profileQuestions) {
+        if (!Array.isArray(parsedDefinition.profileQuestions)) {
           parsedDefinition.profileQuestions = [];
         }
       } catch (parseError) {
@@ -114,7 +157,7 @@ export const useSprintTaskDefinitions = () => {
       
       console.log("Processed task definition:", result);
       return result;
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching task definition:", error);
       throw error; // Re-throw to be handled by the component
     }
@@ -124,6 +167,31 @@ export const useSprintTaskDefinitions = () => {
   const createTaskDefinition = useMutation({
     mutationFn: async (taskDefinition: Omit<SprintTaskDefinition, "id" | "created_at" | "updated_at">) => {
       try {
+        console.log("Creating new task definition:", taskDefinition.name);
+        
+        // Validate the definition before sending to the database
+        if (!taskDefinition.definition) {
+          console.error("Missing definition object");
+          throw new Error("Task definition is missing");
+        }
+        
+        if (!taskDefinition.name) {
+          console.error("Missing task name");
+          throw new Error("Task name is required");
+        }
+        
+        // Make sure steps array exists
+        if (!Array.isArray(taskDefinition.definition.steps)) {
+          console.warn("No steps array found, creating empty one");
+          taskDefinition.definition.steps = [];
+        }
+        
+        // Make sure profileQuestions array exists
+        if (!Array.isArray(taskDefinition.definition.profileQuestions)) {
+          console.warn("No profileQuestions array found, creating empty one");
+          taskDefinition.definition.profileQuestions = [];
+        }
+        
         const { data, error } = await supabase
           .from("sprint_task_definitions")
           .insert({
@@ -143,11 +211,22 @@ export const useSprintTaskDefinitions = () => {
           throw new Error("No data returned from task creation");
         }
 
+        console.log("Task definition created successfully:", data);
+
+        let definition: TaskDefinition;
+        
+        // Parse definition if needed
+        if (typeof data.definition === 'string') {
+          definition = JSON.parse(data.definition);
+        } else {
+          definition = data.definition as TaskDefinition;
+        }
+
         return {
           ...data,
-          definition: data.definition as unknown as TaskDefinition
+          definition
         } as SprintTaskDefinition;
-      } catch (err) {
+      } catch (err: any) {
         console.error("Error in createTaskDefinition:", err);
         throw err;
       }
@@ -157,7 +236,8 @@ export const useSprintTaskDefinitions = () => {
       toast.success("Task definition created successfully");
     },
     onError: (error: Error) => {
-      toast.error(error.message);
+      console.error("Task creation error:", error);
+      toast.error(`Failed to create task: ${error.message}`);
     }
   });
 
@@ -166,6 +246,25 @@ export const useSprintTaskDefinitions = () => {
     mutationFn: async (taskDefinition: Pick<SprintTaskDefinition, "id" | "name" | "description" | "definition">) => {
       try {
         console.log("Updating task definition:", taskDefinition);
+        
+        // Validate the input
+        if (!taskDefinition.id) {
+          throw new Error("Task ID is required");
+        }
+        
+        if (!taskDefinition.name) {
+          throw new Error("Task name is required");
+        }
+        
+        if (!taskDefinition.definition) {
+          throw new Error("Task definition is required");
+        }
+        
+        // Make sure steps array exists
+        if (!Array.isArray(taskDefinition.definition.steps)) {
+          console.warn("No steps array found, creating empty one");
+          taskDefinition.definition.steps = [];
+        }
         
         const { data, error } = await supabase
           .from("sprint_task_definitions")
@@ -187,11 +286,22 @@ export const useSprintTaskDefinitions = () => {
           throw new Error(`Task with ID ${taskDefinition.id} not found`);
         }
 
+        console.log("Task definition updated successfully:", data);
+
+        let definition: TaskDefinition;
+        
+        // Parse definition if needed
+        if (typeof data.definition === 'string') {
+          definition = JSON.parse(data.definition);
+        } else {
+          definition = data.definition as TaskDefinition;
+        }
+
         return {
           ...data,
-          definition: data.definition as unknown as TaskDefinition
+          definition
         } as SprintTaskDefinition;
-      } catch (err) {
+      } catch (err: any) {
         console.error("Exception in updateTaskDefinition:", err);
         throw err;
       }
@@ -201,56 +311,84 @@ export const useSprintTaskDefinitions = () => {
       toast.success("Task definition updated successfully");
     },
     onError: (error: Error) => {
-      toast.error(error.message);
+      console.error("Task update error:", error);
+      toast.error(`Failed to update task: ${error.message}`);
     }
   });
 
   // Delete a task definition
   const deleteTaskDefinition = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from("sprint_task_definitions")
-        .delete()
-        .eq("id", id);
+      try {
+        console.log(`Deleting task definition with ID: ${id}`);
+        
+        const { error } = await supabase
+          .from("sprint_task_definitions")
+          .delete()
+          .eq("id", id);
 
-      if (error) {
-        throw new Error(`Error deleting task definition: ${error.message}`);
+        if (error) {
+          console.error("Error deleting task definition:", error);
+          throw new Error(`Error deleting task definition: ${error.message}`);
+        }
+
+        console.log("Task definition deleted successfully");
+        return id;
+      } catch (err: any) {
+        console.error("Error in deleteTaskDefinition:", err);
+        throw err;
       }
-
-      return id;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sprintTaskDefinitions"] });
       toast.success("Task definition deleted successfully");
     },
     onError: (error: Error) => {
-      toast.error(error.message);
+      console.error("Task deletion error:", error);
+      toast.error(`Failed to delete task: ${error.message}`);
     }
   });
 
   // Create a new empty task definition template
   const createEmptyTaskDefinition = (): Omit<SprintTaskDefinition, "id" | "created_at" | "updated_at"> => {
-    return {
-      name: "New Task",
-      description: "Task description",
-      definition: {
-        taskName: "New Task",
+    try {
+      console.log("Creating empty task definition template");
+      
+      return {
+        name: "New Task",
         description: "Task description",
-        profileQuestions: [],
-        steps: [
-          {
-            id: uuidv4(),
-            type: "question",
-            text: "Initial question",
-            inputType: "radio",
-            options: [
-              { label: "Option 1", value: "option1" },
-              { label: "Option 2", value: "option2" }
-            ]
-          }
-        ]
-      }
-    };
+        definition: {
+          taskName: "New Task",
+          description: "Task description",
+          profileQuestions: [],
+          steps: [
+            {
+              id: uuidv4(),
+              type: "question",
+              text: "Initial question",
+              inputType: "radio",
+              options: [
+                { label: "Option 1", value: "option1" },
+                { label: "Option 2", value: "option2" }
+              ]
+            }
+          ]
+        }
+      };
+    } catch (err) {
+      console.error("Error creating empty task definition:", err);
+      // Return a minimal valid template even if uuid generation fails
+      return {
+        name: "New Task",
+        description: "Task description",
+        definition: {
+          taskName: "New Task",
+          description: "Task description",
+          profileQuestions: [],
+          steps: []
+        }
+      };
+    }
   };
 
   return {
