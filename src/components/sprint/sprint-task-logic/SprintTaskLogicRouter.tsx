@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import TeamTaskLogic from "./TeamTaskLogic";
 import GenericTaskLogic from "../task-system/GenericTaskLogic";
@@ -48,7 +49,7 @@ export const SprintTaskLogicRouter = ({
               answerMapping: parseJsonField(data.answer_mapping) || {}
             };
             
-            // Add profile options if present
+            // Add profile options if present - FIX: Use profile_options with underscore
             if (data.profile_options) {
               parsedData.profileOptions = parseJsonField(data.profile_options);
             }

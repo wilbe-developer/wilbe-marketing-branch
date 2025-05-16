@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -163,7 +162,7 @@ const ConditionalFlowEditor: React.FC<ConditionalFlowEditorProps> = ({
                     <SelectItem value="*">Any answer (*)</SelectItem>
                     {getSourceStepOptions(sourceStep).map((option: any) => (
                       <SelectItem key={ensureValidValue(option.value)} value={ensureValidValue(option.value)}>
-                        {option.label} ({option.value})
+                        {option.label} ({ensureValidValue(option.value)})
                       </SelectItem>
                     ))}
                   </SelectContent>
