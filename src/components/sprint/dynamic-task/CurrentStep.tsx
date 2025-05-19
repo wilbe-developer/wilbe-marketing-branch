@@ -82,6 +82,14 @@ const CurrentStep: React.FC<CurrentStepProps> = ({
           />
         )}
         
+        {normalizedType === 'team-members' && (
+          <TeamMemberStepRenderer
+            step={step}
+            answer={answer}
+            handleAnswer={(value) => handleAnswer(step.id, value)}
+          />
+        )}
+        
         {step.type === 'form' && (
           <FormStepRenderer
             step={step}

@@ -1,3 +1,4 @@
+
 import React from "react";
 import { StepNode } from "@/types/task-builder";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,17 +9,8 @@ import { ExerciseStepRenderer } from "./ExerciseStepRenderer";
 import { CollaborationStepRenderer } from "./CollaborationStepRenderer";
 import { FormStepRenderer } from "@/components/sprint/dynamic-task/FormStepRenderer";
 import { ConditionalQuestionRenderer } from "@/components/sprint/dynamic-task/ConditionalQuestionRenderer";
-import { Button } from "@/components/ui/button";
-import { Users } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { useState } from "react";
-import { CollaboratorsManagement } from "@/components/sprint/CollaboratorsManagement";
+import { normalizeStepType } from "@/utils/taskStepUtils";
+import { TeamMemberStepRenderer } from "@/components/sprint/dynamic-task/StepRenderers";
 
 interface DynamicTaskStepProps {
   step: StepNode;
@@ -33,16 +25,15 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
   onAnswer,
   onFileUpload,
 }) => {
-  const [isCollaboratorsDialogOpen, setIsCollaboratorsDialogOpen] = useState(false);
+  console.log("DynamicTaskStep rendering step with type:", step.type);
+  
+  // Normalize step type to ensure consistent handling across the application
+  const normalizedType = normalizeStepType(step.type);
+  console.log("Normalized step type:", normalizedType);
 
-  // Normalize step properties (handle both type and inputType)
-  const normalizedStep = {
-    ...step,
-    type: step.type || step.inputType,
-  };
-
-  // Handle collaboration type
-  if (normalizedStep.type === 'collaboration') {
+  // Handle collaboration step type
+  if (normalizedType === 'collaboration') {
+    console.log("Rendering collaboration step:", step);
     return (
       <Card>
         <CardContent className="pt-6">
@@ -57,9 +48,30 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
       </Card>
     );
   }
+  
+  // Handle team-members step type
+  if (normalizedType === 'team-members') {
+    return (
+      <Card>
+        <CardContent className="pt-6">
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium">{step.text}</h3>
+            {step.description && (
+              <p className="text-gray-600">{step.description}</p>
+            )}
+            <TeamMemberStepRenderer 
+              step={step} 
+              answer={answer} 
+              handleAnswer={onAnswer} 
+            />
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
-  // Now handle the rest of the step types
-  switch (normalizedStep.type) {
+  // Now handle the rest of the step types based on normalized step type
+  switch (normalizedType) {
     case "question":
       return (
         <Card>
@@ -76,45 +88,9 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
         </Card>
       );
       
-    case "conditionalQuestion":
-      return (
-        <Card>
-          <CardContent className="pt-6">
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">{step.text}</h3>
-              <ConditionalQuestionRenderer
-                step={step}
-                answer={answer}
-                handleAnswer={onAnswer}
-              />
-            </div>
-          </CardContent>
-        </Card>
-      );
-      
-    case "form":
-      return (
-        <Card>
-          <CardContent className="pt-6">
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">{step.text}</h3>
-              <FormStepRenderer
-                step={step}
-                answer={answer}
-                handleAnswer={onAnswer}
-              />
-            </div>
-          </CardContent>
-        </Card>
-      );
-
     case "content":
-      // Check if any field is a collaboration field
-      const hasCollaborationField = step.fields && step.fields.some(field => field.type === 'collaboration');
-      
       return <ContentStepRenderer step={step} answer={answer} handleAnswer={onAnswer} />;
 
-    case "file":
     case "upload":
       return (
         <Card>
@@ -133,8 +109,6 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
       );
 
     case "exercise":
-    case "feedback":
-    case "action":
       return (
         <Card>
           <CardContent className="pt-6">
@@ -153,30 +127,15 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
         </Card>
       );
 
-    case "team-members":
-      return (
-        <Card>
-          <CardContent className="pt-6">
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">{step.text}</h3>
-              {/* Use the TeamMemberStepRenderer for team member forms */}
-              <div className="team-members-renderer">
-                {React.createElement(
-                  // Import from the module that contains the component
-                  require('./TeamMemberStepRenderer').TeamMemberStepRenderer,
-                  { step, answer, onAnswer }
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      );
-
     default:
+      console.warn(`Unhandled step type in DynamicTaskStep: ${step.type} -> ${normalizedType}`);
       return (
         <Card>
           <CardContent className="pt-6">
-            <div className="text-gray-500">Unknown step type: {normalizedStep.type}</div>
+            <div className="text-gray-500">
+              <p>Unknown step type: {step.type}</p>
+              <p className="text-sm text-red-500 mt-2">This step type is not supported yet.</p>
+            </div>
           </CardContent>
         </Card>
       );
