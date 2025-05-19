@@ -1,148 +1,103 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { StepNode } from "@/types/task-builder";
 import { Card, CardContent } from "@/components/ui/card";
-import { SprintProfileShowOrAsk } from "@/components/sprint/SprintProfileShowOrAsk";
-import { getProfileFieldMapping } from "@/utils/profileFieldMappings";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Users } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { CollaboratorsManagement } from "@/components/sprint/CollaboratorsManagement";
 
 interface ContentStepRendererProps {
   step: StepNode;
-  answer?: any;
-  handleAnswer?: (value: any) => void;
+  answer: any;
+  handleAnswer: (value: any) => void;
 }
 
-export const ContentStepRenderer: React.FC<ContentStepRendererProps> = ({ 
+export const ContentStepRenderer: React.FC<ContentStepRendererProps> = ({
   step,
   answer,
-  handleAnswer 
+  handleAnswer,
 }) => {
-  // Check if this step has profile dependencies
-  const profileDependencies = getStepProfileDependencies(step);
-  
-  // Parse the content string to check for special input fields
-  const parseContent = () => {
-    // If the content has specific input placeholders, render input fields at those positions
-    if (step.content && step.content.includes('[[input:')) {
-      // This is a simplified approach. A more robust solution would use regex to identify all placeholders
-      const parts = step.content.split(/(\[\[input:[^\]]+\]\])/);
-      
-      return (
-        <div className="prose max-w-none">
-          {parts.map((part, index) => {
-            if (part.startsWith('[[input:')) {
-              // Parse input type and id
-              const match = part.match(/\[\[input:(\w+):?([^\]]*)\]\]/);
-              if (match) {
-                const inputType = match[1]; // 'text', 'textarea', etc.
-                const inputId = match[2] || `field_${index}`; // Use provided id or generate one
-                
-                return renderInputField(inputType, inputId, index);
-              }
-            }
-            
-            return <div key={index} dangerouslySetInnerHTML={{ __html: part }} />;
-          })}
-        </div>
-      );
-    }
-    
+  const [isCollaboratorsDialogOpen, setIsCollaboratorsDialogOpen] = useState(false);
+
+  // Special function to render invite_link fields
+  const renderInviteLink = () => {
     return (
-      <div className="prose max-w-none">
-        <div dangerouslySetInnerHTML={{ __html: step.text }} />
-        {step.content && (
-          <div dangerouslySetInnerHTML={{ __html: step.content }} />
-        )}
+      <div className="mt-4 p-4 bg-blue-50 rounded-md border border-blue-100">
+        <h4 className="font-medium text-blue-800 mb-3">Team Collaboration</h4>
+        <p className="text-sm text-blue-700 mb-4">
+          Invite your team members to collaborate on this sprint. They will be able to view and contribute to tasks.
+        </p>
         
-        {/* If this is an exercise step or has connected input fields, show a textarea */}
-        {step.type === 'exercise' && handleAnswer && (
-          <div className="mt-4">
-            <Textarea
-              value={answer || ""}
-              onChange={(e) => handleAnswer(e.target.value)}
-              placeholder="Enter your answer here..."
-              rows={6}
-              className="w-full mt-2"
-            />
-          </div>
-        )}
+        <Button 
+          onClick={() => setIsCollaboratorsDialogOpen(true)}
+          className="w-full flex items-center justify-center gap-2"
+        >
+          <Users className="h-4 w-4" />
+          <span>Manage Collaborators</span>
+        </Button>
+        
+        {/* Dialog for managing collaborators */}
+        <Dialog open={isCollaboratorsDialogOpen} onOpenChange={setIsCollaboratorsDialogOpen}>
+          <DialogContent className="sm:max-w-[600px]">
+            <DialogHeader>
+              <DialogTitle>Manage Team Collaborators</DialogTitle>
+              <DialogDescription>
+                Add or remove team members who can collaborate on your sprint.
+              </DialogDescription>
+            </DialogHeader>
+            
+            <CollaboratorsManagement />
+          </DialogContent>
+        </Dialog>
       </div>
     );
   };
-  
-  // Helper to render an input field based on type
-  const renderInputField = (type: string, id: string, index: number) => {
-    // Handle different input types
-    switch (type) {
-      case 'text':
-        return (
-          <div key={`input-${index}`} className="my-2">
-            <Input
-              id={id}
-              value={answer?.[id] || ''}
-              onChange={(e) => handleAnswer?.({ ...answer, [id]: e.target.value })}
-              placeholder="Your answer..."
-              className="w-full"
-            />
-          </div>
-        );
-      case 'textarea':
-        return (
-          <div key={`input-${index}`} className="my-2">
-            <Textarea
-              id={id}
-              value={answer?.[id] || ''}
-              onChange={(e) => handleAnswer?.({ ...answer, [id]: e.target.value })}
-              placeholder="Your answer..."
-              rows={4}
-              className="w-full"
-            />
-          </div>
-        );
-      default:
-        return null;
-    }
-  };
-  
-  const content = (
+
+  // Check if this content step has an invite_link field
+  const hasInviteLink = step.fields && step.fields.some(field => field.id === 'invite_link');
+
+  return (
     <Card>
       <CardContent className="pt-6">
-        {parseContent()}
+        <div className="space-y-4">
+          <h3 className="text-lg font-medium">{step.text}</h3>
+          
+          {step.description && (
+            <p className="text-gray-600">{step.description}</p>
+          )}
+          
+          {step.content && (
+            <div 
+              className="prose max-w-none" 
+              dangerouslySetInnerHTML={{ __html: step.content }} 
+            />
+          )}
+
+          {/* Render invite link if it exists in the fields */}
+          {hasInviteLink && renderInviteLink()}
+          
+          {/* Render other fields if needed */}
+          {step.fields && step.fields.filter(field => field.id !== 'invite_link').map(field => (
+            <div key={field.id} className="mt-4">
+              {field.label && <h4 className="font-medium mb-2">{field.label}</h4>}
+              {field.text && <p>{field.text}</p>}
+              {field.content && (
+                <div 
+                  className="prose max-w-none" 
+                  dangerouslySetInnerHTML={{ __html: field.content }} 
+                />
+              )}
+            </div>
+          ))}
+        </div>
       </CardContent>
     </Card>
   );
-  
-  // If this step has profile dependencies, wrap it with SprintProfileShowOrAsk
-  if (profileDependencies.length > 0) {
-    const dependency = profileDependencies[0]; // Use the first dependency for now
-    const fieldMapping = getProfileFieldMapping(dependency.profileKey);
-    
-    return (
-      <SprintProfileShowOrAsk
-        profileKey={dependency.profileKey}
-        label={fieldMapping.label}
-        type={fieldMapping.type}
-        options={fieldMapping.options}
-      >
-        {content}
-      </SprintProfileShowOrAsk>
-    );
-  }
-  
-  return content;
 };
-
-// Helper function to get profile dependencies for a step
-function getStepProfileDependencies(step: any) {
-  if (!step.conditions) return [];
-  
-  return step.conditions
-    .filter((condition: any) => condition.source.profileKey)
-    .map((condition: any) => ({
-      profileKey: condition.source.profileKey,
-      operator: condition.operator,
-      value: condition.value
-    }));
-}

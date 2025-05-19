@@ -21,7 +21,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import { CollaboratorsManagement } from '@/components/sprint/CollaboratorsManagement';
 
@@ -263,6 +262,19 @@ export const ConditionalQuestionRenderer: React.FC<ConditionalQuestionRendererPr
         )}
       </div>
       
+      {/* Render the invite_link field even if there are no conditional fields */}
+      {!conditionalFields && step.fields && step.fields.some(field => field.id === 'invite_link') && (
+        <div className="mt-6 space-y-4">
+          {step.fields
+            .filter(field => field.id === 'invite_link')
+            .map((field) => (
+              <div key={field.id}>
+                {renderContentField(field)}
+              </div>
+            ))}
+        </div>
+      )}
+      
       {/* Render conditional inputs if applicable */}
       {conditionalFields && conditionalFields.length > 0 && (
         <div className="mt-6 pl-4 border-l-2 border-gray-200 space-y-4">
@@ -271,7 +283,7 @@ export const ConditionalQuestionRenderer: React.FC<ConditionalQuestionRendererPr
             const fieldType = field.type || field.inputType; // Ensure we check both type and inputType
             
             // Handle both content fields and exercise fields that should render the editor
-            if (fieldType === 'content') {
+            if (fieldType === 'content' || field.id === 'invite_link') {
               return (
                 <div key={field.id}>
                   {renderContentField(field)}

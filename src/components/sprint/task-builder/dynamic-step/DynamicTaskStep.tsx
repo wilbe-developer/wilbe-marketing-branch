@@ -1,3 +1,4 @@
+
 import React from "react";
 import { StepNode } from "@/types/task-builder";
 import { Card, CardContent } from "@/components/ui/card";
@@ -137,6 +138,28 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
       );
 
     case "content":
+      // Special check for invite_link in content type
+      if (step.fields && step.fields.some(field => field.id === 'invite_link')) {
+        return (
+          <Card>
+            <CardContent className="pt-6">
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium">{step.text}</h3>
+                {step.content && (
+                  <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: step.content }} />
+                )}
+                {step.fields.map(field => 
+                  field.id === 'invite_link' ? (
+                    <div key={field.id}>
+                      {renderContentField(field)}
+                    </div>
+                  ) : null
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        );
+      }
       return <ContentStepRenderer step={step} answer={answer} handleAnswer={onAnswer} />;
 
     case "file":
