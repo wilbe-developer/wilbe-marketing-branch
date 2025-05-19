@@ -13,6 +13,17 @@ import {
 } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Button } from '@/components/ui/button';
+import { Users } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { CollaboratorsManagement } from '@/components/sprint/CollaboratorsManagement';
 
 interface ConditionalQuestionRendererProps {
   step: StepNode;
@@ -31,6 +42,9 @@ export const ConditionalQuestionRenderer: React.FC<ConditionalQuestionRendererPr
     if (value === 'false') return false;
     return value;
   };
+
+  // State for the collaborators dialog
+  const [isCollaboratorsDialogOpen, setIsCollaboratorsDialogOpen] = useState(false);
 
   // Handle answer changes for the main question
   const handleMainAnswer = (value: any) => {
@@ -78,6 +92,41 @@ export const ConditionalQuestionRenderer: React.FC<ConditionalQuestionRendererPr
 
   // Render a content field
   const renderContentField = (field: FormField) => {
+    // Check if this is the special invite_link field for collaborators
+    if (field.id === 'invite_link') {
+      return (
+        <div className="mt-4 p-4 bg-blue-50 rounded-md border border-blue-100">
+          <h4 className="font-medium text-blue-800 mb-3">Team Collaboration</h4>
+          <p className="text-sm text-blue-700 mb-4">
+            Invite your team members to collaborate on this sprint. They will be able to view and contribute to tasks.
+          </p>
+          
+          <Button 
+            onClick={() => setIsCollaboratorsDialogOpen(true)}
+            className="w-full flex items-center justify-center gap-2"
+          >
+            <Users className="h-4 w-4" />
+            <span>Manage Collaborators</span>
+          </Button>
+          
+          {/* Dialog for managing collaborators */}
+          <Dialog open={isCollaboratorsDialogOpen} onOpenChange={setIsCollaboratorsDialogOpen}>
+            <DialogContent className="sm:max-w-[600px]">
+              <DialogHeader>
+                <DialogTitle>Manage Team Collaborators</DialogTitle>
+                <DialogDescription>
+                  Add or remove team members who can collaborate on your sprint.
+                </DialogDescription>
+              </DialogHeader>
+              
+              <CollaboratorsManagement />
+            </DialogContent>
+          </Dialog>
+        </div>
+      );
+    }
+    
+    // Regular content field rendering
     return (
       <div className="prose max-w-none mt-2">
         {field.content && (
@@ -221,6 +270,32 @@ export const ConditionalQuestionRenderer: React.FC<ConditionalQuestionRendererPr
             const field = normalizeFieldType(fieldData);
             const fieldType = field.type || field.inputType; // Ensure we check both type and inputType
             
+            // Handle both content fields and exercise fields that should render the editor
+            if (fieldType === 'content') {
+              return (
+                <div key={field.id}>
+                  {renderContentField(field)}
+                </div>
+              );
+            }
+
+            // For exercise type, render a textarea for the answer
+            if (fieldType === 'exercise') {
+              return (
+                <div key={field.id} className="space-y-2">
+                  {field.label && <Label htmlFor={field.id}>{field.label}</Label>}
+                  {field.text && <p className="text-sm text-gray-600">{field.text}</p>}
+                  <Textarea
+                    id={field.id}
+                    value={answer?.[field.id] || ''}
+                    onChange={(e) => handleConditionalAnswer(field.id, e.target.value)}
+                    placeholder="Enter your answer here..."
+                    rows={4}
+                  />
+                </div>
+              );
+            }
+            
             return (
               <div key={field.id} className="space-y-2">
                 {field.label && <Label htmlFor={field.id}>{field.label}</Label>}
@@ -287,8 +362,6 @@ export const ConditionalQuestionRenderer: React.FC<ConditionalQuestionRendererPr
                     </div>
                   </RadioGroup>
                 )}
-
-                {fieldType === 'content' && renderContentField(field)}
               </div>
             );
           })}
