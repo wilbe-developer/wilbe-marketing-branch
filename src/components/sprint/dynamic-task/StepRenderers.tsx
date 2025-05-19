@@ -9,10 +9,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-interface StepRendererProps {
+export interface StepRendererProps {
   step: StepNode;
   answer: any;
-  handleAnswer: (stepId: string, value: any) => void;
+  handleAnswer: (value: any) => void;
 }
 
 export const ContentStepRenderer: React.FC<StepRendererProps> = ({ step }) => {
@@ -37,6 +37,11 @@ export const QuestionStepRenderer: React.FC<StepRendererProps> = ({
 }) => {
   if (!step.inputType) return null;
 
+  // Handle text input changes
+  const handleTextInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    handleAnswer(e.target.value);
+  };
+
   switch (step.inputType) {
     case 'radio':
       return (
@@ -49,7 +54,7 @@ export const QuestionStepRenderer: React.FC<StepRendererProps> = ({
                 name={step.id}
                 value={option.value}
                 checked={answer === option.value}
-                onChange={() => handleAnswer(step.id, option.value)}
+                onChange={() => handleAnswer(option.value)}
                 className="mt-1"
               />
               <div>
@@ -70,7 +75,7 @@ export const QuestionStepRenderer: React.FC<StepRendererProps> = ({
         <div className="space-y-2">
           <Select
             value={answer || ""}
-            onValueChange={(value) => handleAnswer(step.id, value)}
+            onValueChange={handleAnswer}
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select an option" />
@@ -107,10 +112,9 @@ export const QuestionStepRenderer: React.FC<StepRendererProps> = ({
                     : [];
                   
                   if (e.target.checked) {
-                    handleAnswer(step.id, [...currentValues, option.value]);
+                    handleAnswer([...currentValues, option.value]);
                   } else {
                     handleAnswer(
-                      step.id, 
                       currentValues.filter(v => v !== option.value)
                     );
                   }
@@ -135,7 +139,7 @@ export const QuestionStepRenderer: React.FC<StepRendererProps> = ({
         <input
           type="text"
           value={answer || ''}
-          onChange={(e) => handleAnswer(step.id, e.target.value)}
+          onChange={handleTextInputChange}
           className="w-full p-2 border rounded"
           placeholder="Your answer..."
         />
@@ -145,7 +149,7 @@ export const QuestionStepRenderer: React.FC<StepRendererProps> = ({
       return (
         <textarea
           value={answer || ''}
-          onChange={(e) => handleAnswer(step.id, e.target.value)}
+          onChange={handleTextInputChange}
           className="w-full p-2 border rounded"
           rows={5}
           placeholder="Your answer..."
@@ -162,7 +166,7 @@ export const QuestionStepRenderer: React.FC<StepRendererProps> = ({
               name={step.id}
               value="true"
               checked={answer === true}
-              onChange={() => handleAnswer(step.id, true)}
+              onChange={() => handleAnswer(true)}
               className="mt-1"
             />
             <label htmlFor={`${step.id}-yes`} className="font-medium">Yes</label>
@@ -174,7 +178,7 @@ export const QuestionStepRenderer: React.FC<StepRendererProps> = ({
               name={step.id}
               value="false"
               checked={answer === false}
-              onChange={() => handleAnswer(step.id, false)}
+              onChange={() => handleAnswer(false)}
               className="mt-1"
             />
             <label htmlFor={`${step.id}-no`} className="font-medium">No</label>
@@ -201,7 +205,7 @@ export const FileUploadRenderer: React.FC<StepRendererProps> = ({
         type="file"
         onChange={(e) => {
           if (e.target.files && e.target.files[0]) {
-            handleAnswer(step.id, e.target.files[0]);
+            handleAnswer(e.target.files[0]);
           }
         }}
         className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primary/80"
@@ -219,7 +223,7 @@ export const ExerciseRenderer: React.FC<StepRendererProps> = ({
     <div className="space-y-4">
       <textarea
         value={answer || ''}
-        onChange={(e) => handleAnswer(step.id, e.target.value)}
+        onChange={(e) => handleAnswer(e.target.value)}
         className="w-full p-2 border rounded"
         rows={6}
         placeholder="Enter your answer here..."

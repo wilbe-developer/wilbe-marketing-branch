@@ -42,7 +42,7 @@ const CurrentStep: React.FC<CurrentStepProps> = ({
           <QuestionStepRenderer 
             step={step} 
             answer={answer} 
-            onAnswer={(value) => handleAnswer(step.id, value)} 
+            handleAnswer={(value) => handleAnswer(step.id, value)} 
           />
         )}
         

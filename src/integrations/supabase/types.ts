@@ -788,6 +788,7 @@ export type Database = {
           created_at: string
           file_id: string | null
           id: string
+          profile_updates: Json | null
           task_answers: Json | null
           task_id: string
           user_id: string
@@ -799,6 +800,7 @@ export type Database = {
           created_at?: string
           file_id?: string | null
           id?: string
+          profile_updates?: Json | null
           task_answers?: Json | null
           task_id: string
           user_id: string
@@ -810,6 +812,7 @@ export type Database = {
           created_at?: string
           file_id?: string | null
           id?: string
+          profile_updates?: Json | null
           task_answers?: Json | null
           task_id?: string
           user_id?: string
