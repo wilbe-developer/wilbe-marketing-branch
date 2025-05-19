@@ -3,6 +3,7 @@ import { ReactNode } from "react";
 import { TeamMember } from "../team-members/types";
 
 export interface EnhancedStep {
+  id?: string;  // Add optional id property
   type: "content" | "form";
   title?: string;
   description?: string;

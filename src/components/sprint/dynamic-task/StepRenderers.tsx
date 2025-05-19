@@ -17,7 +17,7 @@ import { CollaborationStepRenderer } from '@/components/sprint/task-builder/dyna
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Users } from "lucide-react";
-import CollaboratorsManagement from '@/components/sprint/CollaboratorsManagement';
+import { CollaboratorsManagement } from '@/components/sprint/CollaboratorsManagement';
 
 export interface StepRendererProps {
   step: StepNode;
