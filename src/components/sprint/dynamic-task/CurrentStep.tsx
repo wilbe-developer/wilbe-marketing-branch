@@ -5,7 +5,8 @@ import {
   ContentStepRenderer, 
   QuestionStepRenderer,
   FileUploadRenderer,
-  ExerciseRenderer
+  ExerciseRenderer,
+  CollaborationRenderer
 } from './StepRenderers';
 import { SprintProfileShowOrAsk } from '@/components/sprint/SprintProfileShowOrAsk';
 import { getProfileFieldMapping } from '@/utils/profileFieldMappings';
@@ -83,6 +84,14 @@ const CurrentStep: React.FC<CurrentStepProps> = ({
 
         {step.type === 'conditionalQuestion' && (
           <ConditionalQuestionRenderer
+            step={step}
+            answer={answer}
+            handleAnswer={(value) => handleAnswer(step.id, value)}
+          />
+        )}
+
+        {step.type === 'collaboration' && (
+          <CollaborationRenderer
             step={step}
             answer={answer}
             handleAnswer={(value) => handleAnswer(step.id, value)}

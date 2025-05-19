@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { TeamMember } from '@/hooks/team-members/types';
 import TeamMemberForm from '@/components/sprint/step-types/TeamMemberForm';
+import { CollaborationStepRenderer } from '@/components/sprint/task-builder/dynamic-step/CollaborationStepRenderer';
 
 export interface StepRendererProps {
   step: StepNode;
@@ -598,6 +599,20 @@ export const TeamMemberStepRenderer: React.FC<StepRendererProps> = ({
       onAdd={handleAddMember}
       onRemove={handleRemoveMember}
       onUpdate={handleUpdateMember}
+    />
+  );
+};
+
+export const CollaborationRenderer: React.FC<StepRendererProps> = ({
+  step,
+  answer,
+  handleAnswer,
+}) => {
+  return (
+    <CollaborationStepRenderer
+      step={step}
+      answer={answer}
+      handleAnswer={handleAnswer}
     />
   );
 };
