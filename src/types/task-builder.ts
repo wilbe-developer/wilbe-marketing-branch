@@ -22,7 +22,7 @@ export interface TaskDefinition {
   coverImage?: string;
   estimatedTime?: string;
   difficulty?: string;
-  order_index?: number; // Add order_index field
+  order_index?: number;
   
   // Custom fields that can be extended as needed
   customFields?: Record<string, any>;
@@ -49,6 +49,11 @@ export interface StepNode {
   
   // Conditional navigation based on answers
   onAnswer?: Record<string, StepNode[]>;
+  
+  // New fields for enhanced functionality
+  fields?: FormField[]; // For multiple inputs in a single step
+  conditionalInputs?: Record<string, FormField[]>; // Map option values to additional fields
+  questions?: StepNode[]; // For grouped questions in one step
 }
 
 export type StepType = 
@@ -59,6 +64,9 @@ export type StepType =
   | 'action'      // User needs to take some action
   | 'file'        // Alternate name for upload
   | 'exercise'    // Exercise step
+  | 'form'        // Form with multiple fields
+  | 'conditionalQuestion' // Question with conditional follow-up fields
+  | 'groupedQuestions'    // Container for multiple sub-questions
   | 'container';  // Container for child steps
 
 export type InputType = 
@@ -79,6 +87,18 @@ export interface Option {
   label: string;
   value: string;
   description?: string;
+  nextStepId?: string;
+  conditionalInput?: FormField; // Added for follow-up inputs when this option is selected
+}
+
+export interface FormField {
+  id: string;
+  label: string;
+  type: "text" | "textarea" | "select" | "radio" | "checkbox";
+  placeholder?: string;
+  required?: boolean;
+  options?: Option[];
+  conditions?: Condition[]; // For conditional visibility within a form
 }
 
 export interface UploadConfig {
@@ -124,5 +144,6 @@ export type ConditionOperator = 'equals' | 'not_equals' | 'in' | 'not_in';
 
 // Using a proper discriminated union for ConditionSource
 export type ConditionSource = 
-  | { profileKey: string; stepId?: never }  // Source is a profile answer
-  | { stepId: string; profileKey?: never };  // Source is a step answer
+  | { profileKey: string; stepId?: never; fieldId?: never }  // Source is a profile answer
+  | { stepId: string; profileKey?: never; fieldId?: never }  // Source is a step answer
+  | { fieldId: string; stepId?: never; profileKey?: never };  // Source is a field within the same step

@@ -2,6 +2,7 @@
 import React from "react";
 import { StepNode } from "@/types/task-builder";
 import { QuestionStepRenderer } from "./dynamic-step/QuestionStepRenderer";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface DynamicTaskStepProps {
   step: StepNode;
@@ -81,6 +82,8 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
       );
 
     case "exercise":
+    case "feedback":
+    case "action":
       return (
         <div className="mb-4">
           <h3 className="text-lg font-medium mb-3">{step.text}</h3>
