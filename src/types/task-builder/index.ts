@@ -1,6 +1,6 @@
 
-export type InputType = "radio" | "boolean" | "select" | "multiselect" | "textarea" | "text";
-export type StepType = "question" | "content" | "file" | "exercise";
+export type InputType = "radio" | "boolean" | "select" | "multiselect" | "textarea" | "text" | "form" | "conditionalQuestion" | "groupedQuestions";
+export type StepType = "question" | "content" | "file" | "exercise" | "form" | "conditionalQuestion" | "groupedQuestions";
 export type ConditionOperator = "equals" | "not_equals" | "in" | "not_in";
 export type ProfileQuestionType = "boolean" | "select" | "multiselect" | "text";
 
@@ -15,11 +15,23 @@ export interface Option {
   label: string;
   value: string;
   nextStepId?: string;
+  conditionalInput?: FormField; // Added for follow-up inputs when this option is selected
+}
+
+export interface FormField {
+  id: string;
+  label: string;
+  type: "text" | "textarea" | "select" | "radio" | "checkbox";
+  placeholder?: string;
+  required?: boolean;
+  options?: Option[];
+  conditions?: Condition[]; // For conditional visibility within a form
 }
 
 export interface ConditionSource {
   profileKey?: string;
   stepId?: string;
+  fieldId?: string; // For referencing a specific field within the same step
 }
 
 export interface Condition {
@@ -37,6 +49,11 @@ export interface StepNode {
   conditions?: Condition[];
   onAnswer?: Record<string, StepNode[]>;
   children?: StepNode[];
+  
+  // New fields for enhanced functionality
+  fields?: FormField[]; // For multiple inputs in a single step
+  conditionalInputs?: Record<string, FormField[]>; // Map option values to additional fields
+  questions?: StepNode[]; // For grouped questions in one step
 }
 
 export interface StaticPanelItem {
@@ -57,7 +74,7 @@ export interface TaskDefinition {
   profileQuestions: ProfileQuestion[];
   steps: StepNode[];
   staticPanels?: StaticPanel[];
-  order_index?: number; // Add order_index field
+  order_index?: number;
   category?: string;
 }
 

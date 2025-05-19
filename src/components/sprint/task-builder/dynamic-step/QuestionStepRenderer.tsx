@@ -1,6 +1,6 @@
 
-import React from "react";
-import { StepNode } from "@/types/task-builder";
+import React, { useState, useEffect } from "react";
+import { StepNode, FormField } from "@/types/task-builder";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface QuestionStepRendererProps {
   step: StepNode;
@@ -25,124 +26,331 @@ export const QuestionStepRenderer: React.FC<QuestionStepRendererProps> = ({
   answer,
   onAnswer,
 }) => {
-  if (!step.inputType) return null;
+  // For handling form-type answers with multiple fields
+  const [formValues, setFormValues] = useState<Record<string, any>>(answer || {});
+
+  // Effect to handle initialization of form values from answer
+  useEffect(() => {
+    if (step.type === "form" || step.type === "conditionalQuestion" || step.type === "groupedQuestions") {
+      setFormValues(answer || {});
+    }
+  }, [step, answer]);
+
+  // Helper to update a specific field in a form
+  const updateFormField = (fieldId: string, value: any) => {
+    const newValues = { ...formValues, [fieldId]: value };
+    setFormValues(newValues);
+    onAnswer(newValues);
+  };
 
   // Handle text input changes - save immediately without debounce
   const handleTextInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    // Save immediately on each change
     onAnswer(e.target.value);
   };
 
-  switch (step.inputType) {
-    case "radio":
-      return (
-        <RadioGroup value={answer || ""} onValueChange={onAnswer}>
+  // Check if a field should be visible based on conditions
+  const isFieldVisible = (field: FormField): boolean => {
+    if (!field.conditions || field.conditions.length === 0) {
+      return true;
+    }
+
+    return field.conditions.every((condition) => {
+      const sourceValue = condition.source.fieldId 
+        ? formValues[condition.source.fieldId]
+        : null;
+
+      switch (condition.operator) {
+        case "equals":
+          return sourceValue === condition.value;
+        case "not_equals":
+          return sourceValue !== condition.value;
+        case "in":
+          return Array.isArray(condition.value) && condition.value.includes(sourceValue);
+        case "not_in":
+          return Array.isArray(condition.value) && !condition.value.includes(sourceValue);
+        default:
+          return false;
+      }
+    });
+  };
+
+  // Render a single form field
+  const renderFormField = (field: FormField) => {
+    if (!isFieldVisible(field)) return null;
+
+    const fieldValue = formValues[field.id] || "";
+
+    switch (field.type) {
+      case "text":
+        return (
+          <div key={field.id} className="space-y-2 mb-4">
+            <Label htmlFor={field.id}>{field.label}</Label>
+            <Input
+              id={field.id}
+              value={fieldValue}
+              onChange={(e) => updateFormField(field.id, e.target.value)}
+              placeholder={field.placeholder}
+            />
+          </div>
+        );
+      case "textarea":
+        return (
+          <div key={field.id} className="space-y-2 mb-4">
+            <Label htmlFor={field.id}>{field.label}</Label>
+            <Textarea
+              id={field.id}
+              value={fieldValue}
+              onChange={(e) => updateFormField(field.id, e.target.value)}
+              placeholder={field.placeholder}
+              rows={4}
+            />
+          </div>
+        );
+      case "select":
+        return (
+          <div key={field.id} className="space-y-2 mb-4">
+            <Label htmlFor={field.id}>{field.label}</Label>
+            <Select
+              value={fieldValue}
+              onValueChange={(value) => updateFormField(field.id, value)}
+            >
+              <SelectTrigger id={field.id}>
+                <SelectValue placeholder={field.placeholder || "Select an option"} />
+              </SelectTrigger>
+              <SelectContent>
+                {field.options?.map((option, i) => (
+                  <SelectItem key={i} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        );
+      case "radio":
+        return (
+          <div key={field.id} className="space-y-2 mb-4">
+            <Label>{field.label}</Label>
+            <RadioGroup
+              value={fieldValue}
+              onValueChange={(value) => updateFormField(field.id, value)}
+            >
+              {field.options?.map((option, i) => (
+                <div key={i} className="flex items-center space-x-2">
+                  <RadioGroupItem value={option.value} id={`${field.id}-${option.value}`} />
+                  <Label htmlFor={`${field.id}-${option.value}`}>{option.label}</Label>
+                </div>
+              ))}
+            </RadioGroup>
+          </div>
+        );
+      case "checkbox":
+        return (
+          <div key={field.id} className="space-y-2 mb-4">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id={field.id}
+                checked={Boolean(fieldValue)}
+                onCheckedChange={(checked) => updateFormField(field.id, Boolean(checked))}
+              />
+              <Label htmlFor={field.id}>{field.label}</Label>
+            </div>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
+  // Handle form type with multiple inputs
+  if (step.type === "form" && step.fields && step.fields.length > 0) {
+    return (
+      <div className="space-y-4">
+        {step.fields.map((field) => renderFormField(field))}
+      </div>
+    );
+  }
+
+  // Handle grouped questions in one step
+  if (step.type === "groupedQuestions" && step.questions && step.questions.length > 0) {
+    return (
+      <div className="space-y-6">
+        {step.questions.map((question, index) => {
+          // Check if this question should be visible based on other answers in the group
+          if (question.conditions && question.conditions.length > 0) {
+            const shouldShow = question.conditions.every(condition => {
+              const sourceValue = condition.source.fieldId 
+                ? formValues[condition.source.fieldId] 
+                : null;
+                
+              switch (condition.operator) {
+                case "equals":
+                  return sourceValue === condition.value;
+                case "not_equals":
+                  return sourceValue !== condition.value;
+                case "in":
+                  return Array.isArray(condition.value) && condition.value.includes(sourceValue);
+                case "not_in":
+                  return Array.isArray(condition.value) && !condition.value.includes(sourceValue);
+                default:
+                  return false;
+              }
+            });
+            
+            if (!shouldShow) return null;
+          }
+          
+          return (
+            <Card key={index} className="border-slate-200">
+              <CardContent className="pt-4">
+                <QuestionStepRenderer
+                  step={question}
+                  answer={formValues[question.id]}
+                  onAnswer={(value) => updateFormField(question.id, value)}
+                />
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+    );
+  }
+
+  // Handle conditional question with follow-up inputs
+  if (step.type === "conditionalQuestion") {
+    return (
+      <div className="space-y-4">
+        {/* Primary question */}
+        {renderStandardQuestion()}
+        
+        {/* Conditional follow-up fields based on selected option */}
+        {step.conditionalInputs && answer && step.conditionalInputs[answer] && (
+          <div className="mt-4 pt-4 border-t border-gray-200">
+            {step.conditionalInputs[answer].map((field) => renderFormField(field))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Standard question handling
+  return renderStandardQuestion();
+
+  // Helper function to render standard question types
+  function renderStandardQuestion() {
+    if (!step.inputType) return null;
+
+    switch (step.inputType) {
+      case "radio":
+        return (
+          <RadioGroup value={answer || ""} onValueChange={onAnswer}>
+            <div className="space-y-2">
+              {step.options?.map((option, i) => (
+                <div key={i} className="flex items-center space-x-2">
+                  <RadioGroupItem
+                    value={option.value}
+                    id={`${step.id}-${option.value}`}
+                  />
+                  <Label htmlFor={`${step.id}-${option.value}`}>
+                    {option.label}
+                  </Label>
+                </div>
+              ))}
+            </div>
+          </RadioGroup>
+        );
+
+      case "boolean":
+        return (
+          <RadioGroup
+            value={answer?.toString() || ""}
+            onValueChange={(value) => {
+              if (step.inputType === "boolean") {
+                onAnswer(value === "true");
+              } else {
+                onAnswer(value);
+              }
+            }}
+          >
+            <div className="space-y-2">
+              <>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="true" id={`${step.id}-true`} />
+                  <Label htmlFor={`${step.id}-true`}>Yes</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="false" id={`${step.id}-false`} />
+                  <Label htmlFor={`${step.id}-false`}>No</Label>
+                </div>
+              </>
+            </div>
+          </RadioGroup>
+        );
+
+      case "select":
+        return (
+          <Select value={answer || ""} onValueChange={onAnswer}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select an option" />
+            </SelectTrigger>
+            <SelectContent>
+              {step.options?.map((option, i) => (
+                <SelectItem key={i} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        );
+
+      case "multiselect":
+        return (
           <div className="space-y-2">
             {step.options?.map((option, i) => (
               <div key={i} className="flex items-center space-x-2">
-                <RadioGroupItem
-                  value={option.value}
+                <Checkbox
                   id={`${step.id}-${option.value}`}
+                  checked={Array.isArray(answer) && answer.includes(option.value)}
+                  onCheckedChange={(checked) => {
+                    const currentValues = Array.isArray(answer) ? [...answer] : [];
+                    if (checked) {
+                      onAnswer([...currentValues, option.value]);
+                    } else {
+                      onAnswer(
+                        currentValues.filter((val) => val !== option.value)
+                      );
+                    }
+                  }}
                 />
-                <Label htmlFor={`${step.id}-${option.value}`}>
-                  {option.label}
-                </Label>
+                <Label htmlFor={`${step.id}-${option.value}`}>{option.label}</Label>
               </div>
             ))}
           </div>
-        </RadioGroup>
-      );
+        );
 
-    case "boolean":
-      return (
-        <RadioGroup
-          value={answer?.toString() || ""}
-          onValueChange={(value) => {
-            if (step.inputType === "boolean") {
-              onAnswer(value === "true");
-            } else {
-              onAnswer(value);
-            }
-          }}
-        >
+      case "textarea":
+        return (
           <div className="space-y-2">
-            <>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="true" id={`${step.id}-true`} />
-                <Label htmlFor={`${step.id}-true`}>Yes</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="false" id={`${step.id}-false`} />
-                <Label htmlFor={`${step.id}-false`}>No</Label>
-              </div>
-            </>
+            <Textarea
+              value={answer || ""}
+              onChange={handleTextInputChange}
+              placeholder="Enter your answer..."
+              rows={4}
+            />
           </div>
-        </RadioGroup>
-      );
+        );
 
-    case "select":
-      return (
-        <Select value={answer || ""} onValueChange={onAnswer}>
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select an option" />
-          </SelectTrigger>
-          <SelectContent>
-            {step.options?.map((option, i) => (
-              <SelectItem key={i} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      );
-
-    case "multiselect":
-      return (
-        <div className="space-y-2">
-          {step.options?.map((option, i) => (
-            <div key={i} className="flex items-center space-x-2">
-              <Checkbox
-                id={`${step.id}-${option.value}`}
-                checked={Array.isArray(answer) && answer.includes(option.value)}
-                onCheckedChange={(checked) => {
-                  const currentValues = Array.isArray(answer) ? [...answer] : [];
-                  if (checked) {
-                    onAnswer([...currentValues, option.value]);
-                  } else {
-                    onAnswer(
-                      currentValues.filter((val) => val !== option.value)
-                    );
-                  }
-                }}
-              />
-              <Label htmlFor={`${step.id}-${option.value}`}>{option.label}</Label>
-            </div>
-          ))}
-        </div>
-      );
-
-    case "textarea":
-      return (
-        <div className="space-y-2">
-          <Textarea
-            value={answer || ""}
-            onChange={handleTextInputChange}
-            placeholder="Enter your answer..."
-            rows={4}
-          />
-        </div>
-      );
-
-    case "text":
-    default:
-      return (
-        <div className="space-y-2">
-          <Input
-            value={answer || ""}
-            onChange={handleTextInputChange}
-            placeholder="Enter your answer..."
-          />
-        </div>
-      );
+      case "text":
+      default:
+        return (
+          <div className="space-y-2">
+            <Input
+              value={answer || ""}
+              onChange={handleTextInputChange}
+              placeholder="Enter your answer..."
+            />
+          </div>
+        );
+    }
   }
 };
