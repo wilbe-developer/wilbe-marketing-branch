@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -52,6 +53,28 @@ export const useDynamicTask = ({ taskId, sprintProfile }: UseDynamicTaskProps) =
 
       if (error) {
         throw new Error(`Error fetching user progress: ${error.message}`);
+      }
+
+      return data;
+    },
+    enabled: !!taskId && !!user?.id,
+  });
+
+  // Also fetch from user_sprint_progress as a fallback
+  const { data: sprintProgress, isLoading: isLoadingSprintProgress } = useQuery({
+    queryKey: ["userSprintProgress", taskId, user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+
+      const { data, error } = await supabase
+        .from("user_sprint_progress")
+        .select("*")
+        .eq("task_id", taskId)
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (error) {
+        throw new Error(`Error fetching sprint progress: ${error.message}`);
       }
 
       return data;
@@ -129,7 +152,7 @@ export const useDynamicTask = ({ taskId, sprintProfile }: UseDynamicTaskProps) =
     return walkTree(taskDefinition.steps);
   }, [taskDefinition, isStepVisible, answers]);
 
-  // Save user's answer for a step
+  // Save user's answer for a step - auto-save immediately
   const answerNode = useMutation({
     mutationFn: async ({ stepId, value }: { stepId: string; value: any }) => {
       if (!user?.id) throw new Error("User not authenticated");
@@ -137,25 +160,46 @@ export const useDynamicTask = ({ taskId, sprintProfile }: UseDynamicTaskProps) =
       const newAnswers = { ...answers, [stepId]: value };
       setAnswers(newAnswers);
 
-      // Update or create user progress
-      const { error } = await supabase
+      // Update in both user_task_progress and user_sprint_progress
+      const taskProgressUpdate = supabase
         .from("user_task_progress")
         .upsert({
           user_id: user.id,
           task_id: taskId,
-          answers: newAnswers as Record<string, any>
-        })
-        .select();
+          answers: newAnswers,
+        });
 
-      if (error) {
-        throw error;
+      const sprintProgressUpdate = supabase
+        .from("user_sprint_progress")
+        .upsert({
+          user_id: user.id,
+          task_id: taskId,
+          task_answers: newAnswers,
+        });
+
+      // Execute both updates in parallel
+      const [taskResult, sprintResult] = await Promise.all([
+        taskProgressUpdate,
+        sprintProgressUpdate
+      ]);
+
+      if (taskResult.error) {
+        console.error("Error updating task_progress:", taskResult.error);
+      }
+
+      if (sprintResult.error) {
+        console.error("Error updating sprint_progress:", sprintResult.error);
+      }
+
+      if (taskResult.error && sprintResult.error) {
+        throw new Error("Failed to save answer");
       }
 
       return { stepId, value };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["userTaskProgress", taskId, user?.id] });
-      setCurrentStepIndex(prev => Math.min(prev + 1, visibleSteps.length - 1));
+      queryClient.invalidateQueries({ queryKey: ["userSprintProgress", taskId, user?.id] });
     },
     onError: (error) => {
       toast.error(`Failed to save answer: ${error.message}`);
@@ -183,7 +227,6 @@ export const useDynamicTask = ({ taskId, sprintProfile }: UseDynamicTaskProps) =
       if (!user?.id) throw new Error("User not authenticated");
 
       // Update the profile in sprint_profiles table
-      // This part would depend on your specific profile structure
       const { error } = await supabase
         .from("sprint_profiles")
         .update({ [key]: value })
@@ -223,24 +266,38 @@ export const useDynamicTask = ({ taskId, sprintProfile }: UseDynamicTaskProps) =
     mutationFn: async () => {
       if (!user?.id) throw new Error("User not authenticated");
 
-      const { error } = await supabase
+      // Update both tables
+      const taskUpdate = supabase
         .from("user_task_progress")
-        .update({
+        .upsert({
+          user_id: user.id,
+          task_id: taskId,
           completed: true,
-          completed_at: new Date().toISOString()
-        })
-        .eq("user_id", user.id)
-        .eq("task_id", taskId);
+          completed_at: new Date().toISOString(),
+          answers: answers
+        });
 
-      if (error) {
-        throw error;
+      const sprintUpdate = supabase
+        .from("user_sprint_progress")
+        .upsert({
+          user_id: user.id,
+          task_id: taskId,
+          completed: true,
+          completed_at: new Date().toISOString(),
+          task_answers: answers
+        });
+
+      const [taskResult, sprintResult] = await Promise.all([taskUpdate, sprintUpdate]);
+
+      if (taskResult.error && sprintResult.error) {
+        throw new Error("Failed to complete task");
       }
 
       return true;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["userTaskProgress", taskId, user?.id] });
-      toast.success("Task completed successfully");
+      queryClient.invalidateQueries({ queryKey: ["userSprintProgress", taskId, user?.id] });
     },
     onError: (error) => {
       toast.error(`Failed to complete task: ${error.message}`);
@@ -264,14 +321,26 @@ export const useDynamicTask = ({ taskId, sprintProfile }: UseDynamicTaskProps) =
 
   // Load saved answers from user progress
   useEffect(() => {
+    let loadedAnswers = {};
+    
+    // Try to load from user_task_progress first
     if (userProgress?.answers) {
-      setAnswers(userProgress.answers as Record<string, any>);
+      loadedAnswers = userProgress.answers;
     }
-  }, [userProgress]);
+    // If not found, try to load from user_sprint_progress
+    else if (sprintProgress?.task_answers) {
+      loadedAnswers = sprintProgress.task_answers;
+    }
+    
+    if (Object.keys(loadedAnswers).length > 0) {
+      console.log("Loaded answers:", loadedAnswers);
+      setAnswers(loadedAnswers as Record<string, any>);
+    }
+  }, [userProgress, sprintProgress]);
 
   return {
     taskDefinition,
-    isLoading: isLoadingTask || isLoadingProgress,
+    isLoading: isLoadingTask || isLoadingProgress || isLoadingSprintProgress,
     visibleSteps,
     currentStep: visibleSteps[currentStepIndex],
     currentStepIndex,
@@ -282,6 +351,6 @@ export const useDynamicTask = ({ taskId, sprintProfile }: UseDynamicTaskProps) =
     updateProfile: (key: string, value: any) => updateProfile.mutateAsync({ key, value }),
     completeTask: () => completeTask.mutateAsync(),
     goToStep,
-    isCompleted: userProgress?.completed || false
+    isCompleted: userProgress?.completed || sprintProgress?.completed || false
   };
 };

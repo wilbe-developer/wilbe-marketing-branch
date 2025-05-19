@@ -18,17 +18,14 @@ export const SprintTaskLogicRouter: React.FC<SprintTaskLogicRouterProps> = ({
 }) => {
   // If we have a task definition with the new format, use the dynamic task logic
   if (taskDefinition && taskDefinition.steps) {
+    const initialAnswers = task.progress?.task_answers || task.progress?.answers || {};
+    
     return (
       <DynamicTaskLogic
-        taskDefinition={{
-          id: task.id,
-          name: task.title,
-          description: task.description,
-          definition: taskDefinition
-        }}
+        task={task}
         isCompleted={isCompleted}
         onComplete={onComplete}
-        initialAnswers={task.progress?.answers || {}}
+        initialAnswers={initialAnswers}
       />
     );
   }
