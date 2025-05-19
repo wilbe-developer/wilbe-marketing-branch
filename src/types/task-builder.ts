@@ -1,3 +1,4 @@
+export * from './task-builder/index';
 
 export interface SprintTaskDefinition {
   id: string;
