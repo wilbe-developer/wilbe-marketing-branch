@@ -42,6 +42,18 @@ export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
     handleAnswer(updatedValues);
   };
 
+  // Render a content field
+  const renderContentField = (field: FormField) => {
+    return (
+      <div className="prose max-w-none mt-2">
+        {field.content && (
+          <div dangerouslySetInnerHTML={{ __html: field.content }} />
+        )}
+        {field.text && <p>{field.text}</p>}
+      </div>
+    );
+  };
+
   // If there are no fields, return null
   if (!step.fields || step.fields.length === 0) {
     return <p className="text-gray-500">No form fields defined.</p>;
@@ -56,7 +68,7 @@ export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
       <div className="space-y-4">
         {step.fields.map((field: FormField) => (
           <div key={field.id} className="space-y-2">
-            <Label htmlFor={field.id}>{field.label}</Label>
+            {field.label && <Label htmlFor={field.id}>{field.label}</Label>}
             
             {/* Render different input types based on field.type */}
             {field.type === 'text' && (
@@ -120,6 +132,8 @@ export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
                 ))}
               </RadioGroup>
             )}
+            
+            {field.type === 'content' && renderContentField(field)}
           </div>
         ))}
       </div>

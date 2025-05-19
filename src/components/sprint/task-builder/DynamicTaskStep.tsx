@@ -39,6 +39,18 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
     }
   };
 
+  // Render a content field
+  const renderContentField = (field: FormField) => {
+    return (
+      <div className="prose max-w-none mt-2">
+        {field.content && (
+          <div dangerouslySetInnerHTML={{ __html: field.content }} />
+        )}
+        {field.text && <p>{field.text}</p>}
+      </div>
+    );
+  };
+
   // Helper for conditional question rendering
   const renderConditionalQuestion = () => {
     // Convert the boolean string to actual boolean if needed
@@ -205,18 +217,7 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
                   </Select>
                 )}
 
-                {field.content && (
-                  <div className="prose max-w-none">
-                    {field.content}
-                  </div>
-                )}
-                
-                {/* Content type field */}
-                {field.type === 'content' && (
-                  <div className="prose max-w-none mt-2">
-                    {field.text}
-                  </div>
-                )}
+                {field.type === 'content' && renderContentField(field)}
               </div>
             ))}
           </div>
@@ -244,7 +245,7 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
       <div className="space-y-4">
         {step.fields.map((field: FormField) => (
           <div key={field.id} className="space-y-2">
-            <Label htmlFor={field.id}>{field.label}</Label>
+            {field.label && <Label htmlFor={field.id}>{field.label}</Label>}
             
             {/* Render different input types based on field.type */}
             {field.type === 'text' && (
@@ -309,6 +310,8 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
                 ))}
               </RadioGroup>
             )}
+            
+            {field.type === 'content' && renderContentField(field)}
           </div>
         ))}
       </div>

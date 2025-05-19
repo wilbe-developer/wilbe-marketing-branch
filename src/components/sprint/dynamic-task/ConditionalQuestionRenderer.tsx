@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { StepNode, FormField } from '@/types/task-builder';
 import { Input } from '@/components/ui/input';
@@ -74,6 +75,18 @@ export const ConditionalQuestionRenderer: React.FC<ConditionalQuestionRendererPr
       return answer.value;
     }
     return answer;
+  };
+
+  // Render a content field
+  const renderContentField = (field: FormField) => {
+    return (
+      <div className="prose max-w-none mt-2">
+        {field.content && (
+          <div dangerouslySetInnerHTML={{ __html: field.content }} />
+        )}
+        {field.text && <p>{field.text}</p>}
+      </div>
+    );
   };
 
   // Determine if we should show conditional inputs
@@ -199,18 +212,7 @@ export const ConditionalQuestionRenderer: React.FC<ConditionalQuestionRendererPr
                 </Select>
               )}
 
-              {field.content && (
-                <div className="prose max-w-none">
-                  {field.content}
-                </div>
-              )}
-              
-              {/* Content type field */}
-              {field.type === 'content' && (
-                <div className="prose max-w-none mt-2">
-                  {field.text}
-                </div>
-              )}
+              {field.type === 'content' && renderContentField(field)}
             </div>
           ))}
         </div>
