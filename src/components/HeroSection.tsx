@@ -22,14 +22,14 @@ const HeroSection: React.FC = () => {
           Bring your science to the world.<br />
         </h1>
         <p className="text-lg md:text-xl text-white/90 max-w-3xl mx-auto">
-          <strong>Scientists and engineers</strong> hold the keys to the solutions we need for the century. 
+          <strong>Turn your breakthrough into a high-performance startup – in 10 days. </strong> 
         </p>
         <p className="text-lg md:text-xl text-white/90 max-w-3xl mx-auto">
-          Go from scientist to founder in 10 days. Use our tailored guided path to make critical decisions
-          and put together your most ambitious company. With momentum and a solid plan, we can invest
-          $100K–250K to help you build the company only you can, joining our world-class community of
-          scientist-founders. Base case, you leave with a plan and the largest network of
-          entrepreneurial scientists.
+          Scientists and engineers hold the keys to the solutions we need for this century.
+          Use our focused, guided path to make critical decisions and put together the most
+          ambitious version of your company. When there's momentum and a clear plan, we invest
+          $100K–250K to help build your vision alongside a world-class community of scientist founders.
+          Worst case? You leave with a plan and a global network of entrepreneurial scientists.
         </p>
         <div className="pt-4">
           <Button 
