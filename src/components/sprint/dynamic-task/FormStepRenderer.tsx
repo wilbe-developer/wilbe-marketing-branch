@@ -42,6 +42,14 @@ export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
     handleAnswer(updatedValues);
   };
 
+  // Normalize field properties (handle both type and inputType)
+  const normalizeFieldType = (field: any) => {
+    return {
+      ...field,
+      type: field.type || field.inputType,
+    };
+  };
+
   // Render a content field
   const renderContentField = (field: FormField) => {
     return (
@@ -66,76 +74,131 @@ export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
       )}
       
       <div className="space-y-4">
-        {step.fields.map((field: FormField) => (
-          <div key={field.id} className="space-y-2">
-            {field.label && <Label htmlFor={field.id}>{field.label}</Label>}
-            
-            {/* Render different input types based on field.type */}
-            {field.type === 'text' && (
-              <Input
-                id={field.id}
-                value={formValues[field.id] || ''}
-                onChange={(e) => handleFieldChange(field.id, e.target.value)}
-                placeholder={field.placeholder || ''}
-              />
-            )}
-            
-            {field.type === 'textarea' && (
-              <Textarea
-                id={field.id}
-                value={formValues[field.id] || ''}
-                onChange={(e) => handleFieldChange(field.id, e.target.value)}
-                placeholder={field.placeholder || ''}
-                rows={4}
-              />
-            )}
-            
-            {field.type === 'select' && field.options && (
-              <Select
-                value={formValues[field.id] || ''}
-                onValueChange={(value) => handleFieldChange(field.id, value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder={field.placeholder || 'Select an option'} />
-                </SelectTrigger>
-                <SelectContent>
-                  {field.options.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-            
-            {field.type === 'checkbox' && (
-              <div className="flex items-center space-x-2">
-                <Checkbox
+        {step.fields.map((fieldData: FormField) => {
+          const field = normalizeFieldType(fieldData);
+          
+          return (
+            <div key={field.id} className="space-y-2">
+              {field.label && <Label htmlFor={field.id}>{field.label}</Label>}
+              
+              {/* Render different input types based on field.type */}
+              {field.type === 'text' && (
+                <Input
                   id={field.id}
-                  checked={formValues[field.id] || false}
-                  onCheckedChange={(checked) => handleFieldChange(field.id, checked)}
+                  value={formValues[field.id] || ''}
+                  onChange={(e) => handleFieldChange(field.id, e.target.value)}
+                  placeholder={field.placeholder || ''}
                 />
-                <Label htmlFor={field.id} className="ml-2">{field.placeholder || ''}</Label>
-              </div>
-            )}
-            
-            {field.type === 'radio' && field.options && (
-              <RadioGroup
-                value={formValues[field.id] || ''}
-                onValueChange={(value) => handleFieldChange(field.id, value)}
-              >
-                {field.options.map((option) => (
-                  <div key={option.value} className="flex items-center space-x-2">
-                    <RadioGroupItem value={option.value} id={`${field.id}-${option.value}`} />
-                    <Label htmlFor={`${field.id}-${option.value}`}>{option.label}</Label>
+              )}
+              
+              {field.type === 'textarea' && (
+                <Textarea
+                  id={field.id}
+                  value={formValues[field.id] || ''}
+                  onChange={(e) => handleFieldChange(field.id, e.target.value)}
+                  placeholder={field.placeholder || ''}
+                  rows={4}
+                />
+              )}
+              
+              {field.type === 'date' && (
+                <Input
+                  id={field.id}
+                  type="date"
+                  value={formValues[field.id] || ''}
+                  onChange={(e) => handleFieldChange(field.id, e.target.value)}
+                  placeholder={field.placeholder || ''}
+                />
+              )}
+              
+              {field.type === 'select' && field.options && (
+                <Select
+                  value={formValues[field.id] || ''}
+                  onValueChange={(value) => handleFieldChange(field.id, value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={field.placeholder || 'Select an option'} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {field.options.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+              
+              {field.type === 'checkbox' && (
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id={field.id}
+                    checked={formValues[field.id] || false}
+                    onCheckedChange={(checked) => handleFieldChange(field.id, checked)}
+                  />
+                  <Label htmlFor={field.id} className="ml-2">{field.placeholder || ''}</Label>
+                </div>
+              )}
+              
+              {field.type === 'boolean' && (
+                <RadioGroup
+                  value={formValues[field.id] === true ? 'true' : formValues[field.id] === false ? 'false' : ''}
+                  onValueChange={(value) => handleFieldChange(field.id, value === 'true')}
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="true" id={`${field.id}-yes`} />
+                    <Label htmlFor={`${field.id}-yes`}>Yes</Label>
                   </div>
-                ))}
-              </RadioGroup>
-            )}
-            
-            {field.type === 'content' && renderContentField(field)}
-          </div>
-        ))}
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="false" id={`${field.id}-no`} />
+                    <Label htmlFor={`${field.id}-no`}>No</Label>
+                  </div>
+                </RadioGroup>
+              )}
+              
+              {field.type === 'radio' && field.options && (
+                <RadioGroup
+                  value={formValues[field.id] || ''}
+                  onValueChange={(value) => handleFieldChange(field.id, value)}
+                >
+                  {field.options.map((option) => (
+                    <div key={option.value} className="flex items-center space-x-2">
+                      <RadioGroupItem value={option.value} id={`${field.id}-${option.value}`} />
+                      <Label htmlFor={`${field.id}-${option.value}`}>{option.label}</Label>
+                    </div>
+                  ))}
+                </RadioGroup>
+              )}
+              
+              {field.type === 'multiselect' && field.options && (
+                <div className="space-y-2">
+                  {field.options.map((option) => (
+                    <div key={option.value} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`${field.id}-${option.value}`}
+                        checked={Array.isArray(formValues[field.id]) && formValues[field.id].includes(option.value)}
+                        onCheckedChange={(checked) => {
+                          const currentValues = Array.isArray(formValues[field.id]) ? [...formValues[field.id]] : [];
+                          if (checked) {
+                            handleFieldChange(field.id, [...currentValues, option.value]);
+                          } else {
+                            handleFieldChange(
+                              field.id,
+                              currentValues.filter((val) => val !== option.value)
+                            );
+                          }
+                        }}
+                      />
+                      <Label htmlFor={`${field.id}-${option.value}`}>{option.label}</Label>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              {field.type === 'content' && renderContentField(field)}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { StepNode, FormField } from '@/types/task-builder';
 import { Input } from '@/components/ui/input';
@@ -87,6 +88,14 @@ export const ConditionalQuestionRenderer: React.FC<ConditionalQuestionRendererPr
     );
   };
 
+  // Normalize field properties (handle both type and inputType)
+  const normalizeFieldType = (field: any) => {
+    return {
+      ...field,
+      type: field.type || field.inputType,
+    };
+  };
+
   // Determine if we should show conditional inputs
   const mainValue = getMainAnswerValue();
   const stringMainValue = String(mainValue);
@@ -167,55 +176,118 @@ export const ConditionalQuestionRenderer: React.FC<ConditionalQuestionRendererPr
             rows={4}
           />
         )}
+        
+        {step.inputType === 'date' && (
+          <Input
+            type="date"
+            value={mainValue || ''}
+            onChange={(e) => handleMainAnswer(e.target.value)}
+            placeholder="Enter a date"
+          />
+        )}
+        
+        {step.inputType === 'multiselect' && step.options && (
+          <div className="space-y-2">
+            {step.options.map((option) => (
+              <div key={option.value} className="flex items-center space-x-2">
+                <Checkbox
+                  id={`${step.id}-${option.value}`}
+                  checked={Array.isArray(mainValue) && mainValue.includes(option.value)}
+                  onCheckedChange={(checked) => {
+                    const currentValues = Array.isArray(mainValue) ? [...mainValue] : [];
+                    if (checked) {
+                      handleMainAnswer([...currentValues, option.value]);
+                    } else {
+                      handleMainAnswer(
+                        currentValues.filter((val) => val !== option.value)
+                      );
+                    }
+                  }}
+                />
+                <Label htmlFor={`${step.id}-${option.value}`}>{option.label}</Label>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
       
       {/* Render conditional inputs if applicable */}
       {conditionalFields && conditionalFields.length > 0 && (
         <div className="mt-6 pl-4 border-l-2 border-gray-200 space-y-4">
-          {conditionalFields.map((field: FormField) => (
-            <div key={field.id} className="space-y-2">
-              {field.label && <Label htmlFor={field.id}>{field.label}</Label>}
-              
-              {field.type === 'text' && (
-                <Input
-                  id={field.id}
-                  value={answer?.[field.id] || ''}
-                  onChange={(e) => handleConditionalAnswer(field.id, e.target.value)}
-                  placeholder={field.placeholder || ''}
-                />
-              )}
-              
-              {field.type === 'textarea' && (
-                <Textarea
-                  id={field.id}
-                  value={answer?.[field.id] || ''}
-                  onChange={(e) => handleConditionalAnswer(field.id, e.target.value)}
-                  placeholder={field.placeholder || ''}
-                  rows={4}
-                />
-              )}
-              
-              {field.type === 'select' && field.options && (
-                <Select
-                  value={answer?.[field.id] || ''}
-                  onValueChange={(value) => handleConditionalAnswer(field.id, value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder={field.placeholder || 'Select an option'} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {field.options.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
+          {conditionalFields.map((fieldData: FormField) => {
+            const field = normalizeFieldType(fieldData);
+            
+            return (
+              <div key={field.id} className="space-y-2">
+                {field.label && <Label htmlFor={field.id}>{field.label}</Label>}
+                
+                {field.type === 'text' && (
+                  <Input
+                    id={field.id}
+                    value={answer?.[field.id] || ''}
+                    onChange={(e) => handleConditionalAnswer(field.id, e.target.value)}
+                    placeholder={field.placeholder || ''}
+                  />
+                )}
+                
+                {field.type === 'textarea' && (
+                  <Textarea
+                    id={field.id}
+                    value={answer?.[field.id] || ''}
+                    onChange={(e) => handleConditionalAnswer(field.id, e.target.value)}
+                    placeholder={field.placeholder || ''}
+                    rows={4}
+                  />
+                )}
+                
+                {field.type === 'date' && (
+                  <Input
+                    id={field.id}
+                    type="date"
+                    value={answer?.[field.id] || ''}
+                    onChange={(e) => handleConditionalAnswer(field.id, e.target.value)}
+                    placeholder={field.placeholder || ''}
+                  />
+                )}
+                
+                {field.type === 'select' && field.options && (
+                  <Select
+                    value={answer?.[field.id] || ''}
+                    onValueChange={(value) => handleConditionalAnswer(field.id, value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={field.placeholder || 'Select an option'} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {field.options.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+                
+                {field.type === 'boolean' && (
+                  <RadioGroup
+                    value={answer?.[field.id] === true ? 'true' : answer?.[field.id] === false ? 'false' : ''}
+                    onValueChange={(value) => handleConditionalAnswer(field.id, value === 'true')}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="true" id={`${field.id}-yes`} />
+                      <Label htmlFor={`${field.id}-yes`}>Yes</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="false" id={`${field.id}-no`} />
+                      <Label htmlFor={`${field.id}-no`}>No</Label>
+                    </div>
+                  </RadioGroup>
+                )}
 
-              {field.type === 'content' && renderContentField(field)}
-            </div>
-          ))}
+                {field.type === 'content' && renderContentField(field)}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
