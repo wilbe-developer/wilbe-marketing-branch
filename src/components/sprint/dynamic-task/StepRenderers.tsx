@@ -37,7 +37,7 @@ export const QuestionStepRenderer: React.FC<StepRendererProps> = ({
 }) => {
   if (!step.inputType) return null;
 
-  // Handle text input changes
+  // Handle text input changes - save immediately without debounce
   const handleTextInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     handleAnswer(e.target.value);
   };

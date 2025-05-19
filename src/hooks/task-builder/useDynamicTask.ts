@@ -138,18 +138,49 @@ export const useDynamicTask = ({ taskId, sprintProfile }: UseDynamicTaskProps) =
       const newAnswers = { ...answers, [stepId]: value };
       setAnswers(newAnswers);
 
-      // Update only in user_sprint_progress
-      const { error } = await supabase
+      // First check if a record already exists
+      const { data: existingProgress, error: checkError } = await supabase
         .from("user_sprint_progress")
-        .upsert({
-          user_id: user.id,
-          task_id: taskId,
-          task_answers: newAnswers,
-        });
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("task_id", taskId)
+        .maybeSingle();
 
-      if (error) {
-        console.error("Error updating sprint_progress:", error);
-        throw new Error("Failed to save answer");
+      if (checkError) {
+        console.error("Error checking sprint_progress:", checkError);
+        throw new Error("Failed to check if progress exists");
+      }
+
+      // Update or insert based on whether a record exists
+      if (existingProgress) {
+        // Update existing record
+        const { error } = await supabase
+          .from("user_sprint_progress")
+          .update({
+            task_answers: newAnswers
+          })
+          .eq("id", existingProgress.id);
+
+        if (error) {
+          console.error("Error updating sprint_progress:", error);
+          throw new Error("Failed to save answer");
+        }
+      } else {
+        // Insert new record with initialized task_answers
+        const { error } = await supabase
+          .from("user_sprint_progress")
+          .insert({
+            user_id: user.id,
+            task_id: taskId,
+            task_answers: newAnswers,
+            answers: null, // Ensure this is properly initialized
+            profile_updates: {} // Initialize empty profile updates
+          });
+
+        if (error) {
+          console.error("Error inserting sprint_progress:", error);
+          throw new Error("Failed to save answer");
+        }
       }
 
       return { stepId, value };
@@ -192,18 +223,55 @@ export const useDynamicTask = ({ taskId, sprintProfile }: UseDynamicTaskProps) =
         throw error;
       }
 
-      // Also store that we updated the profile as part of this task
-      const profileUpdates = sprintProgress?.profile_updates ? { ...sprintProgress.profile_updates as Record<string, any> } : {};
-      const { error: progressError } = await supabase
+      // First check if a record already exists
+      const { data: existingProgress, error: checkError } = await supabase
         .from("user_sprint_progress")
-        .upsert({
-          user_id: user.id,
-          task_id: taskId,
-          profile_updates: { ...profileUpdates, [key]: value }
-        });
+        .select("id, profile_updates")
+        .eq("user_id", user.id)
+        .eq("task_id", taskId)
+        .maybeSingle();
 
-      if (progressError) {
-        throw progressError;
+      if (checkError) {
+        console.error("Error checking sprint_progress:", checkError);
+        throw new Error("Failed to check if progress exists");
+      }
+
+      // Get current profile updates or initialize empty object
+      let profileUpdates = existingProgress?.profile_updates || {};
+      if (typeof profileUpdates !== 'object' || profileUpdates === null) {
+        profileUpdates = {};
+      }
+
+      // Add the new profile update
+      profileUpdates[key] = value;
+
+      if (existingProgress) {
+        // Update existing record
+        const { error: progressError } = await supabase
+          .from("user_sprint_progress")
+          .update({
+            profile_updates: profileUpdates
+          })
+          .eq("id", existingProgress.id);
+
+        if (progressError) {
+          throw progressError;
+        }
+      } else {
+        // Insert new record with initialized fields
+        const { error: progressError } = await supabase
+          .from("user_sprint_progress")
+          .insert({
+            user_id: user.id,
+            task_id: taskId,
+            profile_updates: profileUpdates,
+            task_answers: {}, // Initialize empty task answers
+            answers: null // Ensure this is properly initialized
+          });
+
+        if (progressError) {
+          throw progressError;
+        }
       }
 
       return { key, value };
@@ -222,19 +290,50 @@ export const useDynamicTask = ({ taskId, sprintProfile }: UseDynamicTaskProps) =
     mutationFn: async () => {
       if (!user?.id) throw new Error("User not authenticated");
 
-      // Update only user_sprint_progress
-      const { error } = await supabase
+      // First check if a record already exists
+      const { data: existingProgress, error: checkError } = await supabase
         .from("user_sprint_progress")
-        .upsert({
-          user_id: user.id,
-          task_id: taskId,
-          completed: true,
-          completed_at: new Date().toISOString(),
-          task_answers: answers
-        });
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("task_id", taskId)
+        .maybeSingle();
 
-      if (error) {
-        throw new Error("Failed to complete task");
+      if (checkError) {
+        console.error("Error checking sprint_progress:", checkError);
+        throw new Error("Failed to check if progress exists");
+      }
+
+      if (existingProgress) {
+        // Update existing record
+        const { error } = await supabase
+          .from("user_sprint_progress")
+          .update({
+            completed: true,
+            completed_at: new Date().toISOString(),
+            task_answers: answers
+          })
+          .eq("id", existingProgress.id);
+
+        if (error) {
+          throw new Error("Failed to complete task");
+        }
+      } else {
+        // Insert new record
+        const { error } = await supabase
+          .from("user_sprint_progress")
+          .insert({
+            user_id: user.id,
+            task_id: taskId,
+            completed: true,
+            completed_at: new Date().toISOString(),
+            task_answers: answers,
+            answers: null, // Ensure this is properly initialized
+            profile_updates: {} // Initialize empty profile updates
+          });
+
+        if (error) {
+          throw new Error("Failed to complete task");
+        }
       }
 
       return true;
@@ -264,9 +363,17 @@ export const useDynamicTask = ({ taskId, sprintProfile }: UseDynamicTaskProps) =
 
   // Load saved answers from user progress - only from user_sprint_progress
   useEffect(() => {
-    if (sprintProgress?.task_answers && Object.keys(sprintProgress.task_answers).length > 0) {
-      console.log("Loaded answers from sprint_progress:", sprintProgress.task_answers);
-      setAnswers(sprintProgress.task_answers as Record<string, any>);
+    if (sprintProgress) {
+      // First check task_answers (which is the newer field)
+      if (sprintProgress.task_answers && Object.keys(sprintProgress.task_answers).length > 0) {
+        console.log("Loaded answers from sprint_progress.task_answers:", sprintProgress.task_answers);
+        setAnswers(sprintProgress.task_answers as Record<string, any>);
+      } 
+      // Fall back to legacy 'answers' field if needed
+      else if (sprintProgress.answers && Object.keys(sprintProgress.answers).length > 0) {
+        console.log("Loaded answers from sprint_progress.answers:", sprintProgress.answers);
+        setAnswers(sprintProgress.answers as Record<string, any>);
+      }
     }
   }, [sprintProgress]);
 

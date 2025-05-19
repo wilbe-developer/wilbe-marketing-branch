@@ -1,5 +1,5 @@
 
-import React, { useEffect } from "react";
+import React from "react";
 import { StepNode } from "@/types/task-builder";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -27,7 +27,7 @@ export const QuestionStepRenderer: React.FC<QuestionStepRendererProps> = ({
 }) => {
   if (!step.inputType) return null;
 
-  // Handle text input changes with debounce effect
+  // Handle text input changes - save immediately without debounce
   const handleTextInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     // Save immediately on each change
     onAnswer(e.target.value);
