@@ -1,4 +1,3 @@
-
 import React from "react";
 import { StepNode } from "@/types/task-builder";
 import { Card, CardContent } from "@/components/ui/card";
@@ -40,57 +39,6 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
   const normalizedStep = {
     ...step,
     type: step.type || step.inputType,
-  };
-
-  // Render a collaboration component
-  const renderCollaborationComponent = () => {
-    return (
-      <div className="mt-4 p-4 bg-blue-50 rounded-md border border-blue-100">
-        <h4 className="font-medium text-blue-800 mb-3">Team Collaboration</h4>
-        <p className="text-sm text-blue-700 mb-4">
-          Invite your team members to collaborate on this sprint. They will be able to view and contribute to tasks.
-        </p>
-        
-        <Button 
-          onClick={() => setIsCollaboratorsDialogOpen(true)}
-          className="w-full flex items-center justify-center gap-2"
-        >
-          <Users className="h-4 w-4" />
-          <span>Manage Collaborators</span>
-        </Button>
-        
-        <Dialog open={isCollaboratorsDialogOpen} onOpenChange={setIsCollaboratorsDialogOpen}>
-          <DialogContent className="sm:max-w-[600px]">
-            <DialogHeader>
-              <DialogTitle>Manage Team Collaborators</DialogTitle>
-              <DialogDescription>
-                Add or remove team members who can collaborate on your sprint.
-              </DialogDescription>
-            </DialogHeader>
-            
-            <CollaboratorsManagement />
-          </DialogContent>
-        </Dialog>
-      </div>
-    );
-  };
-
-  // Render a content field with special handling for collaboration fields
-  const renderContentField = (field: any) => {
-    // Check if this is a collaboration field
-    if (field.type === 'collaboration') {
-      return renderCollaborationComponent();
-    }
-    
-    // Regular content field rendering
-    return (
-      <div className="prose max-w-none mt-2">
-        {field.content && (
-          <div dangerouslySetInnerHTML={{ __html: field.content }} />
-        )}
-        {field.text && <p>{field.text}</p>}
-      </div>
-    );
   };
 
   // Handle collaboration type

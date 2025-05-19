@@ -75,7 +75,7 @@ export type StepType =
   | 'conditionalQuestion' // Question with conditional follow-up fields
   | 'groupedQuestions'    // Container for multiple sub-questions
   | 'team-members' // Team/co-founder member form
-  | 'collaboration' // NEW: Explicit collaboration field type
+  | 'collaboration' // Explicit collaboration field type
   | 'container';  // Container for child steps
 
 export type InputType = 
@@ -90,7 +90,7 @@ export type InputType =
   | 'email'
   | 'url'
   | 'boolean'
-  | 'collaboration' // NEW: Explicit collaboration field type
+  | 'collaboration' // Explicit collaboration field type
   | 'file';
 
 export interface Option {
