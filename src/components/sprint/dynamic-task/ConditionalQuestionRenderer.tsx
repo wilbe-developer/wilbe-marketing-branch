@@ -115,7 +115,7 @@ export const ConditionalQuestionRenderer: React.FC<ConditionalQuestionRendererPr
       
       {/* Render the main question input */}
       <div className="space-y-4">
-        {(stepInputType === 'select' || stepInputType === 'dropdown') && step.options && (
+        {(stepInputType === 'select') && step.options && (
           <Select
             value={String(mainValue) || ''}
             onValueChange={handleMainAnswer}
