@@ -76,13 +76,14 @@ export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
       <div className="space-y-4">
         {step.fields.map((fieldData: FormField) => {
           const field = normalizeFieldType(fieldData);
+          const fieldType = field.type || field.inputType; // Ensure we check both type and inputType
           
           return (
             <div key={field.id} className="space-y-2">
               {field.label && <Label htmlFor={field.id}>{field.label}</Label>}
               
-              {/* Render different input types based on field.type */}
-              {(field.type === 'text' || field.inputType === 'text') && (
+              {/* Render different input types based on field type */}
+              {fieldType === 'text' && (
                 <Input
                   id={field.id}
                   value={formValues[field.id] || ''}
@@ -91,7 +92,7 @@ export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
                 />
               )}
               
-              {(field.type === 'textarea' || field.inputType === 'textarea') && (
+              {fieldType === 'textarea' && (
                 <Textarea
                   id={field.id}
                   value={formValues[field.id] || ''}
@@ -101,7 +102,7 @@ export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
                 />
               )}
               
-              {(field.type === 'date' || field.inputType === 'date') && (
+              {fieldType === 'date' && (
                 <Input
                   id={field.id}
                   type="date"
@@ -111,7 +112,7 @@ export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
                 />
               )}
               
-              {(field.type === 'select' || field.inputType === 'select') && field.options && (
+              {fieldType === 'select' && field.options && (
                 <Select
                   value={formValues[field.id] || ''}
                   onValueChange={(value) => handleFieldChange(field.id, value)}
@@ -129,7 +130,7 @@ export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
                 </Select>
               )}
               
-              {(field.type === 'checkbox' || field.inputType === 'checkbox') && (
+              {fieldType === 'checkbox' && (
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id={field.id}
@@ -140,7 +141,7 @@ export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
                 </div>
               )}
               
-              {(field.type === 'boolean' || field.inputType === 'boolean') && (
+              {fieldType === 'boolean' && (
                 <RadioGroup
                   value={formValues[field.id] === true ? 'true' : formValues[field.id] === false ? 'false' : ''}
                   onValueChange={(value) => handleFieldChange(field.id, value === 'true')}
@@ -156,7 +157,7 @@ export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
                 </RadioGroup>
               )}
               
-              {(field.type === 'radio' || field.inputType === 'radio') && field.options && (
+              {fieldType === 'radio' && field.options && (
                 <RadioGroup
                   value={formValues[field.id] || ''}
                   onValueChange={(value) => handleFieldChange(field.id, value)}
@@ -170,7 +171,7 @@ export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
                 </RadioGroup>
               )}
               
-              {(field.type === 'multiselect' || field.inputType === 'multiselect') && field.options && (
+              {fieldType === 'multiselect' && field.options && (
                 <div className="space-y-2">
                   {field.options.map((option) => (
                     <div key={option.value} className="flex items-center space-x-2">
@@ -195,7 +196,7 @@ export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
                 </div>
               )}
               
-              {(field.type === 'content' || field.inputType === 'content') && renderContentField(field)}
+              {fieldType === 'content' && renderContentField(field)}
             </div>
           );
         })}

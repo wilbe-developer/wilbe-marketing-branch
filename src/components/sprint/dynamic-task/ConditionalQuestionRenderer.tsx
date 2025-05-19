@@ -219,7 +219,7 @@ export const ConditionalQuestionRenderer: React.FC<ConditionalQuestionRendererPr
         <div className="mt-6 pl-4 border-l-2 border-gray-200 space-y-4">
           {conditionalFields.map((fieldData: FormField) => {
             const field = normalizeFieldType(fieldData);
-            const fieldType = field.type || field.inputType;
+            const fieldType = field.type || field.inputType; // Ensure we check both type and inputType
             
             return (
               <div key={field.id} className="space-y-2">

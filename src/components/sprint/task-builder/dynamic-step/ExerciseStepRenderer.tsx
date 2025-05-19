@@ -220,13 +220,15 @@ export const ExerciseStepRenderer: React.FC<ExerciseStepRendererProps> = ({
         {step.fields.map((fieldData, index) => {
           const field = normalizeFieldType(fieldData);
           const fieldValue = answer?.[field.id] || "";
+          const fieldType = field.type || field.inputType; // Ensure we check both type and inputType
           
           return (
             <div key={index} className="space-y-2">
               <Label>{field.label}</Label>
               
-              {(field.type === 'textarea' || field.inputType === 'textarea') && (
+              {(fieldType === 'textarea') && (
                 <Textarea
+                  id={field.id}
                   value={fieldValue}
                   onChange={(e) => handleFieldChange(field.id, e.target.value)}
                   placeholder={field.placeholder || "Enter your answer here..."}
@@ -234,21 +236,30 @@ export const ExerciseStepRenderer: React.FC<ExerciseStepRendererProps> = ({
                 />
               )}
               
-              {(field.type === 'text' || field.inputType === 'text') && (
+              {(fieldType === 'text') && (
                 <Input
+                  id={field.id}
                   value={fieldValue}
                   onChange={(e) => handleFieldChange(field.id, e.target.value)}
                   placeholder={field.placeholder || "Enter your answer here..."}
                 />
               )}
               
-              {(field.type === 'date' || field.inputType === 'date') && renderDateField(field, fieldValue)}
+              {(fieldType === 'date') && (
+                <Input
+                  id={field.id}
+                  type="date"
+                  value={fieldValue}
+                  onChange={(e) => handleFieldChange(field.id, e.target.value)}
+                  placeholder={field.placeholder || ""}
+                />
+              )}
               
-              {(field.type === 'boolean' || field.inputType === 'boolean') && renderBooleanField(field, fieldValue)}
+              {(fieldType === 'boolean') && renderBooleanField(field, fieldValue)}
               
-              {(field.type === 'select' || field.inputType === 'select') && field.options && renderSelectField(field, fieldValue)}
+              {(fieldType === 'select') && field.options && renderSelectField(field, fieldValue)}
               
-              {(field.type === 'multiselect' || field.inputType === 'multiselect') && field.options && renderMultiselectField(field, fieldValue)}
+              {(fieldType === 'multiselect') && field.options && renderMultiselectField(field, fieldValue)}
             </div>
           );
         })}
