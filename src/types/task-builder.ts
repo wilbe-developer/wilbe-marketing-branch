@@ -54,6 +54,11 @@ export interface StepNode {
   fields?: FormField[]; // For multiple inputs in a single step
   conditionalInputs?: Record<string, FormField[]>; // Map option values to additional fields
   questions?: StepNode[]; // For grouped questions in one step
+  
+  // Team member specific fields
+  memberType?: string; // "Co-founder", "Team Member", etc.
+  allowMultiple?: boolean; // Whether to allow adding multiple entries
+  initialCount?: number; // Initial number of entries to show
 }
 
 export type StepType = 
@@ -67,6 +72,7 @@ export type StepType =
   | 'form'        // Form with multiple fields
   | 'conditionalQuestion' // Question with conditional follow-up fields
   | 'groupedQuestions'    // Container for multiple sub-questions
+  | 'team-members' // Team/co-founder member form
   | 'container';  // Container for child steps
 
 export type InputType = 

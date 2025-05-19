@@ -9,6 +9,7 @@ import {
 } from './StepRenderers';
 import { SprintProfileShowOrAsk } from '@/components/sprint/SprintProfileShowOrAsk';
 import { getProfileFieldMapping } from '@/utils/profileFieldMappings';
+import { TeamMemberStepRenderer } from '@/components/sprint/task-builder/dynamic-step/TeamMemberStepRenderer';
 
 interface CurrentStepProps {
   step: StepNode;
@@ -59,6 +60,14 @@ const CurrentStep: React.FC<CurrentStepProps> = ({
             step={step} 
             answer={answer} 
             handleAnswer={(value) => handleAnswer(step.id, value)} 
+          />
+        )}
+        
+        {step.type === 'team-members' && (
+          <TeamMemberStepRenderer
+            step={step}
+            answer={answer}
+            onAnswer={(value) => handleAnswer(step.id, value)}
           />
         )}
       </div>

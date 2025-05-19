@@ -3,6 +3,7 @@ import React from "react";
 import { StepNode } from "@/types/task-builder";
 import { QuestionStepRenderer } from "./dynamic-step/QuestionStepRenderer";
 import { Card, CardContent } from "@/components/ui/card";
+import { TeamMemberStepRenderer } from "./dynamic-step/TeamMemberStepRenderer";
 
 interface DynamicTaskStepProps {
   step: StepNode;
@@ -38,6 +39,17 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
             <p className="text-gray-600 mb-4">{step.description}</p>
           )}
           <QuestionStepRenderer step={step} answer={answer} onAnswer={onAnswer} />
+        </div>
+      );
+
+    case "team-members":
+      return (
+        <div className="mb-4">
+          <h3 className="text-lg font-medium mb-3">{step.text}</h3>
+          {step.description && (
+            <p className="text-gray-600 mb-4">{step.description}</p>
+          )}
+          <TeamMemberStepRenderer step={step} answer={answer} onAnswer={onAnswer} />
         </div>
       );
 
