@@ -2,7 +2,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { SprintTask, UserSprintProgress, UserTaskProgress, TaskOption } from "@/types/sprint";
-import { SprintTaskDefinition } from "@/types/task-builder";
+import { SprintTaskDefinition, TaskDefinition } from "@/types/task-builder";
 import { generateTaskSummary } from "@/utils/taskDefinitionAdapter";
 import { useAuth } from "./useAuth";
 import { useSprintContext } from "./useSprintContext";
@@ -26,7 +26,23 @@ export const useSprintTasks = () => {
       
       // Transform task definitions into the SprintTask format
       return (data || []).map(taskDef => {
-        const summary = generateTaskSummary(taskDef);
+        // Parse the definition if it's a string
+        let parsedDefinition: TaskDefinition;
+        if (typeof taskDef.definition === 'string') {
+          try {
+            parsedDefinition = JSON.parse(taskDef.definition);
+          } catch (e) {
+            console.error("Failed to parse task definition:", e);
+            parsedDefinition = { taskName: taskDef.name, steps: [] };
+          }
+        } else {
+          parsedDefinition = taskDef.definition as TaskDefinition;
+        }
+        
+        const summary = generateTaskSummary({
+          ...taskDef,
+          definition: parsedDefinition
+        } as SprintTaskDefinition);
         
         return {
           id: taskDef.id,

@@ -5,6 +5,13 @@ import { Button } from '@/components/ui/button';
 import { useSprintProfileQuickEdit } from '@/hooks/useSprintProfileQuickEdit';
 import { flattenSteps, evaluateStepVisibility } from '@/utils/taskDefinitionAdapter';
 import { toast } from 'sonner';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface DynamicTaskLogicProps {
   taskDefinition: SprintTaskDefinition;
@@ -153,6 +160,71 @@ export const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
                       />
                       <div>
                         <label htmlFor={option.value} className="font-medium">
+                          {option.label}
+                        </label>
+                        {option.description && (
+                          <p className="text-sm text-gray-500">{option.description}</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              {/* New Select Input Type */}
+              {currentStep.inputType === 'select' && currentStep.options && (
+                <div className="space-y-2">
+                  <Select
+                    value={answers[currentStep.id] || ""}
+                    onValueChange={(value) => handleAnswer(currentStep.id, value)}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select an option" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {currentStep.options.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {answers[currentStep.id] && currentStep.options.find(o => o.value === answers[currentStep.id])?.description && (
+                    <p className="text-sm text-gray-500 mt-1">
+                      {currentStep.options.find(o => o.value === answers[currentStep.id])?.description}
+                    </p>
+                  )}
+                </div>
+              )}
+              
+              {/* New MultiSelect Input Type */}
+              {currentStep.inputType === 'multiselect' && currentStep.options && (
+                <div className="space-y-2">
+                  {currentStep.options.map((option) => (
+                    <div key={option.value} className="flex items-start space-x-3">
+                      <input
+                        type="checkbox"
+                        id={`${currentStep.id}-${option.value}`}
+                        value={option.value}
+                        checked={Array.isArray(answers[currentStep.id]) && answers[currentStep.id].includes(option.value)}
+                        onChange={(e) => {
+                          const currentValues = Array.isArray(answers[currentStep.id]) 
+                            ? [...answers[currentStep.id]] 
+                            : [];
+                          
+                          if (e.target.checked) {
+                            handleAnswer(currentStep.id, [...currentValues, option.value]);
+                          } else {
+                            handleAnswer(
+                              currentStep.id, 
+                              currentValues.filter(v => v !== option.value)
+                            );
+                          }
+                        }}
+                        className="mt-1"
+                      />
+                      <div>
+                        <label htmlFor={`${currentStep.id}-${option.value}`} className="font-medium">
                           {option.label}
                         </label>
                         {option.description && (
