@@ -1,3 +1,4 @@
+
 export type InputType = "radio" | "boolean" | "select" | "multiselect" | "textarea" | "text" | "form" | "conditionalQuestion" | "groupedQuestions" | "collaboration";
 export type StepType = "question" | "content" | "file" | "exercise" | "form" | "conditionalQuestion" | "groupedQuestions" | "collaboration" | "team-members";
 export type ConditionOperator = "equals" | "not_equals" | "in" | "not_in";
@@ -20,7 +21,7 @@ export interface Option {
 export interface FormField {
   id: string;
   label: string;
-  type: "text" | "textarea" | "select" | "radio" | "checkbox" | "content";
+  type: "text" | "textarea" | "select" | "radio" | "checkbox" | "content" | "collaboration";
   placeholder?: string;
   required?: boolean;
   options?: Option[];
