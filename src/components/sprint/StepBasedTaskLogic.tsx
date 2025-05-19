@@ -7,10 +7,11 @@ import { useStepNavigation } from "@/hooks/useStepNavigation";
 import QuestionStep from "./step-types/QuestionStep";
 import ContentStep from "./step-types/ContentStep";
 import UploadStep from "./step-types/UploadStep";
+import CollaborationStep from "./step-types/CollaborationStep";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { StepContext, StepContextType } from "@/hooks/team-step-builder/types";
 
-export type StepType = "question" | "content" | "upload";
+export type StepType = "question" | "content" | "upload" | "collaboration";
 
 export interface Step {
   type: StepType;
@@ -23,6 +24,7 @@ export interface Step {
   }>;
   uploads?: string[];
   action?: string;
+  description?: string;
 }
 
 interface StepBasedTaskLogicProps {
@@ -93,7 +95,7 @@ const StepBasedTaskLogic: React.FC<StepBasedTaskLogicProps> = ({
     return null; // Safety check for invalid step
   }
   
-  const hasAnswer = answers[currentStep] !== undefined || step.type === 'content' || step.type === 'upload';
+  const hasAnswer = answers[currentStep] !== undefined || step.type === 'content' || step.type === 'upload' || step.type === 'collaboration';
   
   return (
     <div className={isMobile ? "mx-0" : ""}>
@@ -132,6 +134,13 @@ const StepBasedTaskLogic: React.FC<StepBasedTaskLogicProps> = ({
             uploads={step.uploads}
             isCompleted={isCompleted}
             onComplete={(fileId) => handleComplete(fileId)}
+          />
+        )}
+
+        {step.type === 'collaboration' && (
+          <CollaborationStep
+            description={step.description}
+            onComplete={() => handleComplete()}
           />
         )}
       </div>

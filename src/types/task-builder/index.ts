@@ -1,6 +1,5 @@
-
 export type InputType = "radio" | "boolean" | "select" | "multiselect" | "textarea" | "text" | "form" | "conditionalQuestion" | "groupedQuestions" | "collaboration";
-export type StepType = "question" | "content" | "file" | "exercise" | "form" | "conditionalQuestion" | "groupedQuestions" | "collaboration";
+export type StepType = "question" | "content" | "file" | "exercise" | "form" | "conditionalQuestion" | "groupedQuestions" | "collaboration" | "team-members";
 export type ConditionOperator = "equals" | "not_equals" | "in" | "not_in";
 export type ProfileQuestionType = "boolean" | "select" | "multiselect" | "text";
 
@@ -51,6 +50,7 @@ export interface StepNode {
   conditions?: Condition[];
   onAnswer?: Record<string, StepNode[]>;
   children?: StepNode[];
+  description?: string;
   
   // New fields for enhanced functionality
   fields?: FormField[]; // For multiple inputs in a single step
