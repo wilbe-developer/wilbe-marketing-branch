@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -44,6 +43,7 @@ const StepBasedTaskLogic: React.FC<StepBasedTaskLogicProps> = ({
   onStepChange,
   onAnswerUpdate
 }) => {
+  
   const isMobile = useIsMobile();
   
   const {
