@@ -33,10 +33,22 @@ export const useSprintTaskDefinitions = () => {
             parsedDefinition = JSON.parse(item.definition);
           } catch (e) {
             console.error("Failed to parse definition JSON:", e);
-            parsedDefinition = {};
+            parsedDefinition = { taskName: item.name, steps: [] };
           }
+        } else if (item.definition && typeof item.definition === 'object') {
+          // Safety check - ensure the object has the required structure
+          const defObj = item.definition as Record<string, any>;
+          parsedDefinition = {
+            taskName: defObj.taskName || item.name,
+            steps: Array.isArray(defObj.steps) ? defObj.steps : [],
+            profileQuestions: Array.isArray(defObj.profileQuestions) ? defObj.profileQuestions : [],
+            description: defObj.description,
+            category: defObj.category,
+            order_index: defObj.order_index
+          };
         } else {
-          parsedDefinition = item.definition || {};
+          // Default fallback
+          parsedDefinition = { taskName: item.name, steps: [] };
         }
         
         return {

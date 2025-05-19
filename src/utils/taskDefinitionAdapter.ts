@@ -49,6 +49,38 @@ export const generateTaskSummary = (taskDef: SprintTaskDefinition) => {
   };
 };
 
+// Utility function to check if a task requires file upload
+export const requiresUpload = (taskDef: SprintTaskDefinition): boolean => {
+  if (!taskDef.definition || !taskDef.definition.steps) return false;
+  
+  return taskDef.definition.steps.some(step => 
+    step.type === 'file' || step.type === 'upload'
+  );
+};
+
+// Utility function to get the main content from a task
+export const getMainContent = (taskDef: SprintTaskDefinition): string => {
+  if (!taskDef.definition || !taskDef.definition.steps) return '';
+  
+  const contentStep = taskDef.definition.steps.find(step => step.type === 'content');
+  if (contentStep && contentStep.content) {
+    return contentStep.content.toString();
+  }
+  return '';
+};
+
+// Utility function to get the main question from a task
+export const getMainQuestion = (taskDef: SprintTaskDefinition): string => {
+  if (!taskDef.definition || !taskDef.definition.steps) return '';
+  
+  for (const step of taskDef.definition.steps) {
+    if (step.type === 'question') {
+      return step.text;
+    }
+  }
+  return '';
+};
+
 // Utility function to flatten a step tree into a linear array
 export const flattenSteps = (steps: StepNode[]): StepNode[] => {
   const result: StepNode[] = [];

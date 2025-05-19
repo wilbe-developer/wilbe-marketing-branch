@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { SprintTask, UserSprintProgress, UserTaskProgress, TaskOption } from "@/types/sprint";
@@ -35,8 +34,20 @@ export const useSprintTasks = () => {
             console.error("Failed to parse task definition:", e);
             parsedDefinition = { taskName: taskDef.name, steps: [] };
           }
+        } else if (taskDef.definition && typeof taskDef.definition === 'object') {
+          // Safety check - ensure the object has the required structure
+          const defObj = taskDef.definition as Record<string, any>;
+          parsedDefinition = {
+            taskName: defObj.taskName || taskDef.name,
+            steps: Array.isArray(defObj.steps) ? defObj.steps : [],
+            profileQuestions: Array.isArray(defObj.profileQuestions) ? defObj.profileQuestions : [],
+            description: defObj.description,
+            category: defObj.category,
+            order_index: defObj.order_index
+          };
         } else {
-          parsedDefinition = taskDef.definition as TaskDefinition;
+          // Default fallback
+          parsedDefinition = { taskName: taskDef.name, steps: [] };
         }
         
         const summary = generateTaskSummary({
