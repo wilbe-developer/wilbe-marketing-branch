@@ -16,8 +16,8 @@ import TeamMemberForm from '@/components/sprint/step-types/TeamMemberForm';
 import { CollaborationStepRenderer } from '@/components/sprint/task-builder/dynamic-step/CollaborationStepRenderer';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Users } from "@/components/ui/icons";
-import CollaboratorsManagement from '@/components/sprint/step-types/CollaboratorsManagement';
+import { Users } from "lucide-react";
+import CollaboratorsManagement from '@/components/sprint/CollaboratorsManagement';
 
 export interface StepRendererProps {
   step: StepNode;

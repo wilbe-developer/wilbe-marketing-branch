@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useSprintTasks } from "./useSprintTasks";
 import { Step } from "@/components/sprint/StepBasedTaskLogic";
@@ -12,6 +11,11 @@ export const useIPTaskData = (task: any, sprintProfile: any) => {
   const [currentStepContext, setCurrentStepContext] = useState<StepContext | undefined>(undefined);
   const [answers, setAnswers] = useState<Record<string, any>>({});
   const { updateProgress } = useSprintTasks();
+  
+  // Generate a unique ID for each step
+  const generateStepId = (prefix: string, index: number): string => {
+    return `${prefix}-${index}-${Date.now().toString(36)}`;
+  };
   
   // Load existing file ID and answers if available
   useEffect(() => {
@@ -44,6 +48,7 @@ export const useIPTaskData = (task: any, sprintProfile: any) => {
       if (hasUniversityIP) {
         // University IP path - keep all in a single flow
         newSteps.push({
+          id: generateStepId('univ-tto', 0),
           type: "question",
           question: "Have you begun conversations with the Tech Transfer Office (TTO)?",
           options: [
@@ -56,6 +61,7 @@ export const useIPTaskData = (task: any, sprintProfile: any) => {
         // Follow-up questions based on TTO conversation
         if (existingAnswers["tto_conversation"] === "yes") {
           newSteps.push({
+            id: generateStepId('univ-summary', 1),
             type: "question",
             question: "Summarize the conversation with the Tech Transfer Office.",
             content: "Please provide details about your conversations with the Tech Transfer Office.",
@@ -63,6 +69,7 @@ export const useIPTaskData = (task: any, sprintProfile: any) => {
           });
           
           newSteps.push({
+            id: generateStepId('univ-terms', 2),
             type: "question",
             question: "List the preliminary licensing terms (especially % equity) the TTO expects.",
             content: "Please provide details about any licensing terms that have been discussed.",
@@ -70,6 +77,7 @@ export const useIPTaskData = (task: any, sprintProfile: any) => {
           });
         } else if (existingAnswers["tto_conversation"] === "no") {
           newSteps.push({
+            id: generateStepId('univ-plans', 1),
             type: "question",
             question: "Explain your current plans for engaging with the TTO.",
             content: "Please provide details about how you plan to engage with the Tech Transfer Office.",
@@ -79,6 +87,7 @@ export const useIPTaskData = (task: any, sprintProfile: any) => {
         
         // Add IP Fundamentals content for university path
         newSteps.push({
+          id: generateStepId('univ-ipfund', 3),
           type: "content",
           content: [
             "IP Fundamentals",
@@ -93,6 +102,7 @@ export const useIPTaskData = (task: any, sprintProfile: any) => {
         
         // Add University-IP Deep-Dive panel
         newSteps.push({
+          id: generateStepId('univ-deepdive', 4),
           type: "content",
           content: [
             "University-IP Deep-Dive",
@@ -111,6 +121,7 @@ export const useIPTaskData = (task: any, sprintProfile: any) => {
       } else {
         // Non-university IP path
         newSteps.push({
+          id: generateStepId('ip-owner', 0),
           type: "question",
           question: "Do you own all the IP?",
           options: [
@@ -123,6 +134,7 @@ export const useIPTaskData = (task: any, sprintProfile: any) => {
         // Follow-up based on IP ownership
         if (existingAnswers["ip_ownership"] === "yes") {
           newSteps.push({
+            id: generateStepId('ip-patents', 1),
             type: "question",
             question: "Have patents been filed?",
             options: [
@@ -135,13 +147,15 @@ export const useIPTaskData = (task: any, sprintProfile: any) => {
           // Follow-up based on patent filing
           if (existingAnswers["patents_filed"] === "yes") {
             newSteps.push({
+              id: generateStepId('ip-upload', 2),
               type: "upload",
-              action: "Upload your patent documents.",
               uploads: ["Patent documentation"],
-              context: "ip"
+              context: "ip",
+              action: "Upload your patent documents."
             });
           } else if (existingAnswers["patents_filed"] === "no") {
             newSteps.push({
+              id: generateStepId('ip-plan', 2),
               type: "question",
               question: "Explain your plans for filing patents.",
               content: "Please provide details about your patent filing strategy.",
@@ -150,6 +164,7 @@ export const useIPTaskData = (task: any, sprintProfile: any) => {
           }
         } else if (existingAnswers["ip_ownership"] === "no") {
           newSteps.push({
+            id: generateStepId('ip-status', 1),
             type: "question",
             question: "Explain the current status of IP ownership.",
             content: "Please provide details about who owns the IP and any arrangements in place.",
@@ -159,6 +174,7 @@ export const useIPTaskData = (task: any, sprintProfile: any) => {
         
         // Add IP Fundamentals content for non-university path
         newSteps.push({
+          id: generateStepId('ip-fund', 3),
           type: "content",
           content: [
             "IP Fundamentals",

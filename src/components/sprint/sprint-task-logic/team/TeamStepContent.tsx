@@ -21,8 +21,9 @@ const TeamStepContent: React.FC<TeamStepContentProps> = ({
 }) => {
   const isMobile = useIsMobile();
 
-  // Convert EnhancedStep to Step with proper type conversion
-  const stepBasedTasks: Step[] = steps.map(step => ({
+  // Convert EnhancedStep to Step with proper type conversion and ensure IDs exist
+  const stepBasedTasks: Step[] = steps.map((step, index) => ({
+    id: step.id || `team-step-${index}`, // Ensure ID exists
     type: step.type === 'content' ? 'content' : 'question',
     content: step.content,
     context: step.context,

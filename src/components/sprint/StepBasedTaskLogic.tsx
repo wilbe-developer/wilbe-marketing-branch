@@ -10,7 +10,8 @@ import CollaborationStep from "./step-types/CollaborationStep";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { StepContext, StepContextType } from "@/hooks/team-step-builder/types";
 
-export type StepType = 'question' | 'content' | 'upload' | 'collaboration';
+// Expand this type to include all possible step types
+export type StepType = 'question' | 'content' | 'upload' | 'collaboration' | 'exercise' | 'feedback' | 'action' | 'team-members';
 
 export interface Step {
   id: string;
@@ -23,6 +24,8 @@ export interface Step {
   uploads?: string[];
   required?: boolean;
   context?: StepContextType;
+  action?: string; // Add missing property
+  memberType?: string; // For team member steps
   // Add any other properties needed by your components
 }
 
@@ -134,7 +137,7 @@ const StepBasedTaskLogic: React.FC<StepBasedTaskLogicProps> = ({
         
         {step.type === 'upload' && (
           <UploadStep
-            action={step.action}
+            action={step.action || ''}
             uploads={step.uploads}
             isCompleted={isCompleted}
             onComplete={(fileId) => handleComplete(fileId)}

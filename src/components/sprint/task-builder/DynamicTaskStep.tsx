@@ -10,6 +10,7 @@ import { CollaborationStepRenderer } from "./dynamic-step/CollaborationStepRende
 import { FormStepRenderer } from "@/components/sprint/dynamic-task/FormStepRenderer";
 import { ConditionalQuestionRenderer } from "@/components/sprint/dynamic-task/ConditionalQuestionRenderer";
 import { normalizeStepType } from "@/utils/taskStepUtils";
+import { StepType } from "@/components/sprint/StepBasedTaskLogic";
 
 interface DynamicTaskStepProps {
   step: StepNode;
@@ -87,8 +88,6 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
       );
 
     case "exercise":
-    case "feedback":
-    case "action":
       return (
         <Card>
           <CardContent className="pt-6">

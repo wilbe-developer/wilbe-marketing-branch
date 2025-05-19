@@ -32,7 +32,7 @@ export interface TaskStep {
   id: string;
   title?: string;
   description?: string;
-  type: "question" | "content" | "upload" | "collaboration" | "form" | "conditionalQuestion" | "team-members" | string;
+  type: "question" | "content" | "upload" | "collaboration" | "exercise" | "feedback" | "action" | "conditionalQuestion" | "team-members" | string;
   showFor?: string[];
   hideFor?: string[];
   required?: boolean;
@@ -46,6 +46,7 @@ export interface TaskStep {
   context?: string;
   profileDependencies?: string[];
   uploads?: string[];
+  memberType?: string; // For team member forms
 }
 
 // Add the missing ConditionalFlow type

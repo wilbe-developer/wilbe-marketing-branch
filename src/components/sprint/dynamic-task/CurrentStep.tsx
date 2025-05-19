@@ -14,6 +14,7 @@ import { getProfileFieldMapping } from '@/utils/profileFieldMappings';
 import { FormStepRenderer } from './FormStepRenderer';
 import { ConditionalQuestionRenderer } from './ConditionalQuestionRenderer';
 import { normalizeStepType } from '@/utils/taskStepUtils';
+import { StepType } from '@/components/sprint/StepBasedTaskLogic';
 
 interface CurrentStepProps {
   step: StepNode;
@@ -29,7 +30,7 @@ const CurrentStep: React.FC<CurrentStepProps> = ({
   console.log("CurrentStep rendering step with type:", step.type);
   
   // Normalize step type for consistent handling
-  const normalizedType = normalizeStepType(step.type);
+  const normalizedType: StepType = normalizeStepType(step.type);
   console.log("Normalized step type in CurrentStep:", normalizedType);
   
   // Check if this step has profile dependencies
@@ -81,14 +82,6 @@ const CurrentStep: React.FC<CurrentStepProps> = ({
           />
         )}
         
-        {normalizedType === 'team-members' && (
-          <TeamMemberStepRenderer
-            step={step}
-            answer={answer}
-            handleAnswer={(value) => handleAnswer(step.id, value)}
-          />
-        )}
-
         {step.type === 'form' && (
           <FormStepRenderer
             step={step}

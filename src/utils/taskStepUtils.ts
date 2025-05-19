@@ -37,6 +37,12 @@ export const normalizeStepType = (type: string | undefined): StepType => {
     return 'content';
   }
   
+  if (lowerCaseType === 'exercise' || 
+      lowerCaseType === 'feedback' || 
+      lowerCaseType === 'action') {
+    return 'exercise';
+  } 
+  
   // If we don't recognize the type, log a warning and default to content
   console.warn(`Unknown step type encountered: ${type}. Defaulting to 'content'`);
   return 'content';
@@ -57,10 +63,13 @@ export const convertTaskStepToStep = (taskStep: TaskStep): Step => {
   // Create a Step with normalized properties
   return {
     ...taskStep,
+    id: taskStep.id,
     type: normalizedType,
     question: taskStep.question || taskStep.title || '',
     description: taskStep.description || '',
     context: taskStep.context || undefined,
-    uploads: taskStep.uploads || []
+    uploads: taskStep.uploads || [],
+    action: taskStep.action || undefined,
+    memberType: taskStep.memberType || undefined
   } as Step;
 };
