@@ -41,40 +41,44 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
     type: step.type || step.inputType,
   };
 
-  // Render a content field with special handling for invite_link
+  // Render a collaboration component
+  const renderCollaborationComponent = () => {
+    return (
+      <div className="mt-4 p-4 bg-blue-50 rounded-md border border-blue-100">
+        <h4 className="font-medium text-blue-800 mb-3">Team Collaboration</h4>
+        <p className="text-sm text-blue-700 mb-4">
+          Invite your team members to collaborate on this sprint. They will be able to view and contribute to tasks.
+        </p>
+        
+        <Button 
+          onClick={() => setIsCollaboratorsDialogOpen(true)}
+          className="w-full flex items-center justify-center gap-2"
+        >
+          <Users className="h-4 w-4" />
+          <span>Manage Collaborators</span>
+        </Button>
+        
+        <Dialog open={isCollaboratorsDialogOpen} onOpenChange={setIsCollaboratorsDialogOpen}>
+          <DialogContent className="sm:max-w-[600px]">
+            <DialogHeader>
+              <DialogTitle>Manage Team Collaborators</DialogTitle>
+              <DialogDescription>
+                Add or remove team members who can collaborate on your sprint.
+              </DialogDescription>
+            </DialogHeader>
+            
+            <CollaboratorsManagement />
+          </DialogContent>
+        </Dialog>
+      </div>
+    );
+  };
+
+  // Render a content field with special handling for collaboration fields
   const renderContentField = (field: any) => {
-    // Check if this is the special invite_link field for collaborators
-    if (field.id === 'invite_link') {
-      return (
-        <div className="mt-4 p-4 bg-blue-50 rounded-md border border-blue-100">
-          <h4 className="font-medium text-blue-800 mb-3">Team Collaboration</h4>
-          <p className="text-sm text-blue-700 mb-4">
-            Invite your team members to collaborate on this sprint. They will be able to view and contribute to tasks.
-          </p>
-          
-          <Button 
-            onClick={() => setIsCollaboratorsDialogOpen(true)}
-            className="w-full flex items-center justify-center gap-2"
-          >
-            <Users className="h-4 w-4" />
-            <span>Manage Collaborators</span>
-          </Button>
-          
-          {/* Dialog for managing collaborators */}
-          <Dialog open={isCollaboratorsDialogOpen} onOpenChange={setIsCollaboratorsDialogOpen}>
-            <DialogContent className="sm:max-w-[600px]">
-              <DialogHeader>
-                <DialogTitle>Manage Team Collaborators</DialogTitle>
-                <DialogDescription>
-                  Add or remove team members who can collaborate on your sprint.
-                </DialogDescription>
-              </DialogHeader>
-              
-              <CollaboratorsManagement />
-            </DialogContent>
-          </Dialog>
-        </div>
-      );
+    // Check if this is a collaboration field
+    if (field.type === 'collaboration') {
+      return renderCollaborationComponent();
     }
     
     // Regular content field rendering
@@ -88,6 +92,24 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
     );
   };
 
+  // Handle collaboration type
+  if (normalizedStep.type === 'collaboration') {
+    return (
+      <Card>
+        <CardContent className="pt-6">
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium">{step.text}</h3>
+            {step.description && (
+              <p className="text-gray-600">{step.description}</p>
+            )}
+            {renderCollaborationComponent()}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Now handle the rest of the step types
   switch (normalizedStep.type) {
     case "question":
       return (
@@ -138,28 +160,9 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
       );
 
     case "content":
-      // Special check for invite_link in content type
-      if (step.fields && step.fields.some(field => field.id === 'invite_link')) {
-        return (
-          <Card>
-            <CardContent className="pt-6">
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium">{step.text}</h3>
-                {step.content && (
-                  <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: step.content }} />
-                )}
-                {step.fields.map(field => 
-                  field.id === 'invite_link' ? (
-                    <div key={field.id}>
-                      {renderContentField(field)}
-                    </div>
-                  ) : null
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        );
-      }
+      // Check if any field is a collaboration field
+      const hasCollaborationField = step.fields && step.fields.some(field => field.type === 'collaboration');
+      
       return <ContentStepRenderer step={step} answer={answer} handleAnswer={onAnswer} />;
 
     case "file":

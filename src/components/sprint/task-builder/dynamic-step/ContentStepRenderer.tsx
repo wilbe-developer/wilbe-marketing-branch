@@ -26,8 +26,8 @@ export const ContentStepRenderer: React.FC<ContentStepRendererProps> = ({
 }) => {
   const [isCollaboratorsDialogOpen, setIsCollaboratorsDialogOpen] = useState(false);
 
-  // Special function to render invite_link fields
-  const renderInviteLink = () => {
+  // Special function to render collaboration component
+  const renderCollaborationComponent = () => {
     return (
       <div className="mt-4 p-4 bg-blue-50 rounded-md border border-blue-100">
         <h4 className="font-medium text-blue-800 mb-3">Team Collaboration</h4>
@@ -60,8 +60,8 @@ export const ContentStepRenderer: React.FC<ContentStepRendererProps> = ({
     );
   };
 
-  // Check if this content step has an invite_link field
-  const hasInviteLink = step.fields && step.fields.some(field => field.id === 'invite_link');
+  // Check if any field is a collaboration field
+  const hasCollaborationField = step.fields && step.fields.some(field => field.type === 'collaboration' || field.id === 'invite_link');
 
   return (
     <Card>
@@ -80,11 +80,11 @@ export const ContentStepRenderer: React.FC<ContentStepRendererProps> = ({
             />
           )}
 
-          {/* Render invite link if it exists in the fields */}
-          {hasInviteLink && renderInviteLink()}
+          {/* For backward compatibility, check for either collaboration or invite_link */}
+          {hasCollaborationField && renderCollaborationComponent()}
           
           {/* Render other fields if needed */}
-          {step.fields && step.fields.filter(field => field.id !== 'invite_link').map(field => (
+          {step.fields && step.fields.filter(field => field.type !== 'collaboration' && field.id !== 'invite_link').map(field => (
             <div key={field.id} className="mt-4">
               {field.label && <h4 className="font-medium mb-2">{field.label}</h4>}
               {field.text && <p>{field.text}</p>}

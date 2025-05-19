@@ -75,6 +75,7 @@ export type StepType =
   | 'conditionalQuestion' // Question with conditional follow-up fields
   | 'groupedQuestions'    // Container for multiple sub-questions
   | 'team-members' // Team/co-founder member form
+  | 'collaboration' // NEW: Explicit collaboration field type
   | 'container';  // Container for child steps
 
 export type InputType = 
@@ -89,6 +90,7 @@ export type InputType =
   | 'email'
   | 'url'
   | 'boolean'
+  | 'collaboration' // NEW: Explicit collaboration field type
   | 'file';
 
 export interface Option {
@@ -102,7 +104,7 @@ export interface Option {
 export interface FormField {
   id: string;
   label: string;
-  type: "text" | "textarea" | "select" | "radio" | "checkbox" | "content";
+  type: "text" | "textarea" | "select" | "radio" | "checkbox" | "content" | "collaboration"; // Added collaboration
   placeholder?: string;
   required?: boolean;
   options?: Option[];
