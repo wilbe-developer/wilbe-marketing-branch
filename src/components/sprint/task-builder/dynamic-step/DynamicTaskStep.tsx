@@ -99,7 +99,7 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
       <Card>
         <CardContent className="pt-6">
           <div className="space-y-4">
-            <h3 className="text-lg font-medium">{step.text || step.label}</h3>
+            <h3 className="text-lg font-medium">{step.text || step.description}</h3>
             {step.description && (
               <p className="text-gray-600">{step.description}</p>
             )}
