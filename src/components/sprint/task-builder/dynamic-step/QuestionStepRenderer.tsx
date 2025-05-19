@@ -1,10 +1,9 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { StepNode } from "@/types/task-builder";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import {
@@ -27,6 +26,12 @@ export const QuestionStepRenderer: React.FC<QuestionStepRendererProps> = ({
   onAnswer,
 }) => {
   if (!step.inputType) return null;
+
+  // Handle text input changes with debounce effect
+  const handleTextInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    // Save immediately on each change
+    onAnswer(e.target.value);
+  };
 
   switch (step.inputType) {
     case "radio":
@@ -121,11 +126,10 @@ export const QuestionStepRenderer: React.FC<QuestionStepRendererProps> = ({
         <div className="space-y-2">
           <Textarea
             value={answer || ""}
-            onChange={(e) => onAnswer(e.target.value)}
+            onChange={handleTextInputChange}
             placeholder="Enter your answer..."
             rows={4}
           />
-          <Button onClick={() => onAnswer(answer || "")}>Save Answer</Button>
         </div>
       );
 
@@ -135,10 +139,9 @@ export const QuestionStepRenderer: React.FC<QuestionStepRendererProps> = ({
         <div className="space-y-2">
           <Input
             value={answer || ""}
-            onChange={(e) => onAnswer(e.target.value)}
+            onChange={handleTextInputChange}
             placeholder="Enter your answer..."
           />
-          <Button onClick={() => onAnswer(answer || "")}>Save Answer</Button>
         </div>
       );
   }
