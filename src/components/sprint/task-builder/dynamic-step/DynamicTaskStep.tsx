@@ -11,7 +11,7 @@ interface DynamicTaskStepProps {
   step: StepNode;
   answer: any;
   onAnswer: (value: any) => void;
-  onFileUpload: (file: File) => void;
+  onFileUpload?: (file: File) => void;
 }
 
 const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
@@ -38,7 +38,7 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
       );
 
     case "content":
-      return <ContentStepRenderer step={step} />;
+      return <ContentStepRenderer step={step} answer={answer} handleAnswer={onAnswer} />;
 
     case "file":
     case "upload":

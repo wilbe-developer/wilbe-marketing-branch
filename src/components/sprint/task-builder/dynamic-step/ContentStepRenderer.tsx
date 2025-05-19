@@ -5,9 +5,15 @@ import { Card, CardContent } from "@/components/ui/card";
 
 interface ContentStepRendererProps {
   step: StepNode;
+  answer?: any;
+  handleAnswer?: (value: any) => void;
 }
 
-export const ContentStepRenderer: React.FC<ContentStepRendererProps> = ({ step }) => {
+export const ContentStepRenderer: React.FC<ContentStepRendererProps> = ({ 
+  step,
+  answer,
+  handleAnswer 
+}) => {
   return (
     <Card>
       <CardContent className="pt-6">

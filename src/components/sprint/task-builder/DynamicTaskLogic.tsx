@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { useDynamicTask } from "@/hooks/task-builder/useDynamicTask";
 import { useSprintProfileQuickEdit } from "@/hooks/useSprintProfileQuickEdit";
 import { SprintProfileShowOrAsk } from "@/components/sprint/SprintProfileShowOrAsk";
@@ -20,6 +20,7 @@ const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
   onComplete,
 }) => {
   const { sprintProfile } = useSprintProfileQuickEdit();
+  const [editMode, setEditMode] = useState(false);
   
   const {
     taskDefinition,
@@ -65,9 +66,21 @@ const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
     try {
       await completeTask();
       onComplete();
+      setEditMode(false);
     } catch (error) {
       console.error("Error completing task:", error);
       toast.error("Failed to complete the task. Please try again.");
+    }
+  };
+
+  const handleSaveChanges = async () => {
+    try {
+      await completeTask();
+      toast.success("Your changes have been saved");
+      setEditMode(false);
+    } catch (error) {
+      console.error("Error saving changes:", error);
+      toast.error("Failed to save changes. Please try again.");
     }
   };
 
@@ -87,34 +100,33 @@ const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
     );
   }
 
-  // Handle case where task is completed
-  if (isCompleted || taskIsCompleted) {
-    return (
-      <div className="space-y-6">
-        <div className="bg-green-50 border border-green-200 rounded-md p-4 text-green-800">
+  // Show a task completed banner at the top if the task is completed
+  const taskCompletedBanner = (isCompleted || taskIsCompleted) && !editMode ? (
+    <div className="bg-green-50 border border-green-200 rounded-md p-4 text-green-800 mb-6">
+      <div className="flex justify-between items-center">
+        <div>
           <p className="font-medium">Task completed!</p>
           <p className="text-sm mt-1">You have successfully completed this task.</p>
         </div>
-        
-        {/* Optionally show a summary of answers */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium">Your Answers</h3>
-          <div className="border rounded-md p-4 space-y-2">
-            {Object.entries(answers).map(([key, value]) => (
-              <div key={key} className="flex space-x-2">
-                <span className="font-medium">{key}:</span>
-                <span>{JSON.stringify(value)}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+        <Button 
+          onClick={() => setEditMode(true)}
+          variant="outline" 
+          className="bg-white hover:bg-gray-50"
+        >
+          Edit Answers
+        </Button>
       </div>
-    );
-  }
+    </div>
+  ) : null;
 
   // If there are no profile questions, render the task directly
   if (!taskDefinition.profileQuestions || taskDefinition.profileQuestions.length === 0) {
-    return renderTaskContent();
+    return (
+      <div className="space-y-6">
+        {taskCompletedBanner}
+        {renderTaskContent()}
+      </div>
+    );
   }
 
   // If there are profile questions, make sure they're answered first
@@ -123,13 +135,18 @@ const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
     sprintProfile && sprintProfile[key] !== undefined
   );
 
-  if (!profileKeysAnswered) {
+  if (!profileKeysAnswered && !editMode) {
     // Render profile questions first
     return renderProfileQuestions();
   }
 
   // All profile questions are answered, render the task
-  return renderTaskContent();
+  return (
+    <div className="space-y-6">
+      {taskCompletedBanner}
+      {renderTaskContent()}
+    </div>
+  );
 
   function renderProfileQuestions() {
     if (!taskDefinition) return null;
@@ -166,6 +183,45 @@ const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
   }
 
   function renderTaskContent() {
+    // If the task is completed and not in edit mode, just show the completed banner
+    if ((isCompleted || taskIsCompleted) && !editMode) {
+      return (
+        <div className="space-y-4">
+          <div className="border rounded-md p-4 space-y-6">
+            {visibleSteps.map((step, index) => {
+              // Check if this step has profile dependencies
+              const profileDependencies = getStepProfileDependencies(step);
+              
+              const stepContent = (
+                <div key={step.id} className="mb-6 pb-6 border-b last:border-b-0">
+                  <h3 className="text-lg font-medium mb-2">{step.text}</h3>
+                  {renderStepAnswer(step, answers[step.id])}
+                </div>
+              );
+              
+              // If this step has profile dependencies, wrap it with SprintProfileShowOrAsk
+              if (profileDependencies.length > 0) {
+                const dependency = profileDependencies[0]; // Use the first dependency for now
+                return (
+                  <SprintProfileShowOrAsk
+                    key={step.id}
+                    profileKey={dependency.profileKey}
+                    label={dependency.profileKey} // This should be improved to use a proper label
+                    type="boolean" // This should be determined dynamically based on the profile field
+                  >
+                    {stepContent}
+                  </SprintProfileShowOrAsk>
+                );
+              }
+              
+              return stepContent;
+            })}
+          </div>
+        </div>
+      );
+    }
+    
+    // In edit mode or if the task is not completed yet, show the interactive UI
     return (
       <div className="space-y-6">
         {/* Progress indicator */}
@@ -179,14 +235,7 @@ const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
         </div>
         
         {/* Current step */}
-        {currentStep && (
-          <DynamicTaskStep
-            step={currentStep}
-            answer={answers[currentStep.id]}
-            onAnswer={handleAnswer}
-            onFileUpload={handleFileUpload}
-          />
-        )}
+        {currentStep && renderCurrentStepWithDependencies()}
         
         {/* Static panels if any */}
         {taskDefinition.staticPanels && taskDefinition.staticPanels.length > 0 && (
@@ -207,7 +256,11 @@ const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
             Previous
           </Button>
           
-          {currentStepIndex === visibleSteps.length - 1 ? (
+          {(isCompleted || taskIsCompleted) && editMode ? (
+            <Button onClick={handleSaveChanges}>
+              Save Changes
+            </Button>
+          ) : currentStepIndex === visibleSteps.length - 1 ? (
             <Button onClick={handleComplete}>
               Complete Task
             </Button>
@@ -225,6 +278,82 @@ const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
         </div>
       </div>
     );
+  }
+
+  // Helper function to render current step with profile dependencies
+  function renderCurrentStepWithDependencies() {
+    if (!currentStep) return null;
+    
+    // Check if this step has profile dependencies
+    const profileDependencies = getStepProfileDependencies(currentStep);
+    
+    const stepContent = (
+      <DynamicTaskStep
+        step={currentStep}
+        answer={answers[currentStep.id]}
+        onAnswer={handleAnswer}
+        onFileUpload={handleFileUpload}
+      />
+    );
+    
+    // If this step has profile dependencies, wrap it with SprintProfileShowOrAsk
+    if (profileDependencies.length > 0) {
+      const dependency = profileDependencies[0]; // Use the first dependency for now
+      return (
+        <SprintProfileShowOrAsk
+          profileKey={dependency.profileKey}
+          label={dependency.profileKey} // This should be improved to use a proper label
+          type="boolean" // This should be determined dynamically based on the profile field
+        >
+          {stepContent}
+        </SprintProfileShowOrAsk>
+      );
+    }
+    
+    return stepContent;
+  }
+
+  // Helper function to render a step's answer for the completed view
+  function renderStepAnswer(step: any, answer: any) {
+    if (!answer) return <p className="text-gray-500 italic">No answer provided</p>;
+    
+    switch (step.type) {
+      case "question":
+        if (step.inputType === "radio" || step.inputType === "select") {
+          const option = step.options?.find((opt: any) => opt.value === answer);
+          return <p>{option ? option.label : answer}</p>;
+        } else if (step.inputType === "textarea" || step.inputType === "text") {
+          return <p>{answer}</p>;
+        } else {
+          return <p>{JSON.stringify(answer)}</p>;
+        }
+      case "file":
+      case "upload":
+        return (
+          <p>
+            {answer.fileName ? (
+              <span className="text-blue-500">Uploaded: {answer.fileName}</span>
+            ) : (
+              <span>File uploaded</span>
+            )}
+          </p>
+        );
+      default:
+        return <p>{JSON.stringify(answer)}</p>;
+    }
+  }
+
+  // Helper function to get profile dependencies for a step
+  function getStepProfileDependencies(step: any) {
+    if (!step.conditions) return [];
+    
+    return step.conditions
+      .filter((condition: any) => condition.source.profileKey)
+      .map((condition: any) => ({
+        profileKey: condition.source.profileKey,
+        operator: condition.operator,
+        value: condition.value
+      }));
   }
 
   // Helper function to map profile question types to SprintProfileShowOrAsk types
