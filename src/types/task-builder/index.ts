@@ -1,6 +1,6 @@
 
-export type InputType = "radio" | "boolean" | "select" | "multiselect" | "textarea" | "text" | "form" | "conditionalQuestion" | "groupedQuestions";
-export type StepType = "question" | "content" | "file" | "exercise" | "form" | "conditionalQuestion" | "groupedQuestions";
+export type InputType = "radio" | "boolean" | "select" | "multiselect" | "textarea" | "text" | "form" | "conditionalQuestion" | "groupedQuestions" | "collaboration";
+export type StepType = "question" | "content" | "file" | "exercise" | "form" | "conditionalQuestion" | "groupedQuestions" | "collaboration";
 export type ConditionOperator = "equals" | "not_equals" | "in" | "not_in";
 export type ProfileQuestionType = "boolean" | "select" | "multiselect" | "text";
 

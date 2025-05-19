@@ -6,6 +6,7 @@ import { QuestionStepRenderer } from "./QuestionStepRenderer";
 import { ContentStepRenderer } from "./ContentStepRenderer";
 import { UploadStepRenderer } from "./UploadStepRenderer";
 import { ExerciseStepRenderer } from "./ExerciseStepRenderer";
+import { CollaborationStepRenderer } from "./CollaborationStepRenderer";
 import { FormStepRenderer } from "@/components/sprint/dynamic-task/FormStepRenderer";
 import { ConditionalQuestionRenderer } from "@/components/sprint/dynamic-task/ConditionalQuestionRenderer";
 import { Button } from "@/components/ui/button";
@@ -98,11 +99,11 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
       <Card>
         <CardContent className="pt-6">
           <div className="space-y-4">
-            <h3 className="text-lg font-medium">{step.text}</h3>
+            <h3 className="text-lg font-medium">{step.text || step.label}</h3>
             {step.description && (
               <p className="text-gray-600">{step.description}</p>
             )}
-            {renderCollaborationComponent()}
+            <CollaborationStepRenderer step={step} answer={answer} handleAnswer={onAnswer} />
           </div>
         </CardContent>
       </Card>

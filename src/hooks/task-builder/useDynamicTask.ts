@@ -69,6 +69,16 @@ export const useDynamicTask = ({ taskId, sprintProfile }: UseDynamicTaskProps) =
       sourceValue = sprintProfile?.[condition.source.profileKey];
     } else if (condition.source.stepId) {
       sourceValue = answers[condition.source.stepId];
+      
+      // Handle nested values when fieldId is specified (e.g., { value: true })
+      if (condition.source.fieldId && sourceValue && typeof sourceValue === 'object') {
+        sourceValue = sourceValue[condition.source.fieldId];
+      }
+      
+      // Special handling for conditionalQuestion answers which are often in { value: X } format
+      if (!condition.source.fieldId && sourceValue && typeof sourceValue === 'object' && 'value' in sourceValue) {
+        sourceValue = sourceValue.value;
+      }
     } else {
       return false;
     }
