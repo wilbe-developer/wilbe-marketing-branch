@@ -1,6 +1,9 @@
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { SprintTask, UserSprintProgress, UserTaskProgress, TaskOption } from "@/types/sprint";
+import { SprintTaskDefinition } from "@/types/task-builder";
+import { generateTaskSummary } from "@/utils/taskDefinitionAdapter";
 import { useAuth } from "./useAuth";
 import { useSprintContext } from "./useSprintContext";
 import { toast } from "./use-toast";
@@ -10,29 +13,34 @@ export const useSprintTasks = () => {
   const queryClient = useQueryClient();
   const { currentSprintOwnerId, isSharedSprint } = useSprintContext();
   
-  // Fetch all sprint tasks (now global templates, not filtered by user)
-  const { data: tasks, isLoading: isTasksLoading, error } = useQuery({
-    queryKey: ["sprintTasks"],
+  // Fetch all sprint task definitions
+  const { data: taskDefinitions, isLoading: isTasksLoading, error } = useQuery({
+    queryKey: ["sprintTaskDefinitions"],
     queryFn: async (): Promise<SprintTask[]> => {
       const { data, error } = await supabase
-        .from("sprint_tasks")
+        .from("sprint_task_definitions")
         .select("*")
-        .order("order_index");
+        .order("created_at");
       
       if (error) throw error;
       
-      return (data || []).map(task => ({
-        id: task.id,
-        title: task.title,
-        description: task.description,
-        order_index: task.order_index,
-        upload_required: task.upload_required,
-        content: task.content,
-        question: task.question,
-        options: task.options as unknown as TaskOption[] | null,
-        category: task.category,
-        status: task.status
-      }));
+      // Transform task definitions into the SprintTask format
+      return (data || []).map(taskDef => {
+        const summary = generateTaskSummary(taskDef);
+        
+        return {
+          id: taskDef.id,
+          title: summary.title,
+          description: summary.description || "",
+          order_index: summary.order_index || 0,
+          upload_required: summary.requiresUpload,
+          content: summary.content,
+          question: summary.mainQuestion,
+          options: null, // We'll handle options differently with the new architecture
+          category: summary.category,
+          status: "active"
+        };
+      });
     },
     enabled: !!user,
   });
@@ -66,7 +74,7 @@ export const useSprintTasks = () => {
   });
 
   // Get combined task and progress data
-  const tasksWithProgress: UserTaskProgress[] = tasks?.map(task => {
+  const tasksWithProgress: UserTaskProgress[] = taskDefinitions?.map(task => {
     const progress = userProgress?.find(p => p.task_id === task.id);
     return {
       ...task,
@@ -149,7 +157,7 @@ export const useSprintTasks = () => {
   });
 
   return {
-    tasks,
+    tasks: taskDefinitions,
     userProgress,
     tasksWithProgress,
     isLoading: isTasksLoading || isProgressLoading,

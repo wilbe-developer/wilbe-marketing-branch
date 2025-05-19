@@ -826,7 +826,7 @@ export type Database = {
             foreignKeyName: "user_sprint_progress_task_id_fkey"
             columns: ["task_id"]
             isOneToOne: false
-            referencedRelation: "sprint_tasks"
+            referencedRelation: "sprint_task_definitions"
             referencedColumns: ["id"]
           },
         ]
