@@ -96,6 +96,10 @@ const StepBasedTaskLogic: React.FC<StepBasedTaskLogicProps> = ({
     return null; // Safety check for invalid step
   }
   
+  // Log current step for debugging
+  console.log("Current step:", step);
+  console.log("Current step type:", step.type);
+  
   const hasAnswer = answers[currentStep] !== undefined || step.type === 'content' || step.type === 'upload' || step.type === 'collaboration';
   
   return (

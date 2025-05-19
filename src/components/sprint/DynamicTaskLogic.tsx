@@ -114,7 +114,11 @@ const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
     
     // Render one profile question at a time
     const unansweredKeys = taskDefinition.profileQuestions
-      .filter(q => sprintProfile[q.key] === undefined)
+      .filter(q => {
+        // Safe check if sprintProfile exists
+        if (!sprintProfile) return true;
+        return sprintProfile[q.key] === undefined;
+      })
       .map(q => q.key);
     
     if (unansweredKeys.length === 0) return renderTaskContent();
@@ -242,7 +246,7 @@ const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
     if (!step.conditions) return [];
     
     return step.conditions
-      .filter((condition: any) => condition.source.profileKey)
+      .filter((condition: any) => condition.source && condition.source.profileKey)
       .map((condition: any) => ({
         profileKey: condition.source.profileKey,
         operator: condition.operator,

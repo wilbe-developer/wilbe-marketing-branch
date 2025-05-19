@@ -53,10 +53,26 @@ const GenericStepContent: React.FC<GenericStepContentProps> = ({
   
   // Convert TaskStep to Step for compatibility with StepBasedTaskLogic
   const compatibleSteps = steps.map(step => {
-    // Make sure we preserve all properties but adapt the types to match what StepBasedTaskLogic expects
+    // Normalize the step type to ensure it matches what StepBasedTaskLogic expects
+    let normalizedType = step.type;
+    
+    // For debugging, log the original step type
+    console.log(`Original step type: ${step.type}`);
+    
+    // Handle specific type conversions
+    if (step.type === 'form') {
+      normalizedType = 'question';
+    } else if (step.type === 'collaboration' || step.type === 'team-members') {
+      normalizedType = 'collaboration';
+    }
+    
+    // Log the normalized step type
+    console.log(`Normalized step type: ${normalizedType}`);
+    
+    // Return the step with the normalized type
     return {
       ...step,
-      type: step.type === 'form' ? 'question' : step.type,
+      type: normalizedType,
       context: step.context || undefined
     } as Step;
   });
