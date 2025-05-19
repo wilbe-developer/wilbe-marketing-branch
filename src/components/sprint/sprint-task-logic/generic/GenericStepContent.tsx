@@ -5,6 +5,7 @@ import StepBasedTaskLogic, { Step } from "../../StepBasedTaskLogic";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { StepContext } from "@/hooks/team-step-builder/types";
 import { TaskStep, ConditionalFlow } from "@/types/task-definition";
+import { convertTaskStepToStep } from "@/utils/taskStepUtils";
 
 interface GenericStepContentProps {
   steps: TaskStep[] | Step[];
@@ -52,30 +53,8 @@ const GenericStepContent: React.FC<GenericStepContentProps> = ({
   }
   
   // Convert TaskStep to Step for compatibility with StepBasedTaskLogic
-  const compatibleSteps = steps.map(step => {
-    // Normalize the step type to ensure it matches what StepBasedTaskLogic expects
-    let normalizedType = step.type;
-    
-    // For debugging, log the original step type
-    console.log(`Original step type: ${step.type}`);
-    
-    // Handle specific type conversions
-    if (step.type === 'form') {
-      normalizedType = 'question';
-    } else if (step.type === 'collaboration' || step.type === 'team-members') {
-      normalizedType = 'collaboration';
-    }
-    
-    // Log the normalized step type
-    console.log(`Normalized step type: ${normalizedType}`);
-    
-    // Return the step with the normalized type
-    return {
-      ...step,
-      type: normalizedType,
-      context: step.context || undefined
-    } as Step;
-  });
+  // Use our utility function to ensure consistent conversion
+  const compatibleSteps = steps.map(step => convertTaskStepToStep(step as TaskStep));
 
   return (
     <Card className={`mb-6 ${isMobile ? 'shadow-sm' : 'mb-8'}`}>

@@ -20,6 +20,7 @@ const CollaborationStep: React.FC<CollaborationStepProps> = ({
   description,
   onComplete,
 }) => {
+  console.log("Rendering CollaborationStep component with description:", description);
   const [isCollaboratorsDialogOpen, setIsCollaboratorsDialogOpen] = useState(false);
 
   return (
