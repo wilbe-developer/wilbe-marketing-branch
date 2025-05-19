@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { StepNode, FormField } from '@/types/task-builder';
 import { Input } from '@/components/ui/input';
@@ -11,7 +10,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 
@@ -138,16 +136,19 @@ export const ConditionalQuestionRenderer: React.FC<ConditionalQuestionRendererPr
         )}
         
         {step.inputType === 'boolean' && (
-          <div className="flex items-center space-x-3">
-            <Switch
-              checked={!!mainValue}
-              onCheckedChange={handleMainAnswer}
-              id={`${step.id}-toggle`}
-            />
-            <Label htmlFor={`${step.id}-toggle`}>
-              {mainValue ? 'Yes' : 'No'}
-            </Label>
-          </div>
+          <RadioGroup
+            value={mainValue === true ? 'true' : mainValue === false ? 'false' : ''}
+            onValueChange={(value) => handleMainAnswer(value === 'true')}
+          >
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="true" id={`${step.id}-yes`} />
+              <Label htmlFor={`${step.id}-yes`}>Yes</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="false" id={`${step.id}-no`} />
+              <Label htmlFor={`${step.id}-no`}>No</Label>
+            </div>
+          </RadioGroup>
         )}
         
         {step.inputType === 'text' && (
