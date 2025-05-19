@@ -146,7 +146,7 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
       return (
         <Card>
           <CardContent className="pt-6">
-            <div className="text-gray-500">Unknown step type: {step.type}</div>
+            <div className="text-gray-500">Unknown step type: {normalizedStep.type}</div>
           </CardContent>
         </Card>
       );

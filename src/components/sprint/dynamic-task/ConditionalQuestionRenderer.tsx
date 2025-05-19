@@ -104,6 +104,9 @@ export const ConditionalQuestionRenderer: React.FC<ConditionalQuestionRendererPr
   const conditionalFields = step.conditionalInputs && 
     (step.conditionalInputs[mainValue] || step.conditionalInputs[stringMainValue]);
 
+  // Normalize step inputType/type
+  const stepInputType = step.inputType || step.type;
+
   return (
     <div className="space-y-6">
       {step.description && (
@@ -112,7 +115,7 @@ export const ConditionalQuestionRenderer: React.FC<ConditionalQuestionRendererPr
       
       {/* Render the main question input */}
       <div className="space-y-4">
-        {step.inputType === 'select' && step.options && (
+        {(stepInputType === 'select' || stepInputType === 'dropdown') && step.options && (
           <Select
             value={String(mainValue) || ''}
             onValueChange={handleMainAnswer}
@@ -130,7 +133,7 @@ export const ConditionalQuestionRenderer: React.FC<ConditionalQuestionRendererPr
           </Select>
         )}
         
-        {step.inputType === 'radio' && step.options && (
+        {stepInputType === 'radio' && step.options && (
           <RadioGroup
             value={String(mainValue) || ''}
             onValueChange={handleMainAnswer}
@@ -144,7 +147,7 @@ export const ConditionalQuestionRenderer: React.FC<ConditionalQuestionRendererPr
           </RadioGroup>
         )}
         
-        {step.inputType === 'boolean' && (
+        {stepInputType === 'boolean' && (
           <RadioGroup
             value={mainValue === true ? 'true' : mainValue === false ? 'false' : ''}
             onValueChange={(value) => handleMainAnswer(value === 'true')}
@@ -160,7 +163,7 @@ export const ConditionalQuestionRenderer: React.FC<ConditionalQuestionRendererPr
           </RadioGroup>
         )}
         
-        {step.inputType === 'text' && (
+        {stepInputType === 'text' && (
           <Input
             value={mainValue || ''}
             onChange={(e) => handleMainAnswer(e.target.value)}
@@ -168,7 +171,7 @@ export const ConditionalQuestionRenderer: React.FC<ConditionalQuestionRendererPr
           />
         )}
         
-        {step.inputType === 'textarea' && (
+        {stepInputType === 'textarea' && (
           <Textarea
             value={mainValue || ''}
             onChange={(e) => handleMainAnswer(e.target.value)}
@@ -177,7 +180,7 @@ export const ConditionalQuestionRenderer: React.FC<ConditionalQuestionRendererPr
           />
         )}
         
-        {step.inputType === 'date' && (
+        {stepInputType === 'date' && (
           <Input
             type="date"
             value={mainValue || ''}
@@ -186,7 +189,7 @@ export const ConditionalQuestionRenderer: React.FC<ConditionalQuestionRendererPr
           />
         )}
         
-        {step.inputType === 'multiselect' && step.options && (
+        {stepInputType === 'multiselect' && step.options && (
           <div className="space-y-2">
             {step.options.map((option) => (
               <div key={option.value} className="flex items-center space-x-2">
@@ -216,12 +219,13 @@ export const ConditionalQuestionRenderer: React.FC<ConditionalQuestionRendererPr
         <div className="mt-6 pl-4 border-l-2 border-gray-200 space-y-4">
           {conditionalFields.map((fieldData: FormField) => {
             const field = normalizeFieldType(fieldData);
+            const fieldType = field.type || field.inputType;
             
             return (
               <div key={field.id} className="space-y-2">
                 {field.label && <Label htmlFor={field.id}>{field.label}</Label>}
                 
-                {field.type === 'text' && (
+                {fieldType === 'text' && (
                   <Input
                     id={field.id}
                     value={answer?.[field.id] || ''}
@@ -230,7 +234,7 @@ export const ConditionalQuestionRenderer: React.FC<ConditionalQuestionRendererPr
                   />
                 )}
                 
-                {field.type === 'textarea' && (
+                {fieldType === 'textarea' && (
                   <Textarea
                     id={field.id}
                     value={answer?.[field.id] || ''}
@@ -240,7 +244,7 @@ export const ConditionalQuestionRenderer: React.FC<ConditionalQuestionRendererPr
                   />
                 )}
                 
-                {field.type === 'date' && (
+                {fieldType === 'date' && (
                   <Input
                     id={field.id}
                     type="date"
@@ -250,7 +254,7 @@ export const ConditionalQuestionRenderer: React.FC<ConditionalQuestionRendererPr
                   />
                 )}
                 
-                {field.type === 'select' && field.options && (
+                {fieldType === 'select' && field.options && (
                   <Select
                     value={answer?.[field.id] || ''}
                     onValueChange={(value) => handleConditionalAnswer(field.id, value)}
@@ -268,7 +272,7 @@ export const ConditionalQuestionRenderer: React.FC<ConditionalQuestionRendererPr
                   </Select>
                 )}
                 
-                {field.type === 'boolean' && (
+                {fieldType === 'boolean' && (
                   <RadioGroup
                     value={answer?.[field.id] === true ? 'true' : answer?.[field.id] === false ? 'false' : ''}
                     onValueChange={(value) => handleConditionalAnswer(field.id, value === 'true')}
@@ -284,7 +288,7 @@ export const ConditionalQuestionRenderer: React.FC<ConditionalQuestionRendererPr
                   </RadioGroup>
                 )}
 
-                {field.type === 'content' && renderContentField(field)}
+                {fieldType === 'content' && renderContentField(field)}
               </div>
             );
           })}

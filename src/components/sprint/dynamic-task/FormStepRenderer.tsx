@@ -82,7 +82,7 @@ export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
               {field.label && <Label htmlFor={field.id}>{field.label}</Label>}
               
               {/* Render different input types based on field.type */}
-              {field.type === 'text' && (
+              {(field.type === 'text' || field.inputType === 'text') && (
                 <Input
                   id={field.id}
                   value={formValues[field.id] || ''}
@@ -91,7 +91,7 @@ export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
                 />
               )}
               
-              {field.type === 'textarea' && (
+              {(field.type === 'textarea' || field.inputType === 'textarea') && (
                 <Textarea
                   id={field.id}
                   value={formValues[field.id] || ''}
@@ -101,7 +101,7 @@ export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
                 />
               )}
               
-              {field.type === 'date' && (
+              {(field.type === 'date' || field.inputType === 'date') && (
                 <Input
                   id={field.id}
                   type="date"
@@ -111,7 +111,7 @@ export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
                 />
               )}
               
-              {field.type === 'select' && field.options && (
+              {(field.type === 'select' || field.inputType === 'select') && field.options && (
                 <Select
                   value={formValues[field.id] || ''}
                   onValueChange={(value) => handleFieldChange(field.id, value)}
@@ -129,7 +129,7 @@ export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
                 </Select>
               )}
               
-              {field.type === 'checkbox' && (
+              {(field.type === 'checkbox' || field.inputType === 'checkbox') && (
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id={field.id}
@@ -140,7 +140,7 @@ export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
                 </div>
               )}
               
-              {field.type === 'boolean' && (
+              {(field.type === 'boolean' || field.inputType === 'boolean') && (
                 <RadioGroup
                   value={formValues[field.id] === true ? 'true' : formValues[field.id] === false ? 'false' : ''}
                   onValueChange={(value) => handleFieldChange(field.id, value === 'true')}
@@ -156,7 +156,7 @@ export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
                 </RadioGroup>
               )}
               
-              {field.type === 'radio' && field.options && (
+              {(field.type === 'radio' || field.inputType === 'radio') && field.options && (
                 <RadioGroup
                   value={formValues[field.id] || ''}
                   onValueChange={(value) => handleFieldChange(field.id, value)}
@@ -170,7 +170,7 @@ export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
                 </RadioGroup>
               )}
               
-              {field.type === 'multiselect' && field.options && (
+              {(field.type === 'multiselect' || field.inputType === 'multiselect') && field.options && (
                 <div className="space-y-2">
                   {field.options.map((option) => (
                     <div key={option.value} className="flex items-center space-x-2">
@@ -195,7 +195,7 @@ export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
                 </div>
               )}
               
-              {field.type === 'content' && renderContentField(field)}
+              {(field.type === 'content' || field.inputType === 'content') && renderContentField(field)}
             </div>
           );
         })}

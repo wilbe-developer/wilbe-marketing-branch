@@ -118,14 +118,16 @@ export const ExerciseStepRenderer: React.FC<ExerciseStepRendererProps> = ({
   const hasStructuredFields = () => {
     return (
       (step.fields && step.fields.length > 0) ||
-      (step.options && step.options.length > 0 && step.inputType)
+      (step.options && step.options.length > 0 && (step.inputType || step.type))
     );
   };
 
-  // If the exercise is a question with defined inputType but no fields
-  if (step.inputType && !hasStructuredFields()) {
+  // If the exercise is a question with defined type or inputType but no fields
+  const normalizedStepType = step.inputType || step.type;
+  
+  if (normalizedStepType && !hasStructuredFields()) {
     // Single question with specific input type
-    switch (step.inputType) {
+    switch (normalizedStepType) {
       case "text":
         return (
           <div className="space-y-4">
