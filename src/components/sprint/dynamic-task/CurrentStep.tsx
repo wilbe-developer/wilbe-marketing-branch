@@ -8,6 +8,7 @@ import {
   ExerciseRenderer
 } from './StepRenderers';
 import { SprintProfileShowOrAsk } from '@/components/sprint/SprintProfileShowOrAsk';
+import { getProfileFieldMapping } from '@/utils/profileFieldMappings';
 
 interface CurrentStepProps {
   step: StepNode;
@@ -33,7 +34,7 @@ const CurrentStep: React.FC<CurrentStepProps> = ({
           <ContentStepRenderer 
             step={step} 
             answer={answer} 
-            handleAnswer={handleAnswer} 
+            handleAnswer={(value) => handleAnswer(step.id, value)} 
           />
         )}
         
@@ -41,7 +42,7 @@ const CurrentStep: React.FC<CurrentStepProps> = ({
           <QuestionStepRenderer 
             step={step} 
             answer={answer} 
-            handleAnswer={handleAnswer} 
+            handleAnswer={(value) => handleAnswer(step.id, value)} 
           />
         )}
         
@@ -49,7 +50,7 @@ const CurrentStep: React.FC<CurrentStepProps> = ({
           <FileUploadRenderer 
             step={step} 
             answer={answer} 
-            handleAnswer={handleAnswer} 
+            handleAnswer={(value) => handleAnswer(step.id, value)} 
           />
         )}
         
@@ -57,7 +58,7 @@ const CurrentStep: React.FC<CurrentStepProps> = ({
           <ExerciseRenderer 
             step={step} 
             answer={answer} 
-            handleAnswer={handleAnswer} 
+            handleAnswer={(value) => handleAnswer(step.id, value)} 
           />
         )}
       </div>
@@ -67,11 +68,14 @@ const CurrentStep: React.FC<CurrentStepProps> = ({
   // If this step has profile dependencies, wrap it with SprintProfileShowOrAsk
   if (profileDependencies.length > 0) {
     const dependency = profileDependencies[0]; // Use the first dependency for now
+    const fieldMapping = getProfileFieldMapping(dependency.profileKey);
+    
     return (
       <SprintProfileShowOrAsk
         profileKey={dependency.profileKey}
-        label={dependency.profileKey}
-        type="boolean" // Can be improved to determine type dynamically
+        label={fieldMapping.label}
+        type={fieldMapping.type}
+        options={fieldMapping.options}
       >
         {renderStepContent()}
       </SprintProfileShowOrAsk>

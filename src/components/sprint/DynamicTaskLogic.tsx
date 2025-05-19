@@ -7,6 +7,7 @@ import DynamicTaskStep from "./task-builder/DynamicTaskStep";
 import StaticPanels from "./task-builder/StaticPanels";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { getProfileFieldMapping } from "@/utils/profileFieldMappings";
 
 interface DynamicTaskLogicProps {
   task: any;
@@ -124,16 +125,20 @@ const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
     
     if (!currentQuestion) return renderTaskContent();
     
+    const fieldMapping = getProfileFieldMapping(currentQuestion.key);
+    
+    // If we have options defined in the task definition, use those
+    const options = currentQuestion.options ? 
+      currentQuestion.options.map(option => ({ value: option, label: option })) : 
+      fieldMapping.options;
+    
     return (
       <div className="space-y-6">
         <SprintProfileShowOrAsk
           profileKey={currentQuestion.key}
-          label={currentQuestion.text}
-          type={mapProfileType(currentQuestion.type)}
-          options={currentQuestion.options ? currentQuestion.options.map(option => ({ 
-            value: option, 
-            label: option 
-          })) : undefined}
+          label={currentQuestion.text || fieldMapping.label}
+          type={mapProfileType(currentQuestion.type) || fieldMapping.type}
+          options={options}
         >
           {/* This will only render when the profile question is answered */}
           {renderTaskContent()}
@@ -215,11 +220,14 @@ const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
     // If this step has profile dependencies, wrap it with SprintProfileShowOrAsk
     if (profileDependencies.length > 0) {
       const dependency = profileDependencies[0]; // Use the first dependency for now
+      const fieldMapping = getProfileFieldMapping(dependency.profileKey);
+      
       return (
         <SprintProfileShowOrAsk
           profileKey={dependency.profileKey}
-          label={dependency.profileKey} // This should be improved to use a proper label
-          type="boolean" // This should be determined dynamically based on the profile field
+          label={fieldMapping.label}
+          type={fieldMapping.type}
+          options={fieldMapping.options}
         >
           {stepContent}
         </SprintProfileShowOrAsk>

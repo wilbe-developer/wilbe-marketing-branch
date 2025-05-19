@@ -3,6 +3,7 @@ import React from "react";
 import { StepNode } from "@/types/task-builder";
 import { Card, CardContent } from "@/components/ui/card";
 import { SprintProfileShowOrAsk } from "@/components/sprint/SprintProfileShowOrAsk";
+import { getProfileFieldMapping } from "@/utils/profileFieldMappings";
 
 interface ContentStepRendererProps {
   step: StepNode;
@@ -34,11 +35,14 @@ export const ContentStepRenderer: React.FC<ContentStepRendererProps> = ({
   // If this step has profile dependencies, wrap it with SprintProfileShowOrAsk
   if (profileDependencies.length > 0) {
     const dependency = profileDependencies[0]; // Use the first dependency for now
+    const fieldMapping = getProfileFieldMapping(dependency.profileKey);
+    
     return (
       <SprintProfileShowOrAsk
         profileKey={dependency.profileKey}
-        label={dependency.profileKey}
-        type="boolean" // Can be improved to determine type dynamically
+        label={fieldMapping.label}
+        type={fieldMapping.type}
+        options={fieldMapping.options}
       >
         {content}
       </SprintProfileShowOrAsk>
