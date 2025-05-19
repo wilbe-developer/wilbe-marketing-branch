@@ -10,7 +10,7 @@ import { CollaborationStepRenderer } from "./dynamic-step/CollaborationStepRende
 import { FormStepRenderer } from "@/components/sprint/dynamic-task/FormStepRenderer";
 import { ConditionalQuestionRenderer } from "@/components/sprint/dynamic-task/ConditionalQuestionRenderer";
 import { normalizeStepType } from "@/utils/taskStepUtils";
-import { StepType } from "@/components/sprint/StepBasedTaskLogic";
+import { TeamMemberStepRenderer } from "@/components/sprint/dynamic-task/StepRenderers";
 
 interface DynamicTaskStepProps {
   step: StepNode;
@@ -31,6 +31,48 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
   const normalizedType = normalizeStepType(step.type);
   console.log("Normalized step type:", normalizedType);
 
+  // Handle form step type
+  if (step.type === 'form') {
+    return (
+      <Card>
+        <CardContent className="pt-6">
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium">{step.text}</h3>
+            {step.description && (
+              <p className="text-gray-600">{step.description}</p>
+            )}
+            <FormStepRenderer
+              step={step}
+              answer={answer}
+              handleAnswer={onAnswer}
+            />
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Handle conditionalQuestion step type
+  if (step.type === 'conditionalQuestion') {
+    return (
+      <Card>
+        <CardContent className="pt-6">
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium">{step.text}</h3>
+            {step.description && (
+              <p className="text-gray-600">{step.description}</p>
+            )}
+            <ConditionalQuestionRenderer
+              step={step}
+              answer={answer}
+              handleAnswer={onAnswer}
+            />
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   // Handle collaboration step type
   if (normalizedType === 'collaboration') {
     console.log("Rendering collaboration step:", step);
@@ -43,6 +85,27 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
               <p className="text-gray-600">{step.description}</p>
             )}
             <CollaborationStepRenderer step={step} answer={answer} handleAnswer={onAnswer} />
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+  
+  // Handle team-members step type
+  if (normalizedType === 'team-members') {
+    return (
+      <Card>
+        <CardContent className="pt-6">
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium">{step.text}</h3>
+            {step.description && (
+              <p className="text-gray-600">{step.description}</p>
+            )}
+            <TeamMemberStepRenderer 
+              step={step} 
+              answer={answer} 
+              handleAnswer={onAnswer} 
+            />
           </div>
         </CardContent>
       </Card>

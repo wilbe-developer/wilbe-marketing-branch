@@ -31,6 +31,48 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
   const normalizedType = normalizeStepType(step.type);
   console.log("Normalized step type:", normalizedType);
 
+  // Handle form step type
+  if (step.type === 'form') {
+    return (
+      <Card>
+        <CardContent className="pt-6">
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium">{step.text}</h3>
+            {step.description && (
+              <p className="text-gray-600">{step.description}</p>
+            )}
+            <FormStepRenderer
+              step={step}
+              answer={answer}
+              handleAnswer={onAnswer}
+            />
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Handle conditionalQuestion step type
+  if (step.type === 'conditionalQuestion') {
+    return (
+      <Card>
+        <CardContent className="pt-6">
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium">{step.text}</h3>
+            {step.description && (
+              <p className="text-gray-600">{step.description}</p>
+            )}
+            <ConditionalQuestionRenderer
+              step={step}
+              answer={answer}
+              handleAnswer={onAnswer}
+            />
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   // Handle collaboration step type
   if (normalizedType === 'collaboration') {
     console.log("Rendering collaboration step:", step);
