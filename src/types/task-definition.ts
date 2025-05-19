@@ -32,7 +32,7 @@ export interface TaskStep {
   id: string;
   title?: string;
   description?: string;
-  type: "question" | "content" | "upload" | "collaboration" | "form" | "team-members" | string;
+  type: "question" | "content" | "upload" | "collaboration" | "form" | "conditionalQuestion" | "team-members" | string;
   showFor?: string[];
   hideFor?: string[];
   required?: boolean;

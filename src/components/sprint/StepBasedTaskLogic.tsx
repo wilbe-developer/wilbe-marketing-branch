@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,20 +10,20 @@ import CollaborationStep from "./step-types/CollaborationStep";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { StepContext, StepContextType } from "@/hooks/team-step-builder/types";
 
-export type StepType = "question" | "content" | "upload" | "collaboration";
+export type StepType = 'question' | 'content' | 'upload' | 'collaboration';
 
 export interface Step {
+  id: string;
   type: StepType;
-  context?: StepContextType;
+  title?: string;
   question?: string;
-  content?: string | React.ReactNode | (string | React.ReactNode)[];
-  options?: Array<{
-    label: string;
-    value: string;
-  }>;
-  uploads?: string[];
-  action?: string;
   description?: string;
+  options?: { label: string; value: string }[];
+  content?: any;
+  uploads?: string[];
+  required?: boolean;
+  context?: StepContextType;
+  // Add any other properties needed by your components
 }
 
 interface StepBasedTaskLogicProps {

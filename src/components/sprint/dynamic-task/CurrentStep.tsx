@@ -6,13 +6,14 @@ import {
   QuestionStepRenderer,
   FileUploadRenderer,
   ExerciseRenderer,
-  CollaborationRenderer
+  CollaborationRenderer,
+  TeamMemberStepRenderer
 } from './StepRenderers';
 import { SprintProfileShowOrAsk } from '@/components/sprint/SprintProfileShowOrAsk';
 import { getProfileFieldMapping } from '@/utils/profileFieldMappings';
-import { TeamMemberStepRenderer } from '@/components/sprint/task-builder/dynamic-step/TeamMemberStepRenderer';
 import { FormStepRenderer } from './FormStepRenderer';
 import { ConditionalQuestionRenderer } from './ConditionalQuestionRenderer';
+import { normalizeStepType } from '@/utils/taskStepUtils';
 
 interface CurrentStepProps {
   step: StepNode;
@@ -25,6 +26,12 @@ const CurrentStep: React.FC<CurrentStepProps> = ({
   answer, 
   handleAnswer 
 }) => {
+  console.log("CurrentStep rendering step with type:", step.type);
+  
+  // Normalize step type for consistent handling
+  const normalizedType = normalizeStepType(step.type);
+  console.log("Normalized step type in CurrentStep:", normalizedType);
+  
   // Check if this step has profile dependencies
   const profileDependencies = getStepProfileDependencies(step);
   
@@ -32,9 +39,9 @@ const CurrentStep: React.FC<CurrentStepProps> = ({
     <div className="border rounded-lg p-6">
       <h3 className="text-lg font-medium mb-4">{step.text}</h3>
       
-      {/* Step content based on type */}
+      {/* Step content based on normalized type */}
       <div className="mb-6">
-        {step.type === 'content' && (
+        {normalizedType === 'content' && (
           <ContentStepRenderer 
             step={step} 
             answer={answer} 
@@ -42,7 +49,7 @@ const CurrentStep: React.FC<CurrentStepProps> = ({
           />
         )}
         
-        {step.type === 'question' && (
+        {normalizedType === 'question' && (
           <QuestionStepRenderer 
             step={step} 
             answer={answer} 
@@ -50,7 +57,7 @@ const CurrentStep: React.FC<CurrentStepProps> = ({
           />
         )}
         
-        {(step.type === 'upload' || step.type === 'file') && (
+        {normalizedType === 'upload' && (
           <FileUploadRenderer 
             step={step} 
             answer={answer} 
@@ -58,7 +65,7 @@ const CurrentStep: React.FC<CurrentStepProps> = ({
           />
         )}
         
-        {(step.type === 'exercise' || step.type === 'feedback' || step.type === 'action') && (
+        {normalizedType === 'exercise' && (
           <ExerciseRenderer 
             step={step} 
             answer={answer} 
@@ -66,11 +73,19 @@ const CurrentStep: React.FC<CurrentStepProps> = ({
           />
         )}
         
-        {step.type === 'team-members' && (
+        {normalizedType === 'collaboration' && (
+          <CollaborationRenderer
+            step={step}
+            answer={answer}
+            handleAnswer={(value) => handleAnswer(step.id, value)}
+          />
+        )}
+        
+        {normalizedType === 'team-members' && (
           <TeamMemberStepRenderer
             step={step}
             answer={answer}
-            onAnswer={(value) => handleAnswer(step.id, value)}
+            handleAnswer={(value) => handleAnswer(step.id, value)}
           />
         )}
 
@@ -84,14 +99,6 @@ const CurrentStep: React.FC<CurrentStepProps> = ({
 
         {step.type === 'conditionalQuestion' && (
           <ConditionalQuestionRenderer
-            step={step}
-            answer={answer}
-            handleAnswer={(value) => handleAnswer(step.id, value)}
-          />
-        )}
-
-        {step.type === 'collaboration' && (
-          <CollaborationRenderer
             step={step}
             answer={answer}
             handleAnswer={(value) => handleAnswer(step.id, value)}

@@ -13,6 +13,9 @@ export const normalizeStepType = (type: string | undefined): StepType => {
   // Convert to lowercase for case-insensitive comparison
   const lowerCaseType = type.toLowerCase();
   
+  // Log the type being normalized for debugging
+  console.log(`Normalizing step type: ${type} (lowercase: ${lowerCaseType})`);
+  
   // Map various type strings to the standard StepType values
   if (lowerCaseType === 'form' || 
       lowerCaseType === 'question' || 

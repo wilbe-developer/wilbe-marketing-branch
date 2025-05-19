@@ -23,22 +23,33 @@ export const CollaborationStepRenderer: React.FC<CollaborationStepRendererProps>
   answer,
   handleAnswer,
 }) => {
+  console.log("Rendering CollaborationStepRenderer component with step:", step);
   const [isCollaboratorsDialogOpen, setIsCollaboratorsDialogOpen] = useState(false);
 
   return (
-    <div className="mt-4 p-4 bg-blue-50 rounded-md border border-blue-100">
-      <h4 className="font-medium text-blue-800 mb-3">Team Collaboration</h4>
-      <p className="text-sm text-blue-700 mb-4">
+    <div className="mt-4 p-6 bg-blue-50 rounded-md border border-blue-100">
+      <h3 className="text-lg font-medium text-blue-800 mb-4">Team Collaboration</h3>
+      <p className="text-gray-700 mb-6">
         {step.description || "Invite your team members to collaborate on this sprint. They will be able to view and contribute to tasks."}
       </p>
       
-      <Button 
-        onClick={() => setIsCollaboratorsDialogOpen(true)}
-        className="w-full flex items-center justify-center gap-2"
-      >
-        <Users className="h-4 w-4" />
-        <span>Manage Collaborators</span>
-      </Button>
+      <div className="flex flex-col space-y-4">
+        <Button 
+          onClick={() => setIsCollaboratorsDialogOpen(true)}
+          className="w-full flex items-center justify-center gap-2"
+        >
+          <Users className="h-4 w-4" />
+          <span>Manage Collaborators</span>
+        </Button>
+        
+        <Button 
+          variant="outline"
+          onClick={() => handleAnswer("completed")}
+          className="w-full"
+        >
+          Continue without adding collaborators
+        </Button>
+      </div>
       
       <Dialog open={isCollaboratorsDialogOpen} onOpenChange={setIsCollaboratorsDialogOpen}>
         <DialogContent className="sm:max-w-[600px]">
@@ -50,8 +61,19 @@ export const CollaborationStepRenderer: React.FC<CollaborationStepRendererProps>
           </DialogHeader>
           
           <CollaboratorsManagement />
+          
+          <div className="flex justify-end mt-4">
+            <Button onClick={() => {
+              setIsCollaboratorsDialogOpen(false);
+              handleAnswer("completed");
+            }}>
+              Save & Continue
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
   );
 };
+
+export default CollaborationStepRenderer;
