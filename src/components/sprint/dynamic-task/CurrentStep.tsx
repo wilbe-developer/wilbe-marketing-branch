@@ -30,7 +30,8 @@ const CurrentStep: React.FC<CurrentStepProps> = ({
   console.log("CurrentStep rendering step with type:", step.type);
   
   // Normalize step type for consistent handling
-  const normalizedType: StepType = normalizeStepType(step.type);
+  // Cast the normalized type to StepType to satisfy TypeScript
+  const normalizedType = normalizeStepType(step.type) as StepType;
   console.log("Normalized step type in CurrentStep:", normalizedType);
   
   // Check if this step has profile dependencies
