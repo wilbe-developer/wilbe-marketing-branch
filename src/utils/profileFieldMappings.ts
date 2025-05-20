@@ -50,12 +50,12 @@ export const profileFieldMappings: Record<string, ProfileFieldMapping> = {
     type: "boolean"
   },
   customer_engagement: {
-    label: "Have you engaged with potential customers?",
+    label: "Have you spoken with potential customers / key decision makers yet?",
     type: "select",
     options: [
-      { value: "none", label: "Not yet" },
-      { value: "some", label: "Some initial conversations" },
-      { value: "extensive", label: "Extensive customer discovery" }
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" },
+      { value: "unknown", label: "Do not know who they are / not applicable" }
     ]
   }
 };
