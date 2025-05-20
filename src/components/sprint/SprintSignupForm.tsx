@@ -51,7 +51,7 @@ const SprintSignupForm = () => {
         continue;
       }
       
-      // For checkbox type questions, ensure at least one option is selected
+      // For checkbox type questions, ensure at least one option is selected.
       if (question.type === 'checkbox') {
         if (!Array.isArray(answers[question.id]) || answers[question.id].length === 0) {
           return false;
