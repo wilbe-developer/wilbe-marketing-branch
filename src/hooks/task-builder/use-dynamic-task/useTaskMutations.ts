@@ -3,15 +3,18 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { useSprintContext } from "@/hooks/useSprintContext";
 
 export const useTaskMutations = (taskId: string, answers: Record<string, any>, setAnswers: React.Dispatch<React.SetStateAction<Record<string, any>>>) => {
   const { user } = useAuth();
+  const { currentSprintOwnerId } = useSprintContext();
   const queryClient = useQueryClient();
 
   // Save user's answer for a step - auto-save immediately
   const answerNode = useMutation({
     mutationFn: async ({ stepId, value }: { stepId: string; value: any }) => {
       if (!user?.id) throw new Error("User not authenticated");
+      if (!currentSprintOwnerId) throw new Error("Sprint owner ID not available");
 
       const newAnswers = { ...answers, [stepId]: value };
       setAnswers(newAnswers);
@@ -20,7 +23,7 @@ export const useTaskMutations = (taskId: string, answers: Record<string, any>, s
       const { data: existingProgress, error: checkError } = await supabase
         .from("user_sprint_progress")
         .select("id")
-        .eq("user_id", user.id)
+        .eq("user_id", currentSprintOwnerId)
         .eq("task_id", taskId)
         .maybeSingle();
 
@@ -48,7 +51,7 @@ export const useTaskMutations = (taskId: string, answers: Record<string, any>, s
         const { error } = await supabase
           .from("user_sprint_progress")
           .insert({
-            user_id: user.id,
+            user_id: currentSprintOwnerId,
             task_id: taskId,
             task_answers: newAnswers,
             answers: null, // Ensure this is properly initialized
@@ -64,7 +67,7 @@ export const useTaskMutations = (taskId: string, answers: Record<string, any>, s
       return { stepId, value };
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["userSprintProgress", taskId, user?.id] });
+      queryClient.invalidateQueries({ queryKey: ["userSprintProgress", taskId, currentSprintOwnerId] });
     },
     onError: (error) => {
       toast.error(`Failed to save answer: ${error.message}`);
@@ -90,12 +93,13 @@ export const useTaskMutations = (taskId: string, answers: Record<string, any>, s
   const updateProfile = useMutation({
     mutationFn: async ({ key, value }: { key: string; value: any }) => {
       if (!user?.id) throw new Error("User not authenticated");
+      if (!currentSprintOwnerId) throw new Error("Sprint owner ID not available");
 
       // Update the profile in sprint_profiles table
       const { error } = await supabase
         .from("sprint_profiles")
         .update({ [key]: value })
-        .eq("user_id", user.id);
+        .eq("user_id", currentSprintOwnerId);
 
       if (error) {
         throw error;
@@ -105,7 +109,7 @@ export const useTaskMutations = (taskId: string, answers: Record<string, any>, s
       const { data: existingProgress, error: checkError } = await supabase
         .from("user_sprint_progress")
         .select("id, profile_updates")
-        .eq("user_id", user.id)
+        .eq("user_id", currentSprintOwnerId)
         .eq("task_id", taskId)
         .maybeSingle();
 
@@ -140,7 +144,7 @@ export const useTaskMutations = (taskId: string, answers: Record<string, any>, s
         const { error: progressError } = await supabase
           .from("user_sprint_progress")
           .insert({
-            user_id: user.id,
+            user_id: currentSprintOwnerId,
             task_id: taskId,
             profile_updates: profileUpdates,
             task_answers: {}, // Initialize empty task answers
@@ -155,8 +159,8 @@ export const useTaskMutations = (taskId: string, answers: Record<string, any>, s
       return { key, value };
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["userSprintProgress", taskId, user?.id] });
-      queryClient.invalidateQueries({ queryKey: ["sprintProfile", user?.id] });
+      queryClient.invalidateQueries({ queryKey: ["userSprintProgress", taskId, currentSprintOwnerId] });
+      queryClient.invalidateQueries({ queryKey: ["sprintProfile", currentSprintOwnerId] });
     },
     onError: (error) => {
       toast.error(`Failed to update profile: ${error.message}`);
@@ -167,12 +171,13 @@ export const useTaskMutations = (taskId: string, answers: Record<string, any>, s
   const completeTask = useMutation({
     mutationFn: async () => {
       if (!user?.id) throw new Error("User not authenticated");
+      if (!currentSprintOwnerId) throw new Error("Sprint owner ID not available");
 
       // First check if a record already exists
       const { data: existingProgress, error: checkError } = await supabase
         .from("user_sprint_progress")
         .select("id")
-        .eq("user_id", user.id)
+        .eq("user_id", currentSprintOwnerId)
         .eq("task_id", taskId)
         .maybeSingle();
 
@@ -200,7 +205,7 @@ export const useTaskMutations = (taskId: string, answers: Record<string, any>, s
         const { error } = await supabase
           .from("user_sprint_progress")
           .insert({
-            user_id: user.id,
+            user_id: currentSprintOwnerId,
             task_id: taskId,
             completed: true,
             completed_at: new Date().toISOString(),
@@ -217,7 +222,7 @@ export const useTaskMutations = (taskId: string, answers: Record<string, any>, s
       return true;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["userSprintProgress", taskId, user?.id] });
+      queryClient.invalidateQueries({ queryKey: ["userSprintProgress", taskId, currentSprintOwnerId] });
     },
     onError: (error) => {
       toast.error(`Failed to complete task: ${error.message}`);
