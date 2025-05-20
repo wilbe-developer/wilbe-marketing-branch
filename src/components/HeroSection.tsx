@@ -28,7 +28,7 @@ const HeroSection: React.FC = () => {
           Scientists and engineers hold the keys to the solutions we need for this century.
           Use our focused, guided path to make critical decisions and put together the most
           ambitious version of your company. When there's momentum and a clear plan, we invest
-          $100K–250K to help build your vision alongside a world-class community of scientist founders.
+          $100K–$250K to help build your vision alongside a world-class community of scientist founders.
           Worst case? You leave with a plan and a global network of entrepreneurial scientists.
         </p>
         <div className="pt-4">

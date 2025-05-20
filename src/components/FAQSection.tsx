@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Section from './Section';
 import { 
@@ -14,7 +13,7 @@ const FAQSection: React.FC = () => {
       <div className="max-w-3xl mx-auto space-y-6">
         <h2 className="text-3xl font-bold text-center mb-8">Frequently Asked Questions</h2>
         <Accordion type="single" collapsible className="space-y-2">
-          <AccordionItem value="item-1" className="border rounded-lg p-2 px-4">
+          <AccordionItem value="item-1" className="border p-2 px-4">
             <AccordionTrigger className="text-left font-medium">Who is BSF for?</AccordionTrigger>
             <AccordionContent>
               <p className="mt-2">
@@ -29,7 +28,7 @@ const FAQSection: React.FC = () => {
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="item-2" className="border rounded-lg p-2 px-4">
+          <AccordionItem value="item-2" className="border p-2 px-4">
             <AccordionTrigger className="text-left font-medium">Is there a cost to participate in BSF?</AccordionTrigger>
             <AccordionContent>
               <p className="mt-2">
@@ -38,7 +37,7 @@ const FAQSection: React.FC = () => {
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="item-3" className="border rounded-lg p-2 px-4">
+          <AccordionItem value="item-3" className="border p-2 px-4">
             <AccordionTrigger className="text-left font-medium">How long does it run for?</AccordionTrigger>
             <AccordionContent>
               <p className="mt-2">
@@ -47,7 +46,7 @@ const FAQSection: React.FC = () => {
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="item-4" className="border rounded-lg p-2 px-4">
+          <AccordionItem value="item-4" className="border p-2 px-4">
             <AccordionTrigger className="text-left font-medium">Do I have to finish BSF in 10 days?</AccordionTrigger>
             <AccordionContent>
               <p className="mt-2">
@@ -56,7 +55,7 @@ const FAQSection: React.FC = () => {
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="item-5" className="border rounded-lg p-2 px-4">
+          <AccordionItem value="item-5" className="border p-2 px-4">
             <AccordionTrigger className="text-left font-medium">How do you make the investment decision?</AccordionTrigger>
             <AccordionContent>
               <p className="mt-2">
@@ -65,7 +64,7 @@ const FAQSection: React.FC = () => {
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="item-6" className="border rounded-lg p-2 px-4">
+          <AccordionItem value="item-6" className="border p-2 px-4">
             <AccordionTrigger className="text-left font-medium">What are the terms of the investment?</AccordionTrigger>
             <AccordionContent>
               <p className="mt-2">
@@ -74,7 +73,7 @@ const FAQSection: React.FC = () => {
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="item-7" className="border rounded-lg p-2 px-4">
+          <AccordionItem value="item-7" className="border p-2 px-4">
             <AccordionTrigger className="text-left font-medium">How long does it take to get an investment decision?</AccordionTrigger>
             <AccordionContent>
               <p className="mt-2">
@@ -83,7 +82,7 @@ const FAQSection: React.FC = () => {
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="item-8" className="border rounded-lg p-2 px-4">
+          <AccordionItem value="item-8" className="border p-2 px-4">
             <AccordionTrigger className="text-left font-medium">What if I am already in the process of closing a pre-seed round?</AccordionTrigger>
             <AccordionContent>
               <p className="mt-2">
@@ -95,7 +94,7 @@ const FAQSection: React.FC = () => {
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="item-9" className="border rounded-lg p-2 px-4">
+          <AccordionItem value="item-9" className="border p-2 px-4">
             <AccordionTrigger className="text-left font-medium">Do I need to have an incorporated company to apply?</AccordionTrigger>
             <AccordionContent>
               <p className="mt-2">
@@ -110,7 +109,7 @@ const FAQSection: React.FC = () => {
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="item-10" className="border rounded-lg p-2 px-4">
+          <AccordionItem value="item-10" className="border p-2 px-4">
             <AccordionTrigger className="text-left font-medium">Are there any geographic restrictions?</AccordionTrigger>
             <AccordionContent>
               <p className="mt-2">
@@ -119,7 +118,7 @@ const FAQSection: React.FC = () => {
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="item-11" className="border rounded-lg p-2 px-4">
+          <AccordionItem value="item-11" className="border p-2 px-4">
             <AccordionTrigger className="text-left font-medium">When and where is the next in-person residency?</AccordionTrigger>
             <AccordionContent>
               <p className="mt-2">
@@ -128,7 +127,7 @@ const FAQSection: React.FC = () => {
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="item-12" className="border rounded-lg p-2 px-4">
+          <AccordionItem value="item-12" className="border p-2 px-4">
             <AccordionTrigger className="text-left font-medium">What is the expected time commitment?</AccordionTrigger>
             <AccordionContent>
               <p className="mt-2">
@@ -137,7 +136,7 @@ const FAQSection: React.FC = () => {
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="item-13" className="border rounded-lg p-2 px-4">
+          <AccordionItem value="item-13" className="border p-2 px-4">
             <AccordionTrigger className="text-left font-medium">What happens post investment?</AccordionTrigger>
             <AccordionContent>
               <p className="mt-2">
@@ -157,7 +156,7 @@ const FAQSection: React.FC = () => {
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="item-14" className="border rounded-lg p-2 px-4">
+          <AccordionItem value="item-14" className="border p-2 px-4">
             <AccordionTrigger className="text-left font-medium">What happens if I don't get investment?</AccordionTrigger>
             <AccordionContent>
               <p className="mt-2">
@@ -169,7 +168,7 @@ const FAQSection: React.FC = () => {
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="item-15" className="border rounded-lg p-2 px-4">
+          <AccordionItem value="item-15" className="border p-2 px-4">
             <AccordionTrigger className="text-left font-medium">Can I start and complete the process at a later date?</AccordionTrigger>
             <AccordionContent>
               <p className="mt-2">
@@ -181,7 +180,7 @@ const FAQSection: React.FC = () => {
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="item-16" className="border rounded-lg p-2 px-4">
+          <AccordionItem value="item-16" className="border p-2 px-4">
             <AccordionTrigger className="text-left font-medium">Why are you doing this?</AccordionTrigger>
             <AccordionContent>
               <p className="mt-2">
