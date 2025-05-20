@@ -176,7 +176,7 @@ const FAQSection: React.FC = () => {
                 You can start and finish the program any time, and at your own pace. However, we only consider submissions for investment if they're completed within <strong>10 days</strong> of starting.
               </p>
               <p className="mt-2">
-                If you think BSF is too advanced for your current stage, please join Wilbe Sandbox (link wilbe.com/sandbox) with free educational content and a community of like-minded scientists.
+                If you think BSF is too advanced for your current stage, please join <a href="https://wilbe.com/sandbox" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Wilbe Sandbox</a> with free educational content and a community of like-minded scientists.
               </p>
             </AccordionContent>
           </AccordionItem>
