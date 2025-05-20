@@ -3,9 +3,11 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { TaskDefinition } from "@/types/task-builder";
 import { useAuth } from "@/hooks/useAuth";
+import { useSprintContext } from "@/hooks/useSprintContext";
 
 export const useTaskDataFetching = (taskId: string) => {
   const { user } = useAuth();
+  const { currentSprintOwnerId } = useSprintContext();
 
   // Fetch task definition
   const { data: taskDefinition, isLoading: isLoadingTask } = useQuery({
@@ -28,16 +30,17 @@ export const useTaskDataFetching = (taskId: string) => {
   });
 
   // Fetch user progress only from user_sprint_progress table
+  // Use the currentSprintOwnerId from SprintContext instead of user.id
   const { data: sprintProgress, isLoading: isLoadingSprintProgress } = useQuery({
-    queryKey: ["userSprintProgress", taskId, user?.id],
+    queryKey: ["userSprintProgress", taskId, currentSprintOwnerId],
     queryFn: async () => {
-      if (!user?.id) return null;
+      if (!currentSprintOwnerId) return null;
 
       const { data, error } = await supabase
         .from("user_sprint_progress")
         .select("*")
         .eq("task_id", taskId)
-        .eq("user_id", user.id)
+        .eq("user_id", currentSprintOwnerId)
         .maybeSingle();
 
       if (error) {
@@ -46,7 +49,7 @@ export const useTaskDataFetching = (taskId: string) => {
 
       return data;
     },
-    enabled: !!taskId && !!user?.id,
+    enabled: !!taskId && !!currentSprintOwnerId,
   });
 
   return {
