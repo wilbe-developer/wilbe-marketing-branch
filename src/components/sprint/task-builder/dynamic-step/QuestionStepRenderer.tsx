@@ -1,19 +1,15 @@
 
 import React, { useState, useEffect } from "react";
 import { StepNode, FormField } from "@/types/task-builder";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  TextInputRenderer,
+  SelectInputRenderer,
+  RadioInputRenderer,
+  BooleanInputRenderer,
+  CheckboxInputRenderer,
+  FormFieldRenderer
+} from "./input-renderers";
 
 interface QuestionStepRendererProps {
   step: StepNode;
@@ -43,11 +39,6 @@ export const QuestionStepRenderer: React.FC<QuestionStepRendererProps> = ({
     onAnswer(newValues);
   };
 
-  // Handle text input changes - save immediately without debounce
-  const handleTextInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    onAnswer(e.target.value);
-  };
-
   // Check if a field should be visible based on conditions
   const isFieldVisible = (field: FormField): boolean => {
     if (!field.conditions || field.conditions.length === 0) {
@@ -74,99 +65,22 @@ export const QuestionStepRenderer: React.FC<QuestionStepRendererProps> = ({
     });
   };
 
-  // Render a single form field
-  const renderFormField = (field: FormField) => {
-    if (!isFieldVisible(field)) return null;
-
-    const fieldValue = formValues[field.id] || "";
-
-    switch (field.type) {
-      case "text":
-        return (
-          <div key={field.id} className="space-y-2 mb-4">
-            <Label htmlFor={field.id}>{field.label}</Label>
-            <Input
-              id={field.id}
-              value={fieldValue}
-              onChange={(e) => updateFormField(field.id, e.target.value)}
-              placeholder={field.placeholder}
-            />
-          </div>
-        );
-      case "textarea":
-        return (
-          <div key={field.id} className="space-y-2 mb-4">
-            <Label htmlFor={field.id}>{field.label}</Label>
-            <Textarea
-              id={field.id}
-              value={fieldValue}
-              onChange={(e) => updateFormField(field.id, e.target.value)}
-              placeholder={field.placeholder}
-              rows={4}
-            />
-          </div>
-        );
-      case "select":
-        return (
-          <div key={field.id} className="space-y-2 mb-4">
-            <Label htmlFor={field.id}>{field.label}</Label>
-            <Select
-              value={fieldValue}
-              onValueChange={(value) => updateFormField(field.id, value)}
-            >
-              <SelectTrigger id={field.id}>
-                <SelectValue placeholder={field.placeholder || "Select an option"} />
-              </SelectTrigger>
-              <SelectContent>
-                {field.options?.map((option, i) => (
-                  <SelectItem key={i} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        );
-      case "radio":
-        return (
-          <div key={field.id} className="space-y-2 mb-4">
-            <Label>{field.label}</Label>
-            <RadioGroup
-              value={fieldValue}
-              onValueChange={(value) => updateFormField(field.id, value)}
-            >
-              {field.options?.map((option, i) => (
-                <div key={i} className="flex items-center space-x-2">
-                  <RadioGroupItem value={option.value} id={`${field.id}-${option.value}`} />
-                  <Label htmlFor={`${field.id}-${option.value}`}>{option.label}</Label>
-                </div>
-              ))}
-            </RadioGroup>
-          </div>
-        );
-      case "checkbox":
-        return (
-          <div key={field.id} className="space-y-2 mb-4">
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id={field.id}
-                checked={Boolean(fieldValue)}
-                onCheckedChange={(checked) => updateFormField(field.id, Boolean(checked))}
-              />
-              <Label htmlFor={field.id}>{field.label}</Label>
-            </div>
-          </div>
-        );
-      default:
-        return null;
-    }
-  };
-
   // Handle form type with multiple inputs
   if (step.type === "form" && step.fields && step.fields.length > 0) {
     return (
       <div className="space-y-4">
-        {step.fields.map((field) => renderFormField(field))}
+        {step.fields.map((field) => {
+          if (!isFieldVisible(field)) return null;
+          
+          return (
+            <FormFieldRenderer
+              key={field.id}
+              field={field}
+              value={formValues[field.id]}
+              onChange={(value) => updateFormField(field.id, value)}
+            />
+          );
+        })}
       </div>
     );
   }
@@ -226,7 +140,14 @@ export const QuestionStepRenderer: React.FC<QuestionStepRendererProps> = ({
         {/* Conditional follow-up fields based on selected option */}
         {step.conditionalInputs && answer && step.conditionalInputs[answer] && (
           <div className="mt-4 pt-4 border-t border-gray-200">
-            {step.conditionalInputs[answer].map((field) => renderFormField(field))}
+            {step.conditionalInputs[answer].map((field) => (
+              <FormFieldRenderer
+                key={field.id}
+                field={field}
+                value={formValues[field.id]}
+                onChange={(value) => updateFormField(field.id, value)}
+              />
+            ))}
           </div>
         )}
       </div>
@@ -243,113 +164,62 @@ export const QuestionStepRenderer: React.FC<QuestionStepRendererProps> = ({
     switch (step.inputType) {
       case "radio":
         return (
-          <RadioGroup value={answer || ""} onValueChange={onAnswer}>
-            <div className="space-y-2">
-              {step.options?.map((option, i) => (
-                <div key={i} className="flex items-center space-x-2">
-                  <RadioGroupItem
-                    value={option.value}
-                    id={`${step.id}-${option.value}`}
-                  />
-                  <Label htmlFor={`${step.id}-${option.value}`}>
-                    {option.label}
-                  </Label>
-                </div>
-              ))}
-            </div>
-          </RadioGroup>
+          <RadioInputRenderer
+            id={step.id}
+            value={answer || ""}
+            options={step.options}
+            onChange={onAnswer}
+          />
         );
 
       case "boolean":
         return (
-          <RadioGroup
-            value={answer?.toString() || ""}
-            onValueChange={(value) => {
-              if (step.inputType === "boolean") {
-                onAnswer(value === "true");
-              } else {
-                onAnswer(value);
-              }
-            }}
-          >
-            <div className="space-y-2">
-              <>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="true" id={`${step.id}-true`} />
-                  <Label htmlFor={`${step.id}-true`}>Yes</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="false" id={`${step.id}-false`} />
-                  <Label htmlFor={`${step.id}-false`}>No</Label>
-                </div>
-              </>
-            </div>
-          </RadioGroup>
+          <BooleanInputRenderer
+            id={step.id}
+            value={answer || ""}
+            onChange={(value) => onAnswer(value)}
+          />
         );
 
       case "select":
         return (
-          <Select value={answer || ""} onValueChange={onAnswer}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select an option" />
-            </SelectTrigger>
-            <SelectContent>
-              {step.options?.map((option, i) => (
-                <SelectItem key={i} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <SelectInputRenderer
+            id={step.id}
+            value={answer || ""}
+            options={step.options}
+            onChange={onAnswer}
+          />
         );
 
       case "multiselect":
         return (
-          <div className="space-y-2">
-            {step.options?.map((option, i) => (
-              <div key={i} className="flex items-center space-x-2">
-                <Checkbox
-                  id={`${step.id}-${option.value}`}
-                  checked={Array.isArray(answer) && answer.includes(option.value)}
-                  onCheckedChange={(checked) => {
-                    const currentValues = Array.isArray(answer) ? [...answer] : [];
-                    if (checked) {
-                      onAnswer([...currentValues, option.value]);
-                    } else {
-                      onAnswer(
-                        currentValues.filter((val) => val !== option.value)
-                      );
-                    }
-                  }}
-                />
-                <Label htmlFor={`${step.id}-${option.value}`}>{option.label}</Label>
-              </div>
-            ))}
-          </div>
+          <CheckboxInputRenderer
+            id={step.id}
+            value={Array.isArray(answer) ? answer : []}
+            options={step.options}
+            onChange={onAnswer}
+          />
         );
 
       case "textarea":
         return (
-          <div className="space-y-2">
-            <Textarea
-              value={answer || ""}
-              onChange={handleTextInputChange}
-              placeholder="Enter your answer..."
-              rows={4}
-            />
-          </div>
+          <TextInputRenderer
+            id={step.id}
+            value={answer || ""}
+            type="textarea"
+            onChange={onAnswer}
+          />
         );
 
       case "text":
       default:
         return (
-          <div className="space-y-2">
-            <Input
-              value={answer || ""}
-              onChange={handleTextInputChange}
-              placeholder="Enter your answer..."
-            />
-          </div>
+          <TextInputRenderer
+            id={step.id}
+            value={answer || ""}
+            type="text"
+            onChange={onAnswer}
+          />
         );
     }
   }
