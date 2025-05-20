@@ -50,7 +50,7 @@ export const useAuthenticationActions = ({
         variant: "destructive",
       });
       
-      throw error;
+      return { success: false };
     } finally {
       setLoading(false);
     }

@@ -13,7 +13,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isAdmin: boolean;
   isApproved: boolean;
-  sendMagicLink: (email: string, redirectTo?: string) => Promise<void>;
+  sendMagicLink: (email: string, redirectTo?: string) => Promise<{ success: boolean }>;
   loginWithPassword: (email: string, password: string) => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   updatePassword: (newPassword: string) => Promise<void>;

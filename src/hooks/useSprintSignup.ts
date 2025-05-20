@@ -156,10 +156,12 @@ export const useSprintSignup = () => {
   // Send magic link to the provided email with redirect to sprint signup
   const handleSendMagicLink = async (email: string) => {
     try {
-      await sendMagicLink(email, PATHS.SPRINT_SIGNUP);
+      const result = await sendMagicLink(email, PATHS.SPRINT_SIGNUP);
       
-      // Reset emailExists state after sending the link
-      setEmailExists(false);
+      // Reset emailExists state if successful
+      if (result.success) {
+        setEmailExists(false);
+      }
     } catch (error) {
       console.error("Error sending magic link:", error);
       toast.error("Failed to send login link. Please try again.");
