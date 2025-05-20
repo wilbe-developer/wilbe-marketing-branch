@@ -1,11 +1,12 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, ArrowLeft } from "lucide-react";
+import { ArrowRight, ArrowLeft, AlertCircle, Mail } from "lucide-react";
 import { useSprintSignup } from "@/hooks/useSprintSignup";
 import { windows } from "./SprintSignupWindows";
 import { useAuth } from "@/hooks/useAuth";
 import { WindowFormFields } from "./WindowFormFields";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 
 const SprintSignupForm = () => {
   const {
@@ -14,12 +15,15 @@ const SprintSignupForm = () => {
     isSubmitting,
     uploadedFile,
     hasSprintProfile,
+    isCheckingEmail,
+    emailExists,
     handleChange,
     toggleMultiSelect,
     handleFileUpload,
     goToNextWindow,
     goToPreviousWindow,
-    silentSignup
+    silentSignup,
+    handleSendMagicLink
   } = useSprintSignup();
   
   const { isAuthenticated, user } = useAuth();
@@ -98,6 +102,26 @@ const SprintSignupForm = () => {
         )}
       </div>
       
+      {/* Email exists alert - only show when on first window and email exists */}
+      {currentWindow === 0 && emailExists && !isAuthenticated && (
+        <Alert variant="destructive" className="mb-6">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Email already registered</AlertTitle>
+          <AlertDescription className="mt-2">
+            <p>This email is already registered in our system. You need to log in first.</p>
+            <Button 
+              variant="outline" 
+              className="mt-2 flex items-center" 
+              onClick={() => handleSendMagicLink(answers.email || '')}
+              disabled={!answers.email || isCheckingEmail}
+            >
+              <Mail className="mr-2 h-4 w-4" />
+              Send me a login link
+            </Button>
+          </AlertDescription>
+        </Alert>
+      )}
+      
       {isWithinNormalWindowRange && (
         <div className="mb-4 flex justify-between items-center">
           <div className="text-sm text-muted-foreground">
@@ -134,7 +158,7 @@ const SprintSignupForm = () => {
         <Button
           variant="outline"
           onClick={goToPreviousWindow}
-          disabled={currentWindow === 0 || isSubmitting}
+          disabled={currentWindow === 0 || isSubmitting || isCheckingEmail}
         >
           <ArrowLeft className="mr-2 h-4 w-4" /> Previous
         </Button>
@@ -142,7 +166,7 @@ const SprintSignupForm = () => {
         {isLastWindow ? (
           <Button 
             onClick={() => silentSignup(answers)}
-            disabled={!canSubmit() || isSubmitting}
+            disabled={!canSubmit() || isSubmitting || isCheckingEmail || emailExists}
             className="ml-auto"
           >
             {isSubmitting 
@@ -153,10 +177,10 @@ const SprintSignupForm = () => {
         ) : (
           <Button
             onClick={goToNextWindow}
-            disabled={!isCurrentWindowAnswered()}
+            disabled={!isCurrentWindowAnswered() || isCheckingEmail || emailExists}
             className="ml-auto"
           >
-            Next <ArrowRight className="ml-2 h-4 w-4" />
+            {isCheckingEmail ? "Checking email..." : "Next"} <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         )}
       </div>

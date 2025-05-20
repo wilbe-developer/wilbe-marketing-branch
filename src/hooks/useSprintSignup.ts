@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { SprintSignupAnswers } from "@/types/sprint-signup";
 import { useSprintAnswers } from "./useSprintAnswers";
@@ -6,11 +7,17 @@ import { useSprintSubmission } from "./useSprintSubmission";
 import { useAuth } from "./useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { windows } from "@/components/sprint/SprintSignupWindows";
+import { toast } from "sonner";
+import { PATHS } from "@/lib/constants";
+import { useNavigate } from "react-router-dom";
 
 export const useSprintSignup = () => {
   const [currentWindow, setCurrentWindow] = useState(0);
   const [hasSprintProfile, setHasSprintProfile] = useState(false);
-  const { isAuthenticated, user } = useAuth();
+  const [isCheckingEmail, setIsCheckingEmail] = useState(false);
+  const [emailExists, setEmailExists] = useState(false);
+  const { isAuthenticated, user, sendMagicLink } = useAuth();
+  const navigate = useNavigate();
   
   const {
     answers,
@@ -116,7 +123,63 @@ export const useSprintSignup = () => {
     fetchSprintProfile();
   }, [isAuthenticated, user, setAnswers]);
 
-  const goToNextWindow = () => {
+  // Check if email exists in the auth system
+  const checkEmailExists = async (email: string) => {
+    if (!email) return false;
+    
+    setIsCheckingEmail(true);
+    try {
+      // Attempt to sign up with a random password
+      // If it fails with "User already registered", the email exists
+      const tempPassword = Math.random().toString(36).slice(-10);
+      const { error } = await supabase.auth.signUp({
+        email,
+        password: tempPassword,
+      });
+
+      // If we get this specific error, the user exists
+      if (error && error.message?.includes("User already registered")) {
+        setEmailExists(true);
+        return true;
+      }
+
+      setEmailExists(false);
+      return false;
+    } catch (error) {
+      console.error("Error checking email:", error);
+      return false;
+    } finally {
+      setIsCheckingEmail(false);
+    }
+  };
+
+  // Send magic link to the provided email with redirect to sprint signup
+  const handleSendMagicLink = async (email: string) => {
+    try {
+      await sendMagicLink(email, PATHS.SPRINT_SIGNUP);
+      
+      // Reset emailExists state after sending the link
+      setEmailExists(false);
+    } catch (error) {
+      console.error("Error sending magic link:", error);
+      toast.error("Failed to send login link. Please try again.");
+    }
+  };
+
+  const goToNextWindow = async () => {
+    // If moving from window 1 (contact info) to window 2
+    if (currentWindow === 0 && !isAuthenticated && answers.email) {
+      setIsCheckingEmail(true);
+      const exists = await checkEmailExists(answers.email);
+      setIsCheckingEmail(false);
+      
+      if (exists) {
+        // If email exists and user is not authenticated, prompt them to login
+        toast.error("This email is already registered. Please login to continue.");
+        return;
+      }
+    }
+    
     setCurrentWindow(prevWindow => prevWindow + 1);
   };
 
@@ -130,11 +193,14 @@ export const useSprintSignup = () => {
     isSubmitting,
     uploadedFile,
     hasSprintProfile,
+    isCheckingEmail,
+    emailExists,
     handleChange,
     toggleMultiSelect,
     handleFileUpload,
     goToNextWindow,
     goToPreviousWindow,
-    silentSignup
+    silentSignup,
+    handleSendMagicLink
   };
 };

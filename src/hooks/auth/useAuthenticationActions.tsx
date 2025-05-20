@@ -19,15 +19,17 @@ export const useAuthenticationActions = ({
   toast
 }: UseAuthenticationActionsProps) => {
   
-  // Magic link function
-  const sendMagicLink = async (email: string) => {
+  // Magic link function with optional custom redirect
+  const sendMagicLink = async (email: string, customRedirectTo?: string) => {
     try {
       setLoading(true);
+      
+      const redirectPath = customRedirectTo || PATHS.HOME;
       
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: window.location.origin + PATHS.HOME,
+          emailRedirectTo: window.location.origin + redirectPath,
         }
       });
       
@@ -40,12 +42,15 @@ export const useAuthenticationActions = ({
         description: "Check your email for a login link.",
       });
       
+      return { success: true };
     } catch (error) {
       toast({
         title: "Failed to send magic link",
         description: error instanceof Error ? error.message : "Unknown error occurred",
         variant: "destructive",
       });
+      
+      throw error;
     } finally {
       setLoading(false);
     }

@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
@@ -14,7 +13,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isAdmin: boolean;
   isApproved: boolean;
-  sendMagicLink: (email: string) => Promise<void>;
+  sendMagicLink: (email: string, redirectTo?: string) => Promise<void>;
   loginWithPassword: (email: string, password: string) => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   updatePassword: (newPassword: string) => Promise<void>;
@@ -43,7 +42,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { toast } = useToast();
   
   const { 
-    sendMagicLink, 
+    sendMagicLink: sendMagicLinkAction, 
     loginWithPassword,
     resetPassword,
     updatePassword,
@@ -59,6 +58,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     navigate, 
     toast 
   });
+
+  // Modified sendMagicLink function to accept custom redirect path
+  const sendMagicLink = async (email: string, redirectTo?: string) => {
+    return sendMagicLinkAction(email, redirectTo);
+  };
 
   // Check for recovery mode
   useEffect(() => {
