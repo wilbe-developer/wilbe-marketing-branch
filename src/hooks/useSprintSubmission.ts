@@ -73,13 +73,13 @@ export const useSprintSubmission = () => {
       // Process boolean values
       const getBooleanValue = (value: string | undefined | null) => value === 'yes';
 
-      // Create/update the profile in Supabase
+      // Create/update the profile in Supabase - adapted to match SprintSignupWindows.ts field IDs
       const { error: profileError } = await supabase.rpc('create_sprint_profile', {
         p_user_id: userId,
         p_name: answers.name || '',
         p_email: answers.email || '',
         p_linkedin_url: answers.linkedin || '',
-        p_cv_url: answers.founder_profile,
+        p_cv_url: answers.cv || '',
         p_current_job: answers.job || '',
         p_company_incorporated: getBooleanValue(answers.incorporated),
         p_received_funding: getBooleanValue(answers.funding_received),
@@ -87,9 +87,9 @@ export const useSprintSubmission = () => {
         p_has_deck: getBooleanValue(answers.deck),
         p_team_status: answers.team || '',
         p_commercializing_invention: getBooleanValue(answers.invention),
-        p_university_ip: answers.ip === 'tto_yes' || answers.ip === 'tto_no',
-        p_tto_engaged: answers.ip === 'tto_yes',
-        p_problem_defined: getBooleanValue(answers.problem),
+        p_university_ip: getBooleanValue(answers.ip_concerns),
+        p_tto_engaged: answers.ip === 'tto_yes' || false,
+        p_problem_defined: answers.problem === 'yes' || false,
         p_customer_engagement: answers.customers || '',
         p_market_known: getBooleanValue(answers.market_known),
         p_market_gap_reason: answers.market_gap_reason || '',
@@ -97,9 +97,9 @@ export const useSprintSubmission = () => {
         p_has_financial_plan: getBooleanValue(answers.funding_plan),
         p_funding_sources: Array.isArray(answers.funding_sources) ? answers.funding_sources : [],
         p_experiment_validated: getBooleanValue(answers.experiment),
-        p_industry_changing_vision: getBooleanValue(answers.vision),
+        p_industry_changing_vision: getBooleanValue(answers.success_vision_10yr),
         
-        // New fields
+        // Updated field mapping for new fields in SprintSignupWindows.ts
         p_is_scientist_engineer: getBooleanValue(answers.is_scientist_engineer),
         p_job_type: answers.job_type || '',
         p_ip_concerns: getBooleanValue(answers.ip_concerns),
