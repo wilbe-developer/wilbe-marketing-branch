@@ -10,6 +10,7 @@ import WhySection from "@/components/WhySection";
 import Footer from "@/components/Footer";
 import Logo from "@/components/Logo";
 import Section from "@/components/Section";
+import FAQSection from "@/components/FAQSection";
 
 const SprintWaitlistPage = () => {
   return (
@@ -44,6 +45,9 @@ const SprintWaitlistPage = () => {
             <WaitlistForm />
           </div>
         </Section>
+        
+        {/* FAQ Section */}
+        <FAQSection />
         
         <Footer />
       </div>
