@@ -131,6 +131,9 @@ const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
     
     const fieldMapping = getProfileFieldMapping(currentQuestion.key);
     
+    // Use the question text directly as the label instead of the key
+    const questionLabel = currentQuestion.text || fieldMapping.label;
+    
     // If we have options defined in the task definition, use those
     const options = currentQuestion.options ? 
       currentQuestion.options.map(option => ({ value: option, label: option })) : 
@@ -140,7 +143,7 @@ const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
       <div className="space-y-6">
         <SprintProfileShowOrAsk
           profileKey={currentQuestion.key}
-          label={currentQuestion.text || fieldMapping.label}
+          label={questionLabel}
           type={mapProfileType(currentQuestion.type) || fieldMapping.type}
           options={options}
         >
@@ -225,11 +228,19 @@ const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
     if (profileDependencies.length > 0) {
       const dependency = profileDependencies[0]; // Use the first dependency for now
       const fieldMapping = getProfileFieldMapping(dependency.profileKey);
+
+      // Find the profile question to get its text
+      const profileQuestion = taskDefinition.profileQuestions?.find(
+        q => q.key === dependency.profileKey
+      );
+      
+      // Use the profile question text as the label if available
+      const questionLabel = profileQuestion?.text || fieldMapping.label;
       
       return (
         <SprintProfileShowOrAsk
           profileKey={dependency.profileKey}
-          label={fieldMapping.label}
+          label={questionLabel}
           type={fieldMapping.type}
           options={fieldMapping.options}
         >

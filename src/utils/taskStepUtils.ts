@@ -1,4 +1,3 @@
-
 export function normalizeStepType(type: string): string {
   // Convert to lowercase for consistent comparison
   const lowercaseType = typeof type === 'string' ? type.toLowerCase() : '';
@@ -14,8 +13,9 @@ export function normalizeStepType(type: string): string {
     return 'exercise';
   }
   
+  // Keep conditionalQuestion as a distinct type - don't normalize to 'question'
   if (lowercaseType === 'conditionalquestion') {
-    return 'question';
+    return 'conditionalQuestion';
   }
   
   // For 'team-members' type, preserve it as its own type and don't convert to 'collaboration'

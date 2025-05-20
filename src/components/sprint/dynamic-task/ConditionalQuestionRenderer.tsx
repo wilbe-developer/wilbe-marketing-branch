@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { StepNode, FormField } from "@/types/task-builder";
 import { Input } from "@/components/ui/input";
@@ -53,7 +54,7 @@ export const ConditionalQuestionRenderer: React.FC<ConditionalQuestionRendererPr
   };
 
   const mainValue = getMainAnswerValue();
-  const stringMainValue = String(mainValue);
+  const stringMainValue = mainValue !== null && mainValue !== undefined ? String(mainValue) : '';
   
   // Get the conditional fields based on the answer
   const conditionalFields = step.conditionalInputs && 
@@ -280,7 +281,7 @@ export const ConditionalQuestionRenderer: React.FC<ConditionalQuestionRendererPr
 
               {field.type === 'content' && renderContentField(field)}
               
-              {/* Add file upload type rendering */}
+              {/* Properly handle file upload type rendering with type assertion */}
               {(field.type === 'file' || field.type === 'upload') && (
                 <div className="mt-2">
                   <FileUploader
