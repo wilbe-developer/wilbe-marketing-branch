@@ -23,6 +23,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { CollaboratorsManagement } from '@/components/sprint/CollaboratorsManagement';
+import FileUploader from '@/components/sprint/FileUploader';
 
 interface FormStepRendererProps {
   step: StepNode;
@@ -51,6 +52,15 @@ export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
     const updatedValues = { ...formValues, [fieldId]: value };
     setFormValues(updatedValues);
     handleAnswer(updatedValues);
+  };
+
+  // Handle file upload
+  const handleFileUpload = (fieldId: string, fileId: string) => {
+    handleFieldChange(fieldId, {
+      fileId,
+      fileName: `Uploaded File (ID: ${fileId})`,
+      uploadedAt: new Date().toISOString()
+    });
   };
 
   // Normalize field properties (handle both type and inputType)
@@ -252,6 +262,23 @@ export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
                 </div>
               )}
               
+              {(fieldType === 'file' || fieldType === 'upload') && (
+                <div className="mt-2">
+                  {formValues[field.id] ? (
+                    <div className="bg-green-50 border border-green-200 rounded-md p-4 mt-2">
+                      <p className="font-medium">File uploaded successfully:</p>
+                      <p className="text-sm mt-1">{formValues[field.id].fileName || `File ID: ${formValues[field.id].fileId}`}</p>
+                    </div>
+                  ) : (
+                    <FileUploader
+                      onFileUploaded={(fileId) => handleFileUpload(field.id, fileId)}
+                      onUploadError={(error) => console.error("Upload error:", error)}
+                      isCompleted={false}
+                    />
+                  )}
+                </div>
+              )}
+              
               {fieldType === 'content' && renderContentField(field)}
             </div>
           );
@@ -260,3 +287,4 @@ export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
     </div>
   );
 };
+
