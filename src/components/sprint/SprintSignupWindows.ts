@@ -301,21 +301,6 @@ export const windows: Window[] = [
           { value: 'no', label: 'No' }
         ]
       },
-      {
-        id: 'funding_details',
-        question: 'Please provide details about your previous funding',
-        type: 'conditional',
-        conditional: [
-          {
-            field: 'funding_received',
-            value: 'yes',
-            componentType: 'textarea',
-            componentProps: {
-              placeholder: "Please list the amount received and from whom."
-            }
-          }
-        ]
-      }
     ]
   },
   {
