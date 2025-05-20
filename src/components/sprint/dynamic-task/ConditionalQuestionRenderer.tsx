@@ -23,6 +23,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { CollaboratorsManagement } from "@/components/sprint/CollaboratorsManagement";
+import FileUploader from "@/components/sprint/FileUploader";
 
 interface ConditionalQuestionRendererProps {
   step: StepNode;
@@ -87,6 +88,22 @@ export const ConditionalQuestionRenderer: React.FC<ConditionalQuestionRendererPr
     handleAnswer({
       ...answerObj,
       [fieldId]: fieldValue
+    });
+  };
+
+  // Handle file upload
+  const handleFileUpload = (fieldId: string, fileId: string) => {
+    const answerObj = typeof answer === 'object' && answer !== null 
+      ? { ...answer } 
+      : { value: answer };
+    
+    handleAnswer({
+      ...answerObj,
+      [fieldId]: {
+        fileId,
+        fileName: `Uploaded File (ID: ${fileId})`,
+        uploadedAt: new Date().toISOString()
+      }
     });
   };
 
@@ -263,6 +280,21 @@ export const ConditionalQuestionRenderer: React.FC<ConditionalQuestionRendererPr
               {field.type === 'collaboration' && renderCollaborationField(field)}
 
               {field.type === 'content' && renderContentField(field)}
+              
+              {/* Add file upload type rendering */}
+              {(field.type === 'file' || field.type === 'upload') && (
+                <div className="mt-2">
+                  <FileUploader
+                    onFileUploaded={(fileId) => handleFileUpload(field.id, fileId)}
+                    isCompleted={false}
+                  />
+                  {answer?.[field.id] && (
+                    <div className="mt-2 text-sm text-green-600">
+                      File uploaded: {answer[field.id].fileName || `File ID: ${answer[field.id].fileId}`}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           ))}
         </div>

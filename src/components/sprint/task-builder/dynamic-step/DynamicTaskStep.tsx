@@ -134,6 +134,7 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
       return <ContentStepRenderer step={step} answer={answer} handleAnswer={onAnswer} />;
 
     case "upload":
+    case "file":
       return (
         <Card>
           <CardContent className="pt-6">
