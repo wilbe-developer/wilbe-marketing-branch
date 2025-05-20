@@ -63,10 +63,18 @@ export const useDynamicTask = ({ taskId, sprintProfile }: UseDynamicTaskProps): 
     currentStepIndex,
     answers,
     userProgress: sprintProgress,
-    answerNode: (stepId: string, value: any) => answerNode.mutateAsync({ stepId, value }),
-    uploadFile: (stepId: string, file: File) => uploadFile.mutateAsync({ stepId, file }),
-    updateProfile: (key: string, value: any) => updateProfile.mutateAsync({ key, value }),
-    completeTask: () => completeTask.mutateAsync(),
+    answerNode: async (stepId: string, value: any) => {
+      await answerNode.mutateAsync({ stepId, value });
+    },
+    uploadFile: async (stepId: string, file: File) => {
+      await uploadFile.mutateAsync({ stepId, file });
+    },
+    updateProfile: async (key: string, value: any) => {
+      await updateProfile.mutateAsync({ key, value });
+    },
+    completeTask: async () => {
+      await completeTask.mutateAsync();
+    },
     goToStep,
     isCompleted: sprintProgress?.completed || false
   };
