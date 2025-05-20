@@ -17,7 +17,7 @@ const CommunityPage = () => {
   const [selectedTopic, setSelectedTopic] = useState<TopicFilter>('all');
   const location = useLocation();
 
-  // Check URL parameters for pre-selected challenge
+  // Check URL parameters for pre-selected challenge.
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const challengeId = params.get('challenge');
