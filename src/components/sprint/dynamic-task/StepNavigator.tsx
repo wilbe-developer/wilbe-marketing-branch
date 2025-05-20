@@ -9,6 +9,7 @@ interface StepNavigatorProps {
   handleNext: () => void;
   isNextDisabled: boolean;
   isLastStep: boolean;
+  handleComplete?: () => void;
 }
 
 const StepNavigator: React.FC<StepNavigatorProps> = ({
@@ -17,7 +18,8 @@ const StepNavigator: React.FC<StepNavigatorProps> = ({
   handlePrevious,
   handleNext,
   isNextDisabled,
-  isLastStep
+  isLastStep,
+  handleComplete
 }) => {
   return (
     <div className="flex justify-between pt-4">
@@ -29,12 +31,18 @@ const StepNavigator: React.FC<StepNavigatorProps> = ({
         Previous
       </Button>
       
-      <Button
-        onClick={handleNext}
-        disabled={isNextDisabled}
-      >
-        {isLastStep ? 'Complete' : 'Next'}
-      </Button>
+      {isLastStep && handleComplete ? (
+        <Button onClick={handleComplete}>
+          Complete Task
+        </Button>
+      ) : (
+        <Button
+          onClick={handleNext}
+          disabled={isNextDisabled}
+        >
+          {isLastStep ? 'Complete' : 'Next'}
+        </Button>
+      )}
     </div>
   );
 };
