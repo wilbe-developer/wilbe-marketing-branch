@@ -1,29 +1,7 @@
-import React, { useState } from "react";
+
+import React from "react";
 import { StepNode } from "@/types/task-builder";
-import { FormField } from "@/types/task-builder/index";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Button } from "@/components/ui/button";
-import { Users } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { CollaboratorsManagement } from "@/components/sprint/CollaboratorsManagement";
-import FileUploader from "@/components/sprint/FileUploader";
+import { MainQuestionRenderer, ConditionalFieldRenderer } from "./input-renderers";
 
 interface ConditionalQuestionRendererProps {
   step: StepNode;
@@ -36,8 +14,6 @@ export const ConditionalQuestionRenderer: React.FC<ConditionalQuestionRendererPr
   answer,
   handleAnswer,
 }) => {
-  const [isCollaboratorsDialogOpen, setIsCollaboratorsDialogOpen] = useState(false);
-
   // Convert the boolean string to actual boolean if needed
   const normalizeBoolean = (value: any) => {
     if (value === 'true') return true;
@@ -91,210 +67,27 @@ export const ConditionalQuestionRenderer: React.FC<ConditionalQuestionRendererPr
     });
   };
 
-  // Handle file upload
-  const handleFileUpload = (fieldId: string, fileId: string) => {
-    const answerObj = typeof answer === 'object' && answer !== null 
-      ? { ...answer } 
-      : { value: answer };
-    
-    handleAnswer({
-      ...answerObj,
-      [fieldId]: {
-        fileId,
-        fileName: `Uploaded File (ID: ${fileId})`,
-        uploadedAt: new Date().toISOString()
-      }
-    });
-  };
-
-  // Render a collaboration field
-  const renderCollaborationField = (field: FormField) => {
-    return (
-      <div className="mt-4 p-4 bg-blue-50 rounded-md border border-blue-100">
-        <h4 className="font-medium text-blue-800 mb-3">{field.label || "Team Collaboration"}</h4>
-        {field.text && <p className="text-sm text-blue-700 mb-4">{field.text}</p>}
-        {!field.text && (
-          <p className="text-sm text-blue-700 mb-4">
-            Invite your team members to collaborate on this sprint. They will be able to view and contribute to tasks.
-          </p>
-        )}
-        
-        <Button 
-          onClick={() => setIsCollaboratorsDialogOpen(true)}
-          className="w-full flex items-center justify-center gap-2"
-        >
-          <Users className="h-4 w-4" />
-          <span>Manage Collaborators</span>
-        </Button>
-        
-        <Dialog open={isCollaboratorsDialogOpen} onOpenChange={setIsCollaboratorsDialogOpen}>
-          <DialogContent className="sm:max-w-[600px]">
-            <DialogHeader>
-              <DialogTitle>Manage Team Collaborators</DialogTitle>
-              <DialogDescription>
-                Add or remove team members who can collaborate on your sprint.
-              </DialogDescription>
-            </DialogHeader>
-            
-            <CollaboratorsManagement />
-          </DialogContent>
-        </Dialog>
-      </div>
-    );
-  };
-
-  // Render a content field
-  const renderContentField = (field: FormField) => {
-    // Handle collaboration fields (for backward compatibility with invite_link fields)
-    if (field.type === 'collaboration' || field.id === 'invite_link') {
-      return renderCollaborationField(field);
-    }
-
-    return (
-      <div className="prose max-w-none mt-2">
-        {field.content && (
-          <div dangerouslySetInnerHTML={{ __html: field.content }} />
-        )}
-        {field.text && <p>{field.text}</p>}
-      </div>
-    );
-  };
-
   return (
     <>
       {/* Render the main question input */}
       <div className="space-y-4">
-        {step.inputType === 'select' && step.options && (
-          <Select
-            value={String(mainValue) || ''}
-            onValueChange={handleMainAnswer}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select an option" />
-            </SelectTrigger>
-            <SelectContent>
-              {step.options.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )}
-        
-        {step.inputType === 'radio' && step.options && (
-          <RadioGroup
-            value={String(mainValue) || ''}
-            onValueChange={handleMainAnswer}
-          >
-            {step.options.map((option) => (
-              <div key={option.value} className="flex items-center space-x-2">
-                <RadioGroupItem value={option.value} id={`${step.id}-${option.value}`} />
-                <Label htmlFor={`${step.id}-${option.value}`}>{option.label}</Label>
-              </div>
-            ))}
-          </RadioGroup>
-        )}
-        
-        {step.inputType === 'boolean' && (
-          <div className="flex items-center space-x-3">
-            <Switch
-              checked={!!mainValue}
-              onCheckedChange={handleMainAnswer}
-              id={`${step.id}-toggle`}
-            />
-            <Label htmlFor={`${step.id}-toggle`}>
-              {mainValue ? 'Yes' : 'No'}
-            </Label>
-          </div>
-        )}
-        
-        {step.inputType === 'text' && (
-          <Input
-            value={mainValue || ''}
-            onChange={(e) => handleMainAnswer(e.target.value)}
-            placeholder="Enter your answer"
-          />
-        )}
-        
-        {step.inputType === 'textarea' && (
-          <Textarea
-            value={mainValue || ''}
-            onChange={(e) => handleMainAnswer(e.target.value)}
-            placeholder="Enter your answer"
-            rows={4}
-          />
-        )}
-        
-        {step.inputType === 'collaboration' && renderCollaborationField({
-          id: 'collaboration',
-          label: "Team Collaboration",
-          type: 'collaboration'
-        })}
+        <MainQuestionRenderer 
+          step={step} 
+          value={answer} 
+          onChange={handleMainAnswer} 
+        />
       </div>
       
       {/* Render conditional inputs if applicable */}
       {conditionalFields && conditionalFields.length > 0 && (
         <div className="mt-6 pl-4 border-l-2 border-gray-200 space-y-4">
-          {conditionalFields.map((field: FormField) => (
+          {conditionalFields.map((field) => (
             <div key={field.id} className="space-y-2">
-              {field.label && <Label htmlFor={field.id}>{field.label}</Label>}
-              
-              {field.type === 'text' && (
-                <Input
-                  id={field.id}
-                  value={answer?.[field.id] || ''}
-                  onChange={(e) => handleConditionalAnswer(field.id, e.target.value)}
-                  placeholder={field.placeholder || ''}
-                />
-              )}
-              
-              {field.type === 'textarea' && (
-                <Textarea
-                  id={field.id}
-                  value={answer?.[field.id] || ''}
-                  onChange={(e) => handleConditionalAnswer(field.id, e.target.value)}
-                  placeholder={field.placeholder || ''}
-                  rows={4}
-                />
-              )}
-              
-              {field.type === 'select' && field.options && (
-                <Select
-                  value={answer?.[field.id] || ''}
-                  onValueChange={(value) => handleConditionalAnswer(field.id, value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder={field.placeholder || 'Select an option'} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {field.options.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-
-              {field.type === 'collaboration' && renderCollaborationField(field)}
-
-              {field.type === 'content' && renderContentField(field)}
-              
-              {/* Properly handle file upload type rendering */}
-              {(field.type === 'file' || field.type === 'upload') && (
-                <div className="mt-2">
-                  <FileUploader
-                    onFileUploaded={(fileId) => handleFileUpload(field.id, fileId)}
-                    isCompleted={false}
-                  />
-                  {answer?.[field.id] && (
-                    <div className="mt-2 text-sm text-green-600">
-                      File uploaded: {answer[field.id].fileName || `File ID: ${answer[field.id].fileId}`}
-                    </div>
-                  )}
-                </div>
-              )}
+              <ConditionalFieldRenderer
+                field={field}
+                value={answer?.[field.id]}
+                onChange={handleConditionalAnswer}
+              />
             </div>
           ))}
         </div>
