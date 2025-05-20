@@ -31,7 +31,7 @@ const KnowledgeCenterPage = () => {
       return true; // Keep videos from regular modules
     }
     
-    // Check if this video also exists in a regular module
+    // Check if this video also exists in a regular module.
     return false; // Exclude videos that are only in deck builder modules
   });
   
