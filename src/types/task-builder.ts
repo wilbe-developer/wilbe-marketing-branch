@@ -1,4 +1,3 @@
-
 export * from './task-builder/index';
 
 export interface SprintTaskDefinition {
@@ -104,7 +103,7 @@ export interface Option {
 export interface FormField {
   id: string;
   label: string;
-  type: "text" | "textarea" | "select" | "radio" | "checkbox" | "content" | "collaboration"; // Added collaboration
+  type: "text" | "textarea" | "select" | "radio" | "checkbox" | "content" | "collaboration" | "file" | "upload";
   placeholder?: string;
   required?: boolean;
   options?: Option[];

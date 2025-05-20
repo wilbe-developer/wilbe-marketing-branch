@@ -1,6 +1,6 @@
-
 import React, { useState } from "react";
-import { StepNode, FormField } from "@/types/task-builder";
+import { StepNode } from "@/types/task-builder";
+import { FormField } from "@/types/task-builder/index";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -281,7 +281,7 @@ export const ConditionalQuestionRenderer: React.FC<ConditionalQuestionRendererPr
 
               {field.type === 'content' && renderContentField(field)}
               
-              {/* Properly handle file upload type rendering with type assertion */}
+              {/* Properly handle file upload type rendering */}
               {(field.type === 'file' || field.type === 'upload') && (
                 <div className="mt-2">
                   <FileUploader
