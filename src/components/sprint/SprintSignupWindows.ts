@@ -281,7 +281,7 @@ export const windows: Window[] = [
             value: 'yes',
             componentType: 'textarea',
             componentProps: {
-              placeholder: "Please list the planned programs."
+              placeholder: "Please list the planned programs and dates."
             }
           }
         ]
