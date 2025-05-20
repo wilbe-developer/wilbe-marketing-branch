@@ -46,6 +46,30 @@ export const useSprintSubmission = () => {
         });
 
         if (signUpError) {
+          // If user already exists, send a magic link instead
+          if (signUpError.message?.includes("User already registered")) {
+            console.log("User already exists, sending magic link instead");
+            
+            const { error: magicLinkError } = await supabase.auth.signInWithOtp({
+              email: answers.email,
+              options: {
+                emailRedirectTo: window.location.origin + PATHS.SPRINT_DASHBOARD,
+              }
+            });
+            
+            if (magicLinkError) {
+              console.error("Magic link error:", magicLinkError);
+              throw new Error("Failed to send login link. Please try signing in first.");
+            }
+            
+            toast.success(
+              "We've sent you a login link. Please check your email to continue.",
+              { duration: 6000 }
+            );
+            
+            return; // Exit early since we're not creating a profile yet
+          }
+          
           console.error("Signup error:", signUpError);
           throw signUpError;
         }
@@ -57,10 +81,10 @@ export const useSprintSubmission = () => {
         console.log("User created successfully:", authData.user.id);
         userId = authData.user.id;
 
-        // Send welcome email with password reset instructions
+        // Show success message for new users
         toast.success(
-          "Account created! Please check your email to set your password.",
-          { duration: 6000 }
+          "Account created successfully! You are now logged in.",
+          { duration: 4000 }
         );
       }
 
@@ -136,7 +160,7 @@ export const useSprintSubmission = () => {
       }
 
       console.log("Sprint profile updated successfully");
-      toast.success("Sprint profile updated successfully!");
+      toast.success("Your sprint profile has been created successfully!");
       navigate(PATHS.SPRINT_DASHBOARD);
     } catch (error) {
       console.error("Profile update failed:", error);
