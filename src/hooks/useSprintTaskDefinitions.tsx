@@ -20,7 +20,8 @@ export const useSprintTaskDefinitions = () => {
       const { data, error } = await supabase
         .from("sprint_task_definitions")
         .select("*")
-        .order("name");
+        // Changed from .order("name") to order by order_index
+        .order("definition->order_index");
       
       if (error) throw error;
       
@@ -88,7 +89,7 @@ export const useSprintTaskDefinitions = () => {
   });
 
   // Convert task definitions to format compatible with the dashboard
-  const tasksWithProgress: UserTaskProgress[] = taskDefinitions?.map(taskDef => {
+  let tasksWithProgress: UserTaskProgress[] = taskDefinitions?.map(taskDef => {
     // Extract task id and find progress record
     const taskId = taskDef.id;
     const progress = userProgress?.find(p => p.task_id === taskId);
@@ -120,6 +121,11 @@ export const useSprintTaskDefinitions = () => {
 
     return taskProgress;
   }) || [];
+
+  // Add an additional sort by order_index to ensure correct ordering
+  tasksWithProgress = tasksWithProgress.sort((a, b) => {
+    return (a.order_index || 0) - (b.order_index || 0);
+  });
 
   // Update user progress
   const updateProgress = useMutation({
