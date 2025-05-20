@@ -70,39 +70,49 @@ export const useSprintSubmission = () => {
 
       console.log("Creating/updating sprint profile for user:", userId);
 
+      // Process CV upload if available
+      let cvUrl = answers.cv || '';
+      if (answers.founder_profile && typeof answers.founder_profile === 'object') {
+        // This means we have a file object from the uploader
+        const uploadedCV = await uploadFounderProfile(userId);
+        if (uploadedCV) {
+          cvUrl = uploadedCV;
+        }
+      }
+
       // Process boolean values
       const getBooleanValue = (value: string | undefined | null) => value === 'yes';
 
-      // Create/update the profile in Supabase - adapted to match SprintSignupWindows.ts field IDs
+      // Create/update the profile in Supabase - accurately map fields from SprintSignupWindows.ts
       const { error: profileError } = await supabase.rpc('create_sprint_profile', {
         p_user_id: userId,
         p_name: answers.name || '',
         p_email: answers.email || '',
         p_linkedin_url: answers.linkedin || '',
-        p_cv_url: answers.cv || '',
+        p_cv_url: cvUrl,
         p_current_job: answers.job || '',
         p_company_incorporated: getBooleanValue(answers.incorporated),
         p_received_funding: getBooleanValue(answers.funding_received),
-        p_funding_details: answers.funding_details || '',
+        p_funding_details: '', // No longer used in the form, passing empty string
         p_has_deck: getBooleanValue(answers.deck),
         p_team_status: answers.team || '',
-        p_commercializing_invention: getBooleanValue(answers.invention),
-        p_university_ip: getBooleanValue(answers.ip_concerns),
-        p_tto_engaged: answers.ip === 'tto_yes' || false,
-        p_problem_defined: answers.problem === 'yes' || false,
+        p_commercializing_invention: getBooleanValue(answers.invention), // This is the actual "is your company reliant on university invention" field
+        p_university_ip: getBooleanValue(answers.invention), // Fixed mapping: invention field answers university IP question
+        p_tto_engaged: false, // No longer used in form
+        p_problem_defined: false, // No longer used in form
         p_customer_engagement: answers.customers || '',
         p_market_known: getBooleanValue(answers.market_known),
-        p_market_gap_reason: answers.market_gap_reason || '',
-        p_funding_amount: answers.funding_amount_text || '',
-        p_has_financial_plan: getBooleanValue(answers.funding_plan),
-        p_funding_sources: Array.isArray(answers.funding_sources) ? answers.funding_sources : [],
+        p_market_gap_reason: '', // No longer used in form
+        p_funding_amount: '', // No longer used in form
+        p_has_financial_plan: false, // No longer used in form
+        p_funding_sources: [], // No longer used in form
         p_experiment_validated: getBooleanValue(answers.experiment),
-        p_industry_changing_vision: getBooleanValue(answers.success_vision_10yr),
+        p_industry_changing_vision: false, // No longer used in form
         
-        // Updated field mapping for new fields in SprintSignupWindows.ts
+        // Field mapping for fields in SprintSignupWindows.ts
         p_is_scientist_engineer: getBooleanValue(answers.is_scientist_engineer),
         p_job_type: answers.job_type || '',
-        p_ip_concerns: getBooleanValue(answers.ip_concerns),
+        p_ip_concerns: getBooleanValue(answers.ip_concerns), // Correctly mapped field for IP concerns
         p_potential_beneficiaries: getBooleanValue(answers.potential_beneficiaries),
         p_specific_customers: getBooleanValue(answers.specific_customers),
         p_customer_evidence: getBooleanValue(answers.customer_evidence),
