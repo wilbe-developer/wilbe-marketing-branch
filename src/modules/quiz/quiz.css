@@ -100,6 +100,17 @@
   background: linear-gradient(90deg, #ff0052, #ff6b8b);
   height: 1.25rem;
   border: 1px solid #000;
+  position: relative;
+}
+
+.results-bar-bright::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background-color: #D4D4D4; /* Grey top line */
 }
 
 /* Text effects */

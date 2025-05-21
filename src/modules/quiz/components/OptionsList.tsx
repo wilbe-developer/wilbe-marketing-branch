@@ -44,7 +44,7 @@ export const OptionsList: React.FC<OptionsListProps> = ({
               className={cn(
                 "option-box w-full text-left text-sm md:text-base font-['Comic_Sans_MS'] py-2",
                 {
-                  "border-[#ff0052] border-2": isSelected,
+                  "border-[#ff0052] border-2 bg-[#ffcdd5] text-[#ff0052] font-bold": isSelected,
                   "cursor-not-allowed opacity-70": disabled && !isSelected,
                 }
               )}
@@ -55,13 +55,18 @@ export const OptionsList: React.FC<OptionsListProps> = ({
             {showStats && (
               <div className="mt-1 relative h-5 bg-gray-100 border border-gray-300">
                 <div 
-                  className="results-bar-bright absolute left-0 top-0 h-full"
-                  style={{ width: `${percentage}%` }}
+                  className="results-bar-bright absolute left-0 top-0 h-full flex items-center justify-end pr-2"
+                  style={{ width: `${percentage > 3 ? percentage : 3}%` }}
                 >
+                  {percentage > 10 && (
+                    <span className="text-xs font-bold z-10 text-white font-['Comic_Sans_MS']">{percentage}%</span>
+                  )}
                 </div>
-                <div className="absolute inset-0 flex items-center justify-end pr-2">
-                  <span className="text-xs font-bold z-10 text-white">{percentage}%</span>
-                </div>
+                {percentage <= 10 && (
+                  <div className="absolute inset-0 flex items-center justify-end pr-2">
+                    <span className="text-xs font-bold z-10 text-gray-700 font-['Comic_Sans_MS']">{percentage}%</span>
+                  </div>
+                )}
               </div>
             )}
           </div>

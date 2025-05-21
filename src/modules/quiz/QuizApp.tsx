@@ -29,7 +29,7 @@ const QuizApp: React.FC<QuizAppProps> = ({
                 } as React.CSSProperties}
               />
             </div>
-            <div className="text-xl font-['Comic_Sans_MS'] text-[#ff0052] mb-1">
+            <div className="text-xl font-['Comic_Sans_MS'] text-[#ff0052] mb-1 marquee-effect">
               {title}
             </div>
           </div>
