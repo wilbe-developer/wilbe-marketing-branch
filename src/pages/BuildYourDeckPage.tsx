@@ -40,7 +40,7 @@ const BuildYourDeckPage = () => {
     videoCount: m.videos?.length || 0
   })));
 
-  // Find introduction module (MVD Introduction).
+  // Find introduction module (MVD Introduction)
   const introModule = deckBuilderModules.find(m => m.slug === "mvd-introduction");
   const introVideos = introModule ? modules.find(m => m.id === introModule.id)?.videos || [] : [];
 
