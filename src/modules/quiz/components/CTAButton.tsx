@@ -1,0 +1,37 @@
+
+import React from 'react';
+import { cn } from '../utils/cn';
+
+interface CTAButtonProps {
+  visible: boolean;
+  className?: string;
+  url?: string;
+  text?: string;
+}
+
+const CTAButton: React.FC<CTAButtonProps> = ({ 
+  visible, 
+  className,
+  url = "https://app.wilbe.com/sprint-waitlist",
+  text = "Serious about building?"
+}) => {
+  if (!visible) return null;
+
+  return (
+    <div className={cn(
+      "fixed bottom-4 left-0 w-full flex justify-center animate-slide-up z-10 md:static md:mt-3",
+      className
+    )}>
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="cta-button-bright font-['Comic_Sans_MS'] text-sm marquee-effect pixel-border w-full h-full flex items-center justify-center"
+      >
+        {text}
+      </a>
+    </div>
+  );
+};
+
+export default CTAButton;

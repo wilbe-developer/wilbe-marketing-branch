@@ -1,0 +1,138 @@
+
+/* Quiz Module Styles */
+
+/* Base styles for quiz cards */
+.early-internet-card {
+  box-shadow: 4px 4px 0 #000000;
+  border-radius: 2px;
+  position: relative;
+}
+
+.pixel-border {
+  border: 2px solid black;
+  image-rendering: pixelated;
+}
+
+.pixel-border-sm {
+  border: 1px solid black;
+  image-rendering: pixelated;
+}
+
+/* Button styles */
+.pixel-button {
+  border: 1px solid black;
+  transition: all 0.1s ease;
+  position: relative;
+  box-shadow: 2px 2px 0 #000000;
+}
+
+.pixel-button:hover {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 #000000;
+}
+
+.pixel-button:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+/* Option box styles */
+.option-box {
+  transition: all 0.15s ease;
+  box-shadow: 2px 2px 0 #ff0052;
+}
+
+.option-box:hover {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 #ff0052;
+}
+
+/* CTA button styles */
+.cta-button-bright {
+  background: #ff0052;
+  color: white;
+  padding: 0.5rem 1.5rem;
+  border-radius: 2px;
+  box-shadow: 2px 2px 0 #cc0042;
+  transition: all 0.15s ease;
+  position: relative;
+  text-align: center;
+  border: 1px solid #000;
+}
+
+.cta-button-bright:hover {
+  background: #cc0042;
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 #cc0042;
+}
+
+.option-button-bright {
+  background: #ff0052;
+  color: white;
+  padding: 0.5rem 1.5rem;
+  border-radius: 2px;
+  box-shadow: 2px 2px 0 #cc0042;
+  transition: all 0.15s ease;
+  position: relative;
+  text-align: center;
+  border: 1px solid #000;
+}
+
+.option-button-bright:hover {
+  background: #cc0042;
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 #cc0042;
+}
+
+/* Results bar styling */
+.results-bar-bright {
+  background: linear-gradient(90deg, #ff0052, #ff6b8b);
+}
+
+/* Text effects */
+.blink-marquee {
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+.marquee-effect {
+  background: linear-gradient(90deg, #ff0052, #ff6b8b, #ff0052);
+  background-size: 200% auto;
+  animation: rainbow-bg 4s linear infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+@keyframes rainbow-bg {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+/* Animations */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-up {
+  from { 
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to { 
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease-out forwards;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.5s ease-out forwards;
+}
