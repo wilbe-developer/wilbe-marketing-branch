@@ -22,7 +22,7 @@ const stats = [
 
 const AboutSection: React.FC = () => {
   return (
-    <Section className="bg-orange-500 text-white">
+    <Section className="bg-[#2323FF] text-white">
       <h2 className="text-3xl font-bold mb-6">About Wilbe</h2>
       <div className="space-y-4 mb-10">
         <p className="text-lg">
