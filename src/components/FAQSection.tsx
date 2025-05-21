@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { 
   Accordion, 
@@ -17,7 +16,7 @@ const FAQSection: React.FC = () => {
 
       <Accordion type="single" collapsible className="space-y-2">
         <AccordionItem value="item-1" className="border border-white/30 p-4">
-          <AccordionTrigger className="text-xl font-bold">Who is BSF for?</AccordionTrigger>
+          <AccordionTrigger className="text-xl font-bold text-left justify-between">Who is BSF for?</AccordionTrigger>
           <AccordionContent className="mt-2 text-white/70 text-lg">
             <p className="mt-2">
               BSF is designed for scientists and engineers – postdocs, PhDs, early PIs, or those working in industry - who are hungry to solve a very large problem using science and engineering breakthroughs and believe business is the right vehicle for this.
@@ -32,7 +31,7 @@ const FAQSection: React.FC = () => {
         </AccordionItem>
 
         <AccordionItem value="item-2" className="border border-white/30 p-4">
-          <AccordionTrigger className="text-xl font-bold">Is there a cost to participate in BSF?</AccordionTrigger>
+          <AccordionTrigger className="text-xl font-bold text-left justify-between">Is there a cost to participate in BSF?</AccordionTrigger>
           <AccordionContent className="mt-2 text-white/70 text-lg">
             <p className="mt-2">
               No. BSF is free, there is no signing of anything and no agreements to complete BSF.
@@ -41,7 +40,7 @@ const FAQSection: React.FC = () => {
         </AccordionItem>
 
         <AccordionItem value="item-3" className="border border-white/30 p-4">
-          <AccordionTrigger className="text-xl font-bold">How long does it run for?</AccordionTrigger>
+          <AccordionTrigger className="text-xl font-bold text-left justify-between">How long does it run for?</AccordionTrigger>
           <AccordionContent className="mt-2 text-white/70 text-lg">
             <p className="mt-2">
               BSF is designed so that with momentum and resolve you can complete it in 10 days. Having said that, you can complete it at your own pace however long it takes.
@@ -50,7 +49,7 @@ const FAQSection: React.FC = () => {
         </AccordionItem>
 
         <AccordionItem value="item-4" className="border border-white/30 p-4">
-          <AccordionTrigger className="text-xl font-bold">Do I have to finish BSF in 10 days?</AccordionTrigger>
+          <AccordionTrigger className="text-xl font-bold text-left justify-between">Do I have to finish BSF in 10 days?</AccordionTrigger>
           <AccordionContent className="mt-2 text-white/70 text-lg">
             <p className="mt-2">
               If you finish BSF in 10 days successfully, you will qualify for investment analysis and we'll accelerate the process for you. But you will not be removed from the platform if you choose to take longer.
@@ -59,7 +58,7 @@ const FAQSection: React.FC = () => {
         </AccordionItem>
 
         <AccordionItem value="item-5" className="border border-white/30 p-4">
-          <AccordionTrigger className="text-xl font-bold">How do you make the investment decision?</AccordionTrigger>
+          <AccordionTrigger className="text-xl font-bold text-left justify-between">How do you make the investment decision?</AccordionTrigger>
           <AccordionContent className="mt-2 text-white/70 text-lg">
             <p className="mt-2">
               At Wilbe, we flip the legacy playbook of investing in science. We focus on the human potential first, followed by market and then the science. When trying to understand if we're a match we try our best to get an understanding of certain indicators for example: an obsession to solve the problem at hand, a desire to solve the biggest version of the problem, commercial intuition, technical competence, ability to communicate big ideas with simplicity and clarity, ability to hold two opposing ideas at once and a positive force to work with - transparent, generous and optimistic in spirit.
@@ -68,7 +67,7 @@ const FAQSection: React.FC = () => {
         </AccordionItem>
 
         <AccordionItem value="item-6" className="border border-white/30 p-4">
-          <AccordionTrigger className="text-xl font-bold">What are the terms of the investment?</AccordionTrigger>
+          <AccordionTrigger className="text-xl font-bold text-left justify-between">What are the terms of the investment?</AccordionTrigger>
           <AccordionContent className="mt-2 text-white/70 text-lg">
             <p className="mt-2">
               This tends to be $100K - $250K for single digit equity (using a SAFE note) and we are typically your first investment partner. Based on our experience, a tried and tested playbook for building science companies does not exist - you are not creating a new service, often you are creating an entire new industry. This is why we don't believe in "cookie cutter" standard investment terms. Throughout the process of BSF you will be asked to create or provide your roadmap and plan, you tell us how much you need, and based on your ask we will be able to assess and offer you terms tailored to you. If you need more capital we can activate our network of co-investors and angels. Once invested, we have the capacity to double down in future rounds.
@@ -77,7 +76,7 @@ const FAQSection: React.FC = () => {
         </AccordionItem>
 
         <AccordionItem value="item-7" className="border border-white/30 p-4">
-          <AccordionTrigger className="text-xl font-bold">How long does it take to get an investment decision?</AccordionTrigger>
+          <AccordionTrigger className="text-xl font-bold text-left justify-between">How long does it take to get an investment decision?</AccordionTrigger>
           <AccordionContent className="mt-2 text-white/70 text-lg">
             <p className="mt-2">
               Once you complete the program, we take <strong>up to 3 working days</strong> to evaluate your work and invite you for a 1:1 session. After we meet each other we tend to send investment decisions within two weeks, but this may differ on a case by case bases.
@@ -86,7 +85,7 @@ const FAQSection: React.FC = () => {
         </AccordionItem>
 
         <AccordionItem value="item-8" className="border border-white/30 p-4">
-          <AccordionTrigger className="text-xl font-bold">What if I am already in the process of closing a pre-seed round?</AccordionTrigger>
+          <AccordionTrigger className="text-xl font-bold text-left justify-between">What if I am already in the process of closing a pre-seed round?</AccordionTrigger>
           <AccordionContent className="mt-2 text-white/70 text-lg">
             <p className="mt-2">
               If you've secured a lead investor then reach out to Dee (capital@wilbe.com) with your deck and we can take it from there.
@@ -98,7 +97,7 @@ const FAQSection: React.FC = () => {
         </AccordionItem>
 
         <AccordionItem value="item-9" className="border border-white/30 p-4">
-          <AccordionTrigger className="text-xl font-bold">Do I need to have an incorporated company to apply?</AccordionTrigger>
+          <AccordionTrigger className="text-xl font-bold text-left justify-between">Do I need to have an incorporated company to apply?</AccordionTrigger>
           <AccordionContent className="mt-2 text-white/70 text-lg">
             <p className="mt-2">
               No, you can go through BSF without an incorporated company.
@@ -113,7 +112,7 @@ const FAQSection: React.FC = () => {
         </AccordionItem>
 
         <AccordionItem value="item-10" className="border border-white/30 p-4">
-          <AccordionTrigger className="text-xl font-bold">Are there any geographic restrictions?</AccordionTrigger>
+          <AccordionTrigger className="text-xl font-bold text-left justify-between">Are there any geographic restrictions?</AccordionTrigger>
           <AccordionContent className="mt-2 text-white/70 text-lg">
             <p className="mt-2">
               No, you can join BSF from anywhere and benefit from the platform. But note we invest only in companies incorporated in the <strong>US, UK, or Europe</strong>.
@@ -122,7 +121,7 @@ const FAQSection: React.FC = () => {
         </AccordionItem>
 
         <AccordionItem value="item-11" className="border border-white/30 p-4">
-          <AccordionTrigger className="text-xl font-bold">When and where is the next in-person residency?</AccordionTrigger>
+          <AccordionTrigger className="text-xl font-bold text-left justify-between">When and where is the next in-person residency?</AccordionTrigger>
           <AccordionContent className="mt-2 text-white/70 text-lg">
             <p className="mt-2">
               The in-person residency happens regularly with Wilbe Founders who have gone through BSF. Details for each session are announced well in advance to allow you to plan. Keep an eye out on the discussion boards once you join BSF.
@@ -131,7 +130,7 @@ const FAQSection: React.FC = () => {
         </AccordionItem>
 
         <AccordionItem value="item-12" className="border border-white/30 p-4">
-          <AccordionTrigger className="text-xl font-bold">What is the expected time commitment?</AccordionTrigger>
+          <AccordionTrigger className="text-xl font-bold text-left justify-between">What is the expected time commitment?</AccordionTrigger>
           <AccordionContent className="mt-2 text-white/70 text-lg">
             <p className="mt-2">
               As much as you wish to put in. If you manage to complete BSF within 10 days or less then we will evaluate your venture for investment and see if we can help bring your company into the world together.
@@ -140,7 +139,7 @@ const FAQSection: React.FC = () => {
         </AccordionItem>
 
         <AccordionItem value="item-13" className="border border-white/30 p-4">
-          <AccordionTrigger className="text-xl font-bold">What happens post investment?</AccordionTrigger>
+          <AccordionTrigger className="text-xl font-bold text-left justify-between">What happens post investment?</AccordionTrigger>
           <AccordionContent className="mt-2 text-white/70 text-lg">
             <p className="mt-2">
               Based on our experience of building high performance science companies, our insight into market signals, and our expansive network of experts and co-investors, we support you in building the company in whatever way is needed. There tends to be three phases to our work together:
@@ -160,7 +159,7 @@ const FAQSection: React.FC = () => {
         </AccordionItem>
 
         <AccordionItem value="item-14" className="border border-white/30 p-4">
-          <AccordionTrigger className="text-xl font-bold">What happens if I don't get investment?</AccordionTrigger>
+          <AccordionTrigger className="text-xl font-bold text-left justify-between">What happens if I don't get investment?</AccordionTrigger>
           <AccordionContent className="mt-2 text-white/70 text-lg">
             <p className="mt-2">
               If you don't get investment immediately then there are two possibilities. Either we will be continuing the conversation towards an investment within 2 weeks of completing BSF. This is a situation where us or you need to get to know each other and what is being built better.
@@ -172,7 +171,7 @@ const FAQSection: React.FC = () => {
         </AccordionItem>
 
         <AccordionItem value="item-15" className="border border-white/30 p-4">
-          <AccordionTrigger className="text-xl font-bold">Can I start and complete the process at a later date?</AccordionTrigger>
+          <AccordionTrigger className="text-xl font-bold text-left justify-between">Can I start and complete the process at a later date?</AccordionTrigger>
           <AccordionContent className="mt-2 text-white/70 text-lg">
             <p className="mt-2">
               You can start and finish the program any time, and at your own pace. However, we only consider submissions for investment if they're completed within <strong>10 days</strong> of starting.
@@ -184,7 +183,7 @@ const FAQSection: React.FC = () => {
         </AccordionItem>
 
         <AccordionItem value="item-16" className="border border-white/30 p-4">
-          <AccordionTrigger className="text-xl font-bold">Why are you doing this?</AccordionTrigger>
+          <AccordionTrigger className="text-xl font-bold text-left justify-between">Why are you doing this?</AccordionTrigger>
           <AccordionContent className="mt-2 text-white/70 text-lg">
             <p className="mt-2">
               Google, Deepmind, Genentech, Moderna, HP, Bose Inc, Boston Dynamics, BioNTech and many more world-changing companies were started by scientists and engineers who could have stayed in academia. In most of these cases, the biggest risk isn't the science—it's everything around it. Startups have become the engine of real-world impact, but navigating that world isn't part of most research training. We're here to help you avoid the expensive mistakes, and to give you the backing and tools to perform to your best capacity. We have had the privilege of equipping thousands of scientists on business know how and core operational skills which has led to the creation of companies like <a href="https://www.proximafusion.com" target="_blank" rel="noopener noreferrer" className="text-white underline hover:text-[#7ED957]">Proxima Fusion</a>, <a href="https://apoha.com" target="_blank" rel="noopener noreferrer" className="text-white underline hover:text-[#7ED957]">Apoha</a>, <a href="https://www.expressionedits.com" target="_blank" rel="noopener noreferrer" className="text-white underline hover:text-[#7ED957]">ExpressionEdits</a> and more - where we are also the first investors.

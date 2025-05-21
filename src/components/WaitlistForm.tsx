@@ -34,7 +34,7 @@ export function WaitlistForm() {
   const [buttonColor, setButtonColor] = useState('#7ED957'); // Set initial color to green
 
   return (
-    <form className="w-full max-w-2xl mx-auto space-y-8" onSubmit={handleSubmit}>
+    <form className="w-full max-w-2xl mx-auto space-y-8 mt-6 md:mt-0" onSubmit={handleSubmit}>
       <div>
         <Input
           type="text"

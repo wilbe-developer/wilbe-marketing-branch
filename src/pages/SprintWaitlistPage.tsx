@@ -75,12 +75,14 @@ const SprintWaitlistPage = () => {
         <AboutSection />
         
         {/* Waitlist Form Section */}
-        <section id="waitlist-form" className="container my-32 transition-all duration-300">
+        <section id="waitlist-form" className="container my-20 md:my-32 transition-all duration-300">
           <div className="border border-white/30 p-8 md:p-14 relative max-w-3xl mx-auto">
             <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black px-8 text-center">
               <h2 className="text-4xl font-bold">Join the waitlist</h2>
             </div>
-            <WaitlistForm />
+            <div className="pt-6 md:pt-0">
+              <WaitlistForm />
+            </div>
           </div>
         </section>
         
