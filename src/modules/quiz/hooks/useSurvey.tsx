@@ -54,6 +54,9 @@ export function useSurvey() {
     const currentQuestion = state.questions[state.currentQuestionIndex];
     if (!currentQuestion) return;
     
+    // Don't proceed if already answered
+    if (state.selectedOptionIndex !== null) return;
+    
     // Update UI state
     dispatch({ type: 'SELECT_OPTION', payload: optionIndex });
     dispatch({ type: 'SET_SHOW_STATS', payload: true });

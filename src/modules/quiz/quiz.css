@@ -118,8 +118,9 @@
   animation: blink 1s step-end infinite;
   display: inline-block;
   padding: 0.25rem 0.5rem;
-  background-color: #ffffcc;
+  background-color: transparent; /* Removed yellow background */
   border: 1px dashed #ff0052;
+  color: #ff0052; /* Pink text for stars */
 }
 
 @keyframes blink {

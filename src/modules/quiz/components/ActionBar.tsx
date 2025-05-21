@@ -1,14 +1,13 @@
 
-import React, { useState } from 'react';
-import { Camera, ChevronRight } from 'lucide-react';
+import React from 'react';
+import { cn } from '../utils/cn';
 import CTAButton from './CTAButton';
-import { generateAndDownloadImage } from '../utils/imageGenerator';
 
 interface ActionBarProps {
   onNext: () => void;
-  cardId: string;
-  questionText: string;
-  showActions: boolean;
+  cardId?: string;
+  questionText?: string;
+  showActions?: boolean;
   ctaUrl?: string;
   ctaText?: string;
 }
@@ -17,59 +16,32 @@ export const ActionBar: React.FC<ActionBarProps> = ({
   onNext,
   cardId,
   questionText,
-  showActions,
-  ctaUrl,
-  ctaText
+  showActions = true,
+  ctaUrl = "/waitlist",
+  ctaText = "Serious about building?"
 }) => {
-  const [isGeneratingImage, setIsGeneratingImage] = useState<boolean>(false);
-  const [isSaved, setIsSaved] = useState<boolean>(false);
-
-  // Handle save button click
-  const handleSaveClick = async () => {
-    setIsGeneratingImage(true);
-    try {
-      await generateAndDownloadImage(cardId, questionText);
-      setIsSaved(true);
-    } catch (error) {
-      console.error("Failed to generate image:", error);
-    } finally {
-      setIsGeneratingImage(false);
-    }
-  };
-
   if (!showActions) return null;
-
+  
+  const handleNext = () => {
+    onNext();
+  };
+  
   return (
-    <div className="mt-4 flex flex-row gap-2 justify-between items-center animate-fade-in">
+    <div className={cn("pt-4 flex flex-col space-y-3 animate-fade-in", 
+      { "opacity-0": !showActions }
+    )}>
       <button
-        onClick={handleSaveClick}
-        disabled={isGeneratingImage}
-        className="flex items-center gap-1 bg-[#f1f1f1] text-[#333] hover:bg-[#e5e5e5] 
-                 text-xs py-1 px-2 font-['Comic_Sans_MS'] pixel-button h-8"
+        onClick={handleNext}
+        className="cta-button-bright w-full text-sm md:text-base"
       >
-        <Camera size={12} /> 
-        {isGeneratingImage ? "Generating..." : isSaved ? "Saved" : "Screenshot"}
+        Next Question &rarr;
       </button>
       
-      {/* CTA Button between screenshot and next */}
-      <div className="flex-grow px-1">
-        <CTAButton 
-          visible={true} 
-          className="static m-0 p-0 h-8 w-full"
-          url={ctaUrl}
-          text={ctaText}
-        />
-      </div>
-      
-      <button
-        onClick={onNext}
-        className="flex items-center gap-1 bg-[#ff0052] text-white hover:bg-[#cc0042] 
-                 text-xs py-1 px-2 font-['Comic_Sans_MS'] pixel-button h-8"
-      >
-        Next <ChevronRight size={12} />
-      </button>
+      <CTAButton 
+        visible={true} 
+        url={ctaUrl}
+        text={ctaText}
+      />
     </div>
   );
 };
-
-export default ActionBar;
