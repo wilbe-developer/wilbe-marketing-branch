@@ -33,7 +33,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
 
   return (
     <>
-      <div className={cn("mt-4 flex flex-row gap-2 justify-between items-center animate-fade-in",
+      <div className={cn("mt-4 flex flex-row gap-1 justify-between items-center animate-fade-in",
         { "opacity-0": !showActions }
       )}>
         <button
@@ -45,8 +45,8 @@ export const ActionBar: React.FC<ActionBarProps> = ({
           Screenshot
         </button>
         
-        {/* CTA Button between screenshot and next */}
-        <div className="flex-grow px-1">
+        {/* CTA Button between screenshot and next - reduced gap on mobile */}
+        <div className="flex-grow px-0.5 sm:px-1">
           <CTAButton 
             visible={true} 
             className="static m-0 p-0 h-8 w-full"

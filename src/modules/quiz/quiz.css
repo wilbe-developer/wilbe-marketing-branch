@@ -59,7 +59,7 @@
 .cta-button-bright {
   background: #ff0052;
   color: white;
-  padding: 0.5rem 1.5rem;
+  padding: 0.5rem 1rem;
   border-radius: 2px;
   box-shadow: 2px 2px 0 #cc0042;
   transition: all 0.15s ease;
@@ -68,6 +68,13 @@
   border: 1px solid #000;
   font-family: 'Comic Sans MS', cursive;
   font-weight: bold;
+}
+
+@media (max-width: 640px) {
+  .cta-button-bright {
+    padding: 0.5rem 0.5rem;
+    font-size: 0.7rem;
+  }
 }
 
 .cta-button-bright:hover {

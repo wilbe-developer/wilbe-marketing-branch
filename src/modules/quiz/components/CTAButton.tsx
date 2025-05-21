@@ -26,7 +26,7 @@ const CTAButton: React.FC<CTAButtonProps> = ({
         href={url}
         target="_blank"
         rel="noopener noreferrer"
-        className="cta-button-bright font-['Comic_Sans_MS'] text-sm marquee-effect pixel-border w-full h-full flex items-center justify-center"
+        className="cta-button-bright font-['Comic_Sans_MS'] text-xs md:text-sm marquee-effect pixel-border w-full h-full flex items-center justify-center whitespace-nowrap px-1 sm:px-2"
       >
         {text}
       </a>
