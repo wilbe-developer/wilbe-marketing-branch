@@ -23,6 +23,7 @@ export const PATHS = {
   SPRINT_SIGNUP: '/sprint-signup',
   SPRINT_PROFILE: '/sprint/profile',
   LEAD_GENERATOR: '/lead-generator',
+  QUIZ: '/quiz',
   API: {
     FIND_EMAILS: '/api/find-emails'
   }

@@ -43,6 +43,7 @@ import SprintDataRoomPage from "./pages/SprintDataRoomPage";
 import AdminLoginPage from "@/pages/AdminLoginPage";
 import PasswordResetPage from "@/pages/PasswordResetPage";
 import TaskBuilderPage from "@/pages/admin/TaskBuilderPage";
+import QuizPage from "@/pages/QuizPage";
 
 // Auth Route component
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -74,6 +75,9 @@ const App = () => (
                 <Route path={PATHS.PENDING} element={<PendingApprovalPage />} />
                 <Route path={PATHS.LANDING_PAGE} element={<LandingPage />} />
                 <Route path={PATHS.BSF_PAGE} element={<BsfPage />} />
+                
+                {/* Quiz route - publicly accessible */}
+                <Route path={PATHS.QUIZ} element={<QuizPage />} />
 
                 {/* Sprint signup - publicly accessible */}
                 <Route path="/sprint-signup" element={<SprintSignupPage />} />
