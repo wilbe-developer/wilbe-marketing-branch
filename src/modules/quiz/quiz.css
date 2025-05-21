@@ -6,6 +6,8 @@
   box-shadow: 4px 4px 0 #000000;
   border-radius: 2px;
   position: relative;
+  background-color: #fff;
+  padding: 1rem;
 }
 
 .pixel-border {
@@ -40,11 +42,17 @@
 .option-box {
   transition: all 0.15s ease;
   box-shadow: 2px 2px 0 #ff0052;
+  border: 1px solid #000;
+  border-radius: 0;
+  padding: 0.5rem 1rem;
+  margin-bottom: 0.5rem;
+  background-color: #fff;
 }
 
 .option-box:hover {
   transform: translate(1px, 1px);
   box-shadow: 1px 1px 0 #ff0052;
+  background-color: #fff5f7;
 }
 
 /* CTA button styles */
@@ -58,6 +66,8 @@
   position: relative;
   text-align: center;
   border: 1px solid #000;
+  font-family: 'Comic Sans MS', cursive;
+  font-weight: bold;
 }
 
 .cta-button-bright:hover {
@@ -76,6 +86,7 @@
   position: relative;
   text-align: center;
   border: 1px solid #000;
+  font-family: 'Comic Sans MS', cursive;
 }
 
 .option-button-bright:hover {
@@ -87,11 +98,17 @@
 /* Results bar styling */
 .results-bar-bright {
   background: linear-gradient(90deg, #ff0052, #ff6b8b);
+  height: 1.25rem;
+  border: 1px solid #000;
 }
 
 /* Text effects */
 .blink-marquee {
   animation: blink 1s step-end infinite;
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  background-color: #ffffcc;
+  border: 1px dashed #ff0052;
 }
 
 @keyframes blink {

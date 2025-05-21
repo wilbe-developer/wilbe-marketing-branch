@@ -1,78 +1,67 @@
 
 import React from 'react';
-import { cn } from '../utils/cn';
 import { QuestionStats } from '../types';
+import { cn } from '../utils/cn';
 
 interface OptionsListProps {
   options: string[];
-  onSelect: (optionIndex: number) => void;
+  onSelect: (index: number) => void;
   selectedIndex: number | null;
-  disabled: boolean;
-  stats: Record<number, number> | null;
-  showStats: boolean;
+  disabled?: boolean;
+  stats?: QuestionStats | null;
+  showStats?: boolean;
 }
 
 export const OptionsList: React.FC<OptionsListProps> = ({
   options,
   onSelect,
   selectedIndex,
-  disabled,
-  stats,
-  showStats
+  disabled = false,
+  stats = null,
+  showStats = false,
 }) => {
-  // Calculate total responses for percentages
-  const calculatePercentage = (count: number, total: number): string => {
-    if (total === 0) return "0%";
-    return `${Math.round((count / total) * 100)}%`;
+  const getPercentage = (index: number): number => {
+    if (!stats) return 0;
+    
+    const totalVotes = Object.values(stats).reduce((sum, count) => sum + count, 0);
+    if (totalVotes === 0) return 0;
+    
+    const optionVotes = stats[index] || 0;
+    return Math.round((optionVotes / totalVotes) * 100);
   };
-
-  let totalResponses = 0;
-  if (stats) {
-    totalResponses = Object.values(stats).reduce((sum, count) => sum + count, 0);
-  }
   
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       {options.map((option, index) => {
         const isSelected = selectedIndex === index;
-        const percentage = stats ? calculatePercentage(stats[index] || 0, totalResponses) : "0%";
-        const percentValue = parseInt(percentage);
+        const percentage = getPercentage(index);
         
         return (
-          <div key={index} className="w-full">
+          <div key={index} className="relative">
             <button
-              className={cn(
-                "option-box font-['Comic_Sans_MS'] text-sm w-full text-left p-3 border-2 rounded-sm",
-                disabled && "pointer-events-none",
-                isSelected 
-                  ? "border-[#ff0052] bg-[#fff5f7] text-[#ff0052] font-bold" 
-                  : "border-[#ff6b8b] bg-white hover:bg-[#fff5f7] hover:border-[#ff0052]"
-              )}
               onClick={() => !disabled && onSelect(index)}
               disabled={disabled}
+              className={cn(
+                "option-box w-full text-left text-sm md:text-base font-['Comic_Sans_MS'] py-2",
+                {
+                  "border-[#ff0052] border-2": isSelected,
+                  "cursor-not-allowed opacity-70": disabled && !isSelected,
+                }
+              )}
             >
-              <span className="inline-block w-4 mr-1">{String.fromCharCode(65 + index)}.</span> {option}
+              {option}
             </button>
             
-            {/* Results bar - only show after answering */}
             {showStats && (
-              <div className="ml-5 mt-1 flex items-center animate-fade-in">
-                <div className="w-full bg-gray-200 h-4 pixel-border-sm overflow-hidden">
-                  <div 
-                    className="results-bar-bright h-full flex items-center justify-end pr-1"
-                    style={{ 
-                      width: percentValue > 3 ? percentage : '3%',
-                      transition: 'width 0.5s ease-out'
-                    }}
-                  >
-                    {percentValue > 10 && (
-                      <span className="text-xs text-white font-bold font-['Comic_Sans_MS']">{percentage}</span>
-                    )}
-                  </div>
+              <div className="mt-1 relative h-5 bg-gray-100 border border-gray-300">
+                <div 
+                  className="results-bar-bright absolute left-0 top-0 h-full"
+                  style={{ width: `${percentage}%` }}
+                >
                 </div>
-                {percentValue <= 10 && (
-                  <span className="ml-2 text-xs font-['Comic_Sans_MS']">{percentage}</span>
-                )}
+                <div className="absolute inset-0 flex items-center justify-end pr-2">
+                  <span className="text-xs font-bold z-10 text-white">{percentage}%</span>
+                </div>
               </div>
             )}
           </div>
@@ -81,5 +70,3 @@ export const OptionsList: React.FC<OptionsListProps> = ({
     </div>
   );
 };
-
-export default OptionsList;

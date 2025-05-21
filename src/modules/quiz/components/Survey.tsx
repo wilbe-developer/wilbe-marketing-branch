@@ -4,6 +4,7 @@ import { useSurvey } from '../hooks/useSurvey';
 import QuestionCard from './QuestionCard';
 import CTAButton from './CTAButton';
 import LoadingQuestion from './LoadingQuestion';
+import WilbeLogo from "@/assets/WilbeLogo";
 
 interface SurveyProps {
   ctaUrl?: string;
@@ -12,9 +13,9 @@ interface SurveyProps {
 }
 
 const Survey: React.FC<SurveyProps> = ({ 
-  ctaUrl = "https://app.wilbe.com/sprint-waitlist",
+  ctaUrl = "/waitlist",
   ctaText = "Serious about building?",
-  logoSrc = "/lovable-uploads/e1312da7-f5eb-469d-953a-a520bd9538b9.png"
+  logoSrc
 }) => {
   const { 
     currentQuestion,
@@ -30,13 +31,13 @@ const Survey: React.FC<SurveyProps> = ({
 
   // Display loading component while initializing
   if (isLoading) {
-    return <LoadingQuestion logoSrc={logoSrc} />;
+    return <LoadingQuestion />;
   }
 
   // Handle case when no question is available
   if (!currentQuestion && !isGeneratingQuestion) {
     return (
-      <div className="w-full max-w-md mx-auto bg-white px-4 py-4 rounded-sm border-2 border-[#ff0052] early-internet-card">
+      <div className="w-full max-w-md mx-auto bg-white px-4 py-4 rounded-sm pixel-border early-internet-card">
         <div className="text-center text-[#ff0052] font-['Comic_Sans_MS']">
           <p>Unable to load survey questions.</p>
           <button 
@@ -47,7 +48,13 @@ const Survey: React.FC<SurveyProps> = ({
           </button>
         </div>
         <div className="mt-4 text-center">
-          <img src={logoSrc} alt="Logo" className="h-8 mx-auto" />
+          <WilbeLogo
+            className="h-6 mx-auto"
+            style={{
+              '--sails-color': 'var(--brand-pink, #FF2C6D)',
+              '--text-color': 'var(--brand-darkBlue, #0A1632)',
+            } as React.CSSProperties}
+          />
         </div>
       </div>
     );
@@ -55,9 +62,9 @@ const Survey: React.FC<SurveyProps> = ({
 
   return (
     <div className="flex flex-col items-center mt-0 px-4 py-1">
-      <div className="w-full max-w-md early-internet-card">
+      <div className="w-full max-w-md">
         {isGeneratingQuestion ? (
-          <LoadingQuestion logoSrc={logoSrc} />
+          <LoadingQuestion />
         ) : (
           <QuestionCard
             question={currentQuestion}

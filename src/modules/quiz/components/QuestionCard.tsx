@@ -3,6 +3,7 @@ import React, { useRef } from 'react';
 import { SurveyQuestion, QuestionStats } from '../types';
 import { OptionsList } from './OptionsList';
 import { ActionBar } from './ActionBar';
+import WilbeLogo from "@/assets/WilbeLogo";
 
 interface QuestionCardProps {
   question: SurveyQuestion;
@@ -23,18 +24,18 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
   stats,
   isAnswered,
   selectedOptionIndex,
-  logoSrc = "/lovable-uploads/e1312da7-f5eb-469d-953a-a520bd9538b9.png",
-  ctaUrl = "https://app.wilbe.com/sprint-waitlist",
+  logoSrc,
+  ctaUrl = "/waitlist",
   ctaText = "Serious about building?"
 }) => {
   const resultCardRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div className="w-full max-w-md mx-auto bg-white px-4 py-4 rounded-sm pixel-border">
-      <div ref={resultCardRef} id="result-card" className="space-y-3">
+    <div className="w-full max-w-md mx-auto bg-white px-4 py-6 rounded-sm pixel-border early-internet-card">
+      <div ref={resultCardRef} id="result-card" className="space-y-4">
         <h2 className="text-lg md:text-xl font-['Comic_Sans_MS'] mb-3 text-[#333] text-center">
           <span className="blink-marquee">
-            {question.text}
+            ★ {question.text} ★
           </span>
         </h2>
         
@@ -48,8 +49,14 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
         />
         
         {/* Logo watermark */}
-        <div className="text-center mt-3">
-          <img src={logoSrc} alt="Logo" className="h-6 mx-auto" />
+        <div className="text-center mt-4">
+          <WilbeLogo
+            className="h-6 mx-auto"
+            style={{
+              '--sails-color': 'var(--brand-pink, #FF2C6D)',
+              '--text-color': 'var(--brand-darkBlue, #0A1632)',
+            } as React.CSSProperties}
+          />
         </div>
       </div>
       
