@@ -47,7 +47,7 @@ export function useSurvey() {
     };
     
     initializeSurvey();
-  }, [dispatch, toast]);
+  }, []); // Empty dependency array to prevent infinite loop
   
   // Handle answering a question
   const handleAnswer = async (optionIndex: number) => {

@@ -35,7 +35,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
       <div ref={resultCardRef} id="result-card" className="space-y-4">
         <h2 className="text-lg md:text-xl font-['Comic_Sans_MS'] mb-3 text-[#333] text-center">
           <span className="blink-marquee">
-            ★ {question.text} ★
+            <span className="star-blink">★</span> <span className="text-black">{question.text}</span> <span className="star-blink">★</span>
           </span>
         </h2>
         

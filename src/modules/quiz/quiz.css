@@ -120,7 +120,18 @@
   padding: 0.25rem 0.5rem;
   background-color: transparent; /* Removed yellow background */
   border: 1px dashed #ff0052;
-  color: #ff0052; /* Pink text for stars */
+}
+
+/* Star blinking effect - completely fades in and out */
+.star-blink {
+  color: #ff0052; /* Pink stars */
+  animation: star-blink 1.5s ease-in-out infinite;
+  display: inline-block;
+}
+
+@keyframes star-blink {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 1; }
 }
 
 @keyframes blink {

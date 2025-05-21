@@ -1,7 +1,9 @@
 
-import React from 'react';
-import { cn } from '../utils/cn';
+import React, { useState } from 'react';
+import { Camera, ChevronRight } from 'lucide-react';
 import CTAButton from './CTAButton';
+import { generateAndDownloadImage } from '../utils/imageGenerator';
+import { cn } from '../utils/cn';
 
 interface ActionBarProps {
   onNext: () => void;
@@ -20,28 +22,57 @@ export const ActionBar: React.FC<ActionBarProps> = ({
   ctaUrl = "/waitlist",
   ctaText = "Serious about building?"
 }) => {
-  if (!showActions) return null;
-  
-  const handleNext = () => {
-    onNext();
+  const [isGeneratingImage, setIsGeneratingImage] = useState<boolean>(false);
+  const [isSaved, setIsSaved] = useState<boolean>(false);
+
+  // Handle save button click
+  const handleSaveClick = async () => {
+    if (!cardId || !questionText) return;
+    
+    setIsGeneratingImage(true);
+    try {
+      await generateAndDownloadImage(cardId, questionText);
+      setIsSaved(true);
+    } catch (error) {
+      console.error("Failed to generate image:", error);
+    } finally {
+      setIsGeneratingImage(false);
+    }
   };
-  
+
+  if (!showActions) return null;
+
   return (
-    <div className={cn("pt-4 flex flex-col space-y-3 animate-fade-in", 
+    <div className={cn("mt-4 flex flex-row gap-2 justify-between items-center animate-fade-in",
       { "opacity-0": !showActions }
     )}>
       <button
-        onClick={handleNext}
-        className="cta-button-bright w-full text-sm md:text-base"
+        onClick={handleSaveClick}
+        disabled={isGeneratingImage}
+        className="flex items-center gap-1 bg-[#f1f1f1] text-[#333] hover:bg-[#e5e5e5] 
+                 text-xs py-1 px-2 font-['Comic_Sans_MS'] pixel-button h-8"
       >
-        Next Question &rarr;
+        <Camera size={12} /> 
+        {isGeneratingImage ? "Generating..." : isSaved ? "Saved" : "Screenshot"}
       </button>
       
-      <CTAButton 
-        visible={true} 
-        url={ctaUrl}
-        text={ctaText}
-      />
+      {/* CTA Button between screenshot and next */}
+      <div className="flex-grow px-1">
+        <CTAButton 
+          visible={true} 
+          className="static m-0 p-0 h-8 w-full"
+          url={ctaUrl}
+          text={ctaText}
+        />
+      </div>
+      
+      <button
+        onClick={onNext}
+        className="flex items-center gap-1 bg-[#ff0052] text-white hover:bg-[#cc0042] 
+                 text-xs py-1 px-2 font-['Comic_Sans_MS'] pixel-button h-8"
+      >
+        Next <ChevronRight size={12} />
+      </button>
     </div>
   );
 };
