@@ -8,7 +8,7 @@ const QuizPage = () => {
       <QuizApp 
         title="Infinite Scientist Founder Quiz"
         ctaText="Serious about building?"
-        ctaUrl="/waitlist"
+        ctaUrl="/waitlist?utm_source=quiz&utm_medium=web"
       />
     </div>
   );
