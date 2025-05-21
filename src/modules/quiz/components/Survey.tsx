@@ -14,7 +14,7 @@ interface SurveyProps {
 
 const Survey: React.FC<SurveyProps> = ({ 
   ctaUrl = "/waitlist",
-  ctaText = "Serious about building?",
+  ctaText = "Join the waitlist",
   logoSrc
 }) => {
   const { 

@@ -20,50 +20,52 @@ export function WaitlistForm() {
     await signup(name, email, referralCode, utmSource, utmMedium);
   };
 
-  // Array of colors for instant hover changes - updated to blues instead of oranges/reds
+  // Array of colors for instant hover changes - updated to greens
   const hoverColors = [
-    '#2323FF',   // Deep Blue (main)
-    '#3F3FFF',   // Slightly lighter blue
-    '#7A7AFF',   // Medium blue
-    '#0EA5E9',   // Ocean Blue
-    '#0C4A6E',   // Dark blue
-    '#38BDF8',   // Light blue
+    '#7ED957',   // Main green
+    '#6BC947',   // Darker green
+    '#8FE467',   // Lighter green
+    '#5AB937',   // Deep green
+    '#A1F579',   // Light green
+    '#69D344',   // Medium green
   ];
 
   const getRandomColor = () => hoverColors[Math.floor(Math.random() * hoverColors.length)];
-  const [buttonColor, setButtonColor] = useState('#2323FF'); // Set initial color to blue
+  const [buttonColor, setButtonColor] = useState('#7ED957'); // Set initial color to green
 
   return (
-    <div className="w-full max-w-md mx-auto space-y-2">
-      <form onSubmit={handleSubmit} className="space-y-1">
+    <form className="w-full max-w-2xl mx-auto space-y-8" onSubmit={handleSubmit}>
+      <div>
         <Input
           type="text"
-          placeholder="Your name"
+          placeholder="YOUR NAME"
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
-          className="h-12 rounded-none w-full"
+          className="bg-transparent border-white/30 h-14 text-white placeholder:text-white/60 focus:border-[#7ED957] focus:ring-[#7ED957] rounded-none"
           disabled={isLoading}
         />
+      </div>
+      <div>
         <Input
           type="email"
-          placeholder="Your email"
+          placeholder="YOUR EMAIL"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          className="h-12 rounded-none w-full"
+          className="bg-transparent border-white/30 h-14 text-white placeholder:text-white/60 focus:border-[#7ED957] focus:ring-[#7ED957] rounded-none"
           disabled={isLoading}
         />
-        <Button 
-          type="submit" 
-          className="w-full h-12 text-lg font-semibold rounded-none transition-colors"
-          style={{ backgroundColor: buttonColor }}
-          onMouseEnter={() => setButtonColor(getRandomColor())}
-          disabled={isLoading}
-        >
-          {isLoading ? "Joining..." : "Join waitlist"}
-        </Button>
-      </form>
-    </div>
+      </div>
+      <Button 
+        type="submit" 
+        className="w-full h-14 text-lg font-bold text-black rounded-none"
+        style={{ backgroundColor: buttonColor }}
+        onMouseEnter={() => setButtonColor(getRandomColor())}
+        disabled={isLoading}
+      >
+        {isLoading ? "JOINING..." : "JOIN THE WAITLIST"}
+      </Button>
+    </form>
   );
 }

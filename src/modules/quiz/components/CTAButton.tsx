@@ -13,7 +13,7 @@ const CTAButton: React.FC<CTAButtonProps> = ({
   visible, 
   className,
   url = "https://app.wilbe.com/sprint-waitlist",
-  text = "Serious about building?"
+  text = "Join the waitlist"
 }) => {
   if (!visible) return null;
 

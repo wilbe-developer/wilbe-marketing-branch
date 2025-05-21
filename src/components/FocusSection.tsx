@@ -1,6 +1,5 @@
 
 import React from 'react';
-import Section from './Section';
 
 const focusAreas = [
   {
@@ -9,7 +8,7 @@ const focusAreas = [
   },
   {
     title: 'Customers',
-    description: 'Learn to identify and engage with your customers early and effectively. We help you frame customer conversations to drive concrete outcomes; LOIs, POCs, and commercial partnerships.'
+    description: 'Learn to identify and engage with your customers early and effectively. We help you frame customer conversations to drive concrete outcomes: LOIs, POCs, and commercial partnerships.'
   },
   {
     title: 'Operations',
@@ -23,17 +22,24 @@ const focusAreas = [
 
 const FocusSection: React.FC = () => {
   return (
-    <Section>
-      <h2 className="text-3xl font-bold mb-10">The outcome from BSF</h2>
-      <div className="space-y-6">
+    <section className="container my-32">
+      <div className="flex flex-col md:flex-row gap-6 items-start mb-24">
+        <div className="text-6xl font-black">04 //</div>
+        <h2 className="text-4xl md:text-5xl font-bold max-w-3xl">The outcome from BSF</h2>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-white/30">
         {focusAreas.map((area, index) => (
-          <div key={index} className="border-b border-zinc-200 pb-6 last:border-b-0">
-            <h3 className="text-xl font-bold mb-1">{area.title}</h3>
-            <p className="text-zinc-600">{area.description}</p>
+          <div key={index} className="bg-black p-10">
+            <div className="flex items-center mb-8">
+              <div className="h-10 w-1 bg-[#7ED957] mr-4"></div>
+              <h3 className="text-3xl font-bold">{area.title}</h3>
+            </div>
+            <p className="text-lg text-white/70">{area.description}</p>
           </div>
         ))}
       </div>
-    </Section>
+    </section>
   );
 };
 

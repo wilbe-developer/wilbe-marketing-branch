@@ -12,7 +12,7 @@ const QuizApp: React.FC<QuizAppProps> = ({
   title = "Infinite Scientist Founder Quiz",
   logoSrc,
   ctaUrl = "/waitlist",
-  ctaText = "Serious about building?",
+  ctaText = "Join the waitlist",
   className
 }) => {
   return (
