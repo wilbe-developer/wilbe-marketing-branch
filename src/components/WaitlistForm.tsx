@@ -20,18 +20,18 @@ export function WaitlistForm() {
     await signup(name, email, referralCode, utmSource, utmMedium);
   };
 
-  // Array of colors for instant hover changes
+  // Array of colors for instant hover changes - updated to blues instead of oranges/reds
   const hoverColors = [
-    '#ff0052',   // Specific Red
-    '#D946EF',   // Magenta Pink
-    '#8B5CF6',   // Vivid Purple
+    '#2323FF',   // Deep Blue (main)
+    '#3F3FFF',   // Slightly lighter blue
+    '#7A7AFF',   // Medium blue
     '#0EA5E9',   // Ocean Blue
-    '#F97316',   // Bright Orange
-    '#10B981',   // Emerald Green
+    '#0C4A6E',   // Dark blue
+    '#38BDF8',   // Light blue
   ];
 
   const getRandomColor = () => hoverColors[Math.floor(Math.random() * hoverColors.length)];
-  const [buttonColor, setButtonColor] = useState('#F97316'); // Set initial color to orange
+  const [buttonColor, setButtonColor] = useState('#2323FF'); // Set initial color to blue
 
   return (
     <div className="w-full max-w-md mx-auto space-y-2">

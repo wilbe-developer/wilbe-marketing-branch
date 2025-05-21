@@ -14,7 +14,7 @@ import FAQSection from "@/components/FAQSection";
 
 const SprintWaitlistPage = () => {
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-orange-500 via-orange-300 to-white">
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-[#2323FF] via-[#7A7AFF] to-white">
       <Helmet>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
       </Helmet>

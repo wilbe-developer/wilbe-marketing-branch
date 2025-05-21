@@ -14,7 +14,7 @@ const HeroSection: React.FC = () => {
 
   return (
     <Section 
-      className="py-20 md:py-32 bg-gradient-to-b from-orange-500 via-orange-300 to-white text-white"
+      className="py-20 md:py-32 bg-gradient-to-b from-[#2323FF] via-[#7A7AFF] to-white text-white"
       withContainer={true}
     >
       <div className="text-center space-y-6">
@@ -34,7 +34,7 @@ const HeroSection: React.FC = () => {
         <div className="pt-4">
           <Button 
             onClick={scrollToWaitlist}
-            className="bg-white text-orange-500 hover:bg-white/90 text-lg px-6 py-2 h-auto rounded-none"
+            className="bg-white text-[#2323FF] hover:bg-white/90 text-lg px-6 py-2 h-auto rounded-none"
           >
             Join the waitlist
             <ArrowRight />
