@@ -12,36 +12,16 @@ import Footer from "@/components/Footer";
 import Logo from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useNavigate } from "react-router-dom";
+import { PATHS } from "@/lib/constants";
 
 const SprintWaitlistPage = () => {
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
   
   const scrollToWaitlist = () => {
-    const waitlistSection = document.getElementById('waitlist-form');
-    if (waitlistSection) {
-      // Get the element's position
-      const rect = waitlistSection.getBoundingClientRect();
-      const absoluteTop = window.pageYOffset + rect.top;
-      
-      // Calculate center position accounting for viewport height
-      const offset = rect.height > window.innerHeight 
-        ? 0 
-        : (window.innerHeight - rect.height) / 2;
-      
-      // Use a slight delay to ensure smooth scrolling
-      setTimeout(() => {
-        window.scrollTo({
-          top: absoluteTop - offset,
-          behavior: 'smooth'
-        });
-        
-        // Optional: Add a highlight effect
-        waitlistSection.classList.add('scroll-highlight');
-        setTimeout(() => {
-          waitlistSection.classList.remove('scroll-highlight');
-        }, 1500);
-      }, 100);
-    }
+    // Redirect to signup page instead of scrolling
+    navigate(PATHS.SPRINT_SIGNUP);
   };
 
   return (
@@ -61,7 +41,7 @@ const SprintWaitlistPage = () => {
           onClick={scrollToWaitlist}
           className="bg-[#7ED957] text-black hover:bg-[#7ED957]/90 px-8 py-6 font-bold rounded-none"
         >
-          Join the waitlist
+          Let's Go
         </Button>
       </header>
       
