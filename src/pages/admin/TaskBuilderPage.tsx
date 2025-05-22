@@ -4,6 +4,8 @@ import FullScreenAdminLayout from '@/components/admin/FullScreenAdminLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import TaskDefinitionsTab from '@/components/admin/tabs/TaskDefinitionsTab';
+import TaskTemplatesTab from '@/components/admin/tabs/TaskTemplatesTab';
+import TaskProfileIntegration from '@/components/admin/tasks/TaskProfileIntegration';
 
 const TaskBuilderPage = () => {
   return (
@@ -37,7 +39,7 @@ const TaskBuilderPage = () => {
               <CardTitle>Task Templates</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-500">This feature is coming soon.</p>
+              <TaskTemplatesTab />
             </CardContent>
           </Card>
         </TabsContent>
@@ -48,7 +50,16 @@ const TaskBuilderPage = () => {
               <CardTitle>Profile Integration</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-500">This feature is coming soon.</p>
+              <TaskProfileIntegration
+                profileSettings={{
+                  profile_key: '',
+                  profile_label: '',
+                  profile_type: 'boolean',
+                  profile_options: null
+                }}
+                onChange={() => {}}
+                isReadOnly={true}
+              />
             </CardContent>
           </Card>
         </TabsContent>

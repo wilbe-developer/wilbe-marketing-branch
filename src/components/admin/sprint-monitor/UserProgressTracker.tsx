@@ -1,21 +1,29 @@
-
 import React, { useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Clock, FileText, Mail } from 'lucide-react';
 
-interface UserProgressTrackerProps {
+export interface UserProgressTrackerProps {
   userProgressData: any[];
+  isLoading?: boolean;
   detailed?: boolean;
 }
 
-const UserProgressTracker: React.FC<UserProgressTrackerProps> = ({ userProgressData, detailed = false }) => {
+const UserProgressTracker: React.FC<UserProgressTrackerProps> = ({ userProgressData, isLoading = false, detailed = false }) => {
   const [expandedUser, setExpandedUser] = useState<string | null>(null);
 
   const toggleUserExpand = (userId: string) => {
     setExpandedUser(expandedUser === userId ? null : userId);
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center p-6">
+        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
+      </div>
+    );
+  }
 
   if (!userProgressData || userProgressData.length === 0) {
     return (

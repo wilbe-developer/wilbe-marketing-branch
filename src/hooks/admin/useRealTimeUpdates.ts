@@ -1,78 +1,62 @@
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
 
-export const useRealTimeUpdates = (isEnabled: boolean, refreshCallback: () => void) => {
+export const useRealTimeUpdates = (enabled: boolean, onDataChange: () => void) => {
   const [isConnected, setIsConnected] = useState(false);
-  
+
   useEffect(() => {
-    if (!isEnabled) {
+    if (!enabled) {
       setIsConnected(false);
       return;
     }
-    
-    // Enable realtime for the tables we want to monitor
-    const channel = supabase
-      .channel('sprint-admin-changes')
-      .on('postgres_changes', { 
-        event: '*', 
-        schema: 'public',
-        table: 'user_sprint_progress'
-      }, (payload) => {
-        console.log('Realtime update received:', payload);
-        refreshCallback();
-        
-        // Show notifications based on the type of change
-        if (payload.eventType === 'INSERT') {
-          toast.info('New task progress recorded');
-        } else if (payload.eventType === 'UPDATE' && payload.new.completed && !payload.old.completed) {
-          toast.success('Task completed by a user');
-        }
-      })
-      .on('postgres_changes', { 
-        event: '*', 
-        schema: 'public',
-        table: 'user_files'
-      }, (payload) => {
-        console.log('File update received:', payload);
-        refreshCallback();
-        
-        if (payload.eventType === 'INSERT') {
-          toast.info('New file uploaded');
-        }
-      })
-      .on('postgres_changes', { 
-        event: '*', 
+
+    const sprintProfileChannel = supabase.channel('sprint_profiles_changes')
+      .on('postgres_changes', {
+        event: '*',
         schema: 'public',
         table: 'sprint_profiles'
-      }, (payload) => {
-        console.log('Profile update received:', payload);
-        refreshCallback();
-        
-        if (payload.eventType === 'INSERT') {
-          toast.success('New user signed up for sprint');
-        } else if (payload.eventType === 'UPDATE') {
-          toast.info('User profile updated');
-        }
+      }, () => {
+        onDataChange();
       })
       .subscribe((status) => {
-        if (status === 'SUBSCRIBED') {
-          console.log('Connected to realtime updates');
-          setIsConnected(true);
-          toast.success('Real-time updates enabled');
-        } else {
-          console.log('Realtime subscription status:', status);
-        }
+        setIsConnected(status === 'SUBSCRIBED');
+        console.log('Sprint profiles realtime subscription status:', status);
       });
-    
-    // Cleanup function
+
+    const progressChannel = supabase.channel('sprint_progress_changes')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'user_sprint_progress'
+      }, () => {
+        onDataChange();
+      })
+      .subscribe((status) => {
+        setIsConnected(status === 'SUBSCRIBED' && isConnected);
+        console.log('Sprint progress realtime subscription status:', status);
+      });
+
+    const filesChannel = supabase.channel('user_files_changes')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'user_files'
+      }, () => {
+        onDataChange();
+      })
+      .subscribe((status) => {
+        setIsConnected(status === 'SUBSCRIBED' && isConnected);
+        console.log('User files realtime subscription status:', status);
+      });
+
+    // Cleanup
     return () => {
-      console.log('Cleaning up realtime subscription');
-      supabase.removeChannel(channel);
-      setIsConnected(false);
+      supabase.removeChannel(sprintProfileChannel);
+      supabase.removeChannel(progressChannel);
+      supabase.removeChannel(filesChannel);
     };
-  }, [isEnabled, refreshCallback]);
-  
+  }, [enabled, onDataChange]);
+
   return { isConnected };
 };
