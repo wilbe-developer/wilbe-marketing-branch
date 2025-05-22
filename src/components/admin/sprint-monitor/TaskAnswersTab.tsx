@@ -52,16 +52,21 @@ const TaskAnswersTab: React.FC<TaskAnswersTabProps> = () => {
         });
       }
       
-      // Fetch answers data
+      // Fetch answers data - IMPORTANT: Remove the filter condition for answers
+      // to get all progress records, including ones with task_answers
       const { data: progressData, error: progressError } = await supabase
         .from('user_sprint_progress')
-        .select('*')
-        .not('answers', 'is', null);
+        .select('*');
         
       if (progressError) throw progressError;
       
+      // Filter records with task_answers after fetching
+      const progressWithAnswers = progressData.filter(item => 
+        item.task_answers !== null || item.answers !== null
+      );
+      
       // Process data
-      const processedAnswers = progressData.map(item => {
+      const processedAnswers = progressWithAnswers.map(item => {
         const taskDef = tasksData?.find(t => t.id === item.task_id);
         const userProfile = profileMap.get(item.user_id) || { name: 'Unknown User', email: 'No Email' };
         
@@ -98,6 +103,8 @@ const TaskAnswersTab: React.FC<TaskAnswersTabProps> = () => {
           fileId: item.file_id
         };
       });
+      
+      console.log('Processed answers:', processedAnswers);
       
       setAnswers(processedAnswers);
       setTaskDefinitions(tasksData || []);
@@ -242,10 +249,10 @@ const TaskAnswersTab: React.FC<TaskAnswersTabProps> = () => {
                               </div>
                             ))
                           ) : (
-                            <div className="text-gray-500">No answers recorded</div>
+                            <div className="text-gray-500">No standard answers recorded</div>
                           )}
                           
-                          {Object.keys(answer.taskAnswers || {}).length > 0 && (
+                          {Object.keys(answer.taskAnswers || {}).length > 0 ? (
                             <>
                               <div className="mt-2 mb-1 font-medium text-gray-700">Task Answers:</div>
                               {Object.entries(answer.taskAnswers || {}).map(([key, value]) => (
@@ -255,6 +262,8 @@ const TaskAnswersTab: React.FC<TaskAnswersTabProps> = () => {
                                 </div>
                               ))}
                             </>
+                          ) : (
+                            <div className="text-gray-500 mt-2">No task answers recorded</div>
                           )}
                         </div>
                       </details>
