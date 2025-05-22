@@ -1,13 +1,21 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import FullScreenAdminLayout from '@/components/admin/FullScreenAdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useSprintAdminData } from '@/hooks/admin/useSprintAdminData';
-import { BarChart, Users, FileText, Settings } from 'lucide-react';
+import { useSprintMonitor } from '@/hooks/admin/useSprintMonitor';
+import { BarChart, Users, FileText, Settings, Clock, Database, Activity } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const AdminDashboardPage = () => {
-  const { unifiedStats, isLoading } = useSprintAdminData();
+  const { unifiedStats, refreshData } = useSprintAdminData();
+  const { taskPerformance, activityFeed, refreshMonitorData } = useSprintMonitor();
+
+  // Refresh data when component mounts
+  useEffect(() => {
+    refreshData();
+    refreshMonitorData();
+  }, []);
 
   return (
     <FullScreenAdminLayout title="Admin Dashboard">
@@ -24,7 +32,7 @@ const AdminDashboardPage = () => {
           <CardContent>
             <div className="flex items-center">
               <Users className="mr-2 h-4 w-4 text-gray-500" />
-              <span className="text-2xl font-bold">{isLoading ? '...' : unifiedStats.sprintSignups}</span>
+              <span className="text-2xl font-bold">{unifiedStats?.sprintSignups || '...'}</span>
             </div>
           </CardContent>
         </Card>
@@ -36,7 +44,7 @@ const AdminDashboardPage = () => {
           <CardContent>
             <div className="flex items-center">
               <Users className="mr-2 h-4 w-4 text-gray-500" />
-              <span className="text-2xl font-bold">{isLoading ? '...' : unifiedStats.waitlistSignups}</span>
+              <span className="text-2xl font-bold">{unifiedStats?.waitlistSignups || '...'}</span>
             </div>
           </CardContent>
         </Card>
@@ -49,7 +57,7 @@ const AdminDashboardPage = () => {
             <div className="flex items-center">
               <BarChart className="mr-2 h-4 w-4 text-gray-500" />
               <span className="text-2xl font-bold">
-                {isLoading ? '...' : `${unifiedStats.conversionRate.toFixed(1)}%`}
+                {unifiedStats ? `${unifiedStats.conversionRate.toFixed(1)}%` : '...'}
               </span>
             </div>
           </CardContent>
@@ -62,7 +70,7 @@ const AdminDashboardPage = () => {
           <CardContent>
             <div className="flex items-center">
               <FileText className="mr-2 h-4 w-4 text-gray-500" />
-              <span className="text-2xl font-bold">...</span>
+              <span className="text-2xl font-bold">{taskPerformance?.totalTasks || '...'}</span>
             </div>
           </CardContent>
         </Card>
@@ -105,6 +113,26 @@ const AdminDashboardPage = () => {
                 </div>
               </Link>
               
+              <Link to="/admin/data-explorer" className="block p-3 hover:bg-gray-50 rounded-md">
+                <div className="flex items-center">
+                  <Database className="h-5 w-5 mr-3 text-gray-500" />
+                  <div>
+                    <div className="font-medium">Data Explorer</div>
+                    <div className="text-sm text-gray-500">Explore and analyze sprint data</div>
+                  </div>
+                </div>
+              </Link>
+              
+              <Link to="/admin/activity" className="block p-3 hover:bg-gray-50 rounded-md">
+                <div className="flex items-center">
+                  <Activity className="h-5 w-5 mr-3 text-gray-500" />
+                  <div>
+                    <div className="font-medium">Activity Log</div>
+                    <div className="text-sm text-gray-500">View system and user activity</div>
+                  </div>
+                </div>
+              </Link>
+              
               <Link to="/admin/settings" className="block p-3 hover:bg-gray-50 rounded-md">
                 <div className="flex items-center">
                   <Settings className="h-5 w-5 mr-3 text-gray-500" />
@@ -122,10 +150,31 @@ const AdminDashboardPage = () => {
           <CardHeader>
             <CardTitle>Recent Activity</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-center py-8 text-gray-500">
-              Activity data will be displayed here
-            </div>
+          <CardContent className="max-h-[300px] overflow-auto">
+            {activityFeed && activityFeed.length > 0 ? (
+              <div className="space-y-3">
+                {activityFeed.slice(0, 5).map((activity) => (
+                  <div key={activity.id} className="flex items-start border-b pb-2 last:border-0">
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">{activity.userName}</p>
+                      <p className="text-xs text-gray-500">{activity.details}</p>
+                      <p className="text-xs text-gray-400 mt-1">
+                        {new Date(activity.timestamp).toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+                <div className="pt-2">
+                  <Link to="/admin/activity" className="text-sm text-blue-600 hover:underline">
+                    View all activity
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-4 text-gray-500">
+                No recent activity to display
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
