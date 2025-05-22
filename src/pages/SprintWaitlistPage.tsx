@@ -1,3 +1,4 @@
+
 import { WaitlistForm } from "@/components/WaitlistForm";
 import { Helmet } from "react-helmet";
 import HeroSection from "@/components/HeroSection";
@@ -11,15 +12,36 @@ import Footer from "@/components/Footer";
 import Logo from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useNavigate } from "react-router-dom";
-import { PATHS } from "@/lib/constants";
 
 const SprintWaitlistPage = () => {
   const isMobile = useIsMobile();
-  const navigate = useNavigate();
   
-  const redirectToSignup = () => {
-    navigate(PATHS.SPRINT_SIGNUP);
+  const scrollToWaitlist = () => {
+    const waitlistSection = document.getElementById('waitlist-form');
+    if (waitlistSection) {
+      // Get the element's position
+      const rect = waitlistSection.getBoundingClientRect();
+      const absoluteTop = window.pageYOffset + rect.top;
+      
+      // Calculate center position accounting for viewport height
+      const offset = rect.height > window.innerHeight 
+        ? 0 
+        : (window.innerHeight - rect.height) / 2;
+      
+      // Use a slight delay to ensure smooth scrolling
+      setTimeout(() => {
+        window.scrollTo({
+          top: absoluteTop - offset,
+          behavior: 'smooth'
+        });
+        
+        // Optional: Add a highlight effect
+        waitlistSection.classList.add('scroll-highlight');
+        setTimeout(() => {
+          waitlistSection.classList.remove('scroll-highlight');
+        }, 1500);
+      }, 100);
+    }
   };
 
   return (
@@ -36,38 +58,30 @@ const SprintWaitlistPage = () => {
           />
         </div>
         <Button 
-          onClick={redirectToSignup}
+          onClick={scrollToWaitlist}
           className="bg-[#7ED957] text-black hover:bg-[#7ED957]/90 px-8 py-6 font-bold rounded-none"
         >
-          Let's Go
+          Join the waitlist
         </Button>
       </header>
       
-      <HeroSection scrollToWaitlist={redirectToSignup} />
+      <HeroSection scrollToWaitlist={scrollToWaitlist} />
       
       <div className="flex-1 flex flex-col">
         <WhoSection />
-        <ProcessSection scrollToWaitlist={redirectToSignup} />
+        <ProcessSection scrollToWaitlist={scrollToWaitlist} />
         <WhySection />
         <FocusSection />
         <AboutSection />
         
-        {/* Waitlist Form Section - keeping this section but changing the form to a button */}
+        {/* Waitlist Form Section */}
         <section id="waitlist-form" className="container my-20 md:my-32 transition-all duration-300">
           <div className="border border-white/30 p-8 md:p-14 relative max-w-3xl mx-auto">
             <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black px-8 text-center">
-              <h2 className="text-4xl font-bold">Ready to start?</h2>
+              <h2 className="text-4xl font-bold">Join the waitlist</h2>
             </div>
-            <div className="pt-6 md:pt-0 flex flex-col items-center">
-              <p className="text-center mb-8 text-lg">
-                Join our BSF Sprint program and start your founder journey today.
-              </p>
-              <Button 
-                onClick={redirectToSignup}
-                className="bg-[#7ED957] text-black hover:bg-[#7ED957]/90 px-12 py-6 text-xl font-bold rounded-none"
-              >
-                Let's Go
-              </Button>
+            <div className="pt-6 md:pt-0">
+              <WaitlistForm />
             </div>
           </div>
         </section>

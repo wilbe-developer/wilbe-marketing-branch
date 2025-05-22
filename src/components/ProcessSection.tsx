@@ -47,7 +47,7 @@ const ProcessSection: React.FC<ProcessSectionProps> = ({ scrollToWaitlist }) => 
 
       <div className="flex justify-center mt-12">
         <Button onClick={scrollToWaitlist} className="bg-[#7ED957] text-black hover:bg-[#7ED957]/90 px-8 py-6 text-lg font-bold">
-          Let's Go <ArrowRight className="ml-2 h-5 w-5" />
+          Join the waitlist <ArrowRight className="ml-2 h-5 w-5" />
         </Button>
       </div>
     </section>;
