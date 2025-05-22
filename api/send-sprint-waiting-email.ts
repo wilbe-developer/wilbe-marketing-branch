@@ -19,12 +19,12 @@ const createEmailHtml = (name: string) => `
   <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
     <h2 style="color: #1a365d;">Thank You for Signing Up!</h2>
     <p>Hi ${name},</p>
-    <p>Your BSF Sprint profile has been saved successfully.</p>
+    <p>Your BSF profile has been saved successfully.</p>
     <p>We're preparing to launch the full BSF experience soon. We'll notify you when it's ready.</p>
     
     <div style="background: #f0f4ff; padding: 15px; border-radius: 5px; margin: 20px 0;">
       <h3 style="margin-top: 0; color: #2a4a8d;">What happens next?</h3>
-      <p>Our team is putting the finishing touches on the BSF Sprint experience. 
+      <p>Our team is putting the finishing touches on the BSF experience. 
          You'll receive an email when the platform is open, and you'll be able to 
          access your dashboard with all your saved information.</p>
     </div>
@@ -37,7 +37,7 @@ const createEmailHtml = (name: string) => `
 
 // Slack message formatter
 const createSlackMessage = (name: string, email: string, linkedin: string = '') => {
-  let message = `✅ New BSF Sprint Signup: *${name}* (${email})`;
+  let message = `✅ New BSF Signup: *${name}* (${email})`;
   if (linkedin) {
     message += `\nLinkedIn: ${linkedin}`;
   }
@@ -62,7 +62,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     await transporter.sendMail({
       from: '"Wilbe Team" <team@wilbe.com>',
       to: email,
-      subject: "Your BSF Sprint Profile Confirmation",
+      subject: "Your BSF Profile Confirmation",
       html: createEmailHtml(name),
       replyTo: 'members@wilbe.com'
     });
@@ -78,7 +78,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     return res.status(200).json({ status: 'sent' });
   } catch (error) {
-    console.error('Error sending sprint waiting notifications:', error);
+    console.error('Error sending waiting notifications:', error);
     return res.status(500).json({ error: 'Failed to send notifications' });
   }
 }

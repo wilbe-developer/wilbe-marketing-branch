@@ -21,7 +21,7 @@ const SprintWaitingPage = () => {
               Thank You for Signing Up!
             </h1>
             <p className="text-xl text-[#403E43] mb-4">
-              Your BSF Sprint profile has been saved successfully.
+              Your BSF profile has been saved successfully.
             </p>
             <p className="text-[#403E43]">
               We're preparing to launch the full BSF experience soon. We'll notify you at{" "}
@@ -32,7 +32,7 @@ const SprintWaitingPage = () => {
           <div className="bg-blue-50 border border-blue-200 rounded-md p-6">
             <h2 className="text-lg font-semibold text-blue-800 mb-2">What happens next?</h2>
             <p className="text-blue-700">
-              Our team is putting the finishing touches on the BSF Sprint experience. 
+              Our team is putting the finishing touches on the BSF experience. 
               You'll receive an email when the platform is open, and you'll be able to 
               access your dashboard with all your saved information.
             </p>
