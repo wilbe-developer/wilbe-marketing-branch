@@ -83,7 +83,7 @@ const SprintConversionMetrics: React.FC<SprintConversionMetricsProps> = ({ timeR
       setConversionData(chartData);
       setConversionRate(conversionRate);
       setTotalSignups(totalWaitlist);
-      setTotalConversions(totalSprints); // Use total sprint signups as conversions
+      setTotalConversions(totalSprints); // Use total sprint signups for the display
     } catch (error) {
       console.error('Error fetching conversion data:', error);
     } finally {
