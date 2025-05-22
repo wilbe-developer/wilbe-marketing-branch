@@ -1,247 +1,237 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
+import { Search, Filter } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useSprintMonitor } from '@/hooks/admin/useSprintMonitor';
 import { supabase } from '@/integrations/supabase/client';
-import { ScrollArea } from '@/components/ui/scroll-area';
 
-interface TaskAnswer {
-  taskId: string;
-  taskName: string;
-  answers: Record<string, any>[];
+interface AnswerAnalyticsProps {
+  // Props if needed
 }
 
-// Helper function to extract task name from definition
-const extractTaskName = (definition: any, fallbackName: string = 'Unknown Task'): string => {
-  if (!definition) return fallbackName;
+const AnswerAnalytics: React.FC<AnswerAnalyticsProps> = () => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [answers, setAnswers] = useState<any[]>([]);
+  const [taskDefinitions, setTaskDefinitions] = useState<any[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedTask, setSelectedTask] = useState<string | null>(null);
   
-  if (typeof definition === 'object' && definition.taskName) {
-    return definition.taskName;
-  } else if (typeof definition === 'string') {
-    try {
-      const parsed = JSON.parse(definition);
-      return parsed.taskName || fallbackName;
-    } catch (e) {
-      return fallbackName;
-    }
-  }
-  
-  return fallbackName;
-};
-
-const AnswerAnalytics = () => {
-  const [selectedTask, setSelectedTask] = useState<string>('');
-  const [tasks, setTasks] = useState<{id: string, title: string}[]>([]);
-  const [answers, setAnswers] = useState<TaskAnswer[]>([]);
-  const [loading, setLoading] = useState(true);
-
   useEffect(() => {
-    const fetchTasksAndAnswers = async () => {
+    const fetchData = async () => {
       try {
-        setLoading(true);
+        setIsLoading(true);
         
-        // Fetch all tasks from sprint_task_definitions instead of sprint_tasks
+        // Fetch task definitions
         const { data: tasksData, error: tasksError } = await supabase
           .from('sprint_task_definitions')
-          .select('id, name, definition')
-          .order('created_at');
+          .select('*');
           
         if (tasksError) throw tasksError;
         
-        // Process tasks data to extract titles
-        const processedTasks = tasksData?.map(task => {
-          // Extract task name from definition JSON
-          const taskTitle = extractTaskName(task.definition, task.name);
-          
-          return {
-            id: task.id,
-            title: taskTitle
-          };
-        }) || [];
-        
-        // Fetch all answers separately
+        // Fetch answers data
         const { data: progressData, error: progressError } = await supabase
           .from('user_sprint_progress')
-          .select('task_id, answers, task_answers')
+          .select('*, sprint_profiles(name, email)')
           .not('answers', 'is', null);
           
         if (progressError) throw progressError;
         
-        // Create a map of task IDs to titles
-        const taskTitleMap = new Map<string, string>();
-        if (processedTasks) {
-          processedTasks.forEach(task => {
-            taskTitleMap.set(task.id, task.title);
-          });
-        }
-        
-        // Process tasks
-        if (tasksData) {
-          setTasks(processedTasks);
-          if (processedTasks.length > 0 && !selectedTask) {
-            setSelectedTask(processedTasks[0].id);
-          }
-        }
-        
-        // Process answers
-        if (progressData) {
-          const taskAnswersMap = new Map<string, { taskName: string, answers: Record<string, any>[] }>();
+        // Process data
+        const processedAnswers = progressData.map(item => {
+          const taskDef = tasksData?.find(t => t.id === item.task_id);
           
-          progressData.forEach(item => {
-            const taskId = item.task_id;
-            const taskName = taskTitleMap.get(taskId) || 'Unknown Task';
-            const answerData = item.answers || item.task_answers || {};
+          // Helper function to extract task name
+          const extractTaskName = (definition: any) => {
+            if (!definition) return 'Unknown Task';
             
-            if (!taskAnswersMap.has(taskId)) {
-              taskAnswersMap.set(taskId, { taskName, answers: [] });
-            }
-            
-            const currentTask = taskAnswersMap.get(taskId);
-            if (currentTask && Object.keys(answerData).length > 0) {
-              // Convert answerData to Record<string, any>
-              let typedAnswerData: Record<string, any> = {};
-              
-              if (typeof answerData === 'string') {
-                try {
-                  typedAnswerData = JSON.parse(answerData);
-                } catch (e) {
-                  console.error('Failed to parse answers JSON:', e);
-                  typedAnswerData = { rawContent: answerData };
-                }
-              } else if (answerData && typeof answerData === 'object') {
-                typedAnswerData = answerData as Record<string, any>;
+            if (typeof definition === 'object' && definition.taskName) {
+              return definition.taskName;
+            } else if (typeof definition === 'string') {
+              try {
+                const parsed = JSON.parse(definition);
+                return parsed.taskName || 'Unknown Task';
+              } catch (e) {
+                return 'Unknown Task';
               }
-              
-              currentTask.answers.push(typedAnswerData);
             }
-          });
+            
+            return 'Unknown Task';
+          };
           
-          const processedAnswers: TaskAnswer[] = [];
-          taskAnswersMap.forEach((value, key) => {
-            processedAnswers.push({
-              taskId: key,
-              taskName: value.taskName,
-              answers: value.answers
-            });
-          });
-          
-          setAnswers(processedAnswers);
-        }
+          return {
+            id: item.id,
+            userId: item.user_id,
+            userName: item.sprint_profiles?.name || 'Unknown User',
+            userEmail: item.sprint_profiles?.email || 'No Email',
+            taskId: item.task_id,
+            taskName: taskDef ? extractTaskName(taskDef.definition) : 'Unknown Task',
+            answers: item.answers || {},
+            completed: item.completed,
+            completedAt: item.completed_at,
+            createdAt: item.created_at
+          };
+        });
         
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching answer data:', error);
-        setLoading(false);
+        setAnswers(processedAnswers);
+        setTaskDefinitions(tasksData || []);
+        setIsLoading(false);
+      } catch (err) {
+        console.error('Error fetching answer data:', err);
+        setIsLoading(false);
       }
     };
     
-    fetchTasksAndAnswers();
+    fetchData();
   }, []);
+  
+  // Filter answers based on search term and selected task
+  const filteredAnswers = answers.filter(answer => {
+    const matchesSearch = 
+      (answer.userName && answer.userName.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (answer.userEmail && answer.userEmail.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (answer.taskName && answer.taskName.toLowerCase().includes(searchTerm.toLowerCase()));
+      
+    const matchesTask = selectedTask ? answer.taskId === selectedTask : true;
+    
+    return matchesSearch && matchesTask;
+  });
+  
+  // Helper function to render answer content based on type
+  const renderAnswerContent = (content: any) => {
+    if (!content) return 'No answer provided';
+    
+    if (Array.isArray(content)) {
+      return content.join(', ');
+    } else if (typeof content === 'object') {
+      return JSON.stringify(content);
+    } else {
+      return String(content);
+    }
+  };
 
-  // Get answers for the selected task
-  const selectedTaskAnswers = answers.find(a => a.taskId === selectedTask);
-
-  if (loading) {
-    return <div className="flex justify-center items-center h-64">
-      <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
-    </div>;
-  }
-
-  if (tasks.length === 0) {
-    return <div className="text-center py-8 text-gray-500">No tasks found</div>;
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
+      </div>
+    );
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-medium">User Answers Analysis</h3>
-        <Select value={selectedTask} onValueChange={setSelectedTask}>
-          <SelectTrigger className="w-[250px]">
-            <SelectValue placeholder="Select a task" />
-          </SelectTrigger>
-          <SelectContent>
-            {tasks.map(task => (
-              <SelectItem key={task.id} value={task.id}>{task.title}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      {/* Search and Filter Bar */}
+      <div className="flex flex-col md:flex-row gap-4 items-center">
+        <div className="relative flex-1">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+          <Input
+            placeholder="Search by user or task..."
+            className="pl-9"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        
+        <select 
+          className="px-3 py-2 border rounded-md"
+          value={selectedTask || ''}
+          onChange={(e) => setSelectedTask(e.target.value || null)}
+        >
+          <option value="">All Tasks</option>
+          {taskDefinitions.map(task => {
+            // Helper function to extract task name
+            const extractTaskName = (definition: any) => {
+              if (!definition) return 'Unknown Task';
+              
+              if (typeof definition === 'object' && definition.taskName) {
+                return definition.taskName;
+              } else if (typeof definition === 'string') {
+                try {
+                  const parsed = JSON.parse(definition);
+                  return parsed.taskName || 'Unknown Task';
+                } catch (e) {
+                  return 'Unknown Task';
+                }
+              }
+              
+              return 'Unknown Task';
+            };
+            
+            return (
+              <option key={task.id} value={task.id}>
+                {extractTaskName(task.definition)}
+              </option>
+            );
+          })}
+        </select>
       </div>
-
-      {selectedTaskAnswers ? (
-        <Tabs defaultValue="summary">
-          <TabsList>
-            <TabsTrigger value="summary">Summary</TabsTrigger>
-            <TabsTrigger value="raw">Raw Answers</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="summary">
-            <Card>
-              <CardHeader>
-                <CardTitle>{selectedTaskAnswers.taskName}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-sm text-gray-500 mb-4">
-                  {selectedTaskAnswers.answers.length} responses received
-                </div>
-
-                {/* Simple summary analysis */}
-                <div className="space-y-4">
-                  {selectedTaskAnswers.answers.length > 0 && Object.keys(selectedTaskAnswers.answers[0]).map(key => (
-                    <div key={key} className="border rounded-lg p-4">
-                      <h4 className="font-medium mb-2">{key}</h4>
-                      <div className="text-sm">
-                        {/* Show common answers */}
-                        {Array.from(new Set(selectedTaskAnswers.answers.map(a => 
-                          typeof a[key] === 'object' ? JSON.stringify(a[key]) : String(a[key])
-                        ))).slice(0, 5).map((uniqueAnswer, index) => (
-                          <div key={index} className="py-1 border-b last:border-0">
-                            {uniqueAnswer}
-                          </div>
-                        ))}
-                        
-                        {Array.from(new Set(selectedTaskAnswers.answers.map(a => 
-                          typeof a[key] === 'object' ? JSON.stringify(a[key]) : String(a[key])
-                        ))).length > 5 && (
-                          <div className="text-xs text-gray-500 mt-2">
-                            + {Array.from(new Set(selectedTaskAnswers.answers.map(a => 
-                              typeof a[key] === 'object' ? JSON.stringify(a[key]) : String(a[key])
-                            ))).length - 5} more unique answers
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="raw">
-            <Card>
-              <CardHeader>
-                <CardTitle>Raw Answers for {selectedTaskAnswers.taskName}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ScrollArea className="h-[500px]">
-                  <div className="space-y-6">
-                    {selectedTaskAnswers.answers.map((answer, index) => (
-                      <div key={index} className="border rounded-lg p-4">
-                        <h4 className="font-medium mb-2">Response #{index + 1}</h4>
-                        <pre className="bg-gray-50 p-3 rounded text-xs overflow-auto">
-                          {JSON.stringify(answer, null, 2)}
-                        </pre>
-                      </div>
-                    ))}
-                  </div>
-                </ScrollArea>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      ) : (
-        <div className="text-center py-8 text-gray-500">No answers found for this task</div>
-      )}
+      
+      {/* Answer Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle>User Responses</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {filteredAnswers.length > 0 ? (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>User</TableHead>
+                  <TableHead>Task</TableHead>
+                  <TableHead>Submitted</TableHead>
+                  <TableHead>Answers</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredAnswers.map((answer) => (
+                  <TableRow key={answer.id}>
+                    <TableCell>
+                      <div className="font-medium">{answer.userName}</div>
+                      <div className="text-xs text-gray-500">{answer.userEmail}</div>
+                    </TableCell>
+                    <TableCell>{answer.taskName}</TableCell>
+                    <TableCell>
+                      {answer.completedAt ? new Date(answer.completedAt).toLocaleDateString() : 'Not completed'}
+                    </TableCell>
+                    <TableCell>
+                      <details className="text-sm">
+                        <summary className="cursor-pointer">View Answers</summary>
+                        <div className="mt-2 p-2 bg-gray-50 rounded border text-xs whitespace-pre-wrap">
+                          {Object.entries(answer.answers || {}).map(([key, value]) => (
+                            <div key={key} className="mb-1">
+                              <span className="font-medium">{key}: </span>
+                              <span>{renderAnswerContent(value)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </details>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          ) : (
+            <div className="text-center py-6 text-gray-500">
+              No answers found matching your criteria
+            </div>
+          )}
+        </CardContent>
+      </Card>
+      
+      {/* Answer Statistics - Placeholder for future implementation */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Answer Trends</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-6 text-gray-500">
+            Answer analytics visualization will be implemented in a future update
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

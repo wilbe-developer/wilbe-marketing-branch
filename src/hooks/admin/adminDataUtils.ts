@@ -72,8 +72,8 @@ export const calculateReferralStats = (waitlistSignups: WaitlistSignup[]): Refer
   };
 };
 
-// Analyze UTM data
-export const analyzeUTMData = (signups: (WaitlistSignup | SprintProfile)[]): { utmSources: UTMSource[], utmMediums: UTMMedium[] } => {
+// Analyze UTM data - Modified to handle both direct types and UnifiedSignup
+export const analyzeUTMData = (signups: (WaitlistSignup | SprintProfile | UnifiedSignup)[]): { utmSources: UTMSource[], utmMediums: UTMMedium[] } => {
   const sourceCount: Record<string, number> = {};
   const mediumCount: Record<string, number> = {};
   

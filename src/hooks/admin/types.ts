@@ -1,84 +1,75 @@
-
-// Types for waitlist signups
-export type WaitlistSignup = {
+// Types for admin dashboard
+export interface WaitlistSignup {
   id: string;
   name: string;
   email: string;
   created_at: string;
-  referral_code: string;
-  referrer_id: string | null;
-  successful_referrals: number;
   utm_source: string | null;
   utm_medium: string | null;
-  source?: 'waitlist';
-};
+  successful_referrals?: number;
+  referral_code?: string;
+  referrer_id?: string;
+}
 
-// Types for sprint profiles
-export type SprintProfile = {
+export interface SprintProfile {
   id: string;
   user_id: string;
-  name: string;
-  email: string;
+  name: string | null;
+  email: string | null;
   created_at: string;
   utm_source: string | null;
   utm_medium: string | null;
   utm_campaign: string | null;
   utm_term: string | null;
   utm_content: string | null;
-  source?: 'sprint';
-};
+  // Other sprint profile fields can be added as needed
+}
 
-// Unified signup type
-export type UnifiedSignup = {
+export interface UnifiedSignup {
   id: string;
-  name: string;
-  email: string;
+  name: string | null;
+  email: string | null;
   created_at: string;
   utm_source: string | null;
   utm_medium: string | null;
-  utm_campaign?: string | null;
-  utm_term?: string | null;
-  utm_content?: string | null;
+  utm_campaign: string | null;
+  utm_term: string | null;
+  utm_content: string | null;
   source: 'waitlist' | 'sprint';
-};
+}
 
-// UTM source type
-export type UTMSource = {
+export interface UTMSource {
   source: string;
   count: number;
-};
+}
 
-// UTM medium type
-export type UTMMedium = {
+export interface UTMMedium {
   medium: string;
   count: number;
-};
+}
 
-// Referral stats type
-export type ReferralStats = {
+export interface ReferralStats {
   totalSignups: number;
   totalReferrals: number;
-  topReferrers: Array<{
+  topReferrers: {
     name: string;
     email: string;
     referrals: number;
-  }>;
-};
+  }[];
+}
 
-// Unified stats type
-export type UnifiedStats = {
+export interface UnifiedStats {
   totalSignups: number;
   waitlistSignups: number;
   sprintSignups: number;
   conversionRate: number;
   utmSources: UTMSource[];
   utmMediums: UTMMedium[];
-};
+}
 
-// Signup data by date
-export type SignupsByDate = {
+export interface SignupsByDate {
   date: string;
   waitlist: number;
   sprint: number;
   total: number;
-};
+}
