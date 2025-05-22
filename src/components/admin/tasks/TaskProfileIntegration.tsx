@@ -13,7 +13,7 @@ interface ProfileOption {
   value: string;
 }
 
-interface ProfileSettings {
+export interface ProfileSettings {
   profile_key: string;
   profile_label: string;
   profile_type: "boolean" | "text" | "select" | "multi-select";

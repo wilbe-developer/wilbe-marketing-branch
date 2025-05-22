@@ -17,7 +17,7 @@ import { SaveAll, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import StepEditor from "./StepEditor";
 import ConditionalFlowEditor from "./ConditionalFlowEditor";
-import TaskProfileIntegration from "./TaskProfileIntegration";
+import TaskProfileIntegration, { ProfileSettings } from "./TaskProfileIntegration";
 
 interface TaskDefinitionEditorProps {
   taskId?: string;
@@ -32,7 +32,7 @@ interface TaskDefinition {
   category: string;
   profile_key: string;
   profile_label: string;
-  profile_type: string;
+  profile_type: "boolean" | "text" | "select" | "multi-select";
   profile_options: any;
   steps: any[];
   conditional_flow: Record<string, any>;
@@ -142,15 +142,15 @@ const TaskDefinitionEditor: React.FC<TaskDefinitionEditorProps> = ({
     });
   };
 
-  const updateProfileSettings = (settings: any) => {
-  setTask({
-    ...task,
-    profile_key: settings.profile_key,
-    profile_label: settings.profile_label,
-    profile_type: settings.profile_type as "boolean" | "select" | "text" | "multi-select",
-    profile_options: settings.profile_options
-  });
-};
+  const updateProfileSettings = (settings: ProfileSettings) => {
+    setTask({
+      ...task,
+      profile_key: settings.profile_key,
+      profile_label: settings.profile_label,
+      profile_type: settings.profile_type,
+      profile_options: settings.profile_options
+    });
+  };
 
   const handleSave = async () => {
     // Validate required fields
