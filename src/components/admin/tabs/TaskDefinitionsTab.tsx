@@ -51,7 +51,7 @@ const TaskDefinitionsTab = () => {
     }
 
     try {
-      await deleteTaskDefinition(id);
+      await deleteTaskDefinition.mutate(id);
       toast.success("Task definition deleted");
     } catch (error) {
       console.error("Error deleting task:", error);
@@ -85,7 +85,7 @@ const TaskDefinitionsTab = () => {
         }
       };
       
-      await createTaskDefinition(taskDef);
+      createTaskDefinition.mutate(taskDef);
       toast.success(`Pre-built ${type === 'ip' ? 'IP' : 'Team'} task definition created`);
     } catch (error) {
       console.error("Error creating pre-built task:", error);

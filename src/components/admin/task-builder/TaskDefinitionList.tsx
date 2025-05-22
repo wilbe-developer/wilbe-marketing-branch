@@ -15,7 +15,7 @@ import {
 
 const TaskDefinitionList = () => {
   const navigate = useNavigate();
-  const { taskDefinitions, isLoading, error, deleteTaskDefinition } = useSprintTaskDefinitions();
+  const { taskDefinitions, isLoading, error, deleteTaskDefinition, refetch } = useSprintTaskDefinitions();
 
   if (isLoading) {
     return (
@@ -45,17 +45,25 @@ const TaskDefinitionList = () => {
     navigate('/admin/task-builder/create');
   };
 
-  const handleDeleteTask = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this task definition?')) {
+  const handleDelete = async (taskId: string) => {
+    if (!window.confirm(`Are you sure you want to delete this task definition?`)) {
       return;
     }
     
     try {
-      await deleteTaskDefinition(id);
-      toast.success('Task definition deleted successfully');
+      deleteTaskDefinition.mutate(taskId, {
+        onSuccess: () => {
+          toast.success("Task definition deleted");
+          refetch();
+        },
+        onError: (error) => {
+          console.error("Error deleting task:", error);
+          toast.error("Failed to delete task definition");
+        }
+      });
     } catch (error) {
-      console.error('Error deleting task definition:', error);
-      toast.error('Failed to delete task definition');
+      console.error("Error deleting task:", error);
+      toast.error("Failed to delete task definition");
     }
   };
 
@@ -96,7 +104,7 @@ const TaskDefinitionList = () => {
                       <Edit className="mr-2 h-4 w-4" />
                       Edit
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleDeleteTask(task.id)}>
+                    <DropdownMenuItem onClick={() => handleDelete(task.id)}>
                       <Trash2 className="mr-2 h-4 w-4" />
                       Delete
                     </DropdownMenuItem>

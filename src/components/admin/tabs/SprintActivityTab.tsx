@@ -3,9 +3,9 @@ import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import WaitlistMetrics from "../sprint-activity/WaitlistMetrics";
 import WaitlistSignupsTable from "../sprint-activity/WaitlistSignupsTable";
-import SprintConversionMetrics from "../sprint-activity/SprintConversionMetrics";
-import SprintEngagementStats from "../sprint-activity/SprintEngagementStats";
-import UnifiedAnalytics from "../sprint-activity/UnifiedAnalytics";
+import SprintConversionMetrics, { SprintConversionMetricsProps } from "../sprint-activity/SprintConversionMetrics";
+import SprintEngagementStats, { SprintEngagementStatsProps } from "../sprint-activity/SprintEngagementStats";
+import UnifiedAnalytics, { UnifiedAnalyticsProps } from "../sprint-activity/UnifiedAnalytics";
 
 const SprintActivityTab = () => {
   const [activeSection, setActiveSection] = useState("unified");

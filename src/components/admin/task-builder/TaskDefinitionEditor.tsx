@@ -262,25 +262,41 @@ const TaskDefinitionEditor: React.FC = () => {
       console.log("Saving task definition:", task);
       
       if (taskId) {
-        await updateTaskDefinition({
+        updateTaskDefinition.mutate({
           id: taskId,
           name: task.name,
           description: task.description,
-          definition: task.definition,
+          definition: task.definition
+        }, {
+          onSuccess: () => {
+            console.log("Task updated successfully");
+            toast.success("Task definition updated successfully");
+          },
+          onError: (error) => {
+            console.error("Error updating task:", error);
+            toast.error(`Failed to update task definition: ${error.message}`);
+          }
         });
-        console.log("Task updated successfully");
-        toast.success("Task definition updated successfully");
       } else {
-        console.log("Creating new task");
-        const result = await createTaskDefinition({
+        createTaskDefinition.mutate({
+          id: '',
           name: task.name,
           description: task.description,
           definition: task.definition,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }, {
+          onSuccess: (result) => {
+            console.log("Task created successfully:", result);
+            toast.success("Task definition created successfully");
+            // Navigate to edit the newly created task
+            navigate(`/admin/task-builder/edit/${result.id}`);
+          },
+          onError: (error) => {
+            console.error("Error creating task:", error);
+            toast.error(`Failed to save task definition: ${error.message}`);
+          }
         });
-        console.log("Task created successfully:", result);
-        toast.success("Task definition created successfully");
-        // Navigate to edit the newly created task
-        navigate(`/admin/task-builder/edit/${result.id}`);
       }
     } catch (error: any) {
       console.error("Error saving task:", error);

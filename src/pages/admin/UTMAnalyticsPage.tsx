@@ -4,11 +4,10 @@ import FullScreenAdminLayout from '@/components/admin/FullScreenAdminLayout';
 import UTMAnalytics from '@/components/admin/sprint-activity/UTMAnalytics';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import UnifiedAnalytics from '@/components/admin/sprint-activity/UnifiedAnalytics';
-import SprintEngagementStats from '@/components/admin/sprint-activity/SprintEngagementStats';
-import SprintConversionMetrics from '@/components/admin/sprint-activity/SprintConversionMetrics';
+import UnifiedAnalytics, { UnifiedAnalyticsProps } from '@/components/admin/sprint-activity/UnifiedAnalytics';
+import SprintEngagementStats, { SprintEngagementStatsProps } from '@/components/admin/sprint-activity/SprintEngagementStats';
+import SprintConversionMetrics, { SprintConversionMetricsProps } from '@/components/admin/sprint-activity/SprintConversionMetrics';
 
-// Define component props interfaces if they don't exist
 interface AnalyticsComponentProps {
   timeRange: '7d' | '30d' | '90d' | 'all';
 }
