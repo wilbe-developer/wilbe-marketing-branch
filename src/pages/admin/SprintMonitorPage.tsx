@@ -12,6 +12,7 @@ import { useSprintMonitor } from '@/hooks/admin/useSprintMonitor';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useRealTimeUpdates } from '@/hooks/admin/useRealTimeUpdates';
+import SprintControlRoom from '@/components/admin/sprint-monitor/SprintControlRoom';
 
 const SprintMonitorPage = () => {
   const { 
@@ -49,14 +50,26 @@ const SprintMonitorPage = () => {
         </div>
       </div>
       
-      <Tabs defaultValue="progress">
+      <Tabs defaultValue="overview">
         <TabsList className="mb-4">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="progress">User Progress</TabsTrigger>
           <TabsTrigger value="answers">Task Answers</TabsTrigger>
           <TabsTrigger value="tasks">Task Performance</TabsTrigger>
           <TabsTrigger value="activity">Activity Feed</TabsTrigger>
           <TabsTrigger value="files">File Repository</TabsTrigger>
         </TabsList>
+        
+        <TabsContent value="overview">
+          <Card>
+            <CardHeader>
+              <CardTitle>Sprint Control Room</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <SprintControlRoom />
+            </CardContent>
+          </Card>
+        </TabsContent>
         
         <TabsContent value="progress">
           <Card>

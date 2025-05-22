@@ -1,137 +1,229 @@
 
-import React, { useState } from 'react';
-import { useSprintAdminData } from '@/hooks/useSprintAdminData';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Legend } from 'recharts';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import React, { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { Card, CardContent } from '@/components/ui/card';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 
-const COLORS = ['#8B5CF6', '#D946EF', '#F97316', '#0EA5E9', '#10B981', '#2dd4bf', '#4ade80', '#facc15', '#fb923c', '#f87171'];
+interface UTMAnalyticsProps {
+  timeRange: '7d' | '30d' | '90d' | 'all';
+}
 
-const UTMAnalytics = () => {
-  const { unifiedStats, unifiedSignups, refreshData } = useSprintAdminData();
-  const [dataView, setDataView] = useState<'source' | 'medium'>('source');
-
-  // Filter for only signups with UTM parameters
-  const signupsWithUTM = unifiedSignups.filter(signup => 
-    signup.utm_source || signup.utm_medium || signup.utm_campaign || signup.utm_term || signup.utm_content
-  );
-
+const UTMAnalytics: React.FC<UTMAnalyticsProps> = ({ timeRange }) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [utmData, setUtmData] = useState<any[]>([]);
+  const [chartData, setChartData] = useState<any[]>([]);
+  const [sourceChartData, setSourceChartData] = useState<any[]>([]);
+  
+  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82ca9d', '#ffc658', '#8dd1e1'];
+  
+  useEffect(() => {
+    fetchUTMData();
+  }, [timeRange]);
+  
+  const fetchUTMData = async () => {
+    setIsLoading(true);
+    try {
+      let query = supabase
+        .from('waitlist_signups')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      // Apply time filter if not 'all'
+      if (timeRange !== 'all') {
+        const daysAgo = timeRange === '7d' ? 7 : timeRange === '30d' ? 30 : 90;
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - daysAgo);
+        query = query.gte('created_at', startDate.toISOString());
+      }
+      
+      const { data, error } = await query;
+      
+      if (error) throw error;
+      
+      setUtmData(data || []);
+      processChartData(data || []);
+      setIsLoading(false);
+    } catch (err) {
+      console.error('Error fetching UTM data:', err);
+      setIsLoading(false);
+    }
+  };
+  
+  const processChartData = (data: any[]) => {
+    // Process data for campaign chart
+    const campaignCounts: Record<string, number> = {};
+    const sourceCounts: Record<string, number> = {};
+    
+    data.forEach(item => {
+      const campaign = item.utm_campaign || 'direct';
+      const source = item.utm_source || 'direct';
+      
+      campaignCounts[campaign] = (campaignCounts[campaign] || 0) + 1;
+      sourceCounts[source] = (sourceCounts[source] || 0) + 1;
+    });
+    
+    const campaignChartData = Object.entries(campaignCounts)
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value);
+    
+    const sourceChartData = Object.entries(sourceCounts)
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value);
+    
+    setChartData(campaignChartData);
+    setSourceChartData(sourceChartData);
+  };
+  
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
+      </div>
+    );
+  }
+  
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h3 className="text-xl font-medium">UTM Analytics</h3>
-        <Select value={dataView} onValueChange={(value) => setDataView(value as 'source' | 'medium')}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="View Parameter" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="source">UTM Source</SelectItem>
-            <SelectItem value="medium">UTM Medium</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Campaign Chart */}
         <Card>
-          <CardHeader>
-            <CardTitle>{dataView === 'source' ? 'UTM Source' : 'UTM Medium'} Distribution</CardTitle>
-            <CardDescription>
-              {dataView === 'source' 
-                ? 'Where your users are coming from' 
-                : 'Which channels are driving traffic'}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="h-80">
-            {(dataView === 'source' ? unifiedStats.utmSources : unifiedStats.utmMediums).length > 0 ? (
+          <CardContent className="pt-6">
+            <h3 className="text-lg font-medium mb-4">UTM Campaigns</h3>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={chartData.slice(0, 10)}
+                  margin={{ top: 5, right: 30, left: 20, bottom: 50 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" angle={-45} textAnchor="end" height={70} />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="value" fill="#8884d8" name="Signups" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+        
+        {/* Source Chart */}
+        <Card>
+          <CardContent className="pt-6">
+            <h3 className="text-lg font-medium mb-4">UTM Sources</h3>
+            <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
-                    data={dataView === 'source' ? unifiedStats.utmSources : unifiedStats.utmMediums}
+                    data={sourceChartData}
                     cx="50%"
                     cy="50%"
-                    labelLine={true}
+                    labelLine={false}
                     outerRadius={80}
-                    label={({ name, value }) => `${name}: ${value}`}
-                    dataKey="count"
-                    nameKey={dataView === 'source' ? 'source' : 'medium'}
+                    fill="#8884d8"
+                    dataKey="value"
+                    nameKey="name"
+                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                   >
-                    {(dataView === 'source' ? unifiedStats.utmSources : unifiedStats.utmMediums).map((entry, index) => (
+                    {sourceChartData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
                   <Tooltip />
+                  <Legend />
                 </PieChart>
               </ResponsiveContainer>
-            ) : (
-              <div className="flex h-full items-center justify-center">
-                <p className="text-gray-500">No UTM {dataView} data available</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Conversion by {dataView === 'source' ? 'Source' : 'Medium'}</CardTitle>
-            <CardDescription>
-              Conversion from waitlist to sprint signup
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={dataView === 'source' ? unifiedStats.utmSources : unifiedStats.utmMediums}
-                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-              >
-                <XAxis dataKey={dataView === 'source' ? 'source' : 'medium'} />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="count" fill="#8884d8" />
-              </BarChart>
-            </ResponsiveContainer>
+            </div>
           </CardContent>
         </Card>
       </div>
-
+      
       <Card>
-        <CardHeader>
-          <CardTitle>Recent UTM Parameters</CardTitle>
-          <CardDescription>
-            Latest signups with marketing attribution
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Source</TableHead>
-                <TableHead>Medium</TableHead>
-                <TableHead>Campaign</TableHead>
-                <TableHead>Date</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {signupsWithUTM.slice(0, 10).map((signup) => (
-                <TableRow key={signup.id}>
-                  <TableCell className="font-medium">{signup.name}</TableCell>
-                  <TableCell>{signup.email}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline">{signup.utm_source || 'N/A'}</Badge>
-                  </TableCell>
-                  <TableCell>{signup.utm_medium || 'N/A'}</TableCell>
-                  <TableCell>{signup.utm_campaign || 'N/A'}</TableCell>
-                  <TableCell>{new Date(signup.created_at).toLocaleDateString()}</TableCell>
+        <CardContent className="pt-6">
+          <h3 className="text-lg font-medium mb-4">UTM Data Table</h3>
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Source</TableHead>
+                  <TableHead>Campaign</TableHead>
+                  <TableHead>Medium</TableHead>
+                  <TableHead>Date</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {utmData.length > 0 ? (
+                  utmData.map((item) => (
+                    <TableRow key={item.id}>
+                      <TableCell>{item.name}</TableCell>
+                      <TableCell>{item.email}</TableCell>
+                      <TableCell>
+                        {item.utm_source ? (
+                          <Badge variant="secondary">{item.utm_source}</Badge>
+                        ) : (
+                          <Badge variant="outline">direct</Badge>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {item.utm_campaign ? (
+                          <Badge variant="secondary">{item.utm_campaign}</Badge>
+                        ) : (
+                          <Badge variant="outline">direct</Badge>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {item.utm_medium ? (
+                          <Badge variant="secondary">{item.utm_medium}</Badge>
+                        ) : (
+                          <Badge variant="outline">direct</Badge>
+                        )}
+                      </TableCell>
+                      <TableCell>{new Date(item.created_at).toLocaleDateString()}</TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center py-4">
+                      No UTM data found for the selected time range
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
+      
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-sm text-gray-500">Total Signups</div>
+            <div className="text-2xl font-bold">{utmData.length}</div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-sm text-gray-500">Sources</div>
+            <div className="text-2xl font-bold">
+              {new Set(utmData.map(item => item.utm_source || 'direct')).size}
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-sm text-gray-500">Campaigns</div>
+            <div className="text-2xl font-bold">
+              {new Set(utmData.map(item => item.utm_campaign || 'direct')).size}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
