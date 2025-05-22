@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -79,8 +80,14 @@ const TaskDefinitionEditor: React.FC<TaskDefinitionEditorProps> = ({
             throw error;
           }
           
+          // Validate profile_type before setting it
+          const profileType = data.profile_type || "boolean";
+          const validProfileType = ["boolean", "text", "select", "multi-select"].includes(profileType)
+            ? profileType as "boolean" | "text" | "select" | "multi-select"
+            : "boolean";
+
           // Parse JSON fields
-          const parsedData = {
+          const parsedData: TaskDefinition = {
             ...data,
             steps: typeof data.steps === 'string' ? JSON.parse(data.steps) : data.steps,
             conditional_flow: data.conditional_flow ? 
@@ -91,7 +98,13 @@ const TaskDefinitionEditor: React.FC<TaskDefinitionEditorProps> = ({
               {},
             profile_options: data.profile_options ? 
               (typeof data.profile_options === 'string' ? JSON.parse(data.profile_options) : data.profile_options) : 
-              null
+              null,
+            profile_type: validProfileType,
+            profile_key: data.profile_key || "",
+            profile_label: data.profile_label || "",
+            title: data.title || "",
+            description: data.description || "",
+            category: data.category || ""
           };
           
           setTask(parsedData);
