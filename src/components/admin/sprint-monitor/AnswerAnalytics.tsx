@@ -31,13 +31,28 @@ const AnswerAnalytics = () => {
           
         if (tasksError) throw tasksError;
         
-        // Fetch all answers
+        // Fetch all answers separately
         const { data: progressData, error: progressError } = await supabase
           .from('user_sprint_progress')
-          .select('task_id, answers, task_answers, sprint_tasks(title)')
+          .select('task_id, answers, task_answers')
           .not('answers', 'is', null);
           
         if (progressError) throw progressError;
+        
+        // Fetch task titles in a separate query
+        const { data: taskTitlesData, error: taskTitlesError } = await supabase
+          .from('sprint_tasks')
+          .select('id, title');
+        
+        if (taskTitlesError) throw taskTitlesError;
+        
+        // Create a map of task IDs to titles
+        const taskTitleMap = new Map<string, string>();
+        if (taskTitlesData) {
+          taskTitlesData.forEach(task => {
+            taskTitleMap.set(task.id, task.title);
+          });
+        }
         
         // Process tasks
         if (tasksData) {
@@ -53,7 +68,7 @@ const AnswerAnalytics = () => {
           
           progressData.forEach(item => {
             const taskId = item.task_id;
-            const taskName = item.sprint_tasks?.title || 'Unknown Task';
+            const taskName = taskTitleMap.get(taskId) || 'Unknown Task';
             const answerData = item.answers || item.task_answers || {};
             
             if (!taskAnswersMap.has(taskId)) {
@@ -62,7 +77,12 @@ const AnswerAnalytics = () => {
             
             const currentTask = taskAnswersMap.get(taskId);
             if (currentTask && Object.keys(answerData).length > 0) {
-              currentTask.answers.push(answerData);
+              // Ensure answerData is treated as a Record<string, any>
+              const typedAnswerData: Record<string, any> = typeof answerData === 'string' 
+                ? JSON.parse(answerData) 
+                : (answerData as Record<string, any>);
+              
+              currentTask.answers.push(typedAnswerData);
             }
           });
           

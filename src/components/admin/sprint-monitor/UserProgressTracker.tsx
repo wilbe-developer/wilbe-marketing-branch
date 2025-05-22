@@ -55,9 +55,13 @@ const UserProgressTracker: React.FC<UserProgressTrackerProps> = ({ userProgressD
         ? new Date(a.lastActivity).getTime() - new Date(b.lastActivity).getTime()
         : new Date(b.lastActivity).getTime() - new Date(a.lastActivity).getTime();
     } else {
+      // Handle the case when the key is userName or email (string type)
+      const valueA = String(a[sortConfig.key]);
+      const valueB = String(b[sortConfig.key]);
+      
       return sortConfig.direction === 'asc'
-        ? a[sortConfig.key].localeCompare(b[sortConfig.key])
-        : b[sortConfig.key].localeCompare(a[sortConfig.key]);
+        ? valueA.localeCompare(valueB)
+        : valueB.localeCompare(valueA);
     }
   });
 

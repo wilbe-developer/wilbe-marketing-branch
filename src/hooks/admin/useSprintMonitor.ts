@@ -69,7 +69,7 @@ export const useSprintMonitor = () => {
       // Fetch task progress data
       const { data: progressData, error: progressError } = await supabase
         .from('user_sprint_progress')
-        .select('*, sprint_tasks(*)');
+        .select('*');
         
       if (progressError) throw progressError;
       
@@ -80,22 +80,34 @@ export const useSprintMonitor = () => {
         
       if (tasksError) throw tasksError;
       
+      // Create a task title mapping
+      const taskTitleMap = new Map<string, string>();
+      if (tasksData) {
+        tasksData.forEach(task => {
+          taskTitleMap.set(task.id, task.title);
+        });
+      }
+      
       // Process user progress data
       const processedUserProgress: UserProgress[] = [];
       if (profilesData) {
         for (const profile of profilesData) {
           const userProgress = progressData?.filter(p => p.user_id === profile.user_id) || [];
+          
           const userTasks = userProgress.map(p => ({
             taskId: p.task_id,
-            taskName: p.sprint_tasks?.title || 'Unknown Task',
-            status: p.completed ? 'completed' : 'in_progress',
+            taskName: taskTitleMap.get(p.task_id) || 'Unknown Task',
+            status: p.completed ? 'completed' as const : 'in_progress' as const,
             completedAt: p.completed_at,
             timeSpent: p.completed_at ? 
               new Date(p.completed_at).getTime() - new Date(p.created_at).getTime() : null
           }));
           
           const lastActivityTime = userProgress.length > 0 ? 
-            Math.max(...userProgress.map(p => new Date(p.updated_at || p.created_at).getTime())) : 
+            Math.max(...userProgress.map(p => {
+              const updatedAt = p.completed_at || p.created_at;
+              return new Date(updatedAt).getTime();
+            })) : 
             new Date(profile.created_at).getTime();
             
           processedUserProgress.push({
@@ -137,7 +149,7 @@ export const useSprintMonitor = () => {
         // Add task completion events
         progressData.filter(p => p.completed).forEach(progress => {
           const profile = profilesData.find(p => p.user_id === progress.user_id);
-          const task = progress.sprint_tasks;
+          const taskName = taskTitleMap.get(progress.task_id) || 'Unknown Task';
           
           mockActivityFeed.push({
             id: `task-${progress.id}`,
@@ -145,9 +157,9 @@ export const useSprintMonitor = () => {
             userName: profile?.name || 'Unknown User',
             eventType: 'task_completed',
             taskId: progress.task_id,
-            taskName: task?.title || 'Unknown Task',
-            timestamp: progress.completed_at || progress.updated_at,
-            details: `Completed task: ${task?.title || 'Unknown Task'}`
+            taskName: taskName,
+            timestamp: progress.completed_at || progress.created_at,
+            details: `Completed task: ${taskName}`
           });
         });
       }

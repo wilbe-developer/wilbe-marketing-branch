@@ -28,7 +28,7 @@ const FileRepository = () => {
       try {
         setLoading(true);
         
-        // Fetch files with task and user details
+        // Fetch files
         const { data: progressData, error: progressError } = await supabase
           .from('user_sprint_progress')
           .select(`
@@ -36,12 +36,26 @@ const FileRepository = () => {
             user_id,
             task_id,
             created_at,
-            sprint_tasks(title),
             user_files(id, file_name, view_url, download_url, uploaded_at)
           `)
           .not('file_id', 'is', null);
           
         if (progressError) throw progressError;
+        
+        // Fetch task titles separately
+        const { data: taskData, error: taskError } = await supabase
+          .from('sprint_tasks')
+          .select('id, title');
+          
+        if (taskError) throw taskError;
+        
+        // Create a map of task IDs to titles
+        const taskMap = new Map<string, string>();
+        if (taskData) {
+          taskData.forEach(task => {
+            taskMap.set(task.id, task.title);
+          });
+        }
         
         // Fetch user details
         const { data: profileData, error: profileError } = await supabase
@@ -58,13 +72,14 @@ const FileRepository = () => {
             if (!item.user_files) return;
             
             const userProfile = profileData.find(p => p.user_id === item.user_id);
+            const taskTitle = taskMap.get(item.task_id) || 'Unknown Task';
             
             processedFiles.push({
               id: item.user_files.id,
               file_name: item.user_files.file_name,
               user_name: userProfile?.name || 'Unknown User',
               user_email: userProfile?.email || 'No Email',
-              task_name: item.sprint_tasks?.title || 'Unknown Task',
+              task_name: taskTitle,
               uploaded_at: item.user_files.uploaded_at,
               view_url: item.user_files.view_url,
               download_url: item.user_files.download_url
