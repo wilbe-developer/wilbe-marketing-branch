@@ -90,10 +90,42 @@ export const processUTMChartData = (data: any[]) => {
   const mediumChartData = Object.entries(mediumCounts)
     .map(([name, value]) => ({ name, value }))
     .sort((a, b) => b.value - a.value);
+
+  // Process daily signups data
+  const dailyMap = new Map();
+  
+  // Initialize with last 14 days
+  for (let i = 13; i >= 0; i--) {
+    const date = new Date();
+    date.setDate(date.getDate() - i);
+    const dateString = date.toISOString().split('T')[0];
+    dailyMap.set(dateString, { date: dateString, waitlist: 0, sprint: 0, total: 0 });
+  }
+  
+  // Count signups by date
+  data.forEach(item => {
+    const dateString = new Date(item.created_at).toISOString().split('T')[0];
+    if (dailyMap.has(dateString)) {
+      const dayData = dailyMap.get(dateString);
+      if (item.source_type === 'waitlist') {
+        dayData.waitlist += 1;
+      } else {
+        dayData.sprint += 1;
+      }
+      dayData.total += 1;
+      dailyMap.set(dateString, dayData);
+    }
+  });
+  
+  // Convert map to array and sort by date
+  const dailySignups = Array.from(dailyMap.values()).sort((a, b) => 
+    new Date(a.date).getTime() - new Date(b.date).getTime()
+  );
   
   return {
     campaignChartData,
     sourceChartData,
-    mediumChartData
+    mediumChartData,
+    dailySignups
   };
 };

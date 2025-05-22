@@ -3,10 +3,10 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { fetchUTMData, processUTMChartData } from './utils/utm-data-utils';
-import CampaignBarChart from './charts/CampaignBarChart';
 import UTMPieChart from './charts/UTMPieChart';
 import UTMDataTable from './tables/UTMDataTable';
 import UTMMetricsCards from './cards/UTMMetricsCards';
+import DailySignupsChart from './charts/DailySignupsChart';
 
 interface UTMAnalyticsProps {
   timeRange: '7d' | '30d' | '90d' | 'all';
@@ -15,9 +15,9 @@ interface UTMAnalyticsProps {
 const UTMAnalytics: React.FC<UTMAnalyticsProps> = ({ timeRange }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [utmData, setUtmData] = useState<any[]>([]);
-  const [campaignChartData, setCampaignChartData] = useState<any[]>([]);
   const [sourceChartData, setSourceChartData] = useState<any[]>([]);
   const [mediumChartData, setMediumChartData] = useState<any[]>([]);
+  const [dailySignups, setDailySignups] = useState<any[]>([]);
   const [utmType, setUtmType] = useState<'source' | 'medium'>('source');
   
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82ca9d', '#ffc658', '#8dd1e1'];
@@ -29,10 +29,10 @@ const UTMAnalytics: React.FC<UTMAnalyticsProps> = ({ timeRange }) => {
         const data = await fetchUTMData(timeRange);
         setUtmData(data);
         
-        const { campaignChartData, sourceChartData, mediumChartData } = processUTMChartData(data);
-        setCampaignChartData(campaignChartData);
+        const { campaignChartData, sourceChartData, mediumChartData, dailySignups } = processUTMChartData(data);
         setSourceChartData(sourceChartData);
         setMediumChartData(mediumChartData);
+        setDailySignups(dailySignups);
         
         setIsLoading(false);
       } catch (err) {
@@ -68,11 +68,11 @@ const UTMAnalytics: React.FC<UTMAnalyticsProps> = ({ timeRange }) => {
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Campaign Chart */}
+        {/* Daily Signups Chart (Replacing Campaign Chart) */}
         <Card>
           <CardContent className="pt-6">
-            <h3 className="text-lg font-medium mb-4">UTM Campaigns</h3>
-            <CampaignBarChart data={campaignChartData.slice(0, 10)} />
+            <h3 className="text-lg font-medium mb-4">Daily Signups (Last 14 Days)</h3>
+            <DailySignupsChart data={dailySignups} />
           </CardContent>
         </Card>
         

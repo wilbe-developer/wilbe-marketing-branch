@@ -25,62 +25,130 @@ const SprintEngagementStats: React.FC<SprintEngagementStatsProps> = ({ timeRange
     setIsLoading(true);
     
     try {
-      // This is a placeholder for the actual data fetching logic
-      // In a real implementation, you would fetch data from your database
+      // Calculate date range for filtering
+      let startDate: Date | null = null;
+      if (timeRange !== 'all') {
+        startDate = new Date();
+        const days = timeRange === '7d' ? 7 : timeRange === '30d' ? 30 : 90;
+        startDate.setDate(startDate.getDate() - days);
+      }
       
-      let query = supabase
+      // Fetch sprint profiles
+      let sprintQuery = supabase
+        .from('sprint_profiles')
+        .select('*');
+      
+      if (startDate) {
+        sprintQuery = sprintQuery.gte('created_at', startDate.toISOString());
+      }
+      
+      const { data: sprintData, error: sprintError } = await sprintQuery;
+      
+      if (sprintError) throw sprintError;
+      
+      // Fetch sprint task progress
+      let progressQuery = supabase
         .from('user_sprint_progress')
         .select('*');
       
-      // Apply time filtering if not 'all'
-      if (timeRange !== 'all') {
-        const daysAgo = timeRange === '7d' ? 7 : timeRange === '30d' ? 30 : 90;
-        const startDate = new Date();
-        startDate.setDate(startDate.getDate() - daysAgo);
-        query = query.gte('created_at', startDate.toISOString());
+      if (startDate) {
+        progressQuery = progressQuery.gte('created_at', startDate.toISOString());
       }
       
-      const { data, error } = await query;
+      const { data: progressData, error: progressError } = await progressQuery;
       
-      if (error) throw error;
+      if (progressError) throw progressError;
       
       // Process the data for visualization
-      const processedData = processEngagementData(data || []);
-      setEngagementData(processedData.engagementByDay);
-      setCompletionRates(processedData.completionRates);
-      setTotalUsers(processedData.totalUsers);
-      setActiveUsers(processedData.activeUsers);
+      const { engagementByDay, completionRates, totalUsers, activeUsers } = 
+        processEngagementData(sprintData || [], progressData || []);
+      
+      setEngagementData(engagementByDay);
+      setCompletionRates(completionRates);
+      setTotalUsers(totalUsers);
+      setActiveUsers(activeUsers);
+      setIsLoading(false);
     } catch (err) {
       console.error('Error fetching engagement data:', err);
-    } finally {
       setIsLoading(false);
     }
   };
   
-  const processEngagementData = (data: any[]) => {
-    // This is a placeholder for the actual data processing logic
-    // In a real implementation, you would process the data from your database
+  const processEngagementData = (sprintData: any[], progressData: any[]) => {
+    // Calculate total users and active users
+    const totalUsers = sprintData.length;
     
-    // Sample data for demonstration
-    const engagementByDay = [
-      { date: '2023-01-01', users: 5 },
-      { date: '2023-01-02', users: 7 },
-      { date: '2023-01-03', users: 10 },
-      { date: '2023-01-04', users: 8 },
-      { date: '2023-01-05', users: 12 }
-    ];
+    // Consider a user active if they have any progress records
+    const userIds = new Set(sprintData.map(item => item.user_id));
+    const activeUserIds = new Set(progressData.map(item => item.user_id));
+    const activeUsers = [...userIds].filter(id => activeUserIds.has(id)).length;
+    
+    // Create engagement by day data
+    const dailyData = new Map();
+    
+    // Initialize with last 14 days
+    for (let i = 13; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      const dateString = date.toLocaleDateString();
+      dailyData.set(dateString, { date: dateString, users: 0 });
+    }
+    
+    // Count unique users by day
+    progressData.forEach(item => {
+      const date = new Date(item.created_at).toLocaleDateString();
+      if (dailyData.has(date)) {
+        const current = dailyData.get(date);
+        // Only increment if this is the first time we've seen this user on this day
+        const dayUserIds = new Set();
+        if (!dayUserIds.has(item.user_id)) {
+          dayUserIds.add(item.user_id);
+          current.users += 1;
+          dailyData.set(date, current);
+        }
+      }
+    });
+    
+    // Calculate completion rates
+    let completed = 0;
+    let inProgress = 0;
+    let notStarted = 0;
+    
+    // Group progress by user
+    const userProgress = new Map();
+    progressData.forEach(item => {
+      if (!userProgress.has(item.user_id)) {
+        userProgress.set(item.user_id, []);
+      }
+      userProgress.get(item.user_id).push(item);
+    });
+    
+    // Count users in each category
+    userIds.forEach(userId => {
+      if (!userProgress.has(userId)) {
+        notStarted++;
+      } else {
+        const userTasks = userProgress.get(userId);
+        const hasCompleted = userTasks.some((task: any) => task.completed);
+        if (hasCompleted) {
+          completed++;
+        } else {
+          inProgress++;
+        }
+      }
+    });
     
     const completionRates = [
-      { name: 'Completed', value: 65 },
-      { name: 'In Progress', value: 25 },
-      { name: 'Not Started', value: 10 }
+      { name: 'Completed', value: completed },
+      { name: 'In Progress', value: inProgress },
+      { name: 'Not Started', value: notStarted }
     ];
     
     return {
-      engagementByDay,
+      engagementByDay: Array.from(dailyData.values()),
       completionRates,
-      totalUsers: 100,
-      activeUsers: 75
+      totalUsers,
+      activeUsers
     };
   };
   
@@ -101,14 +169,14 @@ const SprintEngagementStats: React.FC<SprintEngagementStatsProps> = ({ timeRange
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card>
           <CardContent className="p-4">
-            <div className="text-sm text-gray-500">Total Users</div>
+            <div className="text-sm text-gray-500">Total Sprint Users</div>
             <div className="text-2xl font-bold">{totalUsers}</div>
           </CardContent>
         </Card>
         
         <Card>
           <CardContent className="p-4">
-            <div className="text-sm text-gray-500">Active Users</div>
+            <div className="text-sm text-gray-500">Active Sprint Users</div>
             <div className="text-2xl font-bold">{activeUsers}</div>
           </CardContent>
         </Card>
@@ -135,7 +203,7 @@ const SprintEngagementStats: React.FC<SprintEngagementStatsProps> = ({ timeRange
         
         <Card>
           <CardContent>
-            <h3 className="text-lg font-medium mb-4">Task Completion Rates</h3>
+            <h3 className="text-lg font-medium mb-4">Task Completion Status</h3>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>

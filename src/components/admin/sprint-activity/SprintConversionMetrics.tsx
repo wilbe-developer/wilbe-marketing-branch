@@ -59,16 +59,18 @@ const SprintConversionMetrics: React.FC<SprintConversionMetricsProps> = ({ timeR
       
       if (sprintError) throw sprintError;
       
-      // Process data
-      const waitlistEmails = new Set(waitlistData?.map(item => item.email?.toLowerCase()) || []);
-      const sprintEmails = new Set(sprintData?.map(item => item.email?.toLowerCase()) || []);
+      // Process data - normalize emails for comparison
+      const waitlistEmails = new Set((waitlistData || []).map(item => item.email?.toLowerCase()).filter(Boolean));
+      const sprintEmails = new Set((sprintData || []).map(item => item.email?.toLowerCase()).filter(Boolean));
       
       // Find conversions (emails in both sets)
-      const conversions = [...waitlistEmails].filter(email => email && sprintEmails.has(email));
+      const conversions = [...waitlistEmails].filter(email => sprintEmails.has(email));
       
       // Calculate conversion rate - use the number of waitlist signups as denominator
       const totalWaitlist = waitlistEmails.size;
       const totalConversions = conversions.length;
+      const totalSprints = sprintEmails.size;
+      
       // Avoid division by zero
       const conversionRate = totalWaitlist > 0 ? (totalConversions / totalWaitlist) * 100 : 0;
       
@@ -81,7 +83,7 @@ const SprintConversionMetrics: React.FC<SprintConversionMetricsProps> = ({ timeR
       setConversionData(chartData);
       setConversionRate(conversionRate);
       setTotalSignups(totalWaitlist);
-      setTotalConversions(totalConversions);
+      setTotalConversions(totalSprints); // Use total sprint signups as conversions
     } catch (error) {
       console.error('Error fetching conversion data:', error);
     } finally {
@@ -120,7 +122,7 @@ const SprintConversionMetrics: React.FC<SprintConversionMetricsProps> = ({ timeR
         
         <Card>
           <CardContent className="p-4">
-            <div className="text-sm text-gray-500">Total Conversions</div>
+            <div className="text-sm text-gray-500">Total Sprint Signups</div>
             <div className="text-2xl font-bold">{totalConversions}</div>
           </CardContent>
         </Card>
