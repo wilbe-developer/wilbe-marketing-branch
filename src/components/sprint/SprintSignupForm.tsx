@@ -87,7 +87,7 @@ const SprintSignupForm = () => {
   return (
     <div className="max-w-4xl mx-auto p-6">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold">⚡ Founder Sprint Sign-Up</h1>
+        <h1 className="text-3xl font-bold">⚡ BSF Sign-Up</h1>
         <p className="text-muted-foreground">We surface great founders. We help everyone else.</p>
         
         {isAuthenticated && user && (
