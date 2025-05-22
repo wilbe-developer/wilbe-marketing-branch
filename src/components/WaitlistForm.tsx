@@ -64,7 +64,7 @@ export function WaitlistForm() {
         onMouseEnter={() => setButtonColor(getRandomColor())}
         disabled={isLoading}
       >
-        {isLoading ? "JOINING..." : "JOIN THE WAITLIST"}
+        {isLoading ? "JOINING..." : "LET'S GO"}
       </Button>
     </form>
   );
