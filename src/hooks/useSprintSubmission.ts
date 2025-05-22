@@ -167,7 +167,7 @@ export const useSprintSubmission = () => {
       // Send confirmation email if the dashboard is not active
       if (!isDashboardActive && answers.name && answers.email) {
         console.log("Sending sprint waiting confirmation email");
-        sendSprintWaitingEmail(answers.email, answers.name)
+        sendSprintWaitingEmail(answers.email, answers.name, answers.linkedin || '')
           .then(success => {
             if (!success) {
               console.error("Failed to send sprint waiting confirmation email");

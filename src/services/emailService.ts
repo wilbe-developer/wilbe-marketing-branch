@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { PATHS } from "@/lib/constants";
 
@@ -31,7 +30,7 @@ export const sendWelcomeEmail = async (email: string, name: string) => {
   }
 };
 
-export const sendSprintWaitingEmail = async (email: string, name: string) => {
+export const sendSprintWaitingEmail = async (email: string, name: string, linkedin: string = '') => {
   try {
     console.log(`Sending sprint waiting confirmation to ${email} (${name})`);
     
@@ -40,7 +39,8 @@ export const sendSprintWaitingEmail = async (email: string, name: string) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
         email, 
-        name
+        name,
+        linkedin
       })
     });
     

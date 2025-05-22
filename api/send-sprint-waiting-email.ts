@@ -36,8 +36,11 @@ const createEmailHtml = (name: string) => `
 `;
 
 // Slack message formatter
-const createSlackMessage = (name: string, email: string) => {
+const createSlackMessage = (name: string, email: string, linkedin: string = '') => {
   let message = `✅ New BSF Sprint Signup: *${name}* (${email})`;
+  if (linkedin) {
+    message += `\nLinkedIn: ${linkedin}`;
+  }
   return { text: message };
 };
 
@@ -48,7 +51,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const { name, email } = req.body;
+    const { name, email, linkedin } = req.body;
 
     // Validate required fields
     if (!name || !email) {
@@ -69,7 +72,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       await fetch(process.env.SLACK_WEBHOOK_WAITLIST_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(createSlackMessage(name, email)),
+        body: JSON.stringify(createSlackMessage(name, email, linkedin)),
       });
     }
 
