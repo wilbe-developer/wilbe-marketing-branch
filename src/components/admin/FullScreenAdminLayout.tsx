@@ -1,147 +1,112 @@
 
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { X, Home, Users, Settings, BarChart2, Database, Clock, FileText, ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { useAuth } from '@/hooks/useAuth';
+import React, { ReactNode } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { 
+  LayoutDashboard, 
+  Users, 
+  FileText, 
+  Settings, 
+  BarChart2, 
+  ArrowLeft, 
+  UserCheck,
+  Shield,
+  TrendingUp 
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface FullScreenAdminLayoutProps {
-  children: React.ReactNode;
-  title: string;
+  children: ReactNode;
+  title?: string;
 }
 
-const FullScreenAdminLayout: React.FC<FullScreenAdminLayoutProps> = ({ children, title }) => {
-  const { isAdmin } = useAuth();
-  const navigate = useNavigate();
-  const [expanded, setExpanded] = useState(true);
-
-  // Check if user is admin, if not redirect to home
-  React.useEffect(() => {
-    if (!isAdmin) {
-      navigate('/');
+const FullScreenAdminLayout = ({ children, title = 'Admin' }: FullScreenAdminLayoutProps) => {
+  const location = useLocation();
+  const currentPath = location.pathname;
+  
+  // Admin navigation items
+  const navItems = [
+    { 
+      path: '/admin/dashboard', 
+      label: 'Dashboard', 
+      icon: <LayoutDashboard size={20} /> 
+    },
+    { 
+      path: '/admin/users', 
+      label: 'Users', 
+      icon: <Users size={20} /> 
+    },
+    { 
+      path: '/admin/approvals', 
+      label: 'Approvals', 
+      icon: <UserCheck size={20} /> 
+    },
+    { 
+      path: '/admin/roles', 
+      label: 'Roles', 
+      icon: <Shield size={20} /> 
+    },
+    { 
+      path: '/admin/sprint-monitor', 
+      label: 'Sprint Monitor', 
+      icon: <BarChart2 size={20} /> 
+    },
+    { 
+      path: '/admin/task-builder', 
+      label: 'Task Builder', 
+      icon: <FileText size={20} /> 
+    },
+    { 
+      path: '/admin/utm-analytics', 
+      label: 'UTM Analytics', 
+      icon: <TrendingUp size={20} /> 
+    },
+    { 
+      path: '/admin/settings', 
+      label: 'Settings', 
+      icon: <Settings size={20} /> 
     }
-  }, [isAdmin, navigate]);
+  ];
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="flex min-h-screen bg-gray-100">
       {/* Sidebar */}
-      <div className={`bg-gray-900 text-white ${expanded ? 'w-64' : 'w-16'} flex flex-col transition-all duration-300 ease-in-out`}>
-        <div className="p-4 border-b border-gray-800 flex items-center justify-between">
-          {expanded && <h2 className="text-xl font-bold">Admin</h2>}
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="text-white hover:bg-gray-800" 
-            onClick={() => setExpanded(!expanded)}
-          >
-            <X size={18} />
-          </Button>
+      <div className="w-64 bg-white shadow-sm hidden md:block">
+        <div className="p-4 border-b">
+          <h2 className="text-xl font-bold">Admin Panel</h2>
         </div>
-        
-        <div className="p-4 flex-grow">
-          <nav className="space-y-2">
-            <TooltipProvider>
-              <div className={`flex items-center p-2 rounded-md hover:bg-gray-800 transition-colors ${location.pathname.includes('/admin/dashboard') ? 'bg-gray-800' : ''}`}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Link to="/admin/dashboard" className="flex items-center">
-                      <Home size={20} />
-                      {expanded && <span className="ml-3">Dashboard</span>}
-                    </Link>
-                  </TooltipTrigger>
-                  {!expanded && <TooltipContent side="right">Dashboard</TooltipContent>}
-                </Tooltip>
-              </div>
-              
-              <div className={`flex items-center p-2 rounded-md hover:bg-gray-800 transition-colors ${location.pathname.includes('/admin/users') ? 'bg-gray-800' : ''}`}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Link to="/admin/users" className="flex items-center">
-                      <Users size={20} />
-                      {expanded && <span className="ml-3">Users</span>}
-                    </Link>
-                  </TooltipTrigger>
-                  {!expanded && <TooltipContent side="right">Users</TooltipContent>}
-                </Tooltip>
-              </div>
-              
-              <div className={`flex items-center p-2 rounded-md hover:bg-gray-800 transition-colors ${location.pathname.includes('/admin/sprint-monitor') ? 'bg-gray-800' : ''}`}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Link to="/admin/sprint-monitor" className="flex items-center">
-                      <BarChart2 size={20} />
-                      {expanded && <span className="ml-3">Sprint Monitor</span>}
-                    </Link>
-                  </TooltipTrigger>
-                  {!expanded && <TooltipContent side="right">Sprint Monitor</TooltipContent>}
-                </Tooltip>
-              </div>
-              
-              <div className={`flex items-center p-2 rounded-md hover:bg-gray-800 transition-colors ${location.pathname.includes('/admin/data-explorer') ? 'bg-gray-800' : ''}`}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Link to="/admin/data-explorer" className="flex items-center">
-                      <Database size={20} />
-                      {expanded && <span className="ml-3">Data Explorer</span>}
-                    </Link>
-                  </TooltipTrigger>
-                  {!expanded && <TooltipContent side="right">Data Explorer</TooltipContent>}
-                </Tooltip>
-              </div>
-              
-              <div className={`flex items-center p-2 rounded-md hover:bg-gray-800 transition-colors ${location.pathname.includes('/admin/activity') ? 'bg-gray-800' : ''}`}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Link to="/admin/activity" className="flex items-center">
-                      <Clock size={20} />
-                      {expanded && <span className="ml-3">Activity Log</span>}
-                    </Link>
-                  </TooltipTrigger>
-                  {!expanded && <TooltipContent side="right">Activity Log</TooltipContent>}
-                </Tooltip>
-              </div>
-              
-              <div className={`flex items-center p-2 rounded-md hover:bg-gray-800 transition-colors ${location.pathname.includes('/admin/settings') ? 'bg-gray-800' : ''}`}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Link to="/admin/settings" className="flex items-center">
-                      <Settings size={20} />
-                      {expanded && <span className="ml-3">Settings</span>}
-                    </Link>
-                  </TooltipTrigger>
-                  {!expanded && <TooltipContent side="right">Settings</TooltipContent>}
-                </Tooltip>
-              </div>
-            </TooltipProvider>
+        <div className="py-4">
+          <nav className="space-y-1 px-3">
+            {navItems.map((item) => (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={cn(
+                  "flex items-center px-2 py-2 text-sm font-medium rounded-md group",
+                  currentPath === item.path
+                    ? "bg-gray-100 text-gray-900"
+                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                )}
+              >
+                <span className="mr-3 text-gray-500">{item.icon}</span>
+                {item.label}
+              </Link>
+            ))}
           </nav>
         </div>
-        
-        <div className="p-4 border-t border-gray-800">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="w-full flex items-center justify-center gap-2 text-white border-gray-700 hover:bg-gray-800"
-            onClick={() => navigate('/')}
+        <div className="p-4 border-t mt-auto">
+          <Link
+            to="/"
+            className="flex items-center px-2 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-50 hover:text-gray-900"
           >
-            <ArrowLeft size={16} />
-            {expanded && <span>Exit Admin</span>}
-          </Button>
+            <ArrowLeft size={20} className="mr-3" />
+            Back to App
+          </Link>
         </div>
       </div>
-      
+
       {/* Main content */}
-      <div className="flex-grow overflow-auto">
-        <header className="bg-white shadow">
-          <div className="px-4 py-4 flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-500">Admin Control Panel</span>
-            </div>
-          </div>
-        </header>
-        
-        <main className="p-6">
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <main className="flex-1 overflow-y-auto p-6 bg-gray-100">
           {children}
         </main>
       </div>

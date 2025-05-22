@@ -1,10 +1,9 @@
-
 import React, { useEffect, useState } from 'react';
 import FullScreenAdminLayout from '@/components/admin/FullScreenAdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useSprintAdminData } from '@/hooks/admin/useSprintAdminData';
 import { useSprintMonitor } from '@/hooks/admin/useSprintMonitor';
-import { BarChart, Users, FileText, Settings, Clock, Database, Activity, BarChart2, LineChart, TrendingUp } from 'lucide-react';
+import { BarChart, Users, FileText, Settings, Clock, Database, Activity, BarChart2, LineChart, TrendingUp, UserCheck, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import ActivityFeed from '@/components/admin/sprint-monitor/ActivityFeed';
@@ -136,7 +135,7 @@ const AdminDashboardPage = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <Card>
           <CardHeader>
-            <CardTitle>Quick Links</CardTitle>
+            <CardTitle>Admin Navigation</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
@@ -146,6 +145,26 @@ const AdminDashboardPage = () => {
                   <div>
                     <div className="font-medium">User Management</div>
                     <div className="text-sm text-gray-500">Manage user accounts and permissions</div>
+                  </div>
+                </div>
+              </Link>
+              
+              <Link to="/admin/approvals" className="block p-3 hover:bg-gray-50 rounded-md">
+                <div className="flex items-center">
+                  <UserCheck className="h-5 w-5 mr-3 text-gray-500" />
+                  <div>
+                    <div className="font-medium">User Approvals</div>
+                    <div className="text-sm text-gray-500">Review and approve user registrations</div>
+                  </div>
+                </div>
+              </Link>
+              
+              <Link to="/admin/roles" className="block p-3 hover:bg-gray-50 rounded-md">
+                <div className="flex items-center">
+                  <ShieldCheck className="h-5 w-5 mr-3 text-gray-500" />
+                  <div>
+                    <div className="font-medium">Role Management</div>
+                    <div className="text-sm text-gray-500">Manage user roles and permissions</div>
                   </div>
                 </div>
               </Link>
@@ -170,32 +189,12 @@ const AdminDashboardPage = () => {
                 </div>
               </Link>
               
-              <Link to="/admin/data-explorer" className="block p-3 hover:bg-gray-50 rounded-md">
+              <Link to="/admin/utm-analytics" className="block p-3 hover:bg-gray-50 rounded-md">
                 <div className="flex items-center">
-                  <Database className="h-5 w-5 mr-3 text-gray-500" />
+                  <TrendingUp className="h-5 w-5 mr-3 text-gray-500" />
                   <div>
-                    <div className="font-medium">Data Explorer</div>
-                    <div className="text-sm text-gray-500">Explore and analyze sprint data</div>
-                  </div>
-                </div>
-              </Link>
-              
-              <Link to="/admin/activity" className="block p-3 hover:bg-gray-50 rounded-md">
-                <div className="flex items-center">
-                  <Activity className="h-5 w-5 mr-3 text-gray-500" />
-                  <div>
-                    <div className="font-medium">Activity Log</div>
-                    <div className="text-sm text-gray-500">View system and user activity</div>
-                  </div>
-                </div>
-              </Link>
-              
-              <Link to="/admin/settings" className="block p-3 hover:bg-gray-50 rounded-md">
-                <div className="flex items-center">
-                  <Settings className="h-5 w-5 mr-3 text-gray-500" />
-                  <div>
-                    <div className="font-medium">Settings</div>
-                    <div className="text-sm text-gray-500">Configure platform settings</div>
+                    <div className="font-medium">UTM Analytics</div>
+                    <div className="text-sm text-gray-500">Track marketing campaign performance</div>
                   </div>
                 </div>
               </Link>

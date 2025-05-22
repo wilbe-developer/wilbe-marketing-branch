@@ -1,41 +1,44 @@
-// Types for admin dashboard
+
 export interface WaitlistSignup {
   id: string;
   name: string;
   email: string;
   created_at: string;
-  utm_source: string | null;
-  utm_medium: string | null;
-  successful_referrals?: number;
+  utm_source?: string | null;
+  utm_medium?: string | null;
+  referrer_id?: string | null;
   referral_code?: string;
-  referrer_id?: string;
+  successful_referrals?: number;
 }
 
 export interface SprintProfile {
   id: string;
   user_id: string;
-  name: string | null;
-  email: string | null;
+  name?: string | null;
+  email?: string | null;
   created_at: string;
-  utm_source: string | null;
-  utm_medium: string | null;
-  utm_campaign: string | null;
-  utm_term: string | null;
-  utm_content: string | null;
-  // Other sprint profile fields can be added as needed
+  updated_at: string;
+  linkedin_url?: string | null;
+  current_job?: string | null;
+  utm_source?: string | null;
+  utm_medium?: string | null;
+  utm_campaign?: string | null;
+  utm_term?: string | null;
+  utm_content?: string | null;
+  // Add other fields as needed
 }
 
 export interface UnifiedSignup {
   id: string;
-  name: string | null;
-  email: string | null;
+  name: string;
+  email: string;
+  source: 'waitlist' | 'sprint';
   created_at: string;
   utm_source: string | null;
   utm_medium: string | null;
   utm_campaign: string | null;
   utm_term: string | null;
   utm_content: string | null;
-  source: 'waitlist' | 'sprint';
 }
 
 export interface UTMSource {
@@ -48,14 +51,24 @@ export interface UTMMedium {
   count: number;
 }
 
+export interface TopReferrer {
+  id: string;
+  name: string;
+  email: string;
+  referrals: number;
+}
+
 export interface ReferralStats {
   totalSignups: number;
   totalReferrals: number;
-  topReferrers: {
-    name: string;
-    email: string;
-    referrals: number;
-  }[];
+  topReferrers: TopReferrer[];
+}
+
+export interface SignupsByDate {
+  date: string;
+  waitlist: number;
+  sprint: number;
+  total: number;
 }
 
 export interface UnifiedStats {
@@ -65,11 +78,4 @@ export interface UnifiedStats {
   conversionRate: number;
   utmSources: UTMSource[];
   utmMediums: UTMMedium[];
-}
-
-export interface SignupsByDate {
-  date: string;
-  waitlist: number;
-  sprint: number;
-  total: number;
 }

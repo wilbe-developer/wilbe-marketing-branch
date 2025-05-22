@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -21,7 +20,7 @@ import VideoPlayerPage from "@/pages/VideoPlayerPage";
 import LoginPage from "@/pages/LoginPage";
 import RegisterPage from "@/pages/RegisterPage";
 import PendingApprovalPage from "@/pages/PendingApprovalPage";
-import AdminPage from "@/pages/AdminPage";
+import AdminPage from "./pages/AdminPage";
 import ProfilePage from "@/pages/ProfilePage";
 import SprintProfilePage from "@/pages/SprintProfilePage";
 import NotFoundPage from "@/pages/NotFoundPage";
@@ -48,11 +47,14 @@ import QuizPage from "@/pages/QuizPage";
 import SprintMonitorPage from "@/pages/admin/SprintMonitorPage";
 
 // Admin pages
-import AdminDashboardPage from "@/pages/admin/AdminDashboardPage";
-import AdminUsersPage from "@/pages/admin/AdminUsersPage";
-import AdminSettingsPage from "@/pages/admin/AdminSettingsPage";
-import AdminDataExplorerPage from "@/pages/admin/AdminDataExplorerPage";
-import AdminActivityLogPage from "@/pages/admin/AdminActivityLogPage";
+import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
+import AdminUsersPage from "./pages/admin/AdminUsersPage";
+import AdminSettingsPage from "./pages/admin/AdminSettingsPage";
+import AdminDataExplorerPage from "./pages/admin/AdminDataExplorerPage";
+import AdminActivityLogPage from "./pages/admin/AdminActivityLogPage";
+import UserApprovalsPage from "./pages/admin/UserApprovalsPage";
+import RolesManagerPage from "./pages/admin/RolesManagerPage";
+import UTMAnalyticsPage from "./pages/admin/UTMAnalyticsPage";
 
 // Auth Route component
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -142,11 +144,11 @@ const App = () => (
                 <Route element={<ProtectedRoute requireAdmin={true} />}>
                   <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
                   <Route path="/admin/users" element={<AdminUsersPage />} />
+                  <Route path="/admin/approvals" element={<UserApprovalsPage />} />
                   <Route path="/admin/sprint-monitor" element={<SprintMonitorPage />} />
-                  <Route path="/admin/data-explorer" element={<AdminDataExplorerPage />} />
-                  <Route path="/admin/activity" element={<AdminActivityLogPage />} />
-                  <Route path="/admin/settings" element={<AdminSettingsPage />} />
-                  <Route path="/admin/task-builder/*" element={<TaskBuilderPage />} />
+                  <Route path="/admin/roles" element={<RolesManagerPage />} />
+                  <Route path="/admin/task-builder" element={<TaskBuilderPage />} />
+                  <Route path="/admin/utm-analytics" element={<UTMAnalyticsPage />} />
                   <Route path="/lead-generator" element={<LeadGeneratorPage />} />
                 </Route>
 
