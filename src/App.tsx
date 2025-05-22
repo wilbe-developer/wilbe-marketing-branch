@@ -150,6 +150,7 @@ const App = () => (
                   <Route path="/admin/task-builder" element={<TaskBuilderPage />} />
                   <Route path="/admin/utm-analytics" element={<UTMAnalyticsPage />} />
                   <Route path="/lead-generator" element={<LeadGeneratorPage />} />
+                  <Route path="/admin/settings" element={<SettingsPage />} />
                 </Route>
 
                 {/* Catch-all route */}

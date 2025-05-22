@@ -77,6 +77,28 @@ export const processDataForCharts = (data: any[]) => {
     { name: 'Sprint', value: sprintCount }
   ];
   
+  // Process UTM source data
+  const utmSourceMap: Record<string, number> = {};
+  data.forEach(item => {
+    const source = item.utm_source || 'direct';
+    utmSourceMap[source] = (utmSourceMap[source] || 0) + 1;
+  });
+  
+  const utmSourceData = Object.entries(utmSourceMap)
+    .map(([name, value]) => ({ name, value }))
+    .sort((a, b) => b.value - a.value);
+  
+  // Process UTM medium data
+  const utmMediumMap: Record<string, number> = {};
+  data.forEach(item => {
+    const medium = item.utm_medium || 'direct';
+    utmMediumMap[medium] = (utmMediumMap[medium] || 0) + 1;
+  });
+  
+  const utmMediumData = Object.entries(utmMediumMap)
+    .map(([name, value]) => ({ name, value }))
+    .sort((a, b) => b.value - a.value);
+  
   // Process daily signups (last 14 days)
   const dailyData = processDailySignups(data);
   
@@ -88,7 +110,9 @@ export const processDataForCharts = (data: any[]) => {
       conversionRate
     },
     sourceDistribution: sourceData,
-    dailySignups: dailyData
+    dailySignups: dailyData,
+    utmSourceData,
+    utmMediumData
   };
 };
 

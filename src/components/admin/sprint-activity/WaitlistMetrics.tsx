@@ -1,7 +1,8 @@
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface WaitlistMetricsProps {
   timeRange?: '7d' | '30d' | '90d' | 'all';
@@ -42,6 +43,14 @@ const WaitlistMetrics: React.FC<WaitlistMetricsProps> = ({ timeRange = 'all' }) 
       const dailyCounts: Record<string, number> = {};
       let totalSignupsCount = 0;
       let totalReferralsCount = 0;
+      
+      // Create entries for the last 14 days
+      for (let i = 13; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        const dateString = date.toLocaleDateString();
+        dailyCounts[dateString] = 0;
+      }
       
       data?.forEach(item => {
         const date = new Date(item.created_at).toLocaleDateString();
@@ -99,14 +108,21 @@ const WaitlistMetrics: React.FC<WaitlistMetricsProps> = ({ timeRange = 'all' }) 
           <h3 className="text-lg font-medium mb-4">Signups Over Time</h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={signupsByDay}>
+              <LineChart data={signupsByDay}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="date" />
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="signups" fill="#8884d8" name="Signups" />
-              </BarChart>
+                <Line 
+                  type="monotone" 
+                  dataKey="signups" 
+                  stroke="#8884d8" 
+                  name="Signups" 
+                  strokeWidth={2}
+                  activeDot={{ r: 8 }}
+                />
+              </LineChart>
             </ResponsiveContainer>
           </div>
         </CardContent>

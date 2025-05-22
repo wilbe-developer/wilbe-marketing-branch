@@ -1,11 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { fetchUnifiedData, processDataForCharts } from './utils/unified-data-utils';
 import SignupMetricsCards from './cards/SignupMetricsCards';
 import SourceDistributionChart from './charts/SourceDistributionChart';
 import DailySignupsChart from './charts/DailySignupsChart';
 import RecentSignupsTable from './tables/RecentSignupsTable';
+import UTMPieChart from './charts/UTMPieChart';
 
 export interface UnifiedAnalyticsProps {
   timeRange: '7d' | '30d' | '90d' | 'all';
@@ -16,12 +18,17 @@ const UnifiedAnalytics: React.FC<UnifiedAnalyticsProps> = ({ timeRange }) => {
   const [signupData, setSignupData] = useState<any[]>([]);
   const [sourceDistribution, setSourceDistribution] = useState<any[]>([]);
   const [dailySignups, setDailySignups] = useState<any[]>([]);
+  const [utmSourceData, setUtmSourceData] = useState<any[]>([]);
+  const [utmMediumData, setUtmMediumData] = useState<any[]>([]);
+  const [utmType, setUtmType] = useState<'source' | 'medium'>('source');
   const [conversionMetrics, setConversionMetrics] = useState({
     waitlistCount: 0,
     sprintCount: 0,
     totalCount: 0,
     conversionRate: 0
   });
+  
+  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82ca9d', '#ffc658', '#8dd1e1'];
   
   useEffect(() => {
     fetchAnalyticsData();
@@ -37,6 +44,8 @@ const UnifiedAnalytics: React.FC<UnifiedAnalyticsProps> = ({ timeRange }) => {
       setConversionMetrics(processedData.conversionMetrics);
       setSourceDistribution(processedData.sourceDistribution);
       setDailySignups(processedData.dailySignups);
+      setUtmSourceData(processedData.utmSourceData);
+      setUtmMediumData(processedData.utmMediumData);
       
       setIsLoading(false);
     } catch (err) {
@@ -62,11 +71,22 @@ const UnifiedAnalytics: React.FC<UnifiedAnalyticsProps> = ({ timeRange }) => {
       />
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Source Distribution Chart */}
+        {/* UTM Distribution Chart */}
         <Card>
           <CardContent className="pt-6">
-            <h3 className="text-lg font-medium mb-4">Signup Source Distribution</h3>
-            <SourceDistributionChart data={sourceDistribution} />
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-medium">UTM {utmType === 'source' ? 'Sources' : 'Mediums'}</h3>
+              <Tabs value={utmType} onValueChange={(value) => setUtmType(value as 'source' | 'medium')}>
+                <TabsList>
+                  <TabsTrigger value="source">Source</TabsTrigger>
+                  <TabsTrigger value="medium">Medium</TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </div>
+            <UTMPieChart 
+              data={utmType === 'source' ? utmSourceData : utmMediumData}
+              colors={COLORS}
+            />
           </CardContent>
         </Card>
         

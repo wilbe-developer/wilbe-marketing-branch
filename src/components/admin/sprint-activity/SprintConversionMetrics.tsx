@@ -46,7 +46,7 @@ const SprintConversionMetrics: React.FC<SprintConversionMetricsProps> = ({ timeR
       
       if (waitlistError) throw waitlistError;
       
-      // Fetch sprint profiles instead of sprint_signups which doesn't exist
+      // Fetch sprint profiles 
       let sprintQuery = supabase
         .from('sprint_profiles')
         .select('email, created_at');
@@ -60,15 +60,16 @@ const SprintConversionMetrics: React.FC<SprintConversionMetricsProps> = ({ timeR
       if (sprintError) throw sprintError;
       
       // Process data
-      const waitlistEmails = new Set(waitlistData?.map(item => item.email.toLowerCase()) || []);
-      const sprintEmails = new Set(sprintData?.map(item => item.email.toLowerCase()) || []);
+      const waitlistEmails = new Set(waitlistData?.map(item => item.email?.toLowerCase()) || []);
+      const sprintEmails = new Set(sprintData?.map(item => item.email?.toLowerCase()) || []);
       
       // Find conversions (emails in both sets)
-      const conversions = [...waitlistEmails].filter(email => sprintEmails.has(email));
+      const conversions = [...waitlistEmails].filter(email => email && sprintEmails.has(email));
       
-      // Calculate conversion rate
+      // Calculate conversion rate - use the number of waitlist signups as denominator
       const totalWaitlist = waitlistEmails.size;
       const totalConversions = conversions.length;
+      // Avoid division by zero
       const conversionRate = totalWaitlist > 0 ? (totalConversions / totalWaitlist) * 100 : 0;
       
       // Prepare chart data
