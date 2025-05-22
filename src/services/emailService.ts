@@ -30,29 +30,36 @@ export const sendWelcomeEmail = async (email: string, name: string) => {
   }
 };
 
-export const sendSprintWaitingEmail = async (email: string, name: string, linkedin: string = '') => {
+export const sendSprintWaitingEmail = async (email: string, name: string, linkedin: string = ''): Promise<boolean> => {
   try {
     console.log(`Sending sprint waiting confirmation to ${email} (${name})`);
     
     const response = await fetch('/api/send-sprint-waiting-email', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        email, 
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email,
         name,
-        linkedin
-      })
+        linkedin,
+        // Add any UTM parameters from the URL
+        utmSource: new URLSearchParams(window.location.search).get('utm_source'),
+        utmMedium: new URLSearchParams(window.location.search).get('utm_medium'),
+        utmCampaign: new URLSearchParams(window.location.search).get('utm_campaign'),
+        utmTerm: new URLSearchParams(window.location.search).get('utm_term'),
+        utmContent: new URLSearchParams(window.location.search).get('utm_content')
+      }),
     });
-    
+
     if (!response.ok) {
-      console.error('Error sending sprint waiting email:', await response.text());
-      return false;
+      throw new Error(`API call failed with status: ${response.status}`);
     }
-    
-    console.log('Sprint waiting email sent successfully');
-    return true;
+
+    const data = await response.json();
+    return data.status === 'sent';
   } catch (error) {
-    console.error('Exception sending sprint waiting email:', error);
+    console.error('Error sending email:', error);
     return false;
   }
 };

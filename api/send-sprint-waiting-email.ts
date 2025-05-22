@@ -36,11 +36,20 @@ const createEmailHtml = (name: string) => `
 `;
 
 // Slack message formatter
-const createSlackMessage = (name: string, email: string, linkedin: string = '') => {
+const createSlackMessage = (name: string, email: string, linkedin: string = '', utmSource: string = '', utmMedium: string = '') => {
   let message = `✅ New BSF Signup: *${name}* (${email})`;
+  
   if (linkedin) {
     message += `\nLinkedIn: ${linkedin}`;
   }
+  
+  // Add UTM parameters if available
+  if (utmSource || utmMedium) {
+    message += '\n📊 Attribution:';
+    if (utmSource) message += ` source=${utmSource}`;
+    if (utmMedium) message += ` medium=${utmMedium}`;
+  }
+  
   return { text: message };
 };
 
@@ -51,7 +60,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const { name, email, linkedin } = req.body;
+    const { 
+      name, 
+      email, 
+      linkedin, 
+      utmSource, 
+      utmMedium, 
+      utmCampaign, 
+      utmTerm, 
+      utmContent 
+    } = req.body;
 
     // Validate required fields
     if (!name || !email) {
@@ -67,14 +85,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       replyTo: 'members@wilbe.com'
     });
 
-    // Send Slack notification
+    // Send Slack notification with UTM data
     if (process.env.SLACK_WEBHOOK_WAITLIST_URL) {
       await fetch(process.env.SLACK_WEBHOOK_WAITLIST_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(createSlackMessage(name, email, linkedin)),
+        body: JSON.stringify(createSlackMessage(name, email, linkedin, utmSource, utmMedium)),
       });
     }
+
+    // Log UTM parameters for debugging
+    console.log('UTM parameters received:', { utmSource, utmMedium, utmCampaign, utmTerm, utmContent });
 
     return res.status(200).json({ status: 'sent' });
   } catch (error) {

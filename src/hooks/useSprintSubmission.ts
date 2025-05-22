@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -9,6 +10,14 @@ import { useAuth } from "./useAuth";
 import { useAppSettings } from "./useAppSettings";
 import { sendSprintWaitingEmail } from "@/services/emailService";
 
+interface UtmParams {
+  utm_source?: string | null;
+  utm_medium?: string | null;
+  utm_campaign?: string | null;
+  utm_term?: string | null;
+  utm_content?: string | null;
+}
+
 export const useSprintSubmission = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { uploadFounderProfile } = useSprintFileUpload();
@@ -16,7 +25,7 @@ export const useSprintSubmission = () => {
   const { user, isAuthenticated } = useAuth();
   const { isDashboardActive, isLoading: isLoadingSettings } = useAppSettings();
 
-  const silentSignup = async (answers: SprintSignupAnswers) => {
+  const silentSignup = async (answers: SprintSignupAnswers, utmParams: UtmParams = {}) => {
     setIsSubmitting(true);
     try {
       // Make sure we have an email for creating a new account
@@ -109,6 +118,15 @@ export const useSprintSubmission = () => {
       // Process boolean values
       const getBooleanValue = (value: string | undefined | null) => value === 'yes';
 
+      // Extract and clean UTM parameters
+      const utmSource = utmParams.utm_source || null;
+      const utmMedium = utmParams.utm_medium || null;
+      const utmCampaign = utmParams.utm_campaign || null;
+      const utmTerm = utmParams.utm_term || null;
+      const utmContent = utmParams.utm_content || null;
+
+      console.log("Adding UTM parameters to sprint profile:", { utmSource, utmMedium });
+
       // Create/update the profile in Supabase - accurately map fields from SprintSignupWindows.ts
       const { error: profileError } = await supabase.rpc('create_sprint_profile', {
         p_user_id: userId,
@@ -153,7 +171,14 @@ export const useSprintSubmission = () => {
         p_lab_space_needed: getBooleanValue(answers.lab_space_needed),
         p_lab_space_secured: getBooleanValue(answers.lab_space_secured),
         p_lab_space_details: answers.lab_space_details || '',
-        p_deck_feedback: getBooleanValue(answers.deck_feedback)
+        p_deck_feedback: getBooleanValue(answers.deck_feedback),
+        
+        // UTM parameters
+        p_utm_source: utmSource,
+        p_utm_medium: utmMedium,
+        p_utm_campaign: utmCampaign,
+        p_utm_term: utmTerm,
+        p_utm_content: utmContent
       });
 
       if (profileError) {

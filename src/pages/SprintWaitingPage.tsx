@@ -2,13 +2,50 @@
 import React, { useEffect } from "react";
 import { Header } from "@/components/Header";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 const SprintWaitingPage = () => {
   const { user } = useAuth();
   
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+    
+    // Log UTM parameters for the current user profile if they exist
+    const fetchUtmParams = async () => {
+      if (user?.id) {
+        try {
+          const { data, error } = await supabase
+            .from('sprint_profiles')
+            .select('utm_source, utm_medium, utm_campaign, utm_term, utm_content')
+            .eq('user_id', user.id)
+            .maybeSingle();
+            
+          if (data && !error) {
+            const utmData = {
+              utm_source: data.utm_source,
+              utm_medium: data.utm_medium,
+              utm_campaign: data.utm_campaign,
+              utm_term: data.utm_term,
+              utm_content: data.utm_content
+            };
+            
+            // Filter out null values
+            const filteredUtmData = Object.fromEntries(
+              Object.entries(utmData).filter(([_, v]) => v !== null)
+            );
+            
+            if (Object.keys(filteredUtmData).length > 0) {
+              console.log('UTM parameters for this user:', filteredUtmData);
+            }
+          }
+        } catch (err) {
+          console.error('Error fetching UTM data:', err);
+        }
+      }
+    };
+    
+    fetchUtmParams();
+  }, [user]);
 
   return (
     <div className="min-h-screen flex flex-col bg-white">

@@ -8,7 +8,19 @@ import { useAuth } from "@/hooks/useAuth";
 import { WindowFormFields } from "./WindowFormFields";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 
-const SprintSignupForm = () => {
+interface UtmParams {
+  utm_source?: string | null;
+  utm_medium?: string | null;
+  utm_campaign?: string | null;
+  utm_term?: string | null;
+  utm_content?: string | null;
+}
+
+interface SprintSignupFormProps {
+  utmParams?: UtmParams;
+}
+
+const SprintSignupForm: React.FC<SprintSignupFormProps> = ({ utmParams = {} }) => {
   const {
     currentWindow,
     answers,
@@ -75,6 +87,11 @@ const SprintSignupForm = () => {
     
     // For new users, ensure we have an email before allowing submission
     return isCurrentWindowAnswered() && !!answers.email;
+  };
+
+  // Handle form submission with UTM parameters
+  const handleSubmit = () => {
+    silentSignup(answers, utmParams);
   };
 
   const isLastWindow = currentWindow === windows.length - 1;
@@ -165,7 +182,7 @@ const SprintSignupForm = () => {
         
         {isLastWindow ? (
           <Button 
-            onClick={() => silentSignup(answers)}
+            onClick={handleSubmit}
             disabled={!canSubmit() || isSubmitting || isCheckingEmail || emailExists}
             className="ml-auto"
           >
