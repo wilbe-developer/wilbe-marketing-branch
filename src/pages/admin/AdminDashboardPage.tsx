@@ -1,21 +1,32 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import FullScreenAdminLayout from '@/components/admin/FullScreenAdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useSprintAdminData } from '@/hooks/admin/useSprintAdminData';
 import { useSprintMonitor } from '@/hooks/admin/useSprintMonitor';
-import { BarChart, Users, FileText, Settings, Clock, Database, Activity } from 'lucide-react';
+import { BarChart, Users, FileText, Settings, Clock, Database, Activity, BarChart2, LineChart, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import ActivityFeed from '@/components/admin/sprint-monitor/ActivityFeed';
 
 const AdminDashboardPage = () => {
-  const { unifiedStats, refreshData } = useSprintAdminData();
+  const { unifiedStats, refreshData, getSignupsByDate } = useSprintAdminData();
   const { taskPerformance, activityFeed, refreshMonitorData } = useSprintMonitor();
-
+  const [signupData, setSignupData] = useState<any[]>([]);
+  
   // Refresh data when component mounts
   useEffect(() => {
     refreshData();
     refreshMonitorData();
   }, []);
+
+  // Get signup data for charts when unifiedStats changes
+  useEffect(() => {
+    if (unifiedStats) {
+      const data = getSignupsByDate('all', 14);
+      setSignupData(data);
+    }
+  }, [unifiedStats]);
 
   return (
     <FullScreenAdminLayout title="Admin Dashboard">
@@ -55,7 +66,7 @@ const AdminDashboardPage = () => {
           </CardHeader>
           <CardContent>
             <div className="flex items-center">
-              <BarChart className="mr-2 h-4 w-4 text-gray-500" />
+              <TrendingUp className="mr-2 h-4 w-4 text-gray-500" />
               <span className="text-2xl font-bold">
                 {unifiedStats ? `${unifiedStats.conversionRate.toFixed(1)}%` : '...'}
               </span>
@@ -72,6 +83,52 @@ const AdminDashboardPage = () => {
               <FileText className="mr-2 h-4 w-4 text-gray-500" />
               <span className="text-2xl font-bold">{taskPerformance?.totalTasks || '...'}</span>
             </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <LineChart className="mr-2 h-5 w-5" />
+              Signup Trends
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart
+                  data={signupData}
+                  margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                >
+                  <defs>
+                    <linearGradient id="colorWaitlist" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="#8884d8" stopOpacity={0}/>
+                    </linearGradient>
+                    <linearGradient id="colorSprint" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#82ca9d" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="#82ca9d" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <XAxis dataKey="date" />
+                  <YAxis />
+                  <Tooltip />
+                  <Area type="monotone" dataKey="waitlist" stroke="#8884d8" fillOpacity={1} fill="url(#colorWaitlist)" />
+                  <Area type="monotone" dataKey="sprint" stroke="#82ca9d" fillOpacity={1} fill="url(#colorSprint)" />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Activity</CardTitle>
+          </CardHeader>
+          <CardContent className="max-h-[300px] overflow-auto">
+            <ActivityFeed activityFeed={activityFeed || []} />
           </CardContent>
         </Card>
       </div>
@@ -95,7 +152,7 @@ const AdminDashboardPage = () => {
               
               <Link to="/admin/sprint-monitor" className="block p-3 hover:bg-gray-50 rounded-md">
                 <div className="flex items-center">
-                  <BarChart className="h-5 w-5 mr-3 text-gray-500" />
+                  <BarChart2 className="h-5 w-5 mr-3 text-gray-500" />
                   <div>
                     <div className="font-medium">Sprint Monitor</div>
                     <div className="text-sm text-gray-500">View sprint progress and analytics</div>
@@ -148,31 +205,47 @@ const AdminDashboardPage = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
+            <CardTitle>Performance Metrics</CardTitle>
           </CardHeader>
-          <CardContent className="max-h-[300px] overflow-auto">
-            {activityFeed && activityFeed.length > 0 ? (
-              <div className="space-y-3">
-                {activityFeed.slice(0, 5).map((activity) => (
-                  <div key={activity.id} className="flex items-start border-b pb-2 last:border-0">
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">{activity.userName}</p>
-                      <p className="text-xs text-gray-500">{activity.details}</p>
-                      <p className="text-xs text-gray-400 mt-1">
-                        {new Date(activity.timestamp).toLocaleString()}
-                      </p>
-                    </div>
+          <CardContent>
+            {taskPerformance ? (
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="border rounded-md p-4">
+                    <div className="text-sm text-gray-500">Completion Rate</div>
+                    <div className="text-2xl font-bold">{taskPerformance.completionRate.toFixed(1)}%</div>
                   </div>
-                ))}
-                <div className="pt-2">
-                  <Link to="/admin/activity" className="text-sm text-blue-600 hover:underline">
-                    View all activity
+                  
+                  <div className="border rounded-md p-4">
+                    <div className="text-sm text-gray-500">Avg. Time</div>
+                    <div className="text-2xl font-bold">{taskPerformance.averageTimeToComplete.toFixed(1)} min</div>
+                  </div>
+                </div>
+                
+                <div className="border rounded-md p-4">
+                  <div className="text-sm text-gray-500 mb-2">Top Performing Tasks</div>
+                  <div className="space-y-2">
+                    {taskPerformance.taskBreakdown
+                      .sort((a: any, b: any) => b.completions - a.completions)
+                      .slice(0, 3)
+                      .map((task: any) => (
+                        <div key={task.taskId} className="flex justify-between items-center">
+                          <div className="text-sm truncate" style={{ maxWidth: '70%' }}>{task.taskName}</div>
+                          <div className="text-sm font-medium">{task.completions} completions</div>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+                
+                <div className="text-center mt-2">
+                  <Link to="/admin/sprint-monitor" className="text-sm text-blue-600 hover:underline">
+                    View detailed analytics
                   </Link>
                 </div>
               </div>
             ) : (
-              <div className="text-center py-4 text-gray-500">
-                No recent activity to display
+              <div className="flex justify-center items-center h-40">
+                <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
               </div>
             )}
           </CardContent>

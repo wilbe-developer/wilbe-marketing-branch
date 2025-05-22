@@ -1,10 +1,21 @@
 
-import { WaitlistSignup, SprintProfile, UnifiedSignup, UTMSource, UTMMedium, ReferralStats, UnifiedStats, SignupsByDate } from "./types";
+import { 
+  WaitlistSignup, 
+  SprintProfile, 
+  UnifiedSignup, 
+  UTMSource, 
+  UTMMedium, 
+  ReferralStats, 
+  UnifiedStats,
+  SignupsByDate
+} from "./types";
 
-// Unify the data from both sources
-export const unifyData = (waitlistSignups: WaitlistSignup[], sprintProfiles: SprintProfile[]): UnifiedSignup[] => {
-  // Convert waitlist signups to unified format
-  const waitlistUnified: UnifiedSignup[] = waitlistSignups.map(signup => ({
+// Unify data from both waitlist and sprint profiles
+export const unifyData = (
+  waitlistSignups: WaitlistSignup[], 
+  sprintProfiles: SprintProfile[]
+): UnifiedSignup[] => {
+  const waitlistData = waitlistSignups.map(signup => ({
     id: signup.id,
     name: signup.name,
     email: signup.email,
@@ -14,132 +25,101 @@ export const unifyData = (waitlistSignups: WaitlistSignup[], sprintProfiles: Spr
     utm_campaign: null,
     utm_term: null,
     utm_content: null,
-    source: 'waitlist'
+    source: 'waitlist' as const
   }));
-
-  // Convert sprint profiles to unified format
-  const sprintUnified: UnifiedSignup[] = sprintProfiles.map(profile => ({
+  
+  const sprintData = sprintProfiles.map(profile => ({
     id: profile.id,
-    name: profile.name || '',
-    email: profile.email || '',
+    name: profile.name,
+    email: profile.email,
     created_at: profile.created_at,
     utm_source: profile.utm_source,
     utm_medium: profile.utm_medium,
     utm_campaign: profile.utm_campaign,
     utm_term: profile.utm_term,
     utm_content: profile.utm_content,
-    source: 'sprint'
+    source: 'sprint' as const
   }));
-
-  // Combine and sort by date
-  return [...waitlistUnified, ...sprintUnified].sort((a, b) => 
+  
+  // Combine both datasets and sort by creation date (newest first)
+  return [...waitlistData, ...sprintData].sort((a, b) => 
     new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   );
 };
 
 // Calculate referral statistics
-export const calculateReferralStats = (signups: WaitlistSignup[]): ReferralStats => {
-  const totalSignups = signups.length;
-  const signupsWithReferrers = signups.filter(signup => signup.referrer_id).length;
+export const calculateReferralStats = (waitlistSignups: WaitlistSignup[]): ReferralStats => {
+  const totalSignups = waitlistSignups.length;
+  const totalReferrals = waitlistSignups.reduce((sum, signup) => 
+    sum + (signup.successful_referrals || 0), 0
+  );
   
-  // Get top referrers
-  const referrerMap = new Map<string, { name: string; email: string; referrals: number }>();
-  
-  signups.forEach(signup => {
-    if (signup.successful_referrals > 0) {
-      referrerMap.set(signup.id, {
-        name: signup.name,
-        email: signup.email,
-        referrals: signup.successful_referrals
-      });
-    }
-  });
-  
-  const topReferrers = Array.from(referrerMap.values())
-    .sort((a, b) => b.referrals - a.referrals)
-    .slice(0, 10);
+  // Find top referrers
+  const topReferrers = [...waitlistSignups]
+    .filter(signup => signup.successful_referrals && signup.successful_referrals > 0)
+    .sort((a, b) => (b.successful_referrals || 0) - (a.successful_referrals || 0))
+    .slice(0, 5)
+    .map(signup => ({
+      name: signup.name,
+      email: signup.email,
+      referrals: signup.successful_referrals || 0
+    }));
   
   return {
     totalSignups,
-    totalReferrals: signupsWithReferrers,
+    totalReferrals,
     topReferrers
   };
 };
 
-// Analyze unified data
-export const analyzeUnifiedData = (signups: UnifiedSignup[]): UnifiedStats => {
-  // Count by source
-  const waitlistCount = signups.filter(s => s.source === 'waitlist').length;
-  const sprintCount = signups.filter(s => s.source === 'sprint').length;
-  const totalCount = signups.length;
-  
-  // Calculate conversion rate
-  const conversionRate = waitlistCount > 0 ? (sprintCount / totalCount) * 100 : 0;
-  
-  // Analyze UTM sources
-  const sourceMap = new Map<string, number>();
-  const mediumMap = new Map<string, number>();
+// Analyze UTM data
+export const analyzeUTMData = (signups: (WaitlistSignup | SprintProfile)[]): { utmSources: UTMSource[], utmMediums: UTMMedium[] } => {
+  const sourceCount: Record<string, number> = {};
+  const mediumCount: Record<string, number> = {};
   
   signups.forEach(signup => {
     if (signup.utm_source) {
-      const currentCount = sourceMap.get(signup.utm_source) || 0;
-      sourceMap.set(signup.utm_source, currentCount + 1);
+      sourceCount[signup.utm_source] = (sourceCount[signup.utm_source] || 0) + 1;
     }
     
     if (signup.utm_medium) {
-      const currentCount = mediumMap.get(signup.utm_medium) || 0;
-      mediumMap.set(signup.utm_medium, currentCount + 1);
+      mediumCount[signup.utm_medium] = (mediumCount[signup.utm_medium] || 0) + 1;
     }
   });
   
-  const utmSourcesArray = Array.from(sourceMap.entries()).map(([source, count]) => ({
-    source,
-    count
-  })).sort((a, b) => b.count - a.count);
+  const utmSources = Object.entries(sourceCount)
+    .map(([source, count]) => ({ source, count }))
+    .sort((a, b) => b.count - a.count);
+    
+  const utmMediums = Object.entries(mediumCount)
+    .map(([medium, count]) => ({ medium, count }))
+    .sort((a, b) => b.count - a.count);
   
-  const utmMediumsArray = Array.from(mediumMap.entries()).map(([medium, count]) => ({
-    medium,
-    count
-  })).sort((a, b) => b.count - a.count);
-  
-  return {
-    totalSignups: totalCount,
-    waitlistSignups: waitlistCount,
-    sprintSignups: sprintCount,
-    conversionRate,
-    utmSources: utmSourcesArray,
-    utmMediums: utmMediumsArray
-  };
+  return { utmSources, utmMediums };
 };
 
-// Analyze UTM data for waitlist only
-export const analyzeUTMData = (signups: WaitlistSignup[]): { utmSources: UTMSource[], utmMediums: UTMMedium[] } => {
-  const sourceMap = new Map<string, number>();
-  const mediumMap = new Map<string, number>();
+// Analyze unified data
+export const analyzeUnifiedData = (unifiedSignups: UnifiedSignup[]): UnifiedStats => {
+  const totalSignups = unifiedSignups.length;
+  const waitlistSignups = unifiedSignups.filter(signup => signup.source === 'waitlist').length;
+  const sprintSignups = unifiedSignups.filter(signup => signup.source === 'sprint').length;
   
-  signups.forEach(signup => {
-    if (signup.utm_source) {
-      const currentCount = sourceMap.get(signup.utm_source) || 0;
-      sourceMap.set(signup.utm_source, currentCount + 1);
-    }
-    
-    if (signup.utm_medium) {
-      const currentCount = mediumMap.get(signup.utm_medium) || 0;
-      mediumMap.set(signup.utm_medium, currentCount + 1);
-    }
-  });
+  // Calculate conversion rate
+  const conversionRate = waitlistSignups > 0 
+    ? (sprintSignups / totalSignups) * 100 
+    : 0;
   
-  const utmSourcesArray = Array.from(sourceMap.entries()).map(([source, count]) => ({
-    source,
-    count
-  })).sort((a, b) => b.count - a.count);
+  // Analyze UTM data
+  const { utmSources, utmMediums } = analyzeUTMData(unifiedSignups);
   
-  const utmMediumsArray = Array.from(mediumMap.entries()).map(([medium, count]) => ({
-    medium,
-    count
-  })).sort((a, b) => b.count - a.count);
-  
-  return { utmSources: utmSourcesArray, utmMediums: utmMediumsArray };
+  return {
+    totalSignups,
+    waitlistSignups,
+    sprintSignups,
+    conversionRate,
+    utmSources,
+    utmMediums
+  };
 };
 
 // Get signup data by date for charts
@@ -148,40 +128,44 @@ export const getSignupsByDate = (
   source: 'all' | 'waitlist' | 'sprint' = 'all',
   days: number = 14
 ): SignupsByDate[] => {
-  let data = unifiedSignups;
-  
-  if (source === 'waitlist') {
-    data = unifiedSignups.filter(signup => signup.source === 'waitlist');
-  } else if (source === 'sprint') {
-    data = unifiedSignups.filter(signup => signup.source === 'sprint');
-  }
-  
-  const dateMap = new Map<string, SignupsByDate>();
-  
-  // Initialize all dates in the range with zeros
+  // Create date buckets for the last N days
   const today = new Date();
-  for (let i = 0; i < days; i++) {
+  today.setHours(23, 59, 59, 999); // End of today
+  
+  const dates: SignupsByDate[] = [];
+  for (let i = days - 1; i >= 0; i--) {
     const date = new Date(today);
     date.setDate(date.getDate() - i);
-    const dateStr = date.toLocaleDateString();
-    dateMap.set(dateStr, { date: dateStr, waitlist: 0, sprint: 0, total: 0 });
+    date.setHours(0, 0, 0, 0); // Start of day
+    
+    dates.push({
+      date: date.toISOString().split('T')[0],
+      waitlist: 0,
+      sprint: 0,
+      total: 0
+    });
   }
   
-  // Fill in actual counts
-  data.forEach(signup => {
-    const date = new Date(signup.created_at).toLocaleDateString();
-    if (dateMap.has(date)) {
-      const current = dateMap.get(date)!;
+  // Filter signups by source if needed
+  const filteredSignups = source === 'all' 
+    ? unifiedSignups 
+    : unifiedSignups.filter(signup => signup.source === source);
+  
+  // Count signups per date
+  filteredSignups.forEach(signup => {
+    const signupDate = new Date(signup.created_at).toISOString().split('T')[0];
+    
+    const dateEntry = dates.find(d => d.date === signupDate);
+    if (dateEntry) {
       if (signup.source === 'waitlist') {
-        current.waitlist += 1;
-      } else {
-        current.sprint += 1;
+        dateEntry.waitlist += 1;
+      } else if (signup.source === 'sprint') {
+        dateEntry.sprint += 1;
       }
-      current.total += 1;
-      dateMap.set(date, current);
+      
+      dateEntry.total += 1;
     }
   });
   
-  return Array.from(dateMap.values())
-    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  return dates;
 };

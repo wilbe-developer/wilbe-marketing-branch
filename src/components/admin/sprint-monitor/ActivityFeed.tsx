@@ -1,75 +1,79 @@
 
 import React from 'react';
-import { ActivityEvent } from '@/hooks/admin/useSprintMonitor';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { FileText, User, Clock, Upload, Edit } from 'lucide-react';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Clock, FileText, User, CheckCircle, LogIn } from 'lucide-react';
 
 interface ActivityFeedProps {
-  activityFeed: ActivityEvent[];
+  activityFeed: any[];
 }
 
 const ActivityFeed: React.FC<ActivityFeedProps> = ({ activityFeed }) => {
   if (!activityFeed || activityFeed.length === 0) {
-    return <div className="text-center py-8 text-gray-500">No activity recorded yet</div>;
+    return (
+      <div className="text-center py-6 text-gray-500">
+        No activity data available
+      </div>
+    );
   }
 
+  // Helper function to get the icon based on event type
+  const getEventIcon = (eventType: string) => {
+    switch (eventType) {
+      case 'signup':
+        return <LogIn className="h-4 w-4 text-blue-500" />;
+      case 'task_completed':
+        return <CheckCircle className="h-4 w-4 text-green-500" />;
+      case 'file_uploaded':
+        return <FileText className="h-4 w-4 text-orange-500" />;
+      case 'profile_updated':
+        return <User className="h-4 w-4 text-purple-500" />;
+      default:
+        return <Clock className="h-4 w-4 text-gray-500" />;
+    }
+  };
+
+  // Helper function to get initials from name
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(part => part[0])
+      .join('')
+      .toUpperCase()
+      .substring(0, 2);
+  };
+
   return (
-    <ScrollArea className="h-[300px]">
-      <div className="space-y-4">
-        {activityFeed.map((event) => (
-          <div key={event.id} className="flex items-start gap-4 p-3 rounded-lg border border-gray-100 hover:bg-gray-50">
-            <div className="flex-shrink-0">
-              {event.eventType === 'signup' && (
-                <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
-                  <User className="h-5 w-5 text-green-600" />
-                </div>
-              )}
-              {event.eventType === 'task_completed' && (
-                <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                  <FileText className="h-5 w-5 text-blue-600" />
-                </div>
-              )}
-              {event.eventType === 'task_started' && (
-                <div className="h-10 w-10 rounded-full bg-yellow-100 flex items-center justify-center">
-                  <Clock className="h-5 w-5 text-yellow-600" />
-                </div>
-              )}
-              {event.eventType === 'file_uploaded' && (
-                <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
-                  <Upload className="h-5 w-5 text-purple-600" />
-                </div>
-              )}
-              {event.eventType === 'profile_updated' && (
-                <div className="h-10 w-10 rounded-full bg-orange-100 flex items-center justify-center">
-                  <Edit className="h-5 w-5 text-orange-600" />
-                </div>
-              )}
+    <div className="space-y-4">
+      {activityFeed.map((activity) => (
+        <div key={activity.id} className="flex items-start space-x-4 pb-4 border-b border-gray-100 last:border-0">
+          <Avatar className="h-8 w-8">
+            <AvatarFallback className="bg-primary/10 text-primary text-xs">
+              {getInitials(activity.userName)}
+            </AvatarFallback>
+          </Avatar>
+          
+          <div className="flex-1 space-y-1">
+            <div className="flex items-center">
+              <span className="font-medium text-sm">{activity.userName}</span>
+              <span className="ml-2 text-xs text-gray-500">
+                {new Date(activity.timestamp).toLocaleString()}
+              </span>
             </div>
             
-            <div className="flex-grow">
-              <div className="flex justify-between items-start">
-                <h4 className="text-sm font-medium">{event.userName}</h4>
-                <span className="text-xs text-gray-500">
-                  {new Date(event.timestamp).toLocaleString()}
-                </span>
-              </div>
-              
-              <p className="text-sm text-gray-600 mt-1">
-                {event.eventType === 'signup' && 'Signed up for the sprint'}
-                {event.eventType === 'task_completed' && `Completed task: ${event.taskName}`}
-                {event.eventType === 'task_started' && `Started task: ${event.taskName}`}
-                {event.eventType === 'file_uploaded' && 'Uploaded a file'}
-                {event.eventType === 'profile_updated' && 'Updated their profile'}
-              </p>
-              
-              {event.details && (
-                <p className="text-xs text-gray-500 mt-1">{event.details}</p>
-              )}
+            <div className="flex items-center text-sm text-gray-700">
+              {getEventIcon(activity.eventType)}
+              <span className="ml-2">{activity.details}</span>
             </div>
+            
+            {activity.taskName && (
+              <div className="text-xs text-gray-500">
+                Task: {activity.taskName}
+              </div>
+            )}
           </div>
-        ))}
-      </div>
-    </ScrollArea>
+        </div>
+      ))}
+    </div>
   );
 };
 

@@ -82,12 +82,12 @@ const AdminUsersPage = () => {
                     <TableCell>{user.email || 'N/A'}</TableCell>
                     <TableCell>
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        user.inSprint ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
+                        user.source === 'sprint' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
                       }`}>
-                        {user.inSprint ? 'Active' : 'Waitlist'}
+                        {user.source === 'sprint' ? 'Active' : 'Waitlist'}
                       </span>
                     </TableCell>
-                    <TableCell>{new Date(user.signupDate).toLocaleDateString()}</TableCell>
+                    <TableCell>{new Date(user.created_at).toLocaleDateString()}</TableCell>
                     <TableCell>{user.source || 'Direct'}</TableCell>
                   </TableRow>
                 ))}
