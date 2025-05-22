@@ -68,4 +68,11 @@ export interface SprintProfile {
   lab_space_secured?: boolean;
   lab_space_details?: string;
   deck_feedback?: boolean;
+  
+  // UTM parameters
+  utm_source?: string;
+  utm_medium?: string;
+  utm_campaign?: string;
+  utm_term?: string;
+  utm_content?: string;
 }
