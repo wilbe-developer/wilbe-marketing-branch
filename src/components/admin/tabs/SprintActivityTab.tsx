@@ -5,9 +5,10 @@ import WaitlistMetrics from "../sprint-activity/WaitlistMetrics";
 import WaitlistSignupsTable from "../sprint-activity/WaitlistSignupsTable";
 import SprintConversionMetrics from "../sprint-activity/SprintConversionMetrics";
 import SprintEngagementStats from "../sprint-activity/SprintEngagementStats";
+import UnifiedAnalytics from "../sprint-activity/UnifiedAnalytics";
 
 const SprintActivityTab = () => {
-  const [activeSection, setActiveSection] = useState("waitlist");
+  const [activeSection, setActiveSection] = useState("unified");
 
   return (
     <div className="space-y-6">
@@ -15,12 +16,17 @@ const SprintActivityTab = () => {
         <h2 className="text-2xl font-bold">Sprint Activity Dashboard</h2>
       </div>
 
-      <Tabs defaultValue="waitlist" onValueChange={setActiveSection} value={activeSection}>
+      <Tabs defaultValue="unified" onValueChange={setActiveSection} value={activeSection}>
         <TabsList className="mb-4">
+          <TabsTrigger value="unified">Unified Analytics</TabsTrigger>
           <TabsTrigger value="waitlist">Waitlist Analytics</TabsTrigger>
           <TabsTrigger value="conversion">Sprint Conversion</TabsTrigger>
           <TabsTrigger value="engagement">Sprint Engagement</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="unified" className="space-y-6">
+          <UnifiedAnalytics />
+        </TabsContent>
 
         <TabsContent value="waitlist" className="space-y-6">
           <WaitlistMetrics />
