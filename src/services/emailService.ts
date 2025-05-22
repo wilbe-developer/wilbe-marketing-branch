@@ -1,5 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
+import { PATHS } from "@/lib/constants";
 
 export const sendWelcomeEmail = async (email: string, name: string) => {
   try {
@@ -26,6 +27,32 @@ export const sendWelcomeEmail = async (email: string, name: string) => {
     return true;
   } catch (error) {
     console.error('Exception sending welcome email:', error);
+    return false;
+  }
+};
+
+export const sendSprintWaitingEmail = async (email: string, name: string) => {
+  try {
+    console.log(`Sending sprint waiting confirmation to ${email} (${name})`);
+    
+    const response = await fetch('/api/send-sprint-waiting-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        email, 
+        name
+      })
+    });
+    
+    if (!response.ok) {
+      console.error('Error sending sprint waiting email:', await response.text());
+      return false;
+    }
+    
+    console.log('Sprint waiting email sent successfully');
+    return true;
+  } catch (error) {
+    console.error('Exception sending sprint waiting email:', error);
     return false;
   }
 };

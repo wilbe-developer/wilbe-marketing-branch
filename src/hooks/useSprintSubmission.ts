@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -8,6 +7,7 @@ import { SprintSignupAnswers } from "@/types/sprint-signup";
 import { useSprintFileUpload } from "./useSprintFileUpload";
 import { useAuth } from "./useAuth";
 import { useAppSettings } from "./useAppSettings";
+import { sendSprintWaitingEmail } from "@/services/emailService";
 
 export const useSprintSubmission = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -163,6 +163,20 @@ export const useSprintSubmission = () => {
 
       console.log("Sprint profile updated successfully");
       toast.success("Your sprint profile has been created successfully!");
+      
+      // Send confirmation email if the dashboard is not active
+      if (!isDashboardActive && answers.name && answers.email) {
+        console.log("Sending sprint waiting confirmation email");
+        sendSprintWaitingEmail(answers.email, answers.name)
+          .then(success => {
+            if (!success) {
+              console.error("Failed to send sprint waiting confirmation email");
+            }
+          })
+          .catch(error => {
+            console.error("Error sending confirmation email:", error);
+          });
+      }
       
       // Redirect based on the feature flag
       if (isDashboardActive) {
