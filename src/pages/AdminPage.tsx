@@ -1,110 +1,57 @@
 
-import { useState, useEffect } from "react";
-import { useAuth } from "@/hooks/useAuth";
-import { PATHS } from "@/lib/constants";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import UserApprovalsTab from "../components/admin/tabs/UserApprovalsTab";
-import RolesManager from "../components/admin/RolesManager";
-import ContentManagementTab from "../components/admin/tabs/ContentManagementTab";
-import TaskDefinitionsTab from "../components/admin/tabs/TaskDefinitionsTab";
-import PlatformSettingsTab from "../components/admin/tabs/PlatformSettingsTab";
-import SprintActivityTab from "../components/admin/tabs/SprintActivityTab";
-import TaskBuilderPage from "./admin/TaskBuilderPage";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select";
+import { Card } from "@/components/ui/card";
+import ContentManagementTab from "@/components/admin/tabs/ContentManagementTab";
+import UserApprovalsTab from "@/components/admin/tabs/UserApprovalsTab";
+import SprintActivityTab from "@/components/admin/tabs/SprintActivityTab";
+import PlatformSettingsTab from "@/components/admin/tabs/PlatformSettingsTab";
+import TaskDefinitionsTab from "@/components/admin/tabs/TaskDefinitionsTab";
+import { Link } from 'react-router-dom';
+import { BarChart2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const AdminPage = () => {
-  const { isAdmin } = useAuth();
-  const navigate = useNavigate();
-  const isMobile = useIsMobile();
-  const [activeTab, setActiveTab] = useState("approvals");
-
-  // Redirect non-admin users
-  if (!isAdmin) {
-    navigate(PATHS.HOME);
-    return null;
-  }
-
-  const handleTabChange = (value: string) => {
-    setActiveTab(value);
-  };
+  const [activeTab, setActiveTab] = useState("users");
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
-        <p className="text-gray-600">
-          Manage user approvals, content, and platform settings
-        </p>
+    <div className="container mx-auto py-6">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+        <Button variant="outline" asChild>
+          <Link to="/admin/sprint-monitor" className="flex items-center gap-2">
+            <BarChart2 className="h-5 w-5" />
+            Sprint Control Room
+          </Link>
+        </Button>
       </div>
 
-      {isMobile ? (
-        <div className="mb-6">
-          <Select value={activeTab} onValueChange={handleTabChange}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select tab" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="approvals">User Approvals</SelectItem>
-              <SelectItem value="roles">User Roles</SelectItem>
-              <SelectItem value="content">Content Management</SelectItem>
-              <SelectItem value="tasks">Task Definitions</SelectItem>
-              <SelectItem value="task-builder">Task Builder</SelectItem>
-              <SelectItem value="settings">Platform Settings</SelectItem>
-              <SelectItem value="sprint">Sprint Activity</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      ) : null}
-
-      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-        {!isMobile && (
-          <TabsList className="mb-6">
-            <TabsTrigger value="approvals">User Approvals</TabsTrigger>
-            <TabsTrigger value="roles">User Roles</TabsTrigger>
-            <TabsTrigger value="content">Content Management</TabsTrigger>
-            <TabsTrigger value="tasks">Task Definitions</TabsTrigger>
-            <TabsTrigger value="task-builder">Task Builder</TabsTrigger>
-            <TabsTrigger value="settings">Platform Settings</TabsTrigger>
-            <TabsTrigger value="sprint">Sprint Activity</TabsTrigger>
+      <Card>
+        <Tabs defaultValue="users" value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="users">Users</TabsTrigger>
+            <TabsTrigger value="content">Content</TabsTrigger>
+            <TabsTrigger value="sprint">Sprint</TabsTrigger>
+            <TabsTrigger value="tasks">Tasks</TabsTrigger>
+            <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
-        )}
-
-        <TabsContent value="approvals">
-          <UserApprovalsTab />
-        </TabsContent>
-
-        <TabsContent value="roles">
-          <RolesManager />
-        </TabsContent>
-
-        <TabsContent value="content">
-          <ContentManagementTab />
-        </TabsContent>
-        
-        <TabsContent value="tasks">
-          <TaskDefinitionsTab />
-        </TabsContent>
-        
-        <TabsContent value="task-builder">
-          <TaskBuilderPage />
-        </TabsContent>
-
-        <TabsContent value="settings">
-          <PlatformSettingsTab />
-        </TabsContent>
-
-        <TabsContent value="sprint">
-          <SprintActivityTab />
-        </TabsContent>
-      </Tabs>
+          <TabsContent value="users" className="p-4">
+            <UserApprovalsTab />
+          </TabsContent>
+          <TabsContent value="content" className="p-4">
+            <ContentManagementTab />
+          </TabsContent>
+          <TabsContent value="sprint" className="p-4">
+            <SprintActivityTab />
+          </TabsContent>
+          <TabsContent value="tasks" className="p-4">
+            <TaskDefinitionsTab />
+          </TabsContent>
+          <TabsContent value="settings" className="p-4">
+            <PlatformSettingsTab />
+          </TabsContent>
+        </Tabs>
+      </Card>
     </div>
   );
 };
