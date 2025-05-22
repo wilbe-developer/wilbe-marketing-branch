@@ -2,12 +2,12 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Search, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useSprintMonitor } from '@/hooks/admin/useSprintMonitor';
 import { supabase } from '@/integrations/supabase/client';
+import { Badge } from '@/components/ui/badge';
 
 interface AnswerAnalyticsProps {
   // Props if needed
@@ -32,10 +32,28 @@ const AnswerAnalytics: React.FC<AnswerAnalyticsProps> = () => {
           
         if (tasksError) throw tasksError;
         
+        // Fetch sprint profiles first
+        const { data: profilesData, error: profilesError } = await supabase
+          .from('sprint_profiles')
+          .select('user_id, name, email');
+          
+        if (profilesError) throw profilesError;
+        
+        // Create a map of user_id to profile info
+        const profileMap = new Map();
+        if (profilesData) {
+          profilesData.forEach(profile => {
+            profileMap.set(profile.user_id, {
+              name: profile.name || 'Unknown User',
+              email: profile.email || 'No Email'
+            });
+          });
+        }
+        
         // Fetch answers data
         const { data: progressData, error: progressError } = await supabase
           .from('user_sprint_progress')
-          .select('*, sprint_profiles(name, email)')
+          .select('*')
           .not('answers', 'is', null);
           
         if (progressError) throw progressError;
@@ -43,6 +61,7 @@ const AnswerAnalytics: React.FC<AnswerAnalyticsProps> = () => {
         // Process data
         const processedAnswers = progressData.map(item => {
           const taskDef = tasksData?.find(t => t.id === item.task_id);
+          const userProfile = profileMap.get(item.user_id) || { name: 'Unknown User', email: 'No Email' };
           
           // Helper function to extract task name
           const extractTaskName = (definition: any) => {
@@ -65,8 +84,8 @@ const AnswerAnalytics: React.FC<AnswerAnalyticsProps> = () => {
           return {
             id: item.id,
             userId: item.user_id,
-            userName: item.sprint_profiles?.name || 'Unknown User',
-            userEmail: item.sprint_profiles?.email || 'No Email',
+            userName: userProfile.name,
+            userEmail: userProfile.email,
             taskId: item.task_id,
             taskName: taskDef ? extractTaskName(taskDef.definition) : 'Unknown Task',
             answers: item.answers || {},
@@ -221,14 +240,31 @@ const AnswerAnalytics: React.FC<AnswerAnalyticsProps> = () => {
         </CardContent>
       </Card>
       
-      {/* Answer Statistics - Placeholder for future implementation */}
+      {/* Answer Statistics */}
       <Card>
         <CardHeader>
           <CardTitle>Answer Trends</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-center py-6 text-gray-500">
-            Answer analytics visualization will be implemented in a future update
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <div className="text-sm text-gray-500 mb-1">Total Responses</div>
+              <div className="text-2xl font-bold">{answers.length}</div>
+            </div>
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <div className="text-sm text-gray-500 mb-1">Completed Tasks</div>
+              <div className="text-2xl font-bold">
+                {answers.filter(a => a.completed).length}
+              </div>
+            </div>
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <div className="text-sm text-gray-500 mb-1">Response Rate</div>
+              <div className="text-2xl font-bold">
+                {answers.length > 0 
+                  ? `${Math.round((answers.filter(a => a.completed).length / answers.length) * 100)}%` 
+                  : '0%'}
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>

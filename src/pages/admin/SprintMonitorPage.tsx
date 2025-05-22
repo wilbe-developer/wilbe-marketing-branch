@@ -1,19 +1,20 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import FullScreenAdminLayout from '@/components/admin/FullScreenAdminLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSprintAdminData } from '@/hooks/useSprintAdminData';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { RefreshCcw, Users, Clock, FileText, Filter, Download } from 'lucide-react';
+import { RefreshCcw, Users, Clock, FileText, Filter, Download, Activity } from 'lucide-react';
 import { useSprintMonitor } from '@/hooks/admin/useSprintMonitor';
+import { useRealTimeUpdates } from '@/hooks/admin/useRealTimeUpdates';
 import UserProgressTracker from '@/components/admin/sprint-monitor/UserProgressTracker';
 import ActivityFeed from '@/components/admin/sprint-monitor/ActivityFeed';
 import AnswerAnalytics from '@/components/admin/sprint-monitor/AnswerAnalytics';
 import FileRepository from '@/components/admin/sprint-monitor/FileRepository';
 import TaskPerformanceMetrics from '@/components/admin/sprint-monitor/TaskPerformanceMetrics';
-import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { Badge } from '@/components/ui/badge';
 
 const SprintMonitorPage = () => {
   const { refreshData, unifiedStats, isLoading: statsLoading } = useSprintAdminData();
@@ -24,48 +25,31 @@ const SprintMonitorPage = () => {
     refreshMonitorData, 
     isLoading: monitorLoading 
   } = useSprintMonitor();
+  
   const [activeTab, setActiveTab] = useState('overview');
   const [realTimeEnabled, setRealTimeEnabled] = useState(false);
 
-  const handleRefresh = () => {
+  // Use callback to avoid dependency issues with useEffect
+  const handleRefresh = useCallback(() => {
     refreshData();
     refreshMonitorData();
     toast.success("Data refreshed successfully");
-  };
+  }, [refreshData, refreshMonitorData]);
+
+  // Initialize real-time updates
+  const { isConnected } = useRealTimeUpdates(realTimeEnabled, handleRefresh);
 
   const toggleRealTime = () => {
-    if (!realTimeEnabled) {
-      enableRealTimeUpdates();
-    } else {
-      disableRealTimeUpdates();
-    }
     setRealTimeEnabled(!realTimeEnabled);
-  };
-
-  // Set up real-time channel subscription
-  useEffect(() => {
-    if (realTimeEnabled) {
-      enableRealTimeUpdates();
+    if (!realTimeEnabled) {
+      toast.info("Enabling real-time updates...");
+    } else {
+      toast.info("Disabling real-time updates");
     }
-    
-    return () => {
-      disableRealTimeUpdates();
-    };
-  }, []);
-
-  const enableRealTimeUpdates = () => {
-    // This is a placeholder for real Supabase realtime subscription
-    // In a real implementation, you would subscribe to tables like user_sprint_progress
-    toast.success("Real-time updates enabled");
-  };
-
-  const disableRealTimeUpdates = () => {
-    // Cleanup real-time subscriptions
-    toast.info("Real-time updates disabled");
   };
 
   // Function to export data as CSV
-  const exportData = (dataType) => {
+  const exportData = (dataType: string) => {
     let csvContent = "";
     let filename = "";
     
@@ -110,8 +94,16 @@ const SprintMonitorPage = () => {
             onClick={toggleRealTime} 
             className="flex items-center gap-2"
           >
-            <Clock size={16} />
-            {realTimeEnabled ? "Disable Real-time" : "Enable Real-time"}
+            <Activity size={16} />
+            {realTimeEnabled ? 
+              <>
+                Real-time {isConnected ? 
+                  <Badge variant="success" className="ml-1">Connected</Badge> : 
+                  <Badge variant="warning" className="ml-1">Connecting...</Badge>
+                }
+              </> : 
+              "Enable Real-time"
+            }
           </Button>
           <Button variant="outline" onClick={handleRefresh} className="flex items-center gap-2">
             <RefreshCcw size={16} />

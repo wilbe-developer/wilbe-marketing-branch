@@ -1,22 +1,32 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer,
-  Cell
-} from 'recharts';
 import { Progress } from '@/components/ui/progress';
-import { Clock, CheckCircle, AlertTriangle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { BarChart, CheckSquare, Clock, ArrowUpDown, Filter } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+
+interface TaskBreakdown {
+  taskId: string;
+  taskName: string;
+  totalAttempts: number;
+  completions: number;
+  averageTime: number;
+  abandonmentRate: number;
+}
+
+interface TaskPerformanceData {
+  totalTasks: number;
+  completedTasks: number;
+  completionRate: number;
+  averageTimeToComplete: number;
+  completedToday: number;
+  taskBreakdown: TaskBreakdown[];
+}
 
 interface TaskPerformanceMetricsProps {
-  taskPerformance: any;
+  taskPerformance: TaskPerformanceData | null;
   detailed?: boolean;
 }
 
@@ -24,8 +34,10 @@ const TaskPerformanceMetrics: React.FC<TaskPerformanceMetricsProps> = ({
   taskPerformance, 
   detailed = false 
 }) => {
-  const [sortBy, setSortBy] = useState<'completions' | 'abandonmentRate' | 'averageTime'>('completions');
-  
+  const [sortField, setSortField] = useState<keyof TaskBreakdown>('completions');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+  const [expandedTask, setExpandedTask] = useState<string | null>(null);
+
   if (!taskPerformance) {
     return (
       <div className="text-center py-6 text-gray-500">
@@ -34,165 +46,246 @@ const TaskPerformanceMetrics: React.FC<TaskPerformanceMetricsProps> = ({
     );
   }
 
-  // Calculate completion rate percentage for summary view
-  const completionRate = taskPerformance.completionRate || 0;
-  const averageTime = taskPerformance.averageTimeToComplete || 0;
-  
-  // Sort task breakdown based on selected criteria
-  const sortedTasks = [...(taskPerformance.taskBreakdown || [])].sort((a, b) => {
-    if (sortBy === 'completions') return b.completions - a.completions;
-    if (sortBy === 'abandonmentRate') return b.abandonmentRate - a.abandonmentRate;
-    return b.averageTime - a.averageTime;
-  });
+  const sortTasks = (tasks: TaskBreakdown[]) => {
+    return [...tasks].sort((a, b) => {
+      const aValue = a[sortField];
+      const bValue = b[sortField];
+      
+      if (sortDirection === 'asc') {
+        return aValue > bValue ? 1 : -1;
+      } else {
+        return aValue < bValue ? 1 : -1;
+      }
+    });
+  };
 
-  // Prepare data for bar chart
-  const chartData = sortedTasks.map(task => ({
-    name: task.taskName?.length > 20 ? `${task.taskName.substring(0, 20)}...` : task.taskName,
-    completions: task.completions,
-    attempts: task.totalAttempts,
-    averageTime: parseFloat(task.averageTime.toFixed(1))
-  }));
+  const toggleSort = (field: keyof TaskBreakdown) => {
+    if (field === sortField) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('desc');
+    }
+  };
+
+  const toggleTaskExpand = (taskId: string) => {
+    setExpandedTask(expandedTask === taskId ? null : taskId);
+  };
+
+  const formatDuration = (minutes: number) => {
+    if (minutes < 1) {
+      return 'Less than a minute';
+    }
+    if (minutes < 60) {
+      return `${Math.round(minutes)} min`;
+    }
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = Math.round(minutes % 60);
+    return `${hours} hr ${remainingMinutes} min`;
+  };
+
+  const sortedTasks = sortTasks(taskPerformance.taskBreakdown);
+
+  // For basic view, only show top 5 tasks
+  const displayTasks = detailed ? sortedTasks : sortedTasks.slice(0, 5);
 
   return (
     <div className="space-y-4">
       {!detailed && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card>
-            <CardContent className="p-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <div className="flex items-center mb-1">
+              <CheckSquare className="h-4 w-4 text-gray-500 mr-1" />
               <div className="text-sm text-gray-500">Completion Rate</div>
-              <div className="text-2xl font-bold mt-1">{completionRate.toFixed(1)}%</div>
-              <Progress value={completionRate} className="h-2 mt-2" />
-            </CardContent>
-          </Card>
+            </div>
+            <div className="text-2xl font-bold">
+              {taskPerformance.completionRate.toFixed(1)}%
+            </div>
+          </div>
           
-          <Card>
-            <CardContent className="p-4">
-              <div className="text-sm text-gray-500">Avg. Completion Time</div>
-              <div className="flex items-center mt-1">
-                <Clock className="mr-2 h-4 w-4 text-gray-500" />
-                <span className="text-2xl font-bold">{averageTime.toFixed(1)} min</span>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <div className="flex items-center mb-1">
+              <Clock className="h-4 w-4 text-gray-500 mr-1" />
+              <div className="text-sm text-gray-500">Avg. Time</div>
+            </div>
+            <div className="text-2xl font-bold">
+              {formatDuration(taskPerformance.averageTimeToComplete)}
+            </div>
+          </div>
           
-          <Card>
-            <CardContent className="p-4">
-              <div className="text-sm text-gray-500">Tasks Completed</div>
-              <div className="flex items-center mt-1">
-                <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                <span className="text-2xl font-bold">
-                  {taskPerformance.completedTasks} / {taskPerformance.totalTasks}
-                </span>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <div className="flex items-center mb-1">
+              <BarChart className="h-4 w-4 text-gray-500 mr-1" />
+              <div className="text-sm text-gray-500">Completed Tasks</div>
+            </div>
+            <div className="text-2xl font-bold">
+              {taskPerformance.completedTasks}
+            </div>
+          </div>
+          
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <div className="flex items-center mb-1">
+              <CheckSquare className="h-4 w-4 text-gray-500 mr-1" />
+              <div className="text-sm text-gray-500">Completed Today</div>
+            </div>
+            <div className="text-2xl font-bold">
+              {taskPerformance.completedToday}
+            </div>
+          </div>
         </div>
       )}
       
       {detailed && (
-        <div className="mb-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Task Completion Overview</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={chartData.slice(0, 10)}
-                    margin={{ top: 20, right: 30, left: 20, bottom: 70 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis 
-                      dataKey="name" 
-                      angle={-45} 
-                      textAnchor="end" 
-                      height={70} 
-                      interval={0}
-                    />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="completions" name="Completions" fill="#82ca9d">
-                      {chartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.completions > entry.attempts / 2 ? '#82ca9d' : '#ff8042'} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
+        <div className="flex justify-between items-center">
+          <h3 className="text-lg font-medium">Task Performance Analysis</h3>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" className="flex items-center gap-1">
+              <Filter className="h-4 w-4" />
+              <span>Filter</span>
+            </Button>
+          </div>
         </div>
       )}
       
-      <div>
-        <div className="flex justify-between items-center mb-2">
-          <div className="text-sm font-medium">Task Performance Details</div>
-          <div className="flex space-x-2 text-xs">
-            <button 
-              className={`px-2 py-1 rounded ${sortBy === 'completions' ? 'bg-primary text-white' : 'bg-gray-100'}`}
-              onClick={() => setSortBy('completions')}
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Task Name</TableHead>
+            <TableHead 
+              className="cursor-pointer hover:text-primary" 
+              onClick={() => toggleSort('completions')}
             >
-              By Completions
-            </button>
-            <button 
-              className={`px-2 py-1 rounded ${sortBy === 'averageTime' ? 'bg-primary text-white' : 'bg-gray-100'}`}
-              onClick={() => setSortBy('averageTime')}
+              <div className="flex items-center">
+                Completions
+                {sortField === 'completions' && (
+                  <ArrowUpDown className={`ml-1 h-4 w-4 ${sortDirection === 'asc' ? 'rotate-180' : ''}`} />
+                )}
+              </div>
+            </TableHead>
+            <TableHead 
+              className="cursor-pointer hover:text-primary" 
+              onClick={() => toggleSort('averageTime')}
             >
-              By Time
-            </button>
-            <button 
-              className={`px-2 py-1 rounded ${sortBy === 'abandonmentRate' ? 'bg-primary text-white' : 'bg-gray-100'}`}
-              onClick={() => setSortBy('abandonmentRate')}
+              <div className="flex items-center">
+                Avg. Time
+                {sortField === 'averageTime' && (
+                  <ArrowUpDown className={`ml-1 h-4 w-4 ${sortDirection === 'asc' ? 'rotate-180' : ''}`} />
+                )}
+              </div>
+            </TableHead>
+            <TableHead 
+              className="cursor-pointer hover:text-primary" 
+              onClick={() => toggleSort('abandonmentRate')}
             >
-              By Abandonment
-            </button>
-          </div>
-        </div>
-        
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Task Name</TableHead>
-              <TableHead>Completions</TableHead>
-              <TableHead>Avg. Time</TableHead>
-              <TableHead>Abandonment</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {sortedTasks.map((task) => (
-              <TableRow key={task.taskId}>
-                <TableCell className="font-medium">{task.taskName}</TableCell>
+              <div className="flex items-center">
+                Abandonment
+                {sortField === 'abandonmentRate' && (
+                  <ArrowUpDown className={`ml-1 h-4 w-4 ${sortDirection === 'asc' ? 'rotate-180' : ''}`} />
+                )}
+              </div>
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {displayTasks.map((task) => (
+            <React.Fragment key={task.taskId}>
+              <TableRow 
+                className={`${expandedTask === task.taskId ? 'border-b-0' : ''} ${detailed ? 'cursor-pointer' : ''}`}
+                onClick={() => detailed && toggleTaskExpand(task.taskId)}
+              >
                 <TableCell>
-                  <div className="flex items-center">
-                    <span className="mr-2">{task.completions}/{task.totalAttempts}</span>
+                  <div className="font-medium truncate max-w-[250px]" title={task.taskName}>
+                    {task.taskName}
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <span>{task.completions}/{task.totalAttempts}</span>
+                    <Badge variant={task.completions > 0 ? "success" : "outline"}>
+                      {Math.round((task.completions / (task.totalAttempts || 1)) * 100)}%
+                    </Badge>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  {task.averageTime > 0 ? (
+                    formatDuration(task.averageTime)
+                  ) : (
+                    <span className="text-gray-400">N/A</span>
+                  )}
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-2">
                     <Progress 
-                      value={task.totalAttempts > 0 ? (task.completions / task.totalAttempts) * 100 : 0} 
-                      className="h-2 w-16"
+                      value={task.abandonmentRate} 
+                      className="h-2 w-20" 
                     />
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center">
-                    <Clock className="mr-1 h-3 w-3 text-gray-400" />
-                    <span>{task.averageTime.toFixed(1)} min</span>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center">
-                    {task.abandonmentRate > 50 && (
-                      <AlertTriangle className="mr-1 h-3 w-3 text-amber-500" />
-                    )}
-                    <span className={task.abandonmentRate > 50 ? 'text-amber-500' : ''}>
-                      {task.abandonmentRate.toFixed(1)}%
-                    </span>
+                    <span>{task.abandonmentRate.toFixed(0)}%</span>
                   </div>
                 </TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+              
+              {detailed && expandedTask === task.taskId && (
+                <TableRow className="bg-gray-50">
+                  <TableCell colSpan={4} className="p-4">
+                    <div className="space-y-4">
+                      <div>
+                        <h4 className="font-medium mb-1">Task Details</h4>
+                        <p className="text-sm text-gray-700">{task.taskName}</p>
+                      </div>
+                      
+                      <div className="grid grid-cols-3 gap-4">
+                        <Card>
+                          <CardContent className="p-4">
+                            <div className="text-sm text-gray-500 mb-1">Completion Rate</div>
+                            <div className="text-xl font-bold">
+                              {Math.round((task.completions / (task.totalAttempts || 1)) * 100)}%
+                            </div>
+                            <div className="text-xs text-gray-500 mt-1">
+                              {task.completions} out of {task.totalAttempts} attempts
+                            </div>
+                          </CardContent>
+                        </Card>
+                        
+                        <Card>
+                          <CardContent className="p-4">
+                            <div className="text-sm text-gray-500 mb-1">Average Time</div>
+                            <div className="text-xl font-bold">
+                              {task.averageTime > 0 ? formatDuration(task.averageTime) : 'N/A'}
+                            </div>
+                            <div className="text-xs text-gray-500 mt-1">
+                              {task.completions} completed attempts
+                            </div>
+                          </CardContent>
+                        </Card>
+                        
+                        <Card>
+                          <CardContent className="p-4">
+                            <div className="text-sm text-gray-500 mb-1">Abandonment Rate</div>
+                            <div className="text-xl font-bold">
+                              {task.abandonmentRate.toFixed(0)}%
+                            </div>
+                            <div className="text-xs text-gray-500 mt-1">
+                              {task.totalAttempts - task.completions} abandoned attempts
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </div>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              )}
+            </React.Fragment>
+          ))}
+        </TableBody>
+      </Table>
+      
+      {!detailed && taskPerformance.taskBreakdown.length > 5 && (
+        <div className="text-center">
+          <Button variant="link" size="sm">
+            View all {taskPerformance.taskBreakdown.length} tasks
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

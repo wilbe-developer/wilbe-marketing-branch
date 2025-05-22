@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search, Download, ExternalLink, FileText, Filter } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { Badge } from '@/components/ui/badge';
 
 interface FileRepositoryProps {
   // Props if needed
@@ -30,52 +31,104 @@ const FileRepository: React.FC<FileRepositoryProps> = () => {
           
         if (tasksError) throw tasksError;
         
-        // Fetch files data with user progress information
+        // Fetch sprint profiles first
+        const { data: profilesData, error: profilesError } = await supabase
+          .from('sprint_profiles')
+          .select('user_id, name, email');
+          
+        if (profilesError) throw profilesError;
+        
+        // Create a map of user_id to profile info
+        const profileMap = new Map();
+        if (profilesData) {
+          profilesData.forEach(profile => {
+            profileMap.set(profile.user_id, {
+              name: profile.name || 'Unknown User',
+              email: profile.email || 'No Email'
+            });
+          });
+        }
+        
+        // Fetch user files
+        const { data: filesData, error: filesError } = await supabase
+          .from('user_files')
+          .select('*');
+          
+        if (filesError) throw filesError;
+        
+        // Fetch progress data to link files to tasks
         const { data: progressData, error: progressError } = await supabase
           .from('user_sprint_progress')
-          .select('*, sprint_profiles(name, email), user_files(*)')
+          .select('*')
           .not('file_id', 'is', null);
           
         if (progressError) throw progressError;
         
         // Process data
-        const processedFiles = progressData
-          .filter(item => item.user_files)
-          .map(item => {
-            const taskDef = tasksData?.find(t => t.id === item.task_id);
+        const processedFiles = [];
+        
+        // Process files that are linked to sprint progress
+        for (const progress of progressData || []) {
+          const fileData = filesData?.find(f => f.id === progress.file_id);
+          if (!fileData) continue;
+          
+          const taskDef = tasksData?.find(t => t.id === progress.task_id);
+          const userProfile = profileMap.get(progress.user_id) || { name: 'Unknown User', email: 'No Email' };
+          
+          // Helper function to extract task name
+          const extractTaskName = (definition: any) => {
+            if (!definition) return 'Unknown Task';
             
-            // Helper function to extract task name
-            const extractTaskName = (definition: any) => {
-              if (!definition) return 'Unknown Task';
-              
-              if (typeof definition === 'object' && definition.taskName) {
-                return definition.taskName;
-              } else if (typeof definition === 'string') {
-                try {
-                  const parsed = JSON.parse(definition);
-                  return parsed.taskName || 'Unknown Task';
-                } catch (e) {
-                  return 'Unknown Task';
-                }
+            if (typeof definition === 'object' && definition.taskName) {
+              return definition.taskName;
+            } else if (typeof definition === 'string') {
+              try {
+                const parsed = JSON.parse(definition);
+                return parsed.taskName || 'Unknown Task';
+              } catch (e) {
+                return 'Unknown Task';
               }
-              
-              return 'Unknown Task';
-            };
+            }
             
-            return {
-              id: item.user_files.id,
-              userId: item.user_id,
-              userName: item.sprint_profiles?.name || 'Unknown User',
-              userEmail: item.sprint_profiles?.email || 'No Email',
-              taskId: item.task_id,
-              taskName: taskDef ? extractTaskName(taskDef.definition) : 'Unknown Task',
-              fileName: item.user_files.file_name,
-              fileType: item.user_files.file_name.split('.').pop()?.toLowerCase() || 'unknown',
-              downloadUrl: item.user_files.download_url,
-              viewUrl: item.user_files.view_url,
-              uploadedAt: item.user_files.uploaded_at
-            };
+            return 'Unknown Task';
+          };
+          
+          processedFiles.push({
+            id: fileData.id,
+            userId: progress.user_id,
+            userName: userProfile.name,
+            userEmail: userProfile.email,
+            taskId: progress.task_id,
+            taskName: taskDef ? extractTaskName(taskDef.definition) : 'Unknown Task',
+            fileName: fileData.file_name,
+            fileType: fileData.file_name.split('.').pop()?.toLowerCase() || 'unknown',
+            downloadUrl: fileData.download_url,
+            viewUrl: fileData.view_url,
+            uploadedAt: fileData.uploaded_at
           });
+        }
+        
+        // Also include files that aren't linked to any task progress
+        for (const file of filesData || []) {
+          // Skip if we've already processed this file
+          if (processedFiles.some(p => p.id === file.id)) continue;
+          
+          const userProfile = profileMap.get(file.user_id) || { name: 'Unknown User', email: 'No Email' };
+          
+          processedFiles.push({
+            id: file.id,
+            userId: file.user_id,
+            userName: userProfile.name,
+            userEmail: userProfile.email,
+            taskId: null,
+            taskName: 'Unlinked File',
+            fileName: file.file_name,
+            fileType: file.file_name.split('.').pop()?.toLowerCase() || 'unknown',
+            downloadUrl: file.download_url,
+            viewUrl: file.view_url,
+            uploadedAt: file.uploaded_at
+          });
+        }
         
         setFiles(processedFiles);
         setTaskDefinitions(tasksData || []);
@@ -181,7 +234,13 @@ const FileRepository: React.FC<FileRepositoryProps> = () => {
                       <div>{file.userName}</div>
                       <div className="text-xs text-gray-500">{file.userEmail}</div>
                     </TableCell>
-                    <TableCell>{file.taskName}</TableCell>
+                    <TableCell>
+                      {file.taskId ? (
+                        file.taskName
+                      ) : (
+                        <Badge variant="outline">Unlinked File</Badge>
+                      )}
+                    </TableCell>
                     <TableCell>
                       {new Date(file.uploadedAt).toLocaleDateString()}
                     </TableCell>
@@ -221,14 +280,59 @@ const FileRepository: React.FC<FileRepositoryProps> = () => {
         </CardContent>
       </Card>
       
-      {/* Files Statistics - Will be implemented in future updates */}
+      {/* Files Statistics */}
       <Card>
         <CardHeader>
           <CardTitle>File Upload Statistics</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-center py-6 text-gray-500">
-            File statistics visualization will be implemented in a future update
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <div className="text-sm text-gray-500 mb-1">Total Files</div>
+              <div className="text-2xl font-bold">{files.length}</div>
+            </div>
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <div className="text-sm text-gray-500 mb-1">File Types</div>
+              <div className="text-2xl font-bold">{fileTypes.length}</div>
+            </div>
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <div className="text-sm text-gray-500 mb-1">Recent Uploads</div>
+              <div className="text-2xl font-bold">
+                {files.filter(f => {
+                  const uploadDate = new Date(f.uploadedAt);
+                  const today = new Date();
+                  const daysDiff = Math.floor((today.getTime() - uploadDate.getTime()) / (1000 * 60 * 60 * 24));
+                  return daysDiff < 7;
+                }).length}
+              </div>
+              <div className="text-xs text-gray-500">Last 7 days</div>
+            </div>
+          </div>
+          
+          {/* File type distribution */}
+          <div className="mt-6">
+            <h4 className="text-sm font-medium mb-2">File Type Distribution</h4>
+            <div className="space-y-2">
+              {fileTypes.map(type => {
+                const count = files.filter(f => f.fileType === type).length;
+                const percentage = Math.round((count / files.length) * 100) || 0;
+                
+                return (
+                  <div key={type} className="space-y-1">
+                    <div className="flex justify-between text-sm">
+                      <span className="font-medium">{type.toUpperCase()}</span>
+                      <span>{count} files ({percentage}%)</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div 
+                        className="bg-primary h-2 rounded-full" 
+                        style={{ width: `${percentage}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </CardContent>
       </Card>
