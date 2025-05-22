@@ -73,8 +73,9 @@ const UTMAnalytics: React.FC<UTMAnalyticsProps> = ({ timeRange }) => {
         ...(sprintData || []).map(item => ({ 
           ...item,
           source_type: 'sprint',
-          utm_source: item.utm_source,
-          utm_medium: item.utm_medium
+          // Ensure sprint data has the same property names as waitlist data
+          name: item.name || 'Unknown',
+          email: item.email || 'No Email'
         }))
       ];
       
@@ -185,7 +186,7 @@ const UTMAnalytics: React.FC<UTMAnalyticsProps> = ({ timeRange }) => {
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip />
+                  {/* Legend removed as requested to prevent clash with labels */}
                 </PieChart>
               </ResponsiveContainer>
             </div>
