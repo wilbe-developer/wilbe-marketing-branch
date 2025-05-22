@@ -23,13 +23,36 @@ const AnswerAnalytics = () => {
       try {
         setLoading(true);
         
-        // Fetch all tasks
+        // Fetch all tasks from sprint_task_definitions instead of sprint_tasks
         const { data: tasksData, error: tasksError } = await supabase
-          .from('sprint_tasks')
-          .select('id, title')
-          .order('order_index');
+          .from('sprint_task_definitions')
+          .select('id, name, definition')
+          .order('created_at');
           
         if (tasksError) throw tasksError;
+        
+        // Process tasks data to extract titles
+        const processedTasks = tasksData?.map(task => {
+          // Extract task name from definition JSON
+          let taskTitle = '';
+          if (typeof task.definition === 'object' && task.definition.taskName) {
+            taskTitle = task.definition.taskName;
+          } else if (typeof task.definition === 'string') {
+            try {
+              const parsed = JSON.parse(task.definition);
+              taskTitle = parsed.taskName || task.name;
+            } catch (e) {
+              taskTitle = task.name;
+            }
+          } else {
+            taskTitle = task.name;
+          }
+          
+          return {
+            id: task.id,
+            title: taskTitle
+          };
+        }) || [];
         
         // Fetch all answers separately
         const { data: progressData, error: progressError } = await supabase
@@ -39,26 +62,19 @@ const AnswerAnalytics = () => {
           
         if (progressError) throw progressError;
         
-        // Fetch task titles in a separate query
-        const { data: taskTitlesData, error: taskTitlesError } = await supabase
-          .from('sprint_tasks')
-          .select('id, title');
-        
-        if (taskTitlesError) throw taskTitlesError;
-        
         // Create a map of task IDs to titles
         const taskTitleMap = new Map<string, string>();
-        if (taskTitlesData) {
-          taskTitlesData.forEach(task => {
+        if (processedTasks) {
+          processedTasks.forEach(task => {
             taskTitleMap.set(task.id, task.title);
           });
         }
         
         // Process tasks
         if (tasksData) {
-          setTasks(tasksData);
-          if (tasksData.length > 0 && !selectedTask) {
-            setSelectedTask(tasksData[0].id);
+          setTasks(processedTasks);
+          if (processedTasks.length > 0 && !selectedTask) {
+            setSelectedTask(processedTasks[0].id);
           }
         }
         
@@ -77,10 +93,19 @@ const AnswerAnalytics = () => {
             
             const currentTask = taskAnswersMap.get(taskId);
             if (currentTask && Object.keys(answerData).length > 0) {
-              // Ensure answerData is treated as a Record<string, any>
-              const typedAnswerData: Record<string, any> = typeof answerData === 'string' 
-                ? JSON.parse(answerData) 
-                : (answerData as Record<string, any>);
+              // Convert answerData to Record<string, any>
+              let typedAnswerData: Record<string, any> = {};
+              
+              if (typeof answerData === 'string') {
+                try {
+                  typedAnswerData = JSON.parse(answerData);
+                } catch (e) {
+                  console.error('Failed to parse answers JSON:', e);
+                  typedAnswerData = { rawContent: answerData };
+                }
+              } else if (answerData && typeof answerData === 'object') {
+                typedAnswerData = answerData as Record<string, any>;
+              }
               
               currentTask.answers.push(typedAnswerData);
             }

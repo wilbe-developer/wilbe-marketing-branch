@@ -47,6 +47,13 @@ import TaskBuilderPage from "@/pages/admin/TaskBuilderPage";
 import QuizPage from "@/pages/QuizPage";
 import SprintMonitorPage from "@/pages/admin/SprintMonitorPage";
 
+// Admin pages
+import AdminDashboardPage from "@/pages/admin/AdminDashboardPage";
+import AdminUsersPage from "@/pages/admin/AdminUsersPage";
+import AdminSettingsPage from "@/pages/admin/AdminSettingsPage";
+import AdminDataExplorerPage from "@/pages/admin/AdminDataExplorerPage";
+import AdminActivityLogPage from "@/pages/admin/AdminActivityLogPage";
+
 // Auth Route component
 import ProtectedRoute from "@/components/ProtectedRoute";
 import MemberRoute from "@/components/MemberRoute";
@@ -125,17 +132,22 @@ const App = () => (
                     <Route path={PATHS.ASK} element={<div className="py-12 text-center"><h1 className="text-2xl font-bold mb-4">Ask & Invite</h1><p>This feature is coming soon.</p></div>} />
                   </Route>
                   
-                  {/* Admin routes with admin check */}
+                  {/* Legacy Admin route */}
                   <Route element={<ProtectedRoute requireAdmin={true} />}>
                     <Route path={PATHS.ADMIN} element={<AdminPage />} />
-                    <Route path="/admin/task-builder/*" element={<TaskBuilderPage />} />
-                    <Route path="/lead-generator" element={<LeadGeneratorPage />} />
                   </Route>
                 </Route>
 
-                {/* Sprint Control Room - full screen admin dashboard */}
+                {/* New Admin routes - full screen layout */}
                 <Route element={<ProtectedRoute requireAdmin={true} />}>
+                  <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+                  <Route path="/admin/users" element={<AdminUsersPage />} />
                   <Route path="/admin/sprint-monitor" element={<SprintMonitorPage />} />
+                  <Route path="/admin/data-explorer" element={<AdminDataExplorerPage />} />
+                  <Route path="/admin/activity" element={<AdminActivityLogPage />} />
+                  <Route path="/admin/settings" element={<AdminSettingsPage />} />
+                  <Route path="/admin/task-builder/*" element={<TaskBuilderPage />} />
+                  <Route path="/lead-generator" element={<LeadGeneratorPage />} />
                 </Route>
 
                 {/* Catch-all route */}

@@ -55,7 +55,7 @@ const UserProgressTracker: React.FC<UserProgressTrackerProps> = ({ userProgressD
         ? new Date(a.lastActivity).getTime() - new Date(b.lastActivity).getTime()
         : new Date(b.lastActivity).getTime() - new Date(a.lastActivity).getTime();
     } else {
-      // Handle the case when the key is userName or email (string type)
+      // Handle string comparison for userName or email
       const valueA = String(a[sortConfig.key]);
       const valueB = String(b[sortConfig.key]);
       

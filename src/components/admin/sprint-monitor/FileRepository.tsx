@@ -42,18 +42,33 @@ const FileRepository = () => {
           
         if (progressError) throw progressError;
         
-        // Fetch task titles separately
-        const { data: taskData, error: taskError } = await supabase
-          .from('sprint_tasks')
-          .select('id, title');
+        // Fetch task titles from sprint_task_definitions instead of sprint_tasks
+        const { data: taskDefinitionsData, error: taskDefinitionsError } = await supabase
+          .from('sprint_task_definitions')
+          .select('id, name, definition');
           
-        if (taskError) throw taskError;
+        if (taskDefinitionsError) throw taskDefinitionsError;
         
         // Create a map of task IDs to titles
         const taskMap = new Map<string, string>();
-        if (taskData) {
-          taskData.forEach(task => {
-            taskMap.set(task.id, task.title);
+        if (taskDefinitionsData) {
+          taskDefinitionsData.forEach(task => {
+            // Extract task name from definition JSON
+            let taskName = '';
+            if (typeof task.definition === 'object' && task.definition.taskName) {
+              taskName = task.definition.taskName;
+            } else if (typeof task.definition === 'string') {
+              try {
+                const parsed = JSON.parse(task.definition);
+                taskName = parsed.taskName || task.name;
+              } catch (e) {
+                taskName = task.name;
+              }
+            } else {
+              taskName = task.name;
+            }
+            
+            taskMap.set(task.id, taskName);
           });
         }
         

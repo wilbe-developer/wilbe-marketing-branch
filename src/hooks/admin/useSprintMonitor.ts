@@ -73,18 +73,33 @@ export const useSprintMonitor = () => {
         
       if (progressError) throw progressError;
       
-      // Fetch all tasks to know the total
-      const { data: tasksData, error: tasksError } = await supabase
-        .from('sprint_tasks')
+      // Fetch all tasks from sprint_task_definitions instead of sprint_tasks
+      const { data: taskDefinitionsData, error: taskDefinitionsError } = await supabase
+        .from('sprint_task_definitions')
         .select('*');
         
-      if (tasksError) throw tasksError;
+      if (taskDefinitionsError) throw taskDefinitionsError;
       
       // Create a task title mapping
       const taskTitleMap = new Map<string, string>();
-      if (tasksData) {
-        tasksData.forEach(task => {
-          taskTitleMap.set(task.id, task.title);
+      if (taskDefinitionsData) {
+        taskDefinitionsData.forEach(task => {
+          // Extract task name from definition JSON (could be a string or object)
+          let taskName = '';
+          if (typeof task.definition === 'object' && task.definition.taskName) {
+            taskName = task.definition.taskName;
+          } else if (typeof task.definition === 'string') {
+            try {
+              const parsed = JSON.parse(task.definition);
+              taskName = parsed.taskName || task.name;
+            } catch (e) {
+              taskName = task.name;
+            }
+          } else {
+            taskName = task.name;
+          }
+          
+          taskTitleMap.set(task.id, taskName);
         });
       }
       
@@ -99,7 +114,7 @@ export const useSprintMonitor = () => {
             taskName: taskTitleMap.get(p.task_id) || 'Unknown Task',
             status: p.completed ? 'completed' as const : 'in_progress' as const,
             completedAt: p.completed_at,
-            timeSpent: p.completed_at ? 
+            timeSpent: p.completed_at && p.created_at ? 
               new Date(p.completed_at).getTime() - new Date(p.created_at).getTime() : null
           }));
           
@@ -115,10 +130,10 @@ export const useSprintMonitor = () => {
             userName: profile.name || 'Unknown User',
             email: profile.email || 'No Email',
             tasksCompleted: userProgress.filter(p => p.completed).length,
-            totalTasks: tasksData?.length || 0,
+            totalTasks: taskDefinitionsData?.length || 0,
             lastActivity: new Date(lastActivityTime).toISOString(),
-            progressPercentage: tasksData?.length ? 
-              (userProgress.filter(p => p.completed).length / tasksData.length) * 100 : 0,
+            progressPercentage: taskDefinitionsData?.length ? 
+              (userProgress.filter(p => p.completed).length / taskDefinitionsData.length) * 100 : 0,
             taskProgress: userTasks
           });
         }
@@ -131,12 +146,12 @@ export const useSprintMonitor = () => {
       
       setUserProgressData(processedUserProgress);
       
-      // Generate mock activity feed (in a real app, you would have a dedicated activity log table)
-      const mockActivityFeed: ActivityEvent[] = [];
+      // Generate activity feed (in a real app, you would have a dedicated activity log table)
+      const activityFeedEvents: ActivityEvent[] = [];
       if (profilesData && progressData) {
         // Add signup events
         profilesData.forEach(profile => {
-          mockActivityFeed.push({
+          activityFeedEvents.push({
             id: `signup-${profile.user_id}`,
             userId: profile.user_id,
             userName: profile.name || 'Unknown User',
@@ -151,7 +166,7 @@ export const useSprintMonitor = () => {
           const profile = profilesData.find(p => p.user_id === progress.user_id);
           const taskName = taskTitleMap.get(progress.task_id) || 'Unknown Task';
           
-          mockActivityFeed.push({
+          activityFeedEvents.push({
             id: `task-${progress.id}`,
             userId: progress.user_id,
             userName: profile?.name || 'Unknown User',
@@ -162,18 +177,35 @@ export const useSprintMonitor = () => {
             details: `Completed task: ${taskName}`
           });
         });
+
+        // Add file upload events
+        progressData.filter(p => p.file_id).forEach(progress => {
+          const profile = profilesData.find(p => p.user_id === progress.user_id);
+          const taskName = taskTitleMap.get(progress.task_id) || 'Unknown Task';
+          
+          activityFeedEvents.push({
+            id: `file-${progress.id}`,
+            userId: progress.user_id,
+            userName: profile?.name || 'Unknown User',
+            eventType: 'file_uploaded',
+            taskId: progress.task_id,
+            taskName: taskName,
+            timestamp: progress.created_at,
+            details: `Uploaded file for task: ${taskName}`
+          });
+        });
       }
       
       // Sort by timestamp, most recent first
-      mockActivityFeed.sort((a, b) => 
+      activityFeedEvents.sort((a, b) => 
         new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
       );
       
-      setActivityFeed(mockActivityFeed);
+      setActivityFeed(activityFeedEvents);
       
       // Process task performance data
-      if (tasksData && progressData) {
-        const taskBreakdown = tasksData.map(task => {
+      if (taskDefinitionsData && progressData) {
+        const taskBreakdown = taskDefinitionsData.map(task => {
           const taskAttempts = progressData.filter(p => p.task_id === task.id);
           const completions = taskAttempts.filter(p => p.completed);
           
@@ -182,7 +214,7 @@ export const useSprintMonitor = () => {
           let timeCount = 0;
           
           completions.forEach(completion => {
-            if (completion.completed_at) {
+            if (completion.completed_at && completion.created_at) {
               const startTime = new Date(completion.created_at).getTime();
               const endTime = new Date(completion.completed_at).getTime();
               if (endTime > startTime) {
@@ -191,10 +223,25 @@ export const useSprintMonitor = () => {
               }
             }
           });
+
+          // Extract task name from definition JSON
+          let taskName = '';
+          if (typeof task.definition === 'object' && task.definition.taskName) {
+            taskName = task.definition.taskName;
+          } else if (typeof task.definition === 'string') {
+            try {
+              const parsed = JSON.parse(task.definition);
+              taskName = parsed.taskName || task.name;
+            } catch (e) {
+              taskName = task.name;
+            }
+          } else {
+            taskName = task.name;
+          }
           
           return {
             taskId: task.id,
-            taskName: task.title,
+            taskName: taskName,
             totalAttempts: taskAttempts.length,
             completions: completions.length,
             averageTime: timeCount > 0 ? totalTime / timeCount / (1000 * 60) : 0, // in minutes
@@ -215,7 +262,7 @@ export const useSprintMonitor = () => {
         const totalAttempts = progressData.length;
         
         setTaskPerformance({
-          totalTasks: tasksData.length,
+          totalTasks: taskDefinitionsData.length,
           completedTasks: totalCompletions,
           completionRate: totalAttempts > 0 ? (totalCompletions / totalAttempts) * 100 : 0,
           averageTimeToComplete: taskBreakdown.reduce((acc, task) => acc + task.averageTime, 0) / 
