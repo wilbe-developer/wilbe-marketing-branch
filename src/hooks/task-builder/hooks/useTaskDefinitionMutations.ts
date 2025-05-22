@@ -1,7 +1,7 @@
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { SprintTaskDefinition, TaskDefinition } from '@/types/task-builder';
+import { SprintTaskDefinition } from '@/types/task-builder';
 import { TASK_DEFINITIONS_QUERY_KEY } from './useTaskDefinitionsQuery';
 
 export function useTaskDefinitionMutations() {
@@ -10,7 +10,7 @@ export function useTaskDefinitionMutations() {
   // Create mutation
   const createTaskDefinitionMutation = useMutation({
     mutationFn: async (taskDefinition: SprintTaskDefinition) => {
-      // Convert TaskDefinition to JSON
+      // Convert definition to JSON string before sending to Supabase
       const definitionJson = JSON.stringify(taskDefinition.definition);
       
       const { data, error } = await supabase
@@ -34,7 +34,7 @@ export function useTaskDefinitionMutations() {
   // Update mutation
   const updateTaskDefinitionMutation = useMutation({
     mutationFn: async (taskDefinition: SprintTaskDefinition) => {
-      // Convert TaskDefinition to JSON
+      // Convert definition to JSON string before sending to Supabase
       const definitionJson = JSON.stringify(taskDefinition.definition);
       
       const { data, error } = await supabase

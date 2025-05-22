@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
@@ -28,7 +29,7 @@ const SprintEngagementStats: React.FC<SprintEngagementStatsProps> = ({ timeRange
       // In a real implementation, you would fetch data from your database
       
       let query = supabase
-        .from('sprint_user_progress')
+        .from('user_sprint_progress')
         .select('*');
       
       // Apply time filtering if not 'all'

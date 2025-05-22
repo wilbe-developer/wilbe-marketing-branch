@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
@@ -45,9 +46,9 @@ const SprintConversionMetrics: React.FC<SprintConversionMetricsProps> = ({ timeR
       
       if (waitlistError) throw waitlistError;
       
-      // Fetch sprint signups
+      // Fetch sprint profiles instead of sprint_signups which doesn't exist
       let sprintQuery = supabase
-        .from('sprint_signups')
+        .from('sprint_profiles')
         .select('email, created_at');
       
       if (startDate) {
@@ -59,8 +60,8 @@ const SprintConversionMetrics: React.FC<SprintConversionMetricsProps> = ({ timeR
       if (sprintError) throw sprintError;
       
       // Process data
-      const waitlistEmails = new Set(waitlistData?.map(item => item.email.toLowerCase()));
-      const sprintEmails = new Set(sprintData?.map(item => item.email.toLowerCase()));
+      const waitlistEmails = new Set(waitlistData?.map(item => item.email.toLowerCase()) || []);
+      const sprintEmails = new Set(sprintData?.map(item => item.email.toLowerCase()) || []);
       
       // Find conversions (emails in both sets)
       const conversions = [...waitlistEmails].filter(email => sprintEmails.has(email));

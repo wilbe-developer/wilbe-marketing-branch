@@ -6,7 +6,7 @@ import { SprintTaskDefinition, TaskDefinition } from '@/types/task-builder';
 import { v4 as uuidv4 } from 'uuid';
 
 export function useSprintTaskDefinitions() {
-  const { taskDefinitions, isLoading, error, refetch } = useTaskDefinitionsQuery();
+  const { data, isLoading, error, refetch } = useTaskDefinitionsQuery();
   const { 
     createTaskDefinition: createTaskDefinitionMutation,
     updateTaskDefinition: updateTaskDefinitionMutation,
@@ -34,25 +34,25 @@ export function useSprintTaskDefinitions() {
   const fetchTaskDefinition = useCallback(async (taskId: string): Promise<SprintTaskDefinition | null> => {
     try {
       // Find the task definition in the cached data first
-      const cachedTask = taskDefinitions?.find(task => task.id === taskId);
+      const cachedTask = data?.find(task => task.id === taskId);
       if (cachedTask) {
         return cachedTask;
       }
 
       // If not found in cache, fetch it directly
-      const { data, error } = await refetch();
-      if (error) throw error;
+      const { data: refreshedData, error: refreshError } = await refetch();
+      if (refreshError) throw refreshError;
       
-      const foundTask = data?.find(task => task.id === taskId);
+      const foundTask = refreshedData?.find(task => task.id === taskId);
       return foundTask || null;
     } catch (error) {
       console.error("Error fetching task definition:", error);
       return null;
     }
-  }, [taskDefinitions, refetch]);
+  }, [data, refetch]);
 
   return {
-    taskDefinitions,
+    taskDefinitions: data,
     isLoading,
     error,
     createTaskDefinition: createTaskDefinitionMutation,
