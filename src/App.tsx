@@ -33,6 +33,7 @@ import SprintPage from "@/pages/SprintPage";
 import SprintDashboardPage from "@/pages/SprintDashboardPage";
 import SprintTaskPage from "@/pages/SprintTaskPage";
 import SprintSignupPage from "@/pages/SprintSignupPage";
+import SprintWaitingPage from "@/pages/SprintWaitingPage";
 import CommunityPage from "@/pages/CommunityPage";
 import NewThreadPage from "@/pages/NewThreadPage";
 import ThreadPage from "@/pages/ThreadPage";
@@ -81,6 +82,7 @@ const App = () => (
 
                 {/* Sprint signup - publicly accessible */}
                 <Route path="/sprint-signup" element={<SprintSignupPage />} />
+                <Route path={PATHS.SPRINT_WAITING} element={<SprintWaitingPage />} />
 
                 {/* Sprint routes - accessible to all authenticated users */}
                 <Route path={PATHS.SPRINT} element={<SprintPage />} />

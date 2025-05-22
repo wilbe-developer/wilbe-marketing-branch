@@ -22,6 +22,7 @@ export const PATHS = {
   SPRINT_TASK: '/sprint/task',
   SPRINT_SIGNUP: '/sprint-signup',
   SPRINT_PROFILE: '/sprint/profile',
+  SPRINT_WAITING: '/sprint-waiting',
   LEAD_GENERATOR: '/lead-generator',
   QUIZ: '/quiz',
   API: {

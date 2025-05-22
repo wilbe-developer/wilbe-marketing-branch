@@ -5,15 +5,17 @@ import { useAuth } from "@/hooks/useAuth";
 import { PATHS } from "@/lib/constants";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useAppSettings } from "@/hooks/useAppSettings";
 
 const SprintPage = () => {
   const { isAuthenticated, loading, user } = useAuth();
+  const { isDashboardActive, isLoading: isLoadingSettings } = useAppSettings();
   const navigate = useNavigate();
 
   useEffect(() => {
     const checkSprintOnboarding = async () => {
       // Wait until auth state is loaded
-      if (loading) return;
+      if (loading || isLoadingSettings) return;
 
       // If not authenticated, redirect to signup (without storing redirect location)
       if (!isAuthenticated) {
@@ -43,9 +45,14 @@ const SprintPage = () => {
             return;
           }
 
-          // Redirect to dashboard - tasks are now global and don't need to be created per user
-          console.log("User has sprint profile, redirecting to dashboard");
-          navigate(PATHS.SPRINT_DASHBOARD);
+          // Redirect based on the feature flag
+          if (isDashboardActive) {
+            console.log("User has sprint profile, redirecting to dashboard");
+            navigate(PATHS.SPRINT_DASHBOARD);
+          } else {
+            console.log("User has sprint profile, redirecting to waiting page");
+            navigate(PATHS.SPRINT_WAITING);
+          }
         } catch (error) {
           console.error('Error in sprint check flow:', error);
           toast.error("Something went wrong. Please try again.");
@@ -54,10 +61,10 @@ const SprintPage = () => {
     };
 
     checkSprintOnboarding();
-  }, [isAuthenticated, loading, navigate, user]);
+  }, [isAuthenticated, loading, navigate, user, isDashboardActive, isLoadingSettings]);
 
   // Show loading spinner while checking
-  if (loading || isAuthenticated) {
+  if (loading || isLoadingSettings || isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">

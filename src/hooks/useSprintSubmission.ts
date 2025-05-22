@@ -7,12 +7,14 @@ import { toast } from "sonner";
 import { SprintSignupAnswers } from "@/types/sprint-signup";
 import { useSprintFileUpload } from "./useSprintFileUpload";
 import { useAuth } from "./useAuth";
+import { useAppSettings } from "./useAppSettings";
 
 export const useSprintSubmission = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { uploadFounderProfile } = useSprintFileUpload();
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
+  const { isDashboardActive, isLoading: isLoadingSettings } = useAppSettings();
 
   const silentSignup = async (answers: SprintSignupAnswers) => {
     setIsSubmitting(true);
@@ -53,7 +55,7 @@ export const useSprintSubmission = () => {
             const { error: magicLinkError } = await supabase.auth.signInWithOtp({
               email: answers.email,
               options: {
-                emailRedirectTo: window.location.origin + PATHS.SPRINT_DASHBOARD,
+                emailRedirectTo: window.location.origin + (isDashboardActive ? PATHS.SPRINT_DASHBOARD : PATHS.SPRINT_WAITING),
               }
             });
             
@@ -161,7 +163,13 @@ export const useSprintSubmission = () => {
 
       console.log("Sprint profile updated successfully");
       toast.success("Your sprint profile has been created successfully!");
-      navigate(PATHS.SPRINT_DASHBOARD);
+      
+      // Redirect based on the feature flag
+      if (isDashboardActive) {
+        navigate(PATHS.SPRINT_DASHBOARD);
+      } else {
+        navigate(PATHS.SPRINT_WAITING);
+      }
     } catch (error) {
       console.error("Profile update failed:", error);
       toast.error("Failed to update sprint profile. Please try again.");
@@ -172,6 +180,7 @@ export const useSprintSubmission = () => {
 
   return {
     isSubmitting,
+    isLoadingSettings,
     silentSignup
   };
 };
