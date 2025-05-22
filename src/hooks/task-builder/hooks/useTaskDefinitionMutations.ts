@@ -50,7 +50,7 @@ export const useTaskDefinitionMutations = () => {
         .insert({
           name: taskDefinition.name,
           description: taskDefinition.description || "",
-          definition: taskDefinition.definition
+          definition: JSON.parse(JSON.stringify(taskDefinition.definition)) // Convert to JSON compatible format
         })
         .select("*")
         .single();
@@ -66,10 +66,12 @@ export const useTaskDefinitionMutations = () => {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: [TASK_DEFINITIONS_QUERY_KEY] });
       toast.success("Task definition created successfully");
+      return data;
     },
     onError: (error) => {
       console.error("Failed to create task definition:", error);
       toast.error("Failed to create task definition");
+      throw error;
     }
   });
 
@@ -83,7 +85,7 @@ export const useTaskDefinitionMutations = () => {
         .update({
           name: taskDefinition.name,
           description: taskDefinition.description || "",
-          definition: taskDefinition.definition,
+          definition: JSON.parse(JSON.stringify(taskDefinition.definition)), // Convert to JSON compatible format
           updated_at: new Date().toISOString()
         })
         .eq("id", taskDefinition.id)
@@ -101,10 +103,12 @@ export const useTaskDefinitionMutations = () => {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: [TASK_DEFINITIONS_QUERY_KEY] });
       toast.success("Task definition updated successfully");
+      return data;
     },
     onError: (error) => {
       console.error("Failed to update task definition:", error);
       toast.error("Failed to update task definition");
+      throw error;
     }
   });
 
@@ -129,16 +133,18 @@ export const useTaskDefinitionMutations = () => {
     onSuccess: (id) => {
       queryClient.invalidateQueries({ queryKey: [TASK_DEFINITIONS_QUERY_KEY] });
       toast.success("Task definition deleted successfully");
+      return id;
     },
     onError: (error) => {
       console.error("Failed to delete task definition:", error);
       toast.error("Failed to delete task definition");
+      throw error;
     }
   });
 
   return {
-    createTaskDefinition: createTaskDefinition.mutate,
-    updateTaskDefinition: updateTaskDefinition.mutate,
-    deleteTaskDefinition: deleteTaskDefinition.mutate
+    createTaskDefinition,
+    updateTaskDefinition,
+    deleteTaskDefinition
   };
 };

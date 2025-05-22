@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import RolesManager from './RolesManager';
-import SprintFeatureFlags from './SprintFeatureFlags';
+import { SprintFeatureFlags } from './SprintFeatureFlags';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const AdminSettings = () => {
@@ -36,7 +36,7 @@ const AdminSettings = () => {
       if (error) throw error;
       
       if (data && data.length > 0) {
-        const flags = data[0].value;
+        const flags = data[0].value as Record<string, boolean>;
         setSettings({
           enableWaitlist: flags.enableWaitlist !== false, // default to true
           enableSprintSignup: flags.enableSprintSignup === true // default to false

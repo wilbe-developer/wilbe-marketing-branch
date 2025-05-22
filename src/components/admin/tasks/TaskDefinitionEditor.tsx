@@ -148,7 +148,7 @@ const TaskDefinitionEditor: React.FC<TaskDefinitionEditorProps> = ({
       ...task,
       profile_key: settings.profile_key,
       profile_label: settings.profile_label,
-      profile_type: settings.profile_type,
+      profile_type: settings.profile_type as "boolean" | "select" | "text" | "multi-select",
       profile_options: settings.profile_options
     });
   };

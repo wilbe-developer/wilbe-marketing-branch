@@ -8,6 +8,11 @@ import UnifiedAnalytics from '@/components/admin/sprint-activity/UnifiedAnalytic
 import SprintEngagementStats from '@/components/admin/sprint-activity/SprintEngagementStats';
 import SprintConversionMetrics from '@/components/admin/sprint-activity/SprintConversionMetrics';
 
+// Define component props interfaces if they don't exist
+interface AnalyticsComponentProps {
+  timeRange: '7d' | '30d' | '90d' | 'all';
+}
+
 const UTMAnalyticsPage = () => {
   const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d' | 'all'>('all');
 

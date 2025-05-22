@@ -262,7 +262,7 @@ const TaskDefinitionEditor: React.FC = () => {
       console.log("Saving task definition:", task);
       
       if (taskId) {
-        await updateTaskDefinition.mutateAsync({
+        await updateTaskDefinition({
           id: taskId,
           name: task.name,
           description: task.description,
@@ -272,7 +272,7 @@ const TaskDefinitionEditor: React.FC = () => {
         toast.success("Task definition updated successfully");
       } else {
         console.log("Creating new task");
-        const result = await createTaskDefinition.mutateAsync({
+        const result = await createTaskDefinition({
           name: task.name,
           description: task.description,
           definition: task.definition,

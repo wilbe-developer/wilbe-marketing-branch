@@ -9,11 +9,39 @@ import UnifiedAnalytics from "../sprint-activity/UnifiedAnalytics";
 
 const SprintActivityTab = () => {
   const [activeSection, setActiveSection] = useState("unified");
+  const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d' | 'all'>('all');
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Sprint Activity Dashboard</h2>
+        
+        <div className="bg-background border rounded-md p-1 flex">
+          <button 
+            className={`px-3 py-1 text-sm rounded-sm ${timeRange === '7d' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}
+            onClick={() => setTimeRange('7d')}
+          >
+            7D
+          </button>
+          <button 
+            className={`px-3 py-1 text-sm rounded-sm ${timeRange === '30d' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}
+            onClick={() => setTimeRange('30d')}
+          >
+            30D
+          </button>
+          <button 
+            className={`px-3 py-1 text-sm rounded-sm ${timeRange === '90d' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}
+            onClick={() => setTimeRange('90d')}
+          >
+            90D
+          </button>
+          <button 
+            className={`px-3 py-1 text-sm rounded-sm ${timeRange === 'all' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}
+            onClick={() => setTimeRange('all')}
+          >
+            All
+          </button>
+        </div>
       </div>
 
       <Tabs defaultValue="unified" onValueChange={setActiveSection} value={activeSection}>
@@ -25,20 +53,20 @@ const SprintActivityTab = () => {
         </TabsList>
 
         <TabsContent value="unified" className="space-y-6">
-          <UnifiedAnalytics />
+          <UnifiedAnalytics timeRange={timeRange} />
         </TabsContent>
 
         <TabsContent value="waitlist" className="space-y-6">
-          <WaitlistMetrics />
-          <WaitlistSignupsTable />
+          <WaitlistMetrics timeRange={timeRange} />
+          <WaitlistSignupsTable timeRange={timeRange} />
         </TabsContent>
 
         <TabsContent value="conversion" className="space-y-6">
-          <SprintConversionMetrics />
+          <SprintConversionMetrics timeRange={timeRange} />
         </TabsContent>
 
         <TabsContent value="engagement" className="space-y-6">
-          <SprintEngagementStats />
+          <SprintEngagementStats timeRange={timeRange} />
         </TabsContent>
       </Tabs>
     </div>

@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Plus, Edit, Trash2, Eye, RefreshCcw } from "lucide-react";
-import { SprintTaskDefinition } from '@/types/task-builder';
+import { SprintTaskDefinition, StepType } from '@/types/task-builder';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -65,7 +65,7 @@ const TaskDefinitionsTab = () => {
       const emptyTask = createEmptyTaskDefinition();
       
       // Set properties based on type
-      const taskDef = {
+      const taskDef: SprintTaskDefinition = {
         ...emptyTask,
         name: type === 'ip' ? 'IP Assessment' : 'Team Assessment',
         description: type === 'ip' ? 'Evaluate intellectual property status' : 'Evaluate team composition',
@@ -77,7 +77,7 @@ const TaskDefinitionsTab = () => {
           steps: [
             {
               id: '1',
-              type: 'question',
+              type: 'question' as StepType,
               text: type === 'ip' ? 'Do you have intellectual property?' : 'Do you have a team?',
               inputType: 'boolean'
             }
