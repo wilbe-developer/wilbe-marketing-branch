@@ -20,8 +20,30 @@ const SprintWaitlistPage = () => {
   const navigate = useNavigate();
   
   const scrollToWaitlist = () => {
-    // Redirect to signup page instead of scrolling
-    navigate(PATHS.SPRINT_SIGNUP);
+    // Extract UTM parameters from the current URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const utmSource = urlParams.get('utm_source');
+    const utmMedium = urlParams.get('utm_medium');
+    const utmCampaign = urlParams.get('utm_campaign');
+    const utmTerm = urlParams.get('utm_term');
+    const utmContent = urlParams.get('utm_content');
+    
+    // Construct the target URL with UTM parameters
+    let targetUrl = PATHS.SPRINT_SIGNUP;
+    const utmParams = new URLSearchParams();
+    
+    if (utmSource) utmParams.append('utm_source', utmSource);
+    if (utmMedium) utmParams.append('utm_medium', utmMedium);
+    if (utmCampaign) utmParams.append('utm_campaign', utmCampaign);
+    if (utmTerm) utmParams.append('utm_term', utmTerm);
+    if (utmContent) utmParams.append('utm_content', utmContent);
+    
+    if (utmParams.toString()) {
+      targetUrl += `?${utmParams.toString()}`;
+    }
+    
+    // Navigate to the signup page with UTM parameters
+    navigate(targetUrl);
   };
 
   return (
