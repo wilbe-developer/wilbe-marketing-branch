@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -47,6 +46,24 @@ export interface TaskPerformanceData {
   }[];
 }
 
+// Helper function to extract task name from definition
+const extractTaskName = (definition: any, fallbackName: string = 'Unknown Task'): string => {
+  if (!definition) return fallbackName;
+  
+  if (typeof definition === 'object' && definition.taskName) {
+    return definition.taskName;
+  } else if (typeof definition === 'string') {
+    try {
+      const parsed = JSON.parse(definition);
+      return parsed.taskName || fallbackName;
+    } catch (e) {
+      return fallbackName;
+    }
+  }
+  
+  return fallbackName;
+};
+
 export const useSprintMonitor = () => {
   const [userProgressData, setUserProgressData] = useState<UserProgress[]>([]);
   const [activityFeed, setActivityFeed] = useState<ActivityEvent[]>([]);
@@ -84,21 +101,7 @@ export const useSprintMonitor = () => {
       const taskTitleMap = new Map<string, string>();
       if (taskDefinitionsData) {
         taskDefinitionsData.forEach(task => {
-          // Extract task name from definition JSON (could be a string or object)
-          let taskName = '';
-          if (typeof task.definition === 'object' && task.definition.taskName) {
-            taskName = task.definition.taskName;
-          } else if (typeof task.definition === 'string') {
-            try {
-              const parsed = JSON.parse(task.definition);
-              taskName = parsed.taskName || task.name;
-            } catch (e) {
-              taskName = task.name;
-            }
-          } else {
-            taskName = task.name;
-          }
-          
+          const taskName = extractTaskName(task.definition, task.name);
           taskTitleMap.set(task.id, taskName);
         });
       }
@@ -224,20 +227,8 @@ export const useSprintMonitor = () => {
             }
           });
 
-          // Extract task name from definition JSON
-          let taskName = '';
-          if (typeof task.definition === 'object' && task.definition.taskName) {
-            taskName = task.definition.taskName;
-          } else if (typeof task.definition === 'string') {
-            try {
-              const parsed = JSON.parse(task.definition);
-              taskName = parsed.taskName || task.name;
-            } catch (e) {
-              taskName = task.name;
-            }
-          } else {
-            taskName = task.name;
-          }
+          // Extract task name from definition
+          const taskName = extractTaskName(task.definition, task.name);
           
           return {
             taskId: task.id,

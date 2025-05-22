@@ -12,6 +12,24 @@ interface TaskAnswer {
   answers: Record<string, any>[];
 }
 
+// Helper function to extract task name from definition
+const extractTaskName = (definition: any, fallbackName: string = 'Unknown Task'): string => {
+  if (!definition) return fallbackName;
+  
+  if (typeof definition === 'object' && definition.taskName) {
+    return definition.taskName;
+  } else if (typeof definition === 'string') {
+    try {
+      const parsed = JSON.parse(definition);
+      return parsed.taskName || fallbackName;
+    } catch (e) {
+      return fallbackName;
+    }
+  }
+  
+  return fallbackName;
+};
+
 const AnswerAnalytics = () => {
   const [selectedTask, setSelectedTask] = useState<string>('');
   const [tasks, setTasks] = useState<{id: string, title: string}[]>([]);
@@ -34,19 +52,7 @@ const AnswerAnalytics = () => {
         // Process tasks data to extract titles
         const processedTasks = tasksData?.map(task => {
           // Extract task name from definition JSON
-          let taskTitle = '';
-          if (typeof task.definition === 'object' && task.definition.taskName) {
-            taskTitle = task.definition.taskName;
-          } else if (typeof task.definition === 'string') {
-            try {
-              const parsed = JSON.parse(task.definition);
-              taskTitle = parsed.taskName || task.name;
-            } catch (e) {
-              taskTitle = task.name;
-            }
-          } else {
-            taskTitle = task.name;
-          }
+          const taskTitle = extractTaskName(task.definition, task.name);
           
           return {
             id: task.id,

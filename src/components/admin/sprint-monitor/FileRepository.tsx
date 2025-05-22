@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -17,6 +16,24 @@ interface UploadedFile {
   view_url: string;
   download_url: string;
 }
+
+// Helper function to extract task name from definition
+const extractTaskName = (definition: any, fallbackName: string = 'Unknown Task'): string => {
+  if (!definition) return fallbackName;
+  
+  if (typeof definition === 'object' && definition.taskName) {
+    return definition.taskName;
+  } else if (typeof definition === 'string') {
+    try {
+      const parsed = JSON.parse(definition);
+      return parsed.taskName || fallbackName;
+    } catch (e) {
+      return fallbackName;
+    }
+  }
+  
+  return fallbackName;
+};
 
 const FileRepository = () => {
   const [files, setFiles] = useState<UploadedFile[]>([]);
@@ -53,21 +70,7 @@ const FileRepository = () => {
         const taskMap = new Map<string, string>();
         if (taskDefinitionsData) {
           taskDefinitionsData.forEach(task => {
-            // Extract task name from definition JSON
-            let taskName = '';
-            if (typeof task.definition === 'object' && task.definition.taskName) {
-              taskName = task.definition.taskName;
-            } else if (typeof task.definition === 'string') {
-              try {
-                const parsed = JSON.parse(task.definition);
-                taskName = parsed.taskName || task.name;
-              } catch (e) {
-                taskName = task.name;
-              }
-            } else {
-              taskName = task.name;
-            }
-            
+            const taskName = extractTaskName(task.definition, task.name);
             taskMap.set(task.id, taskName);
           });
         }
