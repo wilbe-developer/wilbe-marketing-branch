@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { LinkedIn, Mail } from 'lucide-react';
+import { Linkedin, Mail } from 'lucide-react';
 
 interface ProfileField {
   key: string;
@@ -79,7 +78,7 @@ const ProfileDetailCard: React.FC<ProfileDetailCardProps> = ({ title, profile, f
     if (key === 'linkedin_url' && value) {
       return (
         <div className="flex items-center space-x-1 break-all">
-          <LinkedIn size={14} className="text-muted-foreground shrink-0" />
+          <Linkedin size={14} className="text-muted-foreground shrink-0" />
           <a 
             href={value.startsWith('http') ? value : `https://${value}`} 
             target="_blank" 
