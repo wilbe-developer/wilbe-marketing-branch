@@ -8,6 +8,7 @@ import TaskPerformanceMetrics from '@/components/admin/sprint-monitor/TaskPerfor
 import ActivityFeed from '@/components/admin/sprint-monitor/ActivityFeed';
 import FileRepository from '@/components/admin/sprint-monitor/FileRepository';
 import TaskAnswersTab from '@/components/admin/sprint-monitor/TaskAnswersTab';
+import SprintProfilesTab from '@/components/admin/sprint-monitor/SprintProfilesTab';
 import { useSprintMonitor } from '@/hooks/admin/useSprintMonitor';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -56,6 +57,7 @@ const SprintMonitorPage = () => {
           <TabsTrigger value="progress">User Progress</TabsTrigger>
           <TabsTrigger value="answers">Task Answers</TabsTrigger>
           <TabsTrigger value="tasks">Task Performance</TabsTrigger>
+          <TabsTrigger value="profiles">Profiles</TabsTrigger>
           <TabsTrigger value="activity">Activity Feed</TabsTrigger>
           <TabsTrigger value="files">File Repository</TabsTrigger>
         </TabsList>
@@ -106,6 +108,17 @@ const SprintMonitorPage = () => {
                 taskPerformance={taskPerformance} 
                 isLoading={isLoading} 
               />
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="profiles">
+          <Card>
+            <CardHeader>
+              <CardTitle>Sprint Profiles</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <SprintProfilesTab />
             </CardContent>
           </Card>
         </TabsContent>
