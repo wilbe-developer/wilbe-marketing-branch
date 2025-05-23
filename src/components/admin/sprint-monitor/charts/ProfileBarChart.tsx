@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { Card, CardContent } from '@/components/ui/card';
 
 interface ProfileBarChartProps {
@@ -19,13 +19,14 @@ const ProfileBarChart: React.FC<ProfileBarChartProps> = ({ title, data, height =
             <BarChart
               data={data}
               layout="vertical"
-              margin={{ top: 5, right: 30, left: 60, bottom: 5 }}
+              margin={{ top: 5, right: 30, left: 120, bottom: 25 }}
             >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis type="number" />
               <YAxis dataKey="name" type="category" width={120} />
-              <Tooltip />
-              <Bar dataKey="value" fill="#8884d8" />
+              <Tooltip formatter={(value) => [`${value}`, '']} />
+              <Legend layout="horizontal" verticalAlign="bottom" align="center" />
+              <Bar dataKey="value" fill="#8884d8" name="Count" />
             </BarChart>
           </ResponsiveContainer>
         </div>

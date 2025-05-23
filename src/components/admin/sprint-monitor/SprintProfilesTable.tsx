@@ -53,10 +53,11 @@ const SprintProfilesTable: React.FC<SprintProfilesTableProps> = ({ profiles, onV
     <Card>
       <CardContent className="p-6">
         <h3 className="text-lg font-semibold mb-4">Sprint Profiles</h3>
-        <div className="rounded-md border">
+        <div className="rounded-md border overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-[50px]">View</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Team Status</TableHead>
@@ -64,12 +65,21 @@ const SprintProfilesTable: React.FC<SprintProfilesTableProps> = ({ profiles, onV
                 <TableHead>Funding</TableHead>
                 <TableHead>Scientist/Engineer</TableHead>
                 <TableHead>Source</TableHead>
-                <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {currentProfiles.map((profile) => (
                 <TableRow key={profile.id}>
+                  <TableCell>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => onViewProfile(profile)}
+                      className="p-0 w-8 h-8"
+                    >
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
                   <TableCell>{profile.name || 'N/A'}</TableCell>
                   <TableCell>{profile.email || 'N/A'}</TableCell>
                   <TableCell>
@@ -96,15 +106,6 @@ const SprintProfilesTable: React.FC<SprintProfilesTableProps> = ({ profiles, onV
                     ) : (
                       <Badge variant="outline">direct</Badge>
                     )}
-                  </TableCell>
-                  <TableCell>
-                    <Button 
-                      variant="ghost" 
-                      size="icon"
-                      onClick={() => onViewProfile(profile)}
-                    >
-                      <Eye className="h-4 w-4" />
-                    </Button>
                   </TableCell>
                 </TableRow>
               ))}

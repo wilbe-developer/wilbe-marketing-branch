@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { Card, CardContent } from '@/components/ui/card';
 
 interface ProfilePieChartProps {
@@ -24,7 +24,6 @@ const ProfilePieChart: React.FC<ProfilePieChartProps> = ({ title, data, height =
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                 outerRadius={80}
                 fill="#8884d8"
                 dataKey="value"
@@ -33,7 +32,8 @@ const ProfilePieChart: React.FC<ProfilePieChartProps> = ({ title, data, height =
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip />
+              <Tooltip formatter={(value, name) => [`${value} (${((value as number / data.reduce((sum, entry) => sum + entry.value, 0)) * 100).toFixed(0)}%)`, name]} />
+              <Legend layout="horizontal" verticalAlign="bottom" align="center" />
             </PieChart>
           </ResponsiveContainer>
         </div>

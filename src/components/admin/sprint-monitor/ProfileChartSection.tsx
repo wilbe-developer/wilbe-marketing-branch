@@ -16,24 +16,24 @@ const ProfileChartSection: React.FC<ProfileChartSectionProps> = ({ chartData, fi
   if (filterType === 'team') {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <ProfilePieChart title="Team Status" data={chartData.teamStatus} />
-        <ProfilePieChart title="Company Incorporated" data={chartData.incorporated} />
-        <ProfilePieChart title="Funding Status" data={chartData.funding} />
+        <ProfilePieChart title="Team Status" data={chartData.teamStatus} height={72} />
+        <ProfilePieChart title="Company Incorporated" data={chartData.incorporated} height={72} />
+        <ProfilePieChart title="Funding Status" data={chartData.funding} height={72} />
       </div>
     );
   } else if (filterType === 'market') {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <ProfilePieChart title="Market Known" data={chartData.marketKnown} />
-        <ProfilePieChart title="Experiment Validated" data={chartData.experimentValidated} />
+        <ProfilePieChart title="Market Known" data={chartData.marketKnown} height={72} />
+        <ProfilePieChart title="Experiment Validated" data={chartData.experimentValidated} height={72} />
       </div>
     );
   } else {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <ProfileBarChart title="Job Type" data={chartData.jobType} />
-        <ProfilePieChart title="Scientist/Engineer" data={chartData.scientist} />
-        <ProfilePieChart title="Source" data={chartData.source} />
+        <ProfileBarChart title="Job Type" data={chartData.jobType} height={72} />
+        <ProfilePieChart title="Scientist/Engineer" data={chartData.scientist} height={72} />
+        <ProfilePieChart title="Source" data={chartData.source} height={72} />
       </div>
     );
   }
