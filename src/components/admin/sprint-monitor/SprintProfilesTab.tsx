@@ -41,10 +41,10 @@ interface SprintProfile {
   lab_space_secured?: boolean;
   lab_space_details?: string;
   deck_feedback?: boolean;
-  problem_defined?: boolean;
-  customer_engagement?: string;
+  has_deck?: boolean;
   linkedin_url?: string;
   current_job?: string;
+  customer_engagement?: string;
   [key: string]: any; // For any other properties in the profile
 }
 
@@ -134,30 +134,46 @@ const SprintProfilesTab = () => {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Complete Profile Details</DialogTitle>
+            <DialogTitle className="text-xl font-bold">Complete Profile Details</DialogTitle>
           </DialogHeader>
           {selectedProfile && (
-            <div className="space-y-4 mt-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-6 mt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Basic Information */}
                 <ProfileDetailCard 
                   title="User Information" 
                   profile={selectedProfile} 
-                  fields={['name', 'email', 'created_at', 'linkedin_url', 'current_job']} 
+                  fields={[
+                    {key: 'name', label: 'Name'},
+                    {key: 'email', label: 'Email'},
+                    {key: 'created_at', label: 'Created At'},
+                    {key: 'linkedin_url', label: 'LinkedIn URL'},
+                    {key: 'current_job', label: 'Current Job'}
+                  ]} 
                 />
                 
                 {/* Team & Company Status */}
                 <ProfileDetailCard 
                   title="Team & Company" 
                   profile={selectedProfile} 
-                  fields={['team_status', 'company_incorporated', 'received_funding', 'has_deck']} 
+                  fields={[
+                    {key: 'team_status', label: 'Team Status'},
+                    {key: 'company_incorporated', label: 'Company Incorporated'},
+                    {key: 'received_funding', label: 'Received Funding'},
+                    {key: 'has_deck', label: 'Has Deck'}
+                  ]} 
                 />
                 
                 {/* Market & Validation */}
                 <ProfileDetailCard 
                   title="Market & Validation" 
                   profile={selectedProfile} 
-                  fields={['market_known', 'experiment_validated', 'problem_defined', 'customer_engagement', 'competition_research']} 
+                  fields={[
+                    {key: 'market_known', label: 'Market Known'},
+                    {key: 'experiment_validated', label: 'Experiment Validated'},
+                    {key: 'customer_engagement', label: 'Customer Engagement'},
+                    {key: 'competition_research', label: 'Competition Research'}
+                  ]} 
                 />
                 
                 {/* Customer Information */}
@@ -167,7 +183,11 @@ const SprintProfilesTab = () => {
                   <ProfileDetailCard 
                     title="Customer Information" 
                     profile={selectedProfile} 
-                    fields={['potential_beneficiaries', 'specific_customers', 'customer_evidence']} 
+                    fields={[
+                      {key: 'potential_beneficiaries', label: 'Potential Beneficiaries'},
+                      {key: 'specific_customers', label: 'Specific Customers'},
+                      {key: 'customer_evidence', label: 'Customer Evidence'}
+                    ]} 
                   />
                 )}
                 
@@ -175,7 +195,10 @@ const SprintProfilesTab = () => {
                 <ProfileDetailCard 
                   title="Background & Skills" 
                   profile={selectedProfile} 
-                  fields={['job_type', 'is_scientist_engineer']} 
+                  fields={[
+                    {key: 'job_type', label: 'Job Type'},
+                    {key: 'is_scientist_engineer', label: 'Is Scientist/Engineer'}
+                  ]} 
                 />
                 
                 {/* Vision & Impact */}
@@ -185,7 +208,11 @@ const SprintProfilesTab = () => {
                   <ProfileDetailCard 
                     title="Vision & Impact" 
                     profile={selectedProfile} 
-                    fields={['success_vision_1yr', 'success_vision_10yr', 'impact_scale']} 
+                    fields={[
+                      {key: 'success_vision_1yr', label: 'Success Vision (1yr)'},
+                      {key: 'success_vision_10yr', label: 'Success Vision (10yr)'},
+                      {key: 'impact_scale', label: 'Impact Scale'}
+                    ]} 
                   />
                 )}
                 
@@ -195,7 +222,12 @@ const SprintProfilesTab = () => {
                   <ProfileDetailCard 
                     title="Accelerator Experience" 
                     profile={selectedProfile} 
-                    fields={['prior_accelerators', 'prior_accelerators_details', 'planned_accelerators', 'planned_accelerators_details']} 
+                    fields={[
+                      {key: 'prior_accelerators', label: 'Prior Accelerators'},
+                      {key: 'prior_accelerators_details', label: 'Prior Accelerators Details'},
+                      {key: 'planned_accelerators', label: 'Planned Accelerators'},
+                      {key: 'planned_accelerators_details', label: 'Planned Accelerators Details'}
+                    ]} 
                   />
                 )}
                 
@@ -205,7 +237,11 @@ const SprintProfilesTab = () => {
                   <ProfileDetailCard 
                     title="Lab Space" 
                     profile={selectedProfile} 
-                    fields={['lab_space_needed', 'lab_space_secured', 'lab_space_details']} 
+                    fields={[
+                      {key: 'lab_space_needed', label: 'Lab Space Needed'},
+                      {key: 'lab_space_secured', label: 'Lab Space Secured'},
+                      {key: 'lab_space_details', label: 'Lab Space Details'}
+                    ]} 
                   />
                 )}
                 
@@ -214,7 +250,11 @@ const SprintProfilesTab = () => {
                   <ProfileDetailCard 
                     title="IP & Legal" 
                     profile={selectedProfile} 
-                    fields={['ip_concerns', 'commercializing_invention', 'university_ip']} 
+                    fields={[
+                      {key: 'ip_concerns', label: 'IP Concerns'},
+                      {key: 'commercializing_invention', label: 'Commercializing Invention'},
+                      {key: 'university_ip', label: 'University IP'}
+                    ]} 
                   />
                 )}
                 
@@ -223,7 +263,10 @@ const SprintProfilesTab = () => {
                   <ProfileDetailCard 
                     title="Pitch Deck" 
                     profile={selectedProfile} 
-                    fields={['has_deck', 'deck_feedback']} 
+                    fields={[
+                      {key: 'has_deck', label: 'Has Deck'},
+                      {key: 'deck_feedback', label: 'Deck Feedback'}
+                    ]} 
                   />
                 )}
                 
@@ -231,7 +274,13 @@ const SprintProfilesTab = () => {
                 <ProfileDetailCard 
                   title="UTM Data" 
                   profile={selectedProfile} 
-                  fields={['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content']} 
+                  fields={[
+                    {key: 'utm_source', label: 'UTM Source'},
+                    {key: 'utm_medium', label: 'UTM Medium'},
+                    {key: 'utm_campaign', label: 'UTM Campaign'},
+                    {key: 'utm_term', label: 'UTM Term'},
+                    {key: 'utm_content', label: 'UTM Content'}
+                  ]} 
                 />
               </div>
             </div>
@@ -242,56 +291,63 @@ const SprintProfilesTab = () => {
   );
 };
 
+interface ProfileField {
+  key: string;
+  label: string;
+}
+
 interface ProfileDetailCardProps {
   title: string;
   profile: SprintProfile;
-  fields: string[];
+  fields: ProfileField[];
 }
 
 const ProfileDetailCard: React.FC<ProfileDetailCardProps> = ({ title, profile, fields }) => {
-  // Helper function to format field names for display
-  const formatFieldName = (field: string): string => {
-    return field
-      .replace(/_/g, ' ')
-      .split(' ')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
+  // Helper function to format field values for display
+  const formatFieldValue = (key: string, value: any): string => {
+    // Skip if the value is null or undefined
+    if (value === null || value === undefined) return 'N/A';
+    
+    // Format boolean values
+    if (typeof value === 'boolean') {
+      return value ? 'Yes' : 'No';
+    }
+    
+    // Format array values
+    if (Array.isArray(value)) {
+      return value.join(', ');
+    }
+    
+    // Format date values
+    if (key === 'created_at' && value) {
+      return new Date(value).toLocaleString();
+    }
+    
+    // Return string value
+    return value.toString();
   };
 
   return (
-    <div className="border rounded-lg p-4">
-      <h3 className="font-semibold text-lg mb-2">{title}</h3>
+    <div className="border rounded-lg p-4 shadow-sm bg-card">
+      <h3 className="font-semibold text-lg mb-3 border-b pb-2">{title}</h3>
       <div className="space-y-2">
         {fields.map((field) => {
           // Skip if the field doesn't exist in the profile
-          if (!(field in profile)) return null;
+          if (!(field.key in profile)) return null;
           
-          let value = profile[field];
-          
-          // Format boolean values
-          if (typeof value === 'boolean') {
-            value = value ? 'Yes' : 'No';
-          }
-          
-          // Format array values
-          if (Array.isArray(value)) {
-            value = value.join(', ');
-          }
-          
-          // Format date values
-          if (field === 'created_at' && value) {
-            value = new Date(value).toLocaleString();
-          }
+          const value = profile[field.key];
           
           // Skip null or undefined values
           if (value === null || value === undefined) return null;
           
           return (
-            <div key={field} className="grid grid-cols-2">
-              <span className="text-sm text-muted-foreground">
-                {formatFieldName(field)}:
+            <div key={field.key} className="grid grid-cols-2">
+              <span className="text-sm font-medium text-muted-foreground">
+                {field.label}:
               </span>
-              <span className="text-sm font-medium">{value.toString()}</span>
+              <span className="text-sm">
+                {formatFieldValue(field.key, value)}
+              </span>
             </div>
           );
         })}
