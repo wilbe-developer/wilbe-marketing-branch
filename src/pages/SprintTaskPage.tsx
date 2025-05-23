@@ -9,6 +9,7 @@ import UploadedFileView from '@/components/sprint/UploadedFileView';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
 import { MessageCircle } from 'lucide-react';
+import { ImStuckButton } from '@/components/sprint/ImStuckButton';
 import { SharedSprintBanner } from '@/components/sprint/SharedSprintBanner';
 import { supabase } from '@/integrations/supabase/client';
 import { SprintTaskDefinition } from '@/types/task-builder';
@@ -123,14 +124,17 @@ const SprintTaskPage = () => {
           {taskSummary.title}
         </h1>
         
-        <Button 
-          variant="outline" 
-          size={isMobile ? "sm" : "default"}
-          onClick={() => navigate(`/community/new?challenge=${currentTask.id}`)}
-        >
-          <MessageCircle className="mr-2 h-4 w-4" />
-          Discuss
-        </Button>
+        <div className="flex gap-2">
+          <ImStuckButton taskId={currentTask.id} />
+          <Button 
+            variant="outline" 
+            size={isMobile ? "sm" : "default"}
+            onClick={() => navigate(`/community/new?challenge=${currentTask.id}`)}
+          >
+            <MessageCircle className="mr-2 h-4 w-4" />
+            Discuss
+          </Button>
+        </div>
       </div>
       
       <p className={`text-gray-600 ${isMobile ? 'mb-4 text-sm' : 'mb-8'}`}>

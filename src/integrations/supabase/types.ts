@@ -30,6 +30,47 @@ export type Database = {
         }
         Relationships: []
       }
+      bsf_faqs: {
+        Row: {
+          answer: string
+          category: string
+          created_at: string
+          id: string
+          order_index: number
+          question: string
+          related_task_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          answer: string
+          category: string
+          created_at?: string
+          id?: string
+          order_index?: number
+          question: string
+          related_task_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          answer?: string
+          category?: string
+          created_at?: string
+          id?: string
+          order_index?: number
+          question?: string
+          related_task_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bsf_faqs_related_task_id_fkey"
+            columns: ["related_task_id"]
+            isOneToOne: false
+            referencedRelation: "sprint_task_definitions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       discussion_threads: {
         Row: {
           author_id: string

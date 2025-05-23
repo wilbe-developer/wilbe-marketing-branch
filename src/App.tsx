@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -158,6 +157,7 @@ const App = () => (
                 <Route path="/sprint/data-room/:sprintId" element={
                   <SprintDataRoomPage />
                 } />
+                <Route path="/faqs" element={<FAQsPage />} />
                 <Route path="*" element={<NotFoundPage />} />
               </Routes>
             </MetaWrapper>

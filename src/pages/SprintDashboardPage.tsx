@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { CollaborateButton } from "@/components/sprint/CollaborateButton";
 import { AssessmentButton } from "@/components/sprint/AssessmentButton";
 import { RequestCallButton } from "@/components/sprint/RequestCallButton";
+import { ImStuckButton } from "@/components/sprint/ImStuckButton";
 import { ProgressDisplay } from "@/components/sprint/ProgressDisplay";
 import { MySprintsList } from "@/components/sprint/MySprintsList";
 import { SharedSprintsSelector } from "@/components/sprint/SharedSprintsSelector";
@@ -40,6 +41,7 @@ const SprintDashboardPage = () => {
           <div className="flex gap-2">
             {!isSharedSprint && user?.id && (
               <>
+                <ImStuckButton />
                 <RequestCallButton />
                 <AssessmentButton />
                 <CollaborateButton />

@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Challenge } from '@/types/community';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, BookOpen, MessageCircle, Plus, Lock } from 'lucide-react';
+import { ChevronLeft, ChevronRight, BookOpen, MessageCircle, Plus, Lock, HelpCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface CommunitySidebarProps {
@@ -64,6 +64,19 @@ export const CommunitySidebar = ({
         >
           <MessageCircle size={18} className="mr-2" />
           {!collapsed && "All Discussions"}
+        </Button>
+        
+        <Button 
+          variant="ghost" 
+          className={cn(
+            "w-full justify-start mb-1",
+            selectedTopic === 'faqs' && "bg-slate-100",
+            collapsed && "px-2.5 justify-center"
+          )}
+          onClick={() => navigate('/faqs')}
+        >
+          <HelpCircle size={18} className="mr-2" />
+          {!collapsed && "FAQs"}
         </Button>
         
         {hasPrivateMessages && (
