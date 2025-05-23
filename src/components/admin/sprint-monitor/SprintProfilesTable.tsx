@@ -5,25 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Eye } from 'lucide-react';
-
-interface SprintProfile {
-  id: string;
-  user_id: string;
-  name: string;
-  email: string;
-  team_status: string;
-  company_incorporated: boolean;
-  received_funding: boolean;
-  created_at: string;
-  market_known: boolean;
-  experiment_validated: boolean;
-  job_type: string;
-  is_scientist_engineer: boolean;
-  utm_source: string;
-  utm_medium: string;
-  utm_campaign: string;
-  [key: string]: any; // For any other properties in the profile
-}
+import { SprintProfile } from './ProfileDetailCard';
 
 interface SprintProfilesTableProps {
   profiles: SprintProfile[];
