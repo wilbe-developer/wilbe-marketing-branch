@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import ProfileDetailCard from './ProfileDetailCard';
 import type { SprintProfile } from './ProfileDetailCard';
 
@@ -22,21 +22,26 @@ const ProfileDetailDialog: React.FC<ProfileDetailDialogProps> = ({
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">Complete Profile Details</DialogTitle>
+          <DialogDescription>
+            View detailed information about this sprint profile
+          </DialogDescription>
         </DialogHeader>
         <div className="space-y-6 mt-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Basic Information */}
-            <ProfileDetailCard 
-              title="User Information" 
-              profile={profile} 
-              fields={[
-                {key: 'name', label: 'Name'},
-                {key: 'email', label: 'Email'},
-                {key: 'created_at', label: 'Created At'},
-                {key: 'linkedin_url', label: 'LinkedIn URL'},
-                {key: 'current_job', label: 'Current Job'}
-              ]} 
-            />
+            {/* User Information - Full width on all screens */}
+            <div className="md:col-span-2">
+              <ProfileDetailCard 
+                title="User Information" 
+                profile={profile} 
+                fields={[
+                  {key: 'name', label: 'Name'},
+                  {key: 'email', label: 'Email'},
+                  {key: 'linkedin_url', label: 'LinkedIn URL'},
+                  {key: 'current_job', label: 'Current Job'},
+                  {key: 'created_at', label: 'Created At'}
+                ]} 
+              />
+            </div>
             
             {/* Team & Company Status */}
             <ProfileDetailCard 

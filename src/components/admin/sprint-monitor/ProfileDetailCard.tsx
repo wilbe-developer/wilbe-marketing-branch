@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { LinkedIn, Mail } from 'lucide-react';
 
 interface ProfileField {
   key: string;
@@ -54,9 +55,43 @@ interface ProfileDetailCardProps {
 
 const ProfileDetailCard: React.FC<ProfileDetailCardProps> = ({ title, profile, fields }) => {
   // Helper function to format field values for display
-  const formatFieldValue = (key: string, value: any): string => {
+  const formatFieldValue = (key: string, value: any): React.ReactNode => {
     // Skip if the value is null or undefined
     if (value === null || value === undefined) return 'N/A';
+    
+    // Format email with a mail icon and link
+    if (key === 'email' && value) {
+      return (
+        <div className="flex items-center space-x-1 break-all">
+          <Mail size={14} className="text-muted-foreground shrink-0" />
+          <a 
+            href={`mailto:${value}`} 
+            className="text-blue-500 hover:underline"
+            title={value}
+          >
+            {value}
+          </a>
+        </div>
+      );
+    }
+    
+    // Format LinkedIn URL with an icon and link
+    if (key === 'linkedin_url' && value) {
+      return (
+        <div className="flex items-center space-x-1 break-all">
+          <LinkedIn size={14} className="text-muted-foreground shrink-0" />
+          <a 
+            href={value.startsWith('http') ? value : `https://${value}`} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-blue-500 hover:underline"
+            title={value}
+          >
+            {value}
+          </a>
+        </div>
+      );
+    }
     
     // Format boolean values
     if (typeof value === 'boolean') {
@@ -74,7 +109,7 @@ const ProfileDetailCard: React.FC<ProfileDetailCardProps> = ({ title, profile, f
     }
     
     // Return string value
-    return value.toString();
+    return String(value);
   };
 
   return (
@@ -91,7 +126,7 @@ const ProfileDetailCard: React.FC<ProfileDetailCardProps> = ({ title, profile, f
           if (value === null || value === undefined) return null;
           
           return (
-            <div key={field.key} className="grid grid-cols-2">
+            <div key={field.key} className="grid grid-cols-[1fr,2fr]">
               <span className="text-sm font-medium text-muted-foreground">
                 {field.label}:
               </span>

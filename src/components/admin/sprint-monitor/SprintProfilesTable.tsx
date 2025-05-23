@@ -1,11 +1,19 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Eye } from 'lucide-react';
 import { SprintProfile } from './ProfileDetailCard';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
 
 interface SprintProfilesTableProps {
   profiles: SprintProfile[];
@@ -13,6 +21,34 @@ interface SprintProfilesTableProps {
 }
 
 const SprintProfilesTable: React.FC<SprintProfilesTableProps> = ({ profiles, onViewProfile }) => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  const totalPages = Math.ceil(profiles.length / itemsPerPage);
+  
+  // Calculate the profiles to display on the current page
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentProfiles = profiles.slice(indexOfFirstItem, indexOfLastItem);
+  
+  // Change page
+  const handlePageChange = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+  };
+  
+  // Generate page numbers
+  const pageNumbers = [];
+  const maxPageButtons = 5;
+  let startPage = Math.max(1, currentPage - Math.floor(maxPageButtons / 2));
+  let endPage = Math.min(totalPages, startPage + maxPageButtons - 1);
+  
+  if (endPage - startPage + 1 < maxPageButtons) {
+    startPage = Math.max(1, endPage - maxPageButtons + 1);
+  }
+  
+  for (let i = startPage; i <= endPage; i++) {
+    pageNumbers.push(i);
+  }
+
   return (
     <Card>
       <CardContent className="p-6">
@@ -32,7 +68,7 @@ const SprintProfilesTable: React.FC<SprintProfilesTableProps> = ({ profiles, onV
               </TableRow>
             </TableHeader>
             <TableBody>
-              {profiles.slice(0, 10).map((profile) => (
+              {currentProfiles.map((profile) => (
                 <TableRow key={profile.id}>
                   <TableCell>{profile.name || 'N/A'}</TableCell>
                   <TableCell>{profile.email || 'N/A'}</TableCell>
@@ -75,11 +111,74 @@ const SprintProfilesTable: React.FC<SprintProfilesTableProps> = ({ profiles, onV
             </TableBody>
           </Table>
         </div>
-        {profiles.length > 10 && (
-          <div className="text-center mt-4 text-sm text-muted-foreground">
-            Showing 10 of {profiles.length} profiles
+        
+        {/* Pagination */}
+        {profiles.length > itemsPerPage && (
+          <div className="mt-4">
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious 
+                    onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                    className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                  />
+                </PaginationItem>
+                
+                {startPage > 1 && (
+                  <>
+                    <PaginationItem>
+                      <PaginationLink onClick={() => handlePageChange(1)}>
+                        1
+                      </PaginationLink>
+                    </PaginationItem>
+                    {startPage > 2 && (
+                      <PaginationItem>
+                        <span className="flex h-9 w-9 items-center justify-center">...</span>
+                      </PaginationItem>
+                    )}
+                  </>
+                )}
+                
+                {pageNumbers.map(number => (
+                  <PaginationItem key={number}>
+                    <PaginationLink
+                      isActive={currentPage === number}
+                      onClick={() => handlePageChange(number)}
+                    >
+                      {number}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+                
+                {endPage < totalPages && (
+                  <>
+                    {endPage < totalPages - 1 && (
+                      <PaginationItem>
+                        <span className="flex h-9 w-9 items-center justify-center">...</span>
+                      </PaginationItem>
+                    )}
+                    <PaginationItem>
+                      <PaginationLink onClick={() => handlePageChange(totalPages)}>
+                        {totalPages}
+                      </PaginationLink>
+                    </PaginationItem>
+                  </>
+                )}
+                
+                <PaginationItem>
+                  <PaginationNext
+                    onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                    className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
           </div>
         )}
+        
+        <div className="text-center mt-4 text-sm text-muted-foreground">
+          Showing {indexOfFirstItem + 1}-{Math.min(indexOfLastItem, profiles.length)} of {profiles.length} profiles
+        </div>
       </CardContent>
     </Card>
   );
