@@ -4,6 +4,7 @@ import { useSprintTaskDefinitions } from "@/hooks/useSprintTaskDefinitions";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/hooks/useAuth";
 import { CollaborateButton } from "@/components/sprint/CollaborateButton";
+import { AssessmentButton } from "@/components/sprint/AssessmentButton";
 import { ProgressDisplay } from "@/components/sprint/ProgressDisplay";
 import { MySprintsList } from "@/components/sprint/MySprintsList";
 import { SharedSprintsSelector } from "@/components/sprint/SharedSprintsSelector";
@@ -35,7 +36,14 @@ const SprintDashboardPage = () => {
       <div className={isMobile ? "mb-4" : "mb-8"}>
         <div className="flex justify-between items-center mb-2">
           <h1 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold`}>{pageTitle}</h1>
-          {!isSharedSprint && user?.id && <CollaborateButton />}
+          <div className="flex gap-2">
+            {!isSharedSprint && user?.id && (
+              <>
+                <AssessmentButton />
+                <CollaborateButton />
+              </>
+            )}
+          </div>
         </div>
         
         <p className={`text-gray-600 ${isMobile ? 'text-sm mb-3' : 'mb-4'}`}>
