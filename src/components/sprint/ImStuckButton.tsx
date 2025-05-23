@@ -39,12 +39,16 @@ export const ImStuckButton = ({ taskId }: { taskId?: string }) => {
     // Close this dialog first
     setOpen(false);
     
-    // Open the RequestCall dialog by triggering a click on the RequestCall button
-    // For simplicity, we'll just navigate to community with private filter
-    navigate("/community?topic=private");
-    
-    // Show a toast message
-    toast.info("Use the 'Request Call' button to schedule a call");
+    // Open the RequestCall dialog directly
+    // Find the RequestCall button in the DOM and click it
+    const requestCallButton = document.querySelector('[data-request-call-button="true"]');
+    if (requestCallButton instanceof HTMLButtonElement) {
+      requestCallButton.click();
+    } else {
+      // Fallback if we can't find the button
+      navigate("/community/new");
+      toast.info("Click 'Request Call' to schedule a call");
+    }
   };
 
   return (
@@ -102,7 +106,7 @@ export const ImStuckButton = ({ taskId }: { taskId?: string }) => {
             Post a Question
           </Button>
           <Button onClick={handleRequestCall} className="w-full sm:w-auto">
-            Request a Call
+            Request Call
           </Button>
         </DialogFooter>
       </DialogContent>

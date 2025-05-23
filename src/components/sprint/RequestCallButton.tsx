@@ -74,7 +74,12 @@ export const RequestCallButton = () => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" variant="outline" className="gap-2">
+        <Button 
+          size="sm" 
+          variant="outline" 
+          className="gap-2"
+          data-request-call-button="true"
+        >
           <Phone className="h-4 w-4" />
           <span>Request Call</span>
         </Button>
@@ -82,7 +87,7 @@ export const RequestCallButton = () => {
       <DialogContent className="sm:max-w-[425px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Request a Call with an Admin</DialogTitle>
+            <DialogTitle>Request a Call</DialogTitle>
             <DialogDescription>
               Send a private message to request a call with one of our team members.
             </DialogDescription>

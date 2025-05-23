@@ -39,13 +39,6 @@ const SprintDashboardPage = () => {
         <div className="flex justify-between items-center mb-2">
           <h1 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold`}>{pageTitle}</h1>
           
-          {/* On mobile, move buttons below the title for better spacing */}
-          {isMobile && !isSharedSprint && user?.id && (
-            <div className="hidden">
-              {/* Hidden on mobile, shown in the mobile-friendly section below */}
-            </div>
-          )}
-          
           {/* Desktop view buttons */}
           {!isMobile && !isSharedSprint && user?.id && (
             <div className="flex gap-2">
@@ -61,9 +54,9 @@ const SprintDashboardPage = () => {
           Complete all tasks to finish your sprint and develop your full project plan.
         </p>
         
-        {/* Mobile view buttons - displayed in a more mobile-friendly way */}
+        {/* Mobile view buttons - improved to ensure they fit well on mobile */}
         {isMobile && !isSharedSprint && user?.id && (
-          <div className="flex flex-wrap gap-2 mb-4">
+          <div className="flex flex-wrap gap-2 mb-4 w-full">
             <ImStuckButton />
             <RequestCallButton />
             <AssessmentButton />
