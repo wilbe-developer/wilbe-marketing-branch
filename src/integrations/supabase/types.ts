@@ -63,7 +63,7 @@ export type Database = {
             foreignKeyName: "discussion_threads_challenge_id_fkey"
             columns: ["challenge_id"]
             isOneToOne: false
-            referencedRelation: "sprint_tasks"
+            referencedRelation: "sprint_task_definitions"
             referencedColumns: ["id"]
           },
         ]
