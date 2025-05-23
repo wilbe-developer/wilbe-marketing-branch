@@ -5,6 +5,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { ThreadComment, Thread } from '@/types/community';
 import { useAuth } from '@/hooks/useAuth';
 
+// Helper function to safely access JSON properties
+const getDefinitionProperty = (definition: any, property: string): any => {
+  if (definition && typeof definition === 'object' && !Array.isArray(definition)) {
+    return definition[property];
+  }
+  return null;
+};
+
 export const useThreadComments = (threadId?: string) => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -50,11 +58,10 @@ export const useThreadComments = (threadId?: string) => {
         
         if (challengeData) {
           challengeName = challengeData.name;
-          // If the definition has a taskName, use that as it might be more user-friendly
-          if (challengeData.definition && 
-              typeof challengeData.definition === 'object' && 
-              challengeData.definition.taskName) {
-            challengeName = challengeData.definition.taskName;
+          // Safely access the taskName property using the helper function
+          const taskName = getDefinitionProperty(challengeData.definition, 'taskName');
+          if (taskName) {
+            challengeName = taskName;
           }
         }
       }

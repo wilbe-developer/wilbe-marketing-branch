@@ -4,6 +4,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { Thread, Challenge } from '@/types/community';
 import { useAuth } from '@/hooks/useAuth';
 
+// Helper function to safely access JSON properties
+const getDefinitionProperty = (definition: any, property: string): any => {
+  if (definition && typeof definition === 'object' && !Array.isArray(definition)) {
+    return definition[property];
+  }
+  return null;
+};
+
 export const useCommunityThreads = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -55,11 +63,10 @@ export const useCommunityThreads = () => {
             // Extract the task name from either the name field or the definition.taskName
             if (challengeData) {
               challengeName = challengeData.name;
-              // If the definition has a taskName, use that as it might be more user-friendly
-              if (challengeData.definition && 
-                  typeof challengeData.definition === 'object' && 
-                  challengeData.definition.taskName) {
-                challengeName = challengeData.definition.taskName;
+              // Safely access the taskName property using the helper function
+              const taskName = getDefinitionProperty(challengeData.definition, 'taskName');
+              if (taskName) {
+                challengeName = taskName;
               }
             }
           }
@@ -94,19 +101,23 @@ export const useCommunityThreads = () => {
         let category = 'Other';
         let description = task.description || '';
         
-        // Extract category and better description from definition if available
-        if (task.definition && typeof task.definition === 'object') {
-          if (task.definition.category) {
-            category = task.definition.category;
-          }
-          if (task.definition.description && !description) {
-            description = task.definition.description;
-          }
+        // Safely access properties from definition
+        const categoryFromDef = getDefinitionProperty(task.definition, 'category');
+        if (categoryFromDef) {
+          category = categoryFromDef;
         }
+        
+        const descriptionFromDef = getDefinitionProperty(task.definition, 'description');
+        if (descriptionFromDef && !description) {
+          description = descriptionFromDef;
+        }
+        
+        // Safely access taskName property
+        const taskName = getDefinitionProperty(task.definition, 'taskName');
         
         return {
           id: task.id,
-          title: task.definition?.taskName || task.name,
+          title: taskName || task.name,
           description: description,
           category: category
         };
