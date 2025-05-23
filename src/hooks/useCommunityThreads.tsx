@@ -1,3 +1,4 @@
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Thread, Challenge } from '@/types/community';
@@ -111,28 +112,46 @@ export const useCommunityThreads = () => {
     queryKey: ['admin-users'],
     queryFn: async () => {
       console.log("Fetching admin users...");
-      const { data, error } = await supabase
-        .from('user_roles')
-        .select('user_id, profiles:user_id(id, first_name, last_name, avatar)')
-        .eq('role', 'admin');
-      
-      if (error) {
-        console.error("Error fetching admin users:", error);
-        throw error;
+      try {
+        // First, get all user_ids with admin role
+        const { data: adminRoles, error: rolesError } = await supabase
+          .from('user_roles')
+          .select('user_id')
+          .eq('role', 'admin');
+        
+        if (rolesError) {
+          console.error("Error fetching admin roles:", rolesError);
+          throw rolesError;
+        }
+        
+        console.log("Admin roles data:", adminRoles);
+        
+        if (!adminRoles || adminRoles.length === 0) {
+          console.log("No admin roles found");
+          return [];
+        }
+        
+        // Extract user_ids
+        const adminUserIds = adminRoles.map(role => role.user_id);
+        console.log("Admin user IDs:", adminUserIds);
+        
+        // Then fetch the profiles for these users
+        const { data: adminProfiles, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, first_name, last_name, avatar')
+          .in('id', adminUserIds);
+        
+        if (profilesError) {
+          console.error("Error fetching admin profiles:", profilesError);
+          throw profilesError;
+        }
+        
+        console.log("Admin profiles:", adminProfiles);
+        return adminProfiles || [];
+      } catch (error) {
+        console.error("Error in admin users query:", error);
+        return [];
       }
-      
-      console.log("Admin users raw data:", data);
-      
-      // Process the data to get a clean array of admin profiles
-      const processedAdmins = data.map(item => ({
-        id: item.profiles.id,
-        first_name: item.profiles.first_name,
-        last_name: item.profiles.last_name,
-        avatar: item.profiles.avatar
-      }));
-      
-      console.log("Processed admin users:", processedAdmins);
-      return processedAdmins;
     },
   });
 
