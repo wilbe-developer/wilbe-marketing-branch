@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { useSprintTaskDefinitions } from "@/hooks/useSprintTaskDefinitions";
 import { useIsMobile } from "@/hooks/use-mobile";

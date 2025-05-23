@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -45,6 +46,7 @@ import PasswordResetPage from "@/pages/PasswordResetPage";
 import TaskBuilderPage from "@/pages/admin/TaskBuilderPage";
 import QuizPage from "@/pages/QuizPage";
 import SprintMonitorPage from "@/pages/admin/SprintMonitorPage";
+import FAQsPage from "@/pages/FAQsPage";
 
 // Admin pages
 import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
