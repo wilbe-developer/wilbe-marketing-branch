@@ -1,3 +1,4 @@
+
 import { Window } from "@/types/sprint-signup";
 
 export const windows: Window[] = [
@@ -363,15 +364,15 @@ export const windows: Window[] = [
       },
       {
         id: 'lab_space_details',
-        question: 'Provide details',
+        question: 'Provide details about your lab space needs',
         type: 'conditional',
         conditional: [
           {
             field: 'lab_space_secured',
-            value: 'yes',
+            value: 'no',
             componentType: 'textarea',
             componentProps: {
-              placeholder: "Please provide details about your lab space."
+              placeholder: "Please describe what kind of lab space you need and your plans to secure it."
             }
           }
         ]
