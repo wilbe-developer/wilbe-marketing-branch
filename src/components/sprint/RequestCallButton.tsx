@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Phone } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -34,6 +34,11 @@ export const RequestCallButton = () => {
   const [content, setContent] = useState("");
   const [selectedAdmin, setSelectedAdmin] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Debug logging to help identify issues
+  useEffect(() => {
+    console.log("Admin users available:", adminUsers);
+  }, [adminUsers]);
 
   if (!user) return null;
   
@@ -97,11 +102,17 @@ export const RequestCallButton = () => {
                   <SelectValue placeholder="Select an admin" />
                 </SelectTrigger>
                 <SelectContent>
-                  {adminUsers.map((admin: any) => (
-                    <SelectItem key={admin.id} value={admin.id}>
-                      {admin.first_name} {admin.last_name}
+                  {adminUsers && adminUsers.length > 0 ? (
+                    adminUsers.map((admin: any) => (
+                      <SelectItem key={admin.id} value={admin.id}>
+                        {admin.first_name} {admin.last_name}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem value="no-admins" disabled>
+                      No admins available
                     </SelectItem>
-                  ))}
+                  )}
                 </SelectContent>
               </Select>
             </div>

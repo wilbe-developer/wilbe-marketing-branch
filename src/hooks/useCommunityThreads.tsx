@@ -110,13 +110,29 @@ export const useCommunityThreads = () => {
   const { data: adminUsers = [], isLoading: isLoadingAdmins } = useQuery({
     queryKey: ['admin-users'],
     queryFn: async () => {
+      console.log("Fetching admin users...");
       const { data, error } = await supabase
         .from('user_roles')
         .select('user_id, profiles:user_id(id, first_name, last_name, avatar)')
         .eq('role', 'admin');
       
-      if (error) throw error;
-      return data.map(item => item.profiles);
+      if (error) {
+        console.error("Error fetching admin users:", error);
+        throw error;
+      }
+      
+      console.log("Admin users raw data:", data);
+      
+      // Process the data to get a clean array of admin profiles
+      const processedAdmins = data.map(item => ({
+        id: item.profiles.id,
+        first_name: item.profiles.first_name,
+        last_name: item.profiles.last_name,
+        avatar: item.profiles.avatar
+      }));
+      
+      console.log("Processed admin users:", processedAdmins);
+      return processedAdmins;
     },
   });
 
