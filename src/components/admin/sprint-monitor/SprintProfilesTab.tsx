@@ -3,9 +3,7 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Eye } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import SprintProfilesTable from './SprintProfilesTable';
 import ProfileChartSection from './ProfileChartSection';
 import * as profileDataUtils from './utils/profileDataUtils';
@@ -32,6 +30,7 @@ interface SprintProfile {
 const SprintProfilesTab = () => {
   const [filterType, setFilterType] = useState<'team' | 'market' | 'background'>('team');
   const [selectedProfile, setSelectedProfile] = useState<SprintProfile | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
   
   const { data: profiles, isLoading } = useQuery({
     queryKey: ['sprint-profiles'],
@@ -48,6 +47,7 @@ const SprintProfilesTab = () => {
 
   const handleViewProfile = (profile: SprintProfile) => {
     setSelectedProfile(profile);
+    setDialogOpen(true);
   };
 
   if (isLoading) {
@@ -110,10 +110,7 @@ const SprintProfilesTab = () => {
       />
 
       {/* Profile Detail Dialog */}
-      <Dialog>
-        <DialogTrigger asChild>
-          <span className="hidden">View Profile</span>
-        </DialogTrigger>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Complete Profile Details</DialogTitle>
