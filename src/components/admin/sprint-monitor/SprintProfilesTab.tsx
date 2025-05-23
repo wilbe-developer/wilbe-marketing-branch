@@ -8,13 +8,15 @@ import ProfileChartSection from './ProfileChartSection';
 import ProfileDetailDialog from './ProfileDetailDialog';
 import { SprintProfile } from './ProfileDetailCard';
 import * as profileDataUtils from './utils/profileDataUtils';
+import { useAdminFilter } from '@/hooks/admin/useAdminFilter';
 
 const SprintProfilesTab = () => {
   const [filterType, setFilterType] = useState<'team' | 'market' | 'background'>('team');
   const [selectedProfile, setSelectedProfile] = useState<SprintProfile | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const { adminUserIds, isLoading: isLoadingAdmins } = useAdminFilter();
   
-  const { data: profiles, isLoading } = useQuery({
+  const { data: profiles, isLoading: isLoadingProfiles } = useQuery({
     queryKey: ['sprint-profiles'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -26,6 +28,8 @@ const SprintProfilesTab = () => {
       return data as SprintProfile[];
     }
   });
+
+  const isLoading = isLoadingProfiles || isLoadingAdmins;
 
   const handleViewProfile = (profile: SprintProfile) => {
     setSelectedProfile(profile);
@@ -48,31 +52,37 @@ const SprintProfilesTab = () => {
     );
   }
 
-  // Prepare chart data based on filter
+  // Get non-admin profile count (for statistics display)
+  const nonAdminProfilesCount = profiles.filter(profile => !adminUserIds.includes(profile.user_id)).length;
+
+  // Prepare chart data based on filter (excluding admin profiles from statistics)
   let chartData;
   if (filterType === 'team') {
     chartData = {
-      teamStatus: profileDataUtils.prepareTeamStatusData(profiles),
-      incorporated: profileDataUtils.prepareIncorporatedData(profiles),
-      funding: profileDataUtils.prepareFundingData(profiles)
+      teamStatus: profileDataUtils.prepareTeamStatusData(profiles, adminUserIds),
+      incorporated: profileDataUtils.prepareIncorporatedData(profiles, adminUserIds),
+      funding: profileDataUtils.prepareFundingData(profiles, adminUserIds)
     };
   } else if (filterType === 'market') {
     chartData = {
-      marketKnown: profileDataUtils.prepareMarketData(profiles),
-      experimentValidated: profileDataUtils.prepareExperimentData(profiles)
+      marketKnown: profileDataUtils.prepareMarketData(profiles, adminUserIds),
+      experimentValidated: profileDataUtils.prepareExperimentData(profiles, adminUserIds)
     };
   } else {
     chartData = {
-      jobType: profileDataUtils.prepareJobTypeData(profiles),
-      scientist: profileDataUtils.prepareScientistData(profiles),
-      source: profileDataUtils.prepareSourceData(profiles)
+      jobType: profileDataUtils.prepareJobTypeData(profiles, adminUserIds),
+      scientist: profileDataUtils.prepareScientistData(profiles, adminUserIds),
+      source: profileDataUtils.prepareSourceData(profiles, adminUserIds)
     };
   }
 
   return (
     <div className="space-y-6">
       {/* Filter Tabs */}
-      <div className="flex justify-center mb-4">
+      <div className="flex justify-between items-center mb-4">
+        <div className="text-sm text-muted-foreground">
+          Showing statistics for {nonAdminProfilesCount} non-admin profiles (admin profiles excluded from charts)
+        </div>
         <Tabs value={filterType} onValueChange={(value) => setFilterType(value as 'team' | 'market' | 'background')}>
           <TabsList>
             <TabsTrigger value="team">Team & Company</TabsTrigger>
@@ -89,6 +99,7 @@ const SprintProfilesTab = () => {
       <SprintProfilesTable 
         profiles={profiles} 
         onViewProfile={handleViewProfile} 
+        adminUserIds={adminUserIds}
       />
 
       {/* Profile Detail Dialog - Now extracted to a separate component */}

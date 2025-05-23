@@ -18,15 +18,19 @@ import {
   Pie, 
   Cell 
 } from 'recharts';
+import { useAdminFilter } from '@/hooks/admin/useAdminFilter';
 
 const SprintControlRoom = () => {
   const { 
     userProgressData, 
     taskPerformance, 
     activityFeed, 
-    isLoading, 
+    isLoading: isLoadingMonitor, 
     refreshMonitorData 
   } = useSprintMonitor();
+  
+  const { adminUserIds, isLoading: isLoadingAdmins } = useAdminFilter();
+  const isLoading = isLoadingMonitor || isLoadingAdmins;
   
   const [isRefreshing, setIsRefreshing] = useState(false);
   
@@ -39,9 +43,14 @@ const SprintControlRoom = () => {
     }
   };
   
-  // Calculate summary stats
-  const totalUsers = userProgressData?.length || 0;
-  const activeUsers = userProgressData?.filter(u => u.tasksCompleted > 0).length || 0;
+  // Filter out admin users from user progress data
+  const filteredUserProgressData = userProgressData?.filter(user => 
+    !adminUserIds.includes(user.userId)
+  ) || [];
+  
+  // Calculate summary stats (excluding admin users)
+  const totalUsers = filteredUserProgressData.length;
+  const activeUsers = filteredUserProgressData.filter(u => u.tasksCompleted > 0).length || 0;
   const completionRate = taskPerformance?.completionRate || 0;
   const avgTimeToComplete = taskPerformance?.averageTimeToComplete || 0;
   
@@ -52,11 +61,11 @@ const SprintControlRoom = () => {
     attempted: task.totalAttempts
   })) || [];
   
-  // User progress distribution
+  // User progress distribution (excluding admin users)
   const progressDistribution = [
     { name: 'No Tasks', value: totalUsers - activeUsers },
-    { name: 'In Progress', value: activeUsers - (userProgressData?.filter(u => u.progressPercentage === 100).length || 0) },
-    { name: 'Completed', value: userProgressData?.filter(u => u.progressPercentage === 100).length || 0 }
+    { name: 'In Progress', value: activeUsers - (filteredUserProgressData.filter(u => u.progressPercentage === 100).length || 0) },
+    { name: 'Completed', value: filteredUserProgressData.filter(u => u.progressPercentage === 100).length || 0 }
   ];
   
   const COLORS = ['#FF8042', '#FFBB28', '#00C49F'];
@@ -69,10 +78,18 @@ const SprintControlRoom = () => {
     );
   }
   
+  // Show the total number of admin users excluded from stats
+  const adminUsersCount = adminUserIds.length;
+  
   return (
     <div className="space-y-6">
       <div className="flex justify-between">
-        <h2 className="text-2xl font-semibold">Sprint Overview</h2>
+        <div>
+          <h2 className="text-2xl font-semibold">Sprint Overview</h2>
+          <div className="text-sm text-muted-foreground">
+            Showing statistics for non-admin users only ({adminUsersCount} admin users excluded from calculations)
+          </div>
+        </div>
         <Button 
           variant="outline" 
           onClick={handleRefresh} 

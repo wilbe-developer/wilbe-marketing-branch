@@ -1,126 +1,90 @@
 
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from "@/integrations/supabase/client";
 
 export const fetchUTMData = async (timeRange: '7d' | '30d' | '90d' | 'all') => {
   try {
-    // Calculate date range for filtering
-    let startDate: Date | null = null;
+    let query = supabase.from('waitlist_signups').select('*');
+    
+    // Apply time range filter if not 'all'
     if (timeRange !== 'all') {
-      startDate = new Date();
       const days = timeRange === '7d' ? 7 : timeRange === '30d' ? 30 : 90;
+      const startDate = new Date();
       startDate.setDate(startDate.getDate() - days);
+      
+      query = query.gte('created_at', startDate.toISOString());
     }
     
-    // Query waitlist signups
-    let waitlistQuery = supabase
-      .from('waitlist_signups')
-      .select('*')
-      .order('created_at', { ascending: false });
+    // Execute query
+    const { data, error } = await query.order('created_at', { ascending: false });
     
-    // Apply time filter if not 'all'
-    if (startDate) {
-      waitlistQuery = waitlistQuery.gte('created_at', startDate.toISOString());
-    }
-    
-    const { data: waitlistData, error: waitlistError } = await waitlistQuery;
-    
-    if (waitlistError) throw waitlistError;
-    
-    // Query sprint profiles for UTM data
-    let sprintQuery = supabase
-      .from('sprint_profiles')
-      .select('*')
-      .order('created_at', { ascending: false });
-    
-    // Apply time filter if not 'all'
-    if (startDate) {
-      sprintQuery = sprintQuery.gte('created_at', startDate.toISOString());
-    }
-    
-    const { data: sprintData, error: sprintError } = await sprintQuery;
-    
-    if (sprintError) throw sprintError;
-    
-    // Combine data from both sources
-    const combinedData = [
-      ...(waitlistData || []).map(item => ({ 
-        ...item,
-        source_type: 'waitlist'
-      })),
-      ...(sprintData || []).map(item => ({ 
-        ...item,
-        source_type: 'sprint',
-        // Ensure sprint data has the same property names as waitlist data
-        name: item.name || 'Unknown',
-        email: item.email || 'No Email'
-      }))
-    ];
-    
-    return combinedData;
+    if (error) throw error;
+    return data || [];
   } catch (err) {
     console.error('Error fetching UTM data:', err);
-    throw err;
+    return [];
   }
 };
 
-export const processUTMChartData = (data: any[]) => {
-  // Process data for campaign chart
-  const campaignCounts: Record<string, number> = {};
-  const sourceCounts: Record<string, number> = {};
-  const mediumCounts: Record<string, number> = {};
-  
-  data.forEach(item => {
-    const campaign = item.utm_campaign || 'direct';
-    const source = item.utm_source || 'direct';
-    const medium = item.utm_medium || 'direct';
+export const processUTMChartData = (data: any[], adminUserIds: string[] = []) => {
+  // Filter out admin profiles if needed
+  const filteredData = adminUserIds.length > 0 
+    ? data.filter(item => !adminUserIds.includes(item.user_id))
+    : data;
     
-    campaignCounts[campaign] = (campaignCounts[campaign] || 0) + 1;
-    sourceCounts[source] = (sourceCounts[source] || 0) + 1;
-    mediumCounts[medium] = (mediumCounts[medium] || 0) + 1;
+  // Source chart data
+  const sourceMap = new Map();
+  filteredData.forEach(item => {
+    const source = item.utm_source || 'direct';
+    sourceMap.set(source, (sourceMap.get(source) || 0) + 1);
   });
   
-  const campaignChartData = Object.entries(campaignCounts)
+  const sourceChartData = Array.from(sourceMap.entries())
     .map(([name, value]) => ({ name, value }))
     .sort((a, b) => b.value - a.value);
   
-  const sourceChartData = Object.entries(sourceCounts)
-    .map(([name, value]) => ({ name, value }))
-    .sort((a, b) => b.value - a.value);
-    
-  const mediumChartData = Object.entries(mediumCounts)
-    .map(([name, value]) => ({ name, value }))
-    .sort((a, b) => b.value - a.value);
-
-  // Process daily signups data
-  const dailyMap = new Map();
+  // Medium chart data  
+  const mediumMap = new Map();
+  filteredData.forEach(item => {
+    const medium = item.utm_medium || 'none';
+    mediumMap.set(medium, (mediumMap.get(medium) || 0) + 1);
+  });
   
-  // Initialize with last 14 days
-  for (let i = 13; i >= 0; i--) {
-    const date = new Date();
-    date.setDate(date.getDate() - i);
-    const dateString = date.toISOString().split('T')[0];
-    dailyMap.set(dateString, { date: dateString, waitlist: 0, sprint: 0, total: 0 });
+  const mediumChartData = Array.from(mediumMap.entries())
+    .map(([name, value]) => ({ name, value }))
+    .sort((a, b) => b.value - a.value);
+  
+  // Campaign chart data (placeholder for compatibility)
+  const campaignChartData = [];
+  
+  // Daily signups data for line chart
+  const dailySignupsMap = new Map();
+  
+  // Get the date for 14 days ago
+  const twoWeeksAgo = new Date();
+  twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+  twoWeeksAgo.setHours(0, 0, 0, 0);
+  
+  // Initialize all dates in the range with zero counts
+  for (let i = 0; i < 14; i++) {
+    const date = new Date(twoWeeksAgo);
+    date.setDate(date.getDate() + i);
+    const dateStr = date.toISOString().split('T')[0];
+    dailySignupsMap.set(dateStr, 0);
   }
   
   // Count signups by date
-  data.forEach(item => {
-    const dateString = new Date(item.created_at).toISOString().split('T')[0];
-    if (dailyMap.has(dateString)) {
-      const dayData = dailyMap.get(dateString);
-      if (item.source_type === 'waitlist') {
-        dayData.waitlist += 1;
-      } else {
-        dayData.sprint += 1;
-      }
-      dayData.total += 1;
-      dailyMap.set(dateString, dayData);
+  filteredData.forEach(item => {
+    const date = new Date(item.created_at);
+    if (date >= twoWeeksAgo) {
+      const dateStr = date.toISOString().split('T')[0];
+      dailySignupsMap.set(dateStr, (dailySignupsMap.get(dateStr) || 0) + 1);
     }
   });
   
   // Convert map to array and sort by date
-  const dailySignups = Array.from(dailyMap.values()).sort((a, b) => 
-    new Date(a.date).getTime() - new Date(b.date).getTime()
-  );
+  const dailySignups = Array.from(dailySignupsMap.entries())
+    .map(([date, count]) => ({ date, count }))
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   
   return {
     campaignChartData,

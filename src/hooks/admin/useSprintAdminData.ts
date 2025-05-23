@@ -21,6 +21,7 @@ import {
   analyzeUTMData, 
   getSignupsByDate as getSignupsByDateUtil 
 } from "./adminDataUtils";
+import { useAdminFilter } from "./useAdminFilter";
 
 export const useSprintAdminData = () => {
   const [waitlistSignups, setWaitlistSignups] = useState<WaitlistSignup[]>([]);
@@ -43,6 +44,9 @@ export const useSprintAdminData = () => {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Get admin user IDs for filtering
+  const { adminUserIds, isLoading: isLoadingAdmins } = useAdminFilter();
 
   // Initialize data fetching
   useEffect(() => {
@@ -78,17 +82,17 @@ export const useSprintAdminData = () => {
     loadData();
   }, []);
 
-  // Unify data whenever either data source changes
+  // Unify data whenever either data source changes or adminUserIds changes
   useEffect(() => {
-    if (waitlistSignups.length > 0 || sprintProfiles.length > 0) {
-      const unified = unifyData(waitlistSignups, sprintProfiles);
+    if ((waitlistSignups.length > 0 || sprintProfiles.length > 0) && adminUserIds.length >= 0) {
+      const unified = unifyData(waitlistSignups, sprintProfiles, adminUserIds);
       setUnifiedSignups(unified);
       
       // Analyze unified data
       const stats = analyzeUnifiedData(unified);
       setUnifiedStats(stats);
     }
-  }, [waitlistSignups, sprintProfiles]);
+  }, [waitlistSignups, sprintProfiles, adminUserIds]);
 
   // Get signup data by date for charts
   const getSignupsByDate = (
@@ -124,9 +128,10 @@ export const useSprintAdminData = () => {
     utmSources,
     utmMediums,
     unifiedStats,
-    isLoading,
+    isLoading: isLoading || isLoadingAdmins,
     error,
     refreshData,
-    getSignupsByDate
+    getSignupsByDate,
+    adminUserIds
   };
 };

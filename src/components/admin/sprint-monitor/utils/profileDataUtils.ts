@@ -1,4 +1,6 @@
 
+import { useAdminFilter } from '@/hooks/admin/useAdminFilter';
+
 interface SprintProfile {
   id: string;
   user_id: string;
@@ -17,9 +19,17 @@ interface SprintProfile {
   utm_campaign: string;
 }
 
-export const prepareTeamStatusData = (profiles: SprintProfile[]) => {
+// Helper function to filter out admin profiles
+const filterAdminProfiles = (profiles: SprintProfile[], adminUserIds: string[]) => {
+  return profiles.filter(profile => !adminUserIds.includes(profile.user_id));
+};
+
+export const prepareTeamStatusData = (profiles: SprintProfile[], adminUserIds: string[] = []) => {
+  // Filter out admin profiles for statistics
+  const filteredProfiles = filterAdminProfiles(profiles, adminUserIds);
+  
   const counts: Record<string, number> = {};
-  profiles.forEach(profile => {
+  filteredProfiles.forEach(profile => {
     const status = profile.team_status || 'Not specified';
     counts[status] = (counts[status] || 0) + 1;
   });
@@ -30,11 +40,14 @@ export const prepareTeamStatusData = (profiles: SprintProfile[]) => {
   }));
 };
 
-export const prepareIncorporatedData = (profiles: SprintProfile[]) => {
+export const prepareIncorporatedData = (profiles: SprintProfile[], adminUserIds: string[] = []) => {
+  // Filter out admin profiles for statistics
+  const filteredProfiles = filterAdminProfiles(profiles, adminUserIds);
+  
   let incorporated = 0;
   let notIncorporated = 0;
   
-  profiles.forEach(profile => {
+  filteredProfiles.forEach(profile => {
     if (profile.company_incorporated) {
       incorporated++;
     } else {
@@ -48,11 +61,14 @@ export const prepareIncorporatedData = (profiles: SprintProfile[]) => {
   ];
 };
 
-export const prepareFundingData = (profiles: SprintProfile[]) => {
+export const prepareFundingData = (profiles: SprintProfile[], adminUserIds: string[] = []) => {
+  // Filter out admin profiles for statistics
+  const filteredProfiles = filterAdminProfiles(profiles, adminUserIds);
+  
   let received = 0;
   let notReceived = 0;
   
-  profiles.forEach(profile => {
+  filteredProfiles.forEach(profile => {
     if (profile.received_funding) {
       received++;
     } else {
@@ -66,11 +82,14 @@ export const prepareFundingData = (profiles: SprintProfile[]) => {
   ];
 };
 
-export const prepareMarketData = (profiles: SprintProfile[]) => {
+export const prepareMarketData = (profiles: SprintProfile[], adminUserIds: string[] = []) => {
+  // Filter out admin profiles for statistics
+  const filteredProfiles = filterAdminProfiles(profiles, adminUserIds);
+  
   let known = 0;
   let unknown = 0;
   
-  profiles.forEach(profile => {
+  filteredProfiles.forEach(profile => {
     if (profile.market_known) {
       known++;
     } else {
@@ -84,11 +103,14 @@ export const prepareMarketData = (profiles: SprintProfile[]) => {
   ];
 };
 
-export const prepareExperimentData = (profiles: SprintProfile[]) => {
+export const prepareExperimentData = (profiles: SprintProfile[], adminUserIds: string[] = []) => {
+  // Filter out admin profiles for statistics
+  const filteredProfiles = filterAdminProfiles(profiles, adminUserIds);
+  
   let validated = 0;
   let notValidated = 0;
   
-  profiles.forEach(profile => {
+  filteredProfiles.forEach(profile => {
     if (profile.experiment_validated) {
       validated++;
     } else {
@@ -102,9 +124,12 @@ export const prepareExperimentData = (profiles: SprintProfile[]) => {
   ];
 };
 
-export const prepareJobTypeData = (profiles: SprintProfile[]) => {
+export const prepareJobTypeData = (profiles: SprintProfile[], adminUserIds: string[] = []) => {
+  // Filter out admin profiles for statistics
+  const filteredProfiles = filterAdminProfiles(profiles, adminUserIds);
+  
   const counts: Record<string, number> = {};
-  profiles.forEach(profile => {
+  filteredProfiles.forEach(profile => {
     const jobType = profile.job_type || 'Not specified';
     counts[jobType] = (counts[jobType] || 0) + 1;
   });
@@ -115,11 +140,14 @@ export const prepareJobTypeData = (profiles: SprintProfile[]) => {
   }));
 };
 
-export const prepareScientistData = (profiles: SprintProfile[]) => {
+export const prepareScientistData = (profiles: SprintProfile[], adminUserIds: string[] = []) => {
+  // Filter out admin profiles for statistics
+  const filteredProfiles = filterAdminProfiles(profiles, adminUserIds);
+  
   let isScientist = 0;
   let notScientist = 0;
   
-  profiles.forEach(profile => {
+  filteredProfiles.forEach(profile => {
     if (profile.is_scientist_engineer) {
       isScientist++;
     } else {
@@ -133,9 +161,12 @@ export const prepareScientistData = (profiles: SprintProfile[]) => {
   ];
 };
 
-export const prepareSourceData = (profiles: SprintProfile[]) => {
+export const prepareSourceData = (profiles: SprintProfile[], adminUserIds: string[] = []) => {
+  // Filter out admin profiles for statistics
+  const filteredProfiles = filterAdminProfiles(profiles, adminUserIds);
+  
   const counts: Record<string, number> = {};
-  profiles.forEach(profile => {
+  filteredProfiles.forEach(profile => {
     const source = profile.utm_source || 'direct';
     counts[source] = (counts[source] || 0) + 1;
   });

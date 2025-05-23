@@ -14,16 +14,16 @@ const ProfileBarChart: React.FC<ProfileBarChartProps> = ({ title, data, height =
     <Card className="col-span-1">
       <CardContent className="p-6">
         <h3 className="text-lg font-semibold mb-4">{title}</h3>
-        <div className={`h-${height}`}>
+        <div style={{ height: `${height * 4}px` }}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
               data={data}
               layout="vertical"
-              margin={{ top: 5, right: 30, left: 120, bottom: 25 }}
+              margin={{ top: 5, right: 30, left: 20, bottom: 25 }}
             >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis type="number" />
-              <YAxis dataKey="name" type="category" width={120} />
+              <YAxis dataKey="name" type="category" width={80} />
               <Tooltip formatter={(value) => [`${value}`, '']} />
               <Legend layout="horizontal" verticalAlign="bottom" align="center" />
               <Bar dataKey="value" fill="#8884d8" name="Count" />

@@ -10,11 +10,20 @@ import {
   SignupsByDate
 } from './types';
 
+// Helper to filter out admin profiles
+const filterOutAdminProfiles = (profiles: SprintProfile[], adminUserIds: string[] = []) => {
+  return profiles.filter(profile => !adminUserIds.includes(profile.user_id));
+};
+
 // Unify data from waitlist and sprint tables
 export const unifyData = (
   waitlistSignups: WaitlistSignup[], 
-  sprintProfiles: SprintProfile[]
+  sprintProfiles: SprintProfile[],
+  adminUserIds: string[] = []
 ): UnifiedSignup[] => {
+  // Filter admin profiles if needed
+  const filteredProfiles = filterOutAdminProfiles(sprintProfiles, adminUserIds);
+  
   const waitlistData = waitlistSignups.map(signup => ({
     id: signup.id,
     name: signup.name,
@@ -28,7 +37,7 @@ export const unifyData = (
     utm_content: null
   }));
   
-  const sprintData = sprintProfiles.map(profile => ({
+  const sprintData = filteredProfiles.map(profile => ({
     id: profile.id,
     name: profile.name || 'Unknown',
     email: profile.email || 'No Email',

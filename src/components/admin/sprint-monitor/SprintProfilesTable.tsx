@@ -18,9 +18,14 @@ import {
 interface SprintProfilesTableProps {
   profiles: SprintProfile[];
   onViewProfile: (profile: SprintProfile) => void;
+  adminUserIds?: string[];
 }
 
-const SprintProfilesTable: React.FC<SprintProfilesTableProps> = ({ profiles, onViewProfile }) => {
+const SprintProfilesTable: React.FC<SprintProfilesTableProps> = ({ 
+  profiles, 
+  onViewProfile,
+  adminUserIds = []
+}) => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const totalPages = Math.ceil(profiles.length / itemsPerPage);
@@ -49,15 +54,24 @@ const SprintProfilesTable: React.FC<SprintProfilesTableProps> = ({ profiles, onV
     pageNumbers.push(i);
   }
 
+  // Get non-admin profile count
+  const nonAdminProfilesCount = profiles.filter(profile => !adminUserIds.includes(profile.user_id)).length;
+
   return (
     <Card>
       <CardContent className="p-6">
-        <h3 className="text-lg font-semibold mb-4">Sprint Profiles</h3>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold">Sprint Profiles</h3>
+          <div className="text-sm text-muted-foreground">
+            Showing all {profiles.length} profiles ({nonAdminProfilesCount} non-admin)
+          </div>
+        </div>
+        
         <div className="rounded-md border overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[50px]">View</TableHead>
+                <TableHead className="w-[80px] text-center">Actions</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Team Status</TableHead>
@@ -69,16 +83,22 @@ const SprintProfilesTable: React.FC<SprintProfilesTableProps> = ({ profiles, onV
             </TableHeader>
             <TableBody>
               {currentProfiles.map((profile) => (
-                <TableRow key={profile.id}>
-                  <TableCell>
+                <TableRow 
+                  key={profile.id}
+                  className={adminUserIds.includes(profile.user_id) ? "bg-muted/30" : ""}
+                >
+                  <TableCell className="text-center">
                     <Button 
                       variant="outline" 
                       size="sm"
                       onClick={() => onViewProfile(profile)}
-                      className="p-0 w-8 h-8"
+                      className="p-1 w-8 h-8"
                     >
                       <Eye className="h-4 w-4" />
                     </Button>
+                    {adminUserIds.includes(profile.user_id) && (
+                      <Badge variant="outline" className="ml-1 bg-amber-100">Admin</Badge>
+                    )}
                   </TableCell>
                   <TableCell>{profile.name || 'N/A'}</TableCell>
                   <TableCell>{profile.email || 'N/A'}</TableCell>

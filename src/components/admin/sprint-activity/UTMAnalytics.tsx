@@ -7,6 +7,7 @@ import UTMPieChart from './charts/UTMPieChart';
 import UTMDataTable from './tables/UTMDataTable';
 import UTMMetricsCards from './cards/UTMMetricsCards';
 import DailySignupsChart from './charts/DailySignupsChart';
+import { useAdminFilter } from '@/hooks/admin/useAdminFilter';
 
 interface UTMAnalyticsProps {
   timeRange: '7d' | '30d' | '90d' | 'all';
@@ -20,6 +21,8 @@ const UTMAnalytics: React.FC<UTMAnalyticsProps> = ({ timeRange }) => {
   const [dailySignups, setDailySignups] = useState<any[]>([]);
   const [utmType, setUtmType] = useState<'source' | 'medium'>('source');
   
+  const { adminUserIds, isLoading: isLoadingAdmins } = useAdminFilter();
+  
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82ca9d', '#ffc658', '#8dd1e1'];
   
   useEffect(() => {
@@ -29,7 +32,9 @@ const UTMAnalytics: React.FC<UTMAnalyticsProps> = ({ timeRange }) => {
         const data = await fetchUTMData(timeRange);
         setUtmData(data);
         
-        const { campaignChartData, sourceChartData, mediumChartData, dailySignups } = processUTMChartData(data);
+        const { campaignChartData, sourceChartData, mediumChartData, dailySignups } = 
+          processUTMChartData(data, adminUserIds);
+        
         setSourceChartData(sourceChartData);
         setMediumChartData(mediumChartData);
         setDailySignups(dailySignups);
@@ -41,10 +46,12 @@ const UTMAnalytics: React.FC<UTMAnalyticsProps> = ({ timeRange }) => {
       }
     };
     
-    loadData();
-  }, [timeRange]);
+    if (!isLoadingAdmins) {
+      loadData();
+    }
+  }, [timeRange, adminUserIds, isLoadingAdmins]);
   
-  if (isLoading) {
+  if (isLoading || isLoadingAdmins) {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
@@ -52,13 +59,21 @@ const UTMAnalytics: React.FC<UTMAnalyticsProps> = ({ timeRange }) => {
     );
   }
   
-  const sourcesCount = new Set(utmData.map(item => item.utm_source || 'direct')).size;
-  const mediumsCount = new Set(utmData.map(item => item.utm_medium || 'direct')).size;
+  // Count non-admin profiles for display
+  const nonAdminData = utmData.filter(item => !adminUserIds.includes(item.user_id));
+  const sourcesCount = new Set(nonAdminData.map(item => item.utm_source || 'direct')).size;
+  const mediumsCount = new Set(nonAdminData.map(item => item.utm_medium || 'direct')).size;
   
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-medium">UTM Analytics</h3>
+        <div>
+          <h3 className="text-lg font-medium">UTM Analytics</h3>
+          <div className="text-sm text-muted-foreground">
+            Showing statistics for {nonAdminData.length} non-admin signups 
+            ({utmData.length - nonAdminData.length} admin signups excluded from charts)
+          </div>
+        </div>
         <Tabs value={utmType} onValueChange={(value) => setUtmType(value as 'source' | 'medium')}>
           <TabsList>
             <TabsTrigger value="source">Source</TabsTrigger>
@@ -96,7 +111,7 @@ const UTMAnalytics: React.FC<UTMAnalyticsProps> = ({ timeRange }) => {
       </Card>
       
       <UTMMetricsCards 
-        totalSignups={utmData.length}
+        totalSignups={nonAdminData.length}
         sourcesCount={sourcesCount}
         mediumsCount={mediumsCount}
       />
