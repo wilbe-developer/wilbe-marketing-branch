@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import UnifiedAnalytics, { UnifiedAnalyticsProps } from '@/components/admin/sprint-activity/UnifiedAnalytics';
 import SprintEngagementStats, { SprintEngagementStatsProps } from '@/components/admin/sprint-activity/SprintEngagementStats';
 import SprintConversionMetrics, { SprintConversionMetricsProps } from '@/components/admin/sprint-activity/SprintConversionMetrics';
+import QuizAnalytics from '@/components/admin/sprint-activity/QuizAnalytics';
 
 interface AnalyticsComponentProps {
   timeRange: '7d' | '30d' | '90d' | 'all';
@@ -57,6 +58,7 @@ const UTMAnalyticsPage = () => {
           <TabsTrigger value="waitlist">Waitlist Analytics</TabsTrigger>
           <TabsTrigger value="sprint">Sprint Analytics</TabsTrigger>
           <TabsTrigger value="conversion">Conversion Metrics</TabsTrigger>
+          <TabsTrigger value="quiz">Quiz Analytics</TabsTrigger>
         </TabsList>
         
         <TabsContent value="unified">
@@ -99,6 +101,17 @@ const UTMAnalyticsPage = () => {
             </CardHeader>
             <CardContent>
               <SprintConversionMetrics timeRange={timeRange} />
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="quiz">
+          <Card>
+            <CardHeader>
+              <CardTitle>Quiz Visit Analytics</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <QuizAnalytics timeRange={timeRange} />
             </CardContent>
           </Card>
         </TabsContent>

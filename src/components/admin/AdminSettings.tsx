@@ -15,6 +15,7 @@ const AdminSettings = () => {
       <Tabs defaultValue="sprint">
         <TabsList className="mb-4">
           <TabsTrigger value="sprint">Sprint Features</TabsTrigger>
+          <TabsTrigger value="analytics">Analytics Settings</TabsTrigger>
         </TabsList>
         
         <TabsContent value="sprint">
@@ -24,6 +25,34 @@ const AdminSettings = () => {
             </CardHeader>
             <CardContent>
               <SprintFeatureFlags />
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="analytics">
+          <Card>
+            <CardHeader>
+              <CardTitle>Analytics Configuration</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-lg font-medium mb-2">Available Analytics</h3>
+                  <ul className="list-disc list-inside space-y-1 text-sm">
+                    <li>Waitlist Signups Analytics</li>
+                    <li>Sprint Signups Analytics</li>
+                    <li>Conversion Metrics</li>
+                    <li>Quiz Visit Analytics</li>
+                  </ul>
+                </div>
+                
+                <div>
+                  <h3 className="text-lg font-medium mb-2">Analytics Settings</h3>
+                  <p className="text-sm text-gray-600">
+                    These analytics are available on the <a href="/admin/analytics" className="text-blue-600 underline">Analytics Dashboard</a>
+                  </p>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
