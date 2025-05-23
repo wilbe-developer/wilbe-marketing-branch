@@ -30,7 +30,7 @@ export const RequestCallButton = () => {
   const { adminUsers, createThread } = useCommunityThreads();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
-  const [title, setTitle] = useState("Request Call with Admin");
+  const [title, setTitle] = useState("Request Call");
   const [content, setContent] = useState("");
   const [selectedAdmin, setSelectedAdmin] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);

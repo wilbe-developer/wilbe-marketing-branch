@@ -1,3 +1,4 @@
+
 import { useEffect } from "react";
 import { useSprintTaskDefinitions } from "@/hooks/useSprintTaskDefinitions";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -37,21 +38,38 @@ const SprintDashboardPage = () => {
       <div className={isMobile ? "mb-4" : "mb-8"}>
         <div className="flex justify-between items-center mb-2">
           <h1 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold`}>{pageTitle}</h1>
-          <div className="flex gap-2">
-            {!isSharedSprint && user?.id && (
-              <>
-                <ImStuckButton />
-                <RequestCallButton />
-                <AssessmentButton />
-                <CollaborateButton />
-              </>
-            )}
-          </div>
+          
+          {/* On mobile, move buttons below the title for better spacing */}
+          {isMobile && !isSharedSprint && user?.id && (
+            <div className="hidden">
+              {/* Hidden on mobile, shown in the mobile-friendly section below */}
+            </div>
+          )}
+          
+          {/* Desktop view buttons */}
+          {!isMobile && !isSharedSprint && user?.id && (
+            <div className="flex gap-2">
+              <ImStuckButton />
+              <RequestCallButton />
+              <AssessmentButton />
+              <CollaborateButton />
+            </div>
+          )}
         </div>
         
         <p className={`text-gray-600 ${isMobile ? 'text-sm mb-3' : 'mb-4'}`}>
           Complete all tasks to finish your sprint and develop your full project plan.
         </p>
+        
+        {/* Mobile view buttons - displayed in a more mobile-friendly way */}
+        {isMobile && !isSharedSprint && user?.id && (
+          <div className="flex flex-wrap gap-2 mb-4">
+            <ImStuckButton />
+            <RequestCallButton />
+            <AssessmentButton />
+            <CollaborateButton />
+          </div>
+        )}
         
         <SharedSprintBanner />
         
