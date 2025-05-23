@@ -24,6 +24,27 @@ interface SprintProfile {
   utm_source: string;
   utm_medium: string;
   utm_campaign: string;
+  // New fields
+  ip_concerns?: boolean;
+  potential_beneficiaries?: boolean;
+  specific_customers?: boolean;
+  customer_evidence?: boolean;
+  competition_research?: boolean;
+  success_vision_1yr?: boolean;
+  success_vision_10yr?: boolean;
+  impact_scale?: string[];
+  prior_accelerators?: boolean;
+  prior_accelerators_details?: string;
+  planned_accelerators?: boolean;
+  planned_accelerators_details?: string;
+  lab_space_needed?: boolean;
+  lab_space_secured?: boolean;
+  lab_space_details?: string;
+  deck_feedback?: boolean;
+  problem_defined?: boolean;
+  customer_engagement?: string;
+  linkedin_url?: string;
+  current_job?: string;
   [key: string]: any; // For any other properties in the profile
 }
 
@@ -118,52 +139,100 @@ const SprintProfilesTab = () => {
           {selectedProfile && (
             <div className="space-y-4 mt-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Basic Information */}
                 <ProfileDetailCard 
                   title="User Information" 
                   profile={selectedProfile} 
-                  fields={['name', 'email', 'created_at']} 
+                  fields={['name', 'email', 'created_at', 'linkedin_url', 'current_job']} 
                 />
+                
+                {/* Team & Company Status */}
                 <ProfileDetailCard 
                   title="Team & Company" 
                   profile={selectedProfile} 
-                  fields={['team_status', 'company_incorporated', 'received_funding', 'funding_details', 'has_deck']} 
+                  fields={['team_status', 'company_incorporated', 'received_funding', 'has_deck']} 
                 />
+                
+                {/* Market & Validation */}
                 <ProfileDetailCard 
                   title="Market & Validation" 
                   profile={selectedProfile} 
-                  fields={['market_known', 'market_gap_reason', 'experiment_validated', 'problem_defined', 'customer_engagement']} 
+                  fields={['market_known', 'experiment_validated', 'problem_defined', 'customer_engagement', 'competition_research']} 
                 />
+                
+                {/* Customer Information */}
+                {(selectedProfile.potential_beneficiaries !== undefined || 
+                  selectedProfile.specific_customers !== undefined || 
+                  selectedProfile.customer_evidence !== undefined) && (
+                  <ProfileDetailCard 
+                    title="Customer Information" 
+                    profile={selectedProfile} 
+                    fields={['potential_beneficiaries', 'specific_customers', 'customer_evidence']} 
+                  />
+                )}
+                
+                {/* Background & Skills */}
                 <ProfileDetailCard 
-                  title="Background" 
+                  title="Background & Skills" 
                   profile={selectedProfile} 
-                  fields={['job_type', 'is_scientist_engineer', 'current_job', 'linkedin_url']} 
+                  fields={['job_type', 'is_scientist_engineer']} 
                 />
+                
+                {/* Vision & Impact */}
+                {(selectedProfile.success_vision_1yr !== undefined || 
+                  selectedProfile.success_vision_10yr !== undefined || 
+                  selectedProfile.impact_scale !== undefined) && (
+                  <ProfileDetailCard 
+                    title="Vision & Impact" 
+                    profile={selectedProfile} 
+                    fields={['success_vision_1yr', 'success_vision_10yr', 'impact_scale']} 
+                  />
+                )}
+                
+                {/* Accelerator Experience */}
+                {(selectedProfile.prior_accelerators !== undefined || 
+                  selectedProfile.planned_accelerators !== undefined) && (
+                  <ProfileDetailCard 
+                    title="Accelerator Experience" 
+                    profile={selectedProfile} 
+                    fields={['prior_accelerators', 'prior_accelerators_details', 'planned_accelerators', 'planned_accelerators_details']} 
+                  />
+                )}
+                
+                {/* Lab Space */}
+                {(selectedProfile.lab_space_needed !== undefined || 
+                  selectedProfile.lab_space_secured !== undefined) && (
+                  <ProfileDetailCard 
+                    title="Lab Space" 
+                    profile={selectedProfile} 
+                    fields={['lab_space_needed', 'lab_space_secured', 'lab_space_details']} 
+                  />
+                )}
+                
+                {/* IP Concerns */}
+                {selectedProfile.ip_concerns !== undefined && (
+                  <ProfileDetailCard 
+                    title="IP & Legal" 
+                    profile={selectedProfile} 
+                    fields={['ip_concerns', 'commercializing_invention', 'university_ip']} 
+                  />
+                )}
+                
+                {/* Pitch Deck */}
+                {selectedProfile.deck_feedback !== undefined && (
+                  <ProfileDetailCard 
+                    title="Pitch Deck" 
+                    profile={selectedProfile} 
+                    fields={['has_deck', 'deck_feedback']} 
+                  />
+                )}
+                
+                {/* UTM Data */}
                 <ProfileDetailCard 
                   title="UTM Data" 
                   profile={selectedProfile} 
                   fields={['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content']} 
                 />
-                {selectedProfile.funding_sources && (
-                  <ProfileDetailCard 
-                    title="Funding Sources" 
-                    profile={selectedProfile} 
-                    fields={['funding_sources', 'funding_amount', 'has_financial_plan']} 
-                  />
-                )}
-                {selectedProfile.commercializing_invention && (
-                  <ProfileDetailCard 
-                    title="IP & Commercialization" 
-                    profile={selectedProfile} 
-                    fields={['commercializing_invention', 'university_ip', 'tto_engaged', 'ip_concerns']} 
-                  />
-                )}
-                {selectedProfile.impact_scale && (
-                  <ProfileDetailCard 
-                    title="Vision & Impact" 
-                    profile={selectedProfile} 
-                    fields={['success_vision_1yr', 'success_vision_10yr', 'impact_scale', 'industry_changing_vision']} 
-                  />
-                )}
               </div>
             </div>
           )}
@@ -180,6 +249,15 @@ interface ProfileDetailCardProps {
 }
 
 const ProfileDetailCard: React.FC<ProfileDetailCardProps> = ({ title, profile, fields }) => {
+  // Helper function to format field names for display
+  const formatFieldName = (field: string): string => {
+    return field
+      .replace(/_/g, ' ')
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+
   return (
     <div className="border rounded-lg p-4">
       <h3 className="font-semibold text-lg mb-2">{title}</h3>
@@ -210,8 +288,8 @@ const ProfileDetailCard: React.FC<ProfileDetailCardProps> = ({ title, profile, f
           
           return (
             <div key={field} className="grid grid-cols-2">
-              <span className="text-sm text-muted-foreground capitalize">
-                {field.replace(/_/g, ' ')}:
+              <span className="text-sm text-muted-foreground">
+                {formatFieldName(field)}:
               </span>
               <span className="text-sm font-medium">{value.toString()}</span>
             </div>
