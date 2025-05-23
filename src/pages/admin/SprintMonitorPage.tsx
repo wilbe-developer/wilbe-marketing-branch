@@ -54,10 +54,10 @@ const SprintMonitorPage = () => {
       <Tabs defaultValue="overview">
         <TabsList className="mb-4">
           <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="profiles">Profiles</TabsTrigger>
           <TabsTrigger value="progress">User Progress</TabsTrigger>
           <TabsTrigger value="answers">Task Answers</TabsTrigger>
           <TabsTrigger value="tasks">Task Performance</TabsTrigger>
-          <TabsTrigger value="profiles">Profiles</TabsTrigger>
           <TabsTrigger value="activity">Activity Feed</TabsTrigger>
           <TabsTrigger value="files">File Repository</TabsTrigger>
         </TabsList>
@@ -69,6 +69,17 @@ const SprintMonitorPage = () => {
             </CardHeader>
             <CardContent>
               <SprintControlRoom />
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="profiles">
+          <Card>
+            <CardHeader>
+              <CardTitle>Sprint Profiles</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <SprintProfilesTab />
             </CardContent>
           </Card>
         </TabsContent>
@@ -108,17 +119,6 @@ const SprintMonitorPage = () => {
                 taskPerformance={taskPerformance} 
                 isLoading={isLoading} 
               />
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="profiles">
-          <Card>
-            <CardHeader>
-              <CardTitle>Sprint Profiles</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <SprintProfilesTab />
             </CardContent>
           </Card>
         </TabsContent>

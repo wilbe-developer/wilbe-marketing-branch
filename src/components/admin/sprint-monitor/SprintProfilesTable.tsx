@@ -3,6 +3,8 @@ import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Eye } from 'lucide-react';
 
 interface SprintProfile {
   id: string;
@@ -20,13 +22,15 @@ interface SprintProfile {
   utm_source: string;
   utm_medium: string;
   utm_campaign: string;
+  [key: string]: any; // For any other properties in the profile
 }
 
 interface SprintProfilesTableProps {
   profiles: SprintProfile[];
+  onViewProfile: (profile: SprintProfile) => void;
 }
 
-const SprintProfilesTable: React.FC<SprintProfilesTableProps> = ({ profiles }) => {
+const SprintProfilesTable: React.FC<SprintProfilesTableProps> = ({ profiles, onViewProfile }) => {
   return (
     <Card>
       <CardContent className="p-6">
@@ -42,6 +46,7 @@ const SprintProfilesTable: React.FC<SprintProfilesTableProps> = ({ profiles }) =
                 <TableHead>Funding</TableHead>
                 <TableHead>Scientist/Engineer</TableHead>
                 <TableHead>Source</TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -73,6 +78,15 @@ const SprintProfilesTable: React.FC<SprintProfilesTableProps> = ({ profiles }) =
                     ) : (
                       <Badge variant="outline">direct</Badge>
                     )}
+                  </TableCell>
+                  <TableCell>
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      onClick={() => onViewProfile(profile)}
+                    >
+                      <Eye className="h-4 w-4" />
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
