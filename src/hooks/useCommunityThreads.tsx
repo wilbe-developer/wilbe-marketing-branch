@@ -45,13 +45,23 @@ export const useCommunityThreads = () => {
           // Get challenge name if challenge_id is present
           let challengeName = null;
           if (thread.challenge_id) {
+            // Updated to use sprint_task_definitions instead of sprint_tasks
             const { data: challengeData } = await supabase
-              .from('sprint_tasks')
-              .select('title')
+              .from('sprint_task_definitions')
+              .select('name, definition')
               .eq('id', thread.challenge_id)
               .maybeSingle();
             
-            challengeName = challengeData?.title;
+            // Extract the task name from either the name field or the definition.taskName
+            if (challengeData) {
+              challengeName = challengeData.name;
+              // If the definition has a taskName, use that as it might be more user-friendly
+              if (challengeData.definition && 
+                  typeof challengeData.definition === 'object' && 
+                  challengeData.definition.taskName) {
+                challengeName = challengeData.definition.taskName;
+              }
+            }
           }
 
           return {
@@ -71,18 +81,45 @@ export const useCommunityThreads = () => {
   const { data: challenges = [], isLoading: isLoadingChallenges } = useQuery({
     queryKey: ['sprint-challenges'],
     queryFn: async () => {
+      // Updated to use sprint_task_definitions instead of sprint_tasks
       const { data, error } = await supabase
-        .from('sprint_tasks')
-        .select('id, title, description, category')
-        .order('order_index', { ascending: true });
+        .from('sprint_task_definitions')
+        .select('id, name, description, definition')
+        .order('name', { ascending: true });
 
       if (error) throw error;
-      return data as Challenge[];
+      
+      // Transform the data to match the Challenge type
+      return data.map(task => {
+        let category = 'Other';
+        let description = task.description || '';
+        
+        // Extract category and better description from definition if available
+        if (task.definition && typeof task.definition === 'object') {
+          if (task.definition.category) {
+            category = task.definition.category;
+          }
+          if (task.definition.description && !description) {
+            description = task.definition.description;
+          }
+        }
+        
+        return {
+          id: task.id,
+          title: task.definition?.taskName || task.name,
+          description: description,
+          category: category
+        };
+      }) as Challenge[];
     }
   });
 
   const createThread = useMutation({
     mutationFn: async ({ title, content, challenge_id }: Partial<Thread>) => {
+      if (!user) {
+        throw new Error("User not authenticated");
+      }
+      
       const { data, error } = await supabase
         .from('discussion_threads')
         .insert([
@@ -90,7 +127,7 @@ export const useCommunityThreads = () => {
             title,
             content,
             challenge_id,
-            author_id: user?.id,
+            author_id: user.id,
           },
         ])
         .select()

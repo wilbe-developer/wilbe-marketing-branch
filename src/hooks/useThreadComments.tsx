@@ -41,13 +41,22 @@ export const useThreadComments = (threadId?: string) => {
       // Get challenge name if challenge_id exists
       let challengeName = null;
       if (data.challenge_id) {
+        // Updated to use sprint_task_definitions instead of sprint_tasks
         const { data: challengeData } = await supabase
-          .from('sprint_tasks')
-          .select('title')
+          .from('sprint_task_definitions')
+          .select('name, definition')
           .eq('id', data.challenge_id)
           .maybeSingle();
         
-        challengeName = challengeData?.title;
+        if (challengeData) {
+          challengeName = challengeData.name;
+          // If the definition has a taskName, use that as it might be more user-friendly
+          if (challengeData.definition && 
+              typeof challengeData.definition === 'object' && 
+              challengeData.definition.taskName) {
+            challengeName = challengeData.definition.taskName;
+          }
+        }
       }
 
       return {
@@ -107,12 +116,16 @@ export const useThreadComments = (threadId?: string) => {
   // Add a comment to the thread
   const addComment = useMutation({
     mutationFn: async ({ threadId, content }: { threadId: string, content: string }) => {
+      if (!user) {
+        throw new Error("User not authenticated");
+      }
+      
       const { data, error } = await supabase
         .from('thread_comments')
         .insert([
           {
             thread_id: threadId,
-            author_id: user?.id,
+            author_id: user.id,
             content,
           },
         ])

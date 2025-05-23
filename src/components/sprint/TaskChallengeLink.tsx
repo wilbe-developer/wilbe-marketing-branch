@@ -15,12 +15,22 @@ export const TaskChallengeLink = ({ taskId }: TaskChallengeLinkProps) => {
   const { data } = useQuery({
     queryKey: ['task-threads-count', taskId],
     queryFn: async () => {
-      const { count } = await supabase
-        .from('discussion_threads')
-        .select('*', { count: 'exact', head: true })
-        .eq('challenge_id', taskId);
-      
-      return { count: count || 0 };
+      try {
+        const { count, error } = await supabase
+          .from('discussion_threads')
+          .select('*', { count: 'exact', head: true })
+          .eq('challenge_id', taskId);
+        
+        if (error) {
+          console.error('Error fetching thread count:', error);
+          return { count: 0 };
+        }
+        
+        return { count: count || 0 };
+      } catch (err) {
+        console.error('Failed to fetch thread count:', err);
+        return { count: 0 };
+      }
     }
   });
 
