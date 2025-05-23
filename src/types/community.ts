@@ -1,4 +1,3 @@
-
 export interface Thread {
   id: string;
   author_id: string;
@@ -7,6 +6,8 @@ export interface Thread {
   content: string;
   created_at: string;
   updated_at: string;
+  is_private: boolean;
+  recipient_id: string | null;
   author_profile?: {
     first_name: string | null;
     last_name: string | null;
@@ -14,6 +15,11 @@ export interface Thread {
   } | null;
   author_role?: {
     role: string | null;
+  } | null;
+  recipient_profile?: {
+    first_name: string | null;
+    last_name: string | null;
+    avatar: string | null;
   } | null;
   comment_count?: {
     count: number;
@@ -51,4 +57,4 @@ export interface Challenge {
   category: string | null;
 }
 
-export type TopicFilter = 'all' | 'challenges' | string;
+export type TopicFilter = 'all' | 'challenges' | 'private' | string;

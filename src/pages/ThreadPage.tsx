@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { ArrowLeft, Clock } from 'lucide-react';
+import { ArrowLeft, Clock, Lock } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { toast } from 'sonner';
 
@@ -59,15 +59,17 @@ const ThreadPage = () => {
     return <div className="p-6 text-center">Thread not found</div>;
   }
 
+  const returnPath = thread.is_private ? '/community?topic=private' : '/community';
+
   return (
     <div className={`max-w-4xl mx-auto ${isMobile ? 'p-3' : 'p-6'}`}>
       <Button 
         variant="ghost" 
         className="mb-4" 
-        onClick={() => navigate('/community')}
+        onClick={() => navigate(returnPath)}
       >
         <ArrowLeft className="mr-2 h-4 w-4" />
-        Back to discussions
+        {thread.is_private ? 'Back to private messages' : 'Back to discussions'}
       </Button>
 
       <div className="bg-white rounded-lg shadow-sm border p-5 mb-6">
@@ -95,9 +97,31 @@ const ThreadPage = () => {
           </div>
         </div>
 
-        <h1 className="text-2xl font-bold mb-4">{thread.title}</h1>
+        <div className="flex items-center gap-2 mb-4">
+          <h1 className="text-2xl font-bold">{thread.title}</h1>
+          {thread.is_private && (
+            <Badge variant="outline" className="flex items-center gap-1">
+              <Lock size={14} />
+              <span>Private</span>
+            </Badge>
+          )}
+        </div>
 
-        {thread.challenge_name && (
+        {thread.recipient_profile && thread.is_private && (
+          <div className="flex items-center mb-4 text-gray-700">
+            <span className="mr-2">To:</span>
+            <Avatar className="h-5 w-5 mr-1">
+              <AvatarImage src={thread.recipient_profile.avatar || undefined} />
+              <AvatarFallback>
+                {thread.recipient_profile.first_name?.[0] || ''}
+                {thread.recipient_profile.last_name?.[0] || ''}
+              </AvatarFallback>
+            </Avatar>
+            <span>{thread.recipient_profile.first_name} {thread.recipient_profile.last_name}</span>
+          </div>
+        )}
+
+        {thread.challenge_name && !thread.is_private && (
           <Badge variant="secondary" className="mb-4">
             {thread.challenge_name}
           </Badge>

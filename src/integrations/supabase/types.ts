@@ -37,6 +37,8 @@ export type Database = {
           content: string
           created_at: string
           id: string
+          is_private: boolean
+          recipient_id: string | null
           title: string
           updated_at: string
         }
@@ -46,6 +48,8 @@ export type Database = {
           content: string
           created_at?: string
           id?: string
+          is_private?: boolean
+          recipient_id?: string | null
           title: string
           updated_at?: string
         }
@@ -55,6 +59,8 @@ export type Database = {
           content?: string
           created_at?: string
           id?: string
+          is_private?: boolean
+          recipient_id?: string | null
           title?: string
           updated_at?: string
         }

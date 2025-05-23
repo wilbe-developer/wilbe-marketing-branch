@@ -45,7 +45,8 @@ const NewThreadPage = () => {
       await createThread.mutateAsync({ 
         title, 
         content,
-        challenge_id: challengeId || undefined
+        challenge_id: challengeId || undefined,
+        is_private: false // Ensure threads created here are always public
       });
       toast.success('Thread created successfully');
       navigate('/community');

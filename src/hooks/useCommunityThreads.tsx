@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Thread, Challenge } from '@/types/community';
@@ -71,17 +70,53 @@ export const useCommunityThreads = () => {
             }
           }
 
+          // Get recipient profile if this is a private thread
+          let recipientProfile = null;
+          if (thread.is_private && thread.recipient_id) {
+            const { data: recipient } = await supabase
+              .from('profiles')
+              .select('first_name, last_name, avatar')
+              .eq('id', thread.recipient_id)
+              .maybeSingle();
+            
+            recipientProfile = recipient;
+          }
+
           return {
             ...thread,
             author_profile: profileData || null,
             author_role: roleData || null,
             comment_count: count ? [{ count }] : [{ count: 0 }],
-            challenge_name: challengeName
+            challenge_name: challengeName,
+            recipient_profile: recipientProfile
           };
         })
       );
       
       return threadsWithDetails as Thread[];
+    },
+  });
+
+  // Filter to get only private threads where the current user is either author or recipient
+  const privateThreads = threads.filter(thread => 
+    thread.is_private && 
+    (thread.author_id === user?.id || thread.recipient_id === user?.id)
+  );
+
+  // Filter to get only public threads
+  const publicThreads = threads.filter(thread => !thread.is_private);
+
+  // Get admin users for the "Request Call" feature
+  const { data: adminUsers = [], isLoading: isLoadingAdmins } = useQuery({
+    queryKey: ['admin-users'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('user_id, profiles:user_id(id, first_name, last_name, avatar)')
+        .eq('role', 'admin');
+      
+      if (error) throw error;
+      return data.map(item => item.profiles);
     },
   });
 
@@ -126,7 +161,13 @@ export const useCommunityThreads = () => {
   });
 
   const createThread = useMutation({
-    mutationFn: async ({ title, content, challenge_id }: Partial<Thread>) => {
+    mutationFn: async ({ 
+      title, 
+      content, 
+      challenge_id, 
+      is_private = false, 
+      recipient_id = null 
+    }: Partial<Thread>) => {
       if (!user) {
         throw new Error("User not authenticated");
       }
@@ -139,6 +180,8 @@ export const useCommunityThreads = () => {
             content,
             challenge_id,
             author_id: user.id,
+            is_private,
+            recipient_id
           },
         ])
         .select()
@@ -156,9 +199,11 @@ export const useCommunityThreads = () => {
   });
 
   return {
-    threads,
+    threads: publicThreads,
+    privateThreads,
+    adminUsers,
     challenges,
-    isLoading: isLoading || isLoadingChallenges,
+    isLoading: isLoading || isLoadingChallenges || isLoadingAdmins,
     createThread,
   };
 };

@@ -66,11 +66,24 @@ export const useThreadComments = (threadId?: string) => {
         }
       }
 
+      // Get recipient profile if this is a private thread
+      let recipientProfile = null;
+      if (data.is_private && data.recipient_id) {
+        const { data: recipient } = await supabase
+          .from('profiles')
+          .select('first_name, last_name, avatar')
+          .eq('id', data.recipient_id)
+          .maybeSingle();
+        
+        recipientProfile = recipient;
+      }
+
       return {
         ...data,
         author_profile: profileData || null,
         author_role: roleData || null,
-        challenge_name: challengeName
+        challenge_name: challengeName,
+        recipient_profile: recipientProfile
       } as Thread;
     },
     enabled: !!threadId,

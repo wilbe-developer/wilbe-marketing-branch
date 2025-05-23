@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Challenge } from '@/types/community';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, BookOpen, MessageCircle, Plus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, BookOpen, MessageCircle, Plus, Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface CommunitySidebarProps {
@@ -11,13 +11,15 @@ interface CommunitySidebarProps {
   onSelectTopic: (topic: string) => void;
   selectedTopic: string;
   isMobile: boolean;
+  hasPrivateMessages?: boolean;
 }
 
 export const CommunitySidebar = ({ 
   challenges = [], 
   onSelectTopic, 
   selectedTopic,
-  isMobile
+  isMobile,
+  hasPrivateMessages = false
 }: CommunitySidebarProps) => {
   const [collapsed, setCollapsed] = useState(isMobile);
   const navigate = useNavigate();
@@ -63,6 +65,21 @@ export const CommunitySidebar = ({
           <MessageCircle size={18} className="mr-2" />
           {!collapsed && "All Discussions"}
         </Button>
+        
+        {hasPrivateMessages && (
+          <Button 
+            variant="ghost" 
+            className={cn(
+              "w-full justify-start mb-1",
+              selectedTopic === 'private' && "bg-slate-100",
+              collapsed && "px-2.5 justify-center"
+            )}
+            onClick={() => onSelectTopic('private')}
+          >
+            <Lock size={18} className="mr-2" />
+            {!collapsed && "Private Messages"}
+          </Button>
+        )}
         
         <Button 
           variant="ghost" 
