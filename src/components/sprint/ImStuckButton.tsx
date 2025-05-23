@@ -44,7 +44,7 @@ export const ImStuckButton = ({ taskId }: { taskId?: string }) => {
     navigate("/community?topic=private");
     
     // Show a toast message
-    toast.info("Use the 'Request Call' button to schedule a call with an advisor");
+    toast.info("Use the 'Request Call' button to schedule a call");
   };
 
   return (
@@ -102,7 +102,7 @@ export const ImStuckButton = ({ taskId }: { taskId?: string }) => {
             Post a Question
           </Button>
           <Button onClick={handleRequestCall} className="w-full sm:w-auto">
-            Request a Call with an Advisor
+            Request a Call
           </Button>
         </DialogFooter>
       </DialogContent>
