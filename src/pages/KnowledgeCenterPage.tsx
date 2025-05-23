@@ -18,7 +18,7 @@ const KnowledgeCenterPage = () => {
   const { toast } = useToast();
   const { isAuthenticated } = useAuth();
   
-  // Filter out deck builder modules and their videos
+  // Filter out deck builder modules and their videos.
   const regularModules = modules.filter(m => !m.isDeckBuilderModule);
   
   // For the "all" tab, we need all videos that are either:
