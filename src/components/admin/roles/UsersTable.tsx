@@ -1,4 +1,5 @@
 
+import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { UserProfile, UserRole } from "@/types";
 import UserRoleRow from "./UserRoleRow";
@@ -6,31 +7,35 @@ import UserRoleRow from "./UserRoleRow";
 interface UsersTableProps {
   users: UserProfile[];
   userRoles: Record<string, UserRole[]>;
-  onRoleToggle: (userId: string, role: UserRole, hasRole: boolean) => Promise<void>;
+  onRoleToggle: (userId: string, role: UserRole, hasRole: boolean) => void;
 }
 
 const UsersTable = ({ users, userRoles, onRoleToggle }: UsersTableProps) => {
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>User</TableHead>
-          <TableHead>Email</TableHead>
-          <TableHead>Roles</TableHead>
-          <TableHead>Actions</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {users.map((user) => (
-          <UserRoleRow 
-            key={user.id} 
-            user={user} 
-            userRoles={userRoles[user.id] || []} 
-            onRoleToggle={onRoleToggle} 
-          />
-        ))}
-      </TableBody>
-    </Table>
+    <div className="border rounded-md">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>User</TableHead>
+            <TableHead>Email</TableHead>
+            <TableHead>User Type</TableHead>
+            <TableHead>Admin Role</TableHead>
+            <TableHead>Member Role</TableHead>
+            <TableHead>Last Login</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {users.map((user) => (
+            <UserRoleRow
+              key={user.id}
+              user={user}
+              userRoles={userRoles[user.id] || []}
+              onRoleToggle={onRoleToggle}
+            />
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   );
 };
 

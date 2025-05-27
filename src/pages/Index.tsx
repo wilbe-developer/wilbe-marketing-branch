@@ -1,13 +1,15 @@
 
 import { useAuth } from "@/hooks/useAuth";
+import { useUserType } from "@/hooks/useUserType";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { PATHS } from "@/lib/constants";
 import HomePage from "./HomePage";
 
-// This is just a wrapper to redirect to the appropriate page based on auth status
+// This is just a wrapper to redirect to the appropriate page based on auth status and user type
 const Index = () => {
-  const { isAuthenticated, loading, isRecoveryMode } = useAuth();
+  const { isAuthenticated, loading: authLoading, isRecoveryMode } = useAuth();
+  const { isSprintUser, isSandboxUser, loading: userTypeLoading } = useUserType();
   const navigate = useNavigate();
   
   useEffect(() => {
@@ -16,13 +18,29 @@ const Index = () => {
       return;
     }
     
-    if (!loading && !isAuthenticated) {
+    // Wait for both auth and user type to load
+    if (authLoading || userTypeLoading) {
+      return;
+    }
+    
+    if (!isAuthenticated) {
       // Redirect to login if not authenticated
       navigate(PATHS.LOGIN);
+      return;
     }
-  }, [isAuthenticated, loading, navigate, isRecoveryMode]);
+
+    // If sprint user, redirect to dashboard
+    if (isSprintUser) {
+      console.log("Sprint user detected, redirecting to dashboard");
+      navigate(PATHS.SPRINT_DASHBOARD);
+      return;
+    }
+
+    // If sandbox user, stay on home page (will be handled by HomePage component)
+    console.log("Sandbox user detected, staying on homepage");
+  }, [isAuthenticated, authLoading, userTypeLoading, navigate, isSprintUser, isSandboxUser, isRecoveryMode]);
   
-  if (loading) {
+  if (authLoading || userTypeLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">

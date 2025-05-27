@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -64,6 +63,7 @@ import MemberRoute from "@/components/MemberRoute";
 
 // MetaWrapper for per-page <Helmet> tags
 import MetaWrapper from "@/components/MetaWrapper";
+import SandboxRoute from "@/components/SandboxRoute";
 
 const queryClient = new QueryClient();
 
@@ -84,7 +84,6 @@ const App = () => (
                 <Route path={PATHS.LOGIN} element={<LoginPage />} />
                 <Route path="/admin-login" element={<AdminLoginPage />} />
                 <Route path="/password-reset" element={<PasswordResetPage />} />
-                <Route path={PATHS.REGISTER} element={<RegisterPage />} />
                 <Route path={PATHS.PENDING} element={<PendingApprovalPage />} />
                 <Route path={PATHS.LANDING_PAGE} element={<LandingPage />} />
                 <Route path={PATHS.BSF_PAGE} element={<BsfPage />} />
@@ -120,9 +119,9 @@ const App = () => (
                 <Route path="/referral" element={<SprintReferralPage />} />
                 <Route path="/ref/:code" element={<SprintWaitlistPage />} />
 
-                {/* Member-only protected routes */}
+                {/* Sandbox routes with SandboxRoute wrapper */}
                 <Route element={<Layout />}>
-                  <Route element={<MemberRoute />}>
+                  <Route element={<SandboxRoute />}>
                     <Route path={PATHS.HOME} element={<HomePage />} />
                     <Route path={PATHS.KNOWLEDGE_CENTER} element={<KnowledgeCenterPage />} />
                     <Route path={PATHS.MEMBER_DIRECTORY} element={<MemberDirectoryPage />} />
