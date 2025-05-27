@@ -3,7 +3,6 @@ import React from 'react';
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { UserProfile, UserRole } from "@/types";
 
 interface UserRoleRowProps {
@@ -12,47 +11,24 @@ interface UserRoleRowProps {
   onRoleToggle: (userId: string, role: UserRole, hasRole: boolean) => void;
 }
 
-const getInitials = (firstName: string, lastName: string, email: string) => {
-  const firstInitial = firstName && firstName.trim() ? firstName.charAt(0).toUpperCase() : '';
-  const lastInitial = lastName && lastName.trim() ? lastName.charAt(0).toUpperCase() : '';
-  
-  if (firstInitial && lastInitial) {
-    return `${firstInitial}${lastInitial}`;
-  } else if (firstInitial) {
-    return firstInitial;
-  } else if (lastInitial) {
-    return lastInitial;
-  } else {
-    // Fallback to email if no names
-    return email.charAt(0).toUpperCase() || 'U';
-  }
-};
-
 const UserRoleRow = ({ user, userRoles, onRoleToggle }: UserRoleRowProps) => {
   const hasAdminRole = userRoles.includes('admin');
   const hasMemberRole = userRoles.includes('member');
   const hasUserRole = userRoles.includes('user');
 
-  const displayName = `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email;
-  const initials = getInitials(user.firstName || '', user.lastName || '', user.email || '');
-
   return (
     <TableRow>
       <TableCell className="font-medium">
         <div className="flex items-center">
-          <Avatar className="w-8 h-8 mr-2">
-            {user.avatar && (
-              <AvatarImage 
-                src={user.avatar} 
-                alt={displayName}
-              />
-            )}
-            <AvatarFallback className="text-sm font-medium">
-              {initials}
-            </AvatarFallback>
-          </Avatar>
+          {user.avatar && (
+            <img
+              src={user.avatar}
+              alt={user.firstName}
+              className="w-8 h-8 rounded-full mr-2"
+            />
+          )}
           <div>
-            {displayName}
+            {user.firstName} {user.lastName}
             <div className="text-sm text-gray-500">
               {user.role}
             </div>
