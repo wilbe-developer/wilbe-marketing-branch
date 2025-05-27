@@ -1,3 +1,4 @@
+
 import { NavigateFunction } from "react-router-dom";
 import { UserProfile } from "@/types";
 import { PATHS } from "@/lib/constants";
@@ -24,7 +25,8 @@ export const useAuthenticationActions = ({
     try {
       setLoading(true);
       
-      const redirectPath = customRedirectTo || PATHS.HOME;
+      // Default to root path so Index component can handle routing
+      const redirectPath = customRedirectTo || "/";
       
       const { error } = await supabase.auth.signInWithOtp({
         email,
@@ -76,7 +78,8 @@ export const useAuthenticationActions = ({
         description: "You have been successfully logged in.",
       });
       
-      navigate(PATHS.HOME);
+      // Navigate to root so Index component can handle routing
+      navigate("/");
     } catch (error) {
       toast({
         title: "Login failed",
