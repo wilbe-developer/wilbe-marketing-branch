@@ -4,7 +4,6 @@ import { useUserType } from "@/hooks/useUserType";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { PATHS } from "@/lib/constants";
-import HomePage from "./HomePage";
 
 // This component only handles initial routing when users land on app.wilbe.com
 const Index = () => {
@@ -37,8 +36,9 @@ const Index = () => {
       return;
     }
 
-    // Sandbox users stay on home page
-    console.log("Sandbox user on homepage");
+    // Sandbox users get redirected to home page
+    console.log("Sandbox user landing on index, redirecting to home");
+    navigate(PATHS.HOME);
   }, [isAuthenticated, authLoading, userTypeLoading, navigate, isSprintUser, isSandboxUser, isRecoveryMode]);
   
   if (authLoading || userTypeLoading) {
@@ -52,7 +52,8 @@ const Index = () => {
     );
   }
   
-  return <HomePage />;
+  // This should never render since we redirect in useEffect
+  return null;
 };
 
 export default Index;
