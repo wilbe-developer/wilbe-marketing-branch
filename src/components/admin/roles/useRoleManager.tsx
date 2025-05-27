@@ -21,48 +21,60 @@ export const useRoleManager = () => {
   });
   const pageSize = 10;
 
-  const fetchUsers = useCallback(async () => {
+  const fetchUsers = useCallback(async (retryCount = 0) => {
+    const maxRetries = 2;
+    
     try {
       setLoading(true);
+      
+      console.log(`Attempting to fetch users for filter: ${filter}, page: ${currentPage}`);
       
       // Get role counts for filter indicators
       const counts = await fetchRoleCounts();
       setRoleCounts(counts);
       
-      // Special handling for admin filter which needs a different approach
-      try {
-        let fetchedUsers, count, userRoleMap;
-        
-        // Fetch users based on the current filter and page
-        ({ data: fetchedUsers, count, userRoleMap } = await fetchUsersByRole(filter, currentPage, pageSize));
-        
-        setTotalUsers(count);
-        
-        // Update user roles state
-        setUserRoles(userRoleMap || {});
-        
-        // Map to UserProfile format with role information
-        const enhancedProfiles = mapProfilesToUserProfiles(fetchedUsers, userRoleMap);
-        
-        console.log(`Successfully processed ${enhancedProfiles.length} user profiles`);
-        console.log(`Admin count in current page: ${enhancedProfiles.filter(p => p.isAdmin).length}`);
-        
-        setUsers(enhancedProfiles);
-      } catch (error) {
-        console.error("Error fetching users:", error);
-        toast({
-          title: "Error",
-          description: "Failed to fetch users. Please try again.",
-          variant: "destructive"
-        });
-      }
+      // Fetch users based on the current filter and page with timeout
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Request timeout')), 15000)
+      );
+      
+      const fetchPromise = fetchUsersByRole(filter, currentPage, pageSize);
+      
+      const { data: fetchedUsers, count, userRoleMap } = await Promise.race([
+        fetchPromise,
+        timeoutPromise
+      ]) as any;
+      
+      setTotalUsers(count);
+      
+      // Update user roles state
+      setUserRoles(userRoleMap || {});
+      
+      // Map to UserProfile format with role information
+      const enhancedProfiles = mapProfilesToUserProfiles(fetchedUsers, userRoleMap);
+      
+      console.log(`Successfully processed ${enhancedProfiles.length} user profiles for filter: ${filter}`);
+      
+      setUsers(enhancedProfiles);
     } catch (error) {
-      console.error("Error in useRoleManager:", error);
+      console.error(`Error fetching users (attempt ${retryCount + 1}):`, error);
+      
+      if (retryCount < maxRetries && (error.message?.includes('timeout') || error.message?.includes('network'))) {
+        console.log(`Retrying fetch users (attempt ${retryCount + 2}/${maxRetries + 1})...`);
+        setTimeout(() => fetchUsers(retryCount + 1), 1000 * (retryCount + 1));
+        return;
+      }
+      
       toast({
         title: "Error",
-        description: "An unexpected error occurred. Please try again.",
+        description: `Failed to fetch ${filter === 'all' ? 'all users' : `${filter}s`}. ${error.message || 'Please try again.'}`,
         variant: "destructive"
       });
+      
+      // Set empty state on error
+      setUsers([]);
+      setTotalUsers(0);
+      setUserRoles({});
     } finally {
       setLoading(false);
     }
