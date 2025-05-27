@@ -12,7 +12,7 @@ interface UserRoleRowProps {
   onRoleToggle: (userId: string, role: UserRole, hasRole: boolean) => void;
 }
 
-const getInitials = (firstName: string, lastName: string) => {
+const getInitials = (firstName: string, lastName: string, email: string) => {
   const firstInitial = firstName && firstName.trim() ? firstName.charAt(0).toUpperCase() : '';
   const lastInitial = lastName && lastName.trim() ? lastName.charAt(0).toUpperCase() : '';
   
@@ -24,7 +24,6 @@ const getInitials = (firstName: string, lastName: string) => {
     return lastInitial;
   } else {
     // Fallback to email if no names
-    const email = user.email || '';
     return email.charAt(0).toUpperCase() || 'U';
   }
 };
@@ -35,7 +34,7 @@ const UserRoleRow = ({ user, userRoles, onRoleToggle }: UserRoleRowProps) => {
   const hasUserRole = userRoles.includes('user');
 
   const displayName = `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email;
-  const initials = getInitials(user.firstName || '', user.lastName || '');
+  const initials = getInitials(user.firstName || '', user.lastName || '', user.email || '');
 
   return (
     <TableRow>
