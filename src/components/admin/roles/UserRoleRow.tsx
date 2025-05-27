@@ -3,6 +3,7 @@ import React from 'react';
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { UserProfile, UserRole } from "@/types";
 
 interface UserRoleRowProps {
@@ -16,17 +17,22 @@ const UserRoleRow = ({ user, userRoles, onRoleToggle }: UserRoleRowProps) => {
   const hasMemberRole = userRoles.includes('member');
   const hasUserRole = userRoles.includes('user');
 
+  const getInitials = (firstName: string, lastName: string) => {
+    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+  };
+
   return (
     <TableRow>
       <TableCell className="font-medium">
         <div className="flex items-center">
-          {user.avatar && (
-            <img
-              src={user.avatar}
-              alt={user.firstName}
-              className="w-8 h-8 rounded-full mr-2"
-            />
-          )}
+          <Avatar className="w-8 h-8 mr-2">
+            {user.avatar && (
+              <AvatarImage src={user.avatar} alt={user.firstName} />
+            )}
+            <AvatarFallback>
+              {getInitials(user.firstName || 'U', user.lastName || 'U')}
+            </AvatarFallback>
+          </Avatar>
           <div>
             {user.firstName} {user.lastName}
             <div className="text-sm text-gray-500">
