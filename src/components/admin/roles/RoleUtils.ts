@@ -57,7 +57,7 @@ export const fetchUsersByRole = async (role: UserRole | 'all', page = 1, pageSiz
         userRoleMap[ur.user_id].push(ur.role as UserRole);
       });
       
-      const enhancedProfiles = mapProfilesToUserProfiles(profiles, userRoleMap);
+      const enhancedProfiles = await mapProfilesToUserProfiles(profiles, userRoleMap);
       
       return { 
         data: enhancedProfiles, 
@@ -125,6 +125,7 @@ export const fetchUsersByRole = async (role: UserRole | 'all', page = 1, pageSiz
       if (profilesError) throw profilesError;
       
       if (!profiles || profiles.length === 0) {
+        console.log(`No profiles found for filtered IDs: ${paginatedIds}`);
         return { 
           data: [], 
           count: totalCount,
@@ -149,7 +150,7 @@ export const fetchUsersByRole = async (role: UserRole | 'all', page = 1, pageSiz
         userRoleMap[ur.user_id].push(ur.role as UserRole);
       });
       
-      const enhancedProfiles = mapProfilesToUserProfiles(profiles, userRoleMap);
+      const enhancedProfiles = await mapProfilesToUserProfiles(profiles, userRoleMap);
       
       console.log(`Found ${enhancedProfiles.length} profiles for role ${role}`);
       
@@ -252,22 +253,54 @@ export const fetchRoleCounts = async (): Promise<Record<UserRole | 'all', number
 };
 
 /**
- * Maps database profiles to UserProfile objects
+ * Maps database profiles to UserProfile objects with sprint_profiles fallback for names
  */
-export const mapProfilesToUserProfiles = (profiles: any[], roleMap: Record<string, UserRole[]> = {}): UserProfile[] => {
-  return profiles.map(profile => ({
-    id: profile.id,
-    firstName: profile.first_name || '',
-    lastName: profile.last_name || '',
-    email: profile.email || '',
-    linkedIn: profile.linked_in,
-    institution: profile.institution,
-    location: profile.location,
-    role: profile.role,
-    bio: profile.bio,
-    approved: roleMap[profile.id]?.includes("member") || false,
-    isAdmin: roleMap[profile.id]?.includes("admin") || false,
-    createdAt: new Date(profile.created_at || Date.now()),
-    avatar: profile.avatar
-  }));
+export const mapProfilesToUserProfiles = async (profiles: any[], roleMap: Record<string, UserRole[]> = {}): Promise<UserProfile[]> => {
+  // Get sprint profiles for name fallback
+  const profileIds = profiles.map(profile => profile.id);
+  const { data: sprintProfiles } = await supabase
+    .from('sprint_profiles')
+    .select('user_id, name, email')
+    .in('user_id', profileIds);
+
+  // Create a map of sprint profiles for quick lookup
+  const sprintProfileMap: Record<string, any> = {};
+  sprintProfiles?.forEach(sp => {
+    sprintProfileMap[sp.user_id] = sp;
+  });
+
+  return profiles.map(profile => {
+    const sprintProfile = sprintProfileMap[profile.id];
+    
+    // Use sprint profile name as fallback if main profile names are missing
+    let firstName = profile.first_name;
+    let lastName = profile.last_name;
+    
+    if ((!firstName || !lastName) && sprintProfile?.name) {
+      const nameParts = sprintProfile.name.split(' ');
+      if (nameParts.length >= 2) {
+        firstName = firstName || nameParts[0];
+        lastName = lastName || nameParts.slice(1).join(' ');
+      } else if (nameParts.length === 1) {
+        firstName = firstName || nameParts[0];
+        lastName = lastName || '';
+      }
+    }
+    
+    return {
+      id: profile.id,
+      firstName: firstName || '',
+      lastName: lastName || '',
+      email: profile.email || sprintProfile?.email || '',
+      linkedIn: profile.linked_in,
+      institution: profile.institution,
+      location: profile.location,
+      role: profile.role,
+      bio: profile.bio,
+      approved: roleMap[profile.id]?.includes("member") || false,
+      isAdmin: roleMap[profile.id]?.includes("admin") || false,
+      createdAt: new Date(profile.created_at || Date.now()),
+      avatar: profile.avatar
+    };
+  });
 };

@@ -17,7 +17,33 @@ const UserRoleRow = ({ user, userRoles, onRoleToggle }: UserRoleRowProps) => {
   const hasMemberRole = userRoles.includes('member');
 
   const getInitials = (firstName: string, lastName: string) => {
-    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+    // Handle null, undefined, or empty strings properly
+    const first = firstName && firstName.trim() ? firstName.trim().charAt(0) : '';
+    const last = lastName && lastName.trim() ? lastName.trim().charAt(0) : '';
+    
+    // If we have both initials, use them
+    if (first && last) {
+      return `${first}${last}`.toUpperCase();
+    }
+    
+    // If we only have first name, use first two characters or first + first
+    if (first && !last) {
+      return firstName.length > 1 ? `${first}${firstName.charAt(1)}`.toUpperCase() : `${first}${first}`.toUpperCase();
+    }
+    
+    // If we only have last name, use first two characters or first + first
+    if (!first && last) {
+      return lastName.length > 1 ? `${last}${lastName.charAt(1)}`.toUpperCase() : `${last}${last}`.toUpperCase();
+    }
+    
+    // Fallback to email if available
+    if (user.email) {
+      const emailFirst = user.email.charAt(0).toUpperCase();
+      return `${emailFirst}${emailFirst}`;
+    }
+    
+    // Final fallback
+    return 'UU';
   };
 
   return (
@@ -29,7 +55,7 @@ const UserRoleRow = ({ user, userRoles, onRoleToggle }: UserRoleRowProps) => {
               <AvatarImage src={user.avatar} alt={`${user.firstName} ${user.lastName}`} />
             )}
             <AvatarFallback>
-              {getInitials(user.firstName || 'U', user.lastName || 'U')}
+              {getInitials(user.firstName || '', user.lastName || '')}
             </AvatarFallback>
           </Avatar>
           <div>
