@@ -67,7 +67,7 @@ export const fetchUsersByRole = async (role: UserRole | 'all', page = 1, pageSiz
     } else {
       // For specific roles, first get user IDs with that role
       if (role === 'user') {
-        // For 'user' role, show users who have 'user' role but NOT 'member' or 'admin'
+        // For 'user' role, show users who have ONLY 'user' role (not member or admin)
         const { data: allUserRoles, error: allRolesError } = await supabase
           .from('user_roles')
           .select('user_id, role');
@@ -83,7 +83,7 @@ export const fetchUsersByRole = async (role: UserRole | 'all', page = 1, pageSiz
           userRoleMap[ur.user_id].push(ur.role as UserRole);
         });
         
-        // Find users who only have 'user' role
+        // Find users who ONLY have 'user' role (not member or admin)
         filteredProfileIds = Object.entries(userRoleMap)
           .filter(([userId, roles]) => 
             roles.includes('user') && !roles.includes('member') && !roles.includes('admin')

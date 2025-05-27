@@ -15,7 +15,6 @@ interface UserRoleRowProps {
 const UserRoleRow = ({ user, userRoles, onRoleToggle }: UserRoleRowProps) => {
   const hasAdminRole = userRoles.includes('admin');
   const hasMemberRole = userRoles.includes('member');
-  const hasUserRole = userRoles.includes('user');
 
   const getInitials = (firstName: string, lastName: string) => {
     return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
@@ -27,7 +26,7 @@ const UserRoleRow = ({ user, userRoles, onRoleToggle }: UserRoleRowProps) => {
         <div className="flex items-center">
           <Avatar className="w-8 h-8 mr-2">
             {user.avatar && (
-              <AvatarImage src={user.avatar} alt={user.firstName} />
+              <AvatarImage src={user.avatar} alt={`${user.firstName} ${user.lastName}`} />
             )}
             <AvatarFallback>
               {getInitials(user.firstName || 'U', user.lastName || 'U')}
@@ -46,7 +45,7 @@ const UserRoleRow = ({ user, userRoles, onRoleToggle }: UserRoleRowProps) => {
         <div className="flex flex-wrap gap-1">
           {hasAdminRole && <Badge variant="destructive">Admin</Badge>}
           {hasMemberRole && <Badge variant="default">Member</Badge>}
-          {hasUserRole && <Badge variant="secondary">User</Badge>}
+          {userRoles.includes('user') && !hasMemberRole && !hasAdminRole && <Badge variant="secondary">User</Badge>}
           {userRoles.length === 0 && <Badge variant="outline">No roles</Badge>}
         </div>
       </TableCell>
