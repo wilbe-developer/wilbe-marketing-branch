@@ -17,6 +17,7 @@ interface UseAuthActionsProps {
 export const useAuthActions = (props: UseAuthActionsProps) => {
   const { fetchUserProfile, updateProfile } = useProfileActions(props);
   const { 
+    loginOrSignup,
     sendMagicLink, 
     loginWithPassword, 
     resetPassword, 
@@ -27,6 +28,7 @@ export const useAuthActions = (props: UseAuthActionsProps) => {
   
   return {
     fetchUserProfile: useCallback(fetchUserProfile, [props.setLoading, props.setUser]),
+    loginOrSignup,
     sendMagicLink,
     loginWithPassword,
     resetPassword,
