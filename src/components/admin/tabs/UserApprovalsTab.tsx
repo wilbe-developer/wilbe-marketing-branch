@@ -3,11 +3,27 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/components/ui/use-toast";
 import { UserProfile, ApprovalStatus } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 import LoadingState from "../roles/LoadingState";
 import EmptyState from "../roles/EmptyState";
+
+const getInitials = (firstName: string, lastName: string) => {
+  const firstInitial = firstName && firstName.trim() ? firstName.charAt(0).toUpperCase() : '';
+  const lastInitial = lastName && lastName.trim() ? lastName.charAt(0).toUpperCase() : '';
+  
+  if (firstInitial && lastInitial) {
+    return `${firstInitial}${lastInitial}`;
+  } else if (firstInitial) {
+    return firstInitial;
+  } else if (lastInitial) {
+    return lastInitial;
+  } else {
+    return 'U';
+  }
+};
 
 const UserApprovalsTab = () => {
   const { toast } = useToast();
@@ -145,53 +161,62 @@ const UserApprovalsTab = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {pendingUsers.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell className="font-medium">
-                    <div className="flex items-center">
-                      {user.avatar && (
-                        <img
-                          src={user.avatar}
-                          alt={user.firstName}
-                          className="w-8 h-8 rounded-full mr-2"
-                        />
-                      )}
-                      <div>
-                        {user.firstName} {user.lastName}
-                        <div className="text-sm text-gray-500">
-                          {user.role}
+              {pendingUsers.map((user) => {
+                const displayName = `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email;
+                const initials = getInitials(user.firstName || '', user.lastName || '');
+                
+                return (
+                  <TableRow key={user.id}>
+                    <TableCell className="font-medium">
+                      <div className="flex items-center">
+                        <Avatar className="w-8 h-8 mr-2">
+                          {user.avatar && (
+                            <AvatarImage 
+                              src={user.avatar} 
+                              alt={displayName}
+                            />
+                          )}
+                          <AvatarFallback className="text-sm font-medium">
+                            {initials}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          {displayName}
+                          <div className="text-sm text-gray-500">
+                            {user.role}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>{user.email}</TableCell>
-                  <TableCell>{user.institution}</TableCell>
-                  <TableCell>
-                    {new Date(user.createdAt).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        onClick={() =>
-                          handleApprovalAction(user.id, "approved")
-                        }
-                      >
-                        Approve
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() =>
-                          handleApprovalAction(user.id, "rejected")
-                        }
-                      >
-                        Reject
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
+                    </TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>{user.institution}</TableCell>
+                    <TableCell>
+                      {new Date(user.createdAt).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          onClick={() =>
+                            handleApprovalAction(user.id, "approved")
+                          }
+                        >
+                          Approve
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() =>
+                            handleApprovalAction(user.id, "rejected")
+                          }
+                        >
+                          Reject
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         ) : (
