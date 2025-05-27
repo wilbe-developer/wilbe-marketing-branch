@@ -1,4 +1,3 @@
-
 import { UserProfile, UserRole } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -48,45 +47,8 @@ export const fetchUsersByRole = async (role: UserRole | 'all', page = 1, pageSiz
       console.log(`Fetched ${profiles.length} profiles for 'all'. Total: ${count || 0}`);
       return { data: profiles, count: count || 0, userRoleMap };
 
-    } else if (role === 'user') {
-      // For basic users: users who have ONLY 'user' role (not member or admin)
-      const { data: basicUserProfiles, error: basicUserError, count } = await supabase
-        .from('profiles')
-        .select(`
-          *,
-          user_roles!inner(role)
-        `, { count: 'exact' })
-        .eq('user_roles.role', 'user')
-        .not('id', 'in', `(
-          SELECT DISTINCT user_id 
-          FROM user_roles 
-          WHERE role IN ('member', 'admin')
-        )`)
-        .order('created_at', { ascending: false })
-        .range(from, to);
-
-      if (basicUserError) {
-        console.error("Error fetching basic users:", basicUserError);
-        throw basicUserError;
-      }
-
-      // Build role map for basic users
-      const userRoleMap: Record<string, UserRole[]> = {};
-      const profiles = basicUserProfiles || [];
-      
-      profiles.forEach(profile => {
-        userRoleMap[profile.id] = ['user'];
-      });
-
-      console.log(`Fetched ${profiles.length} basic user profiles. Total: ${count || 0}`);
-      return { 
-        data: profiles, 
-        count: count || 0,
-        userRoleMap
-      };
-
     } else {
-      // For admin/member roles: direct JOIN query
+      // For any specific role (user, admin, member): direct JOIN query
       const { data: roleProfiles, error: roleError, count } = await supabase
         .from('profiles')
         .select(`
@@ -159,7 +121,7 @@ export const fetchUserRoles = async (userId: string): Promise<UserRole[]> => {
 };
 
 /**
- * Counts users by role type - now with better error handling
+ * Counts users by role type - simplified since no duplicate roles
  */
 export const fetchRoleCounts = async (): Promise<Record<UserRole | 'all', number>> => {
   try {
@@ -173,41 +135,27 @@ export const fetchRoleCounts = async (): Promise<Record<UserRole | 'all', number
       throw totalError;
     }
     
-    // Get all user roles with better error handling
-    const { data: allUserRoles, error: allRolesError } = await supabase
-      .from('user_roles')
-      .select('user_id, role');
-    
-    if (allRolesError) {
-      console.error("Error getting role data:", allRolesError);
-      throw allRolesError;
-    }
-    
-    // Count users by role
-    const adminUsers = new Set();
-    const memberUsers = new Set();
-    const userRoleMap: Record<string, UserRole[]> = {};
-    
-    allUserRoles?.forEach(ur => {
-      if (!userRoleMap[ur.user_id]) {
-        userRoleMap[ur.user_id] = [];
-      }
-      userRoleMap[ur.user_id].push(ur.role as UserRole);
-      
-      if (ur.role === 'admin') adminUsers.add(ur.user_id);
-      if (ur.role === 'member') memberUsers.add(ur.user_id);
-    });
-    
-    // Count basic users (have 'user' role but not 'member' or 'admin')
-    const basicUserCount = Object.entries(userRoleMap).filter(([userId, roles]) => 
-      roles.includes('user') && !roles.includes('member') && !roles.includes('admin')
-    ).length;
-    
+    // Get counts for each role directly
+    const [adminResult, memberResult, userResult] = await Promise.all([
+      supabase
+        .from('user_roles')
+        .select('*', { count: 'exact', head: true })
+        .eq('role', 'admin'),
+      supabase
+        .from('user_roles')
+        .select('*', { count: 'exact', head: true })
+        .eq('role', 'member'),
+      supabase
+        .from('user_roles')
+        .select('*', { count: 'exact', head: true })
+        .eq('role', 'user')
+    ]);
+
     const counts = {
       'all': totalCount || 0,
-      'admin': adminUsers.size,
-      'member': memberUsers.size,
-      'user': basicUserCount
+      'admin': adminResult.count || 0,
+      'member': memberResult.count || 0,
+      'user': userResult.count || 0
     };
     
     console.log("Role counts calculated successfully:", counts);
