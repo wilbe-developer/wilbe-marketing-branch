@@ -1,4 +1,3 @@
-
 import { UserProfile, UserRole } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -49,25 +48,56 @@ export const fetchUsersByRole = async (role: UserRole | 'all', page = 1, pageSiz
       return { data: profiles, count: count || 0, userRoleMap };
 
     } else if (role === 'user') {
-      // For basic users: users who have ONLY 'user' role (not member or admin)
-      const { data: basicUserProfiles, error: basicUserError, count } = await supabase
+      // For basic users: use a different approach to avoid the SQL syntax issue
+      console.log("Fetching basic users with improved query approach");
+      
+      // First, get all users who have 'user' role
+      const { data: usersWithUserRole, error: userRoleError } = await supabase
+        .from('user_roles')
+        .select('user_id')
+        .eq('role', 'user');
+
+      if (userRoleError) {
+        console.error("Error fetching users with 'user' role:", userRoleError);
+        throw userRoleError;
+      }
+
+      // Get all users who have 'member' or 'admin' roles
+      const { data: usersWithElevatedRoles, error: elevatedRoleError } = await supabase
+        .from('user_roles')
+        .select('user_id')
+        .in('role', ['member', 'admin']);
+
+      if (elevatedRoleError) {
+        console.error("Error fetching users with elevated roles:", elevatedRoleError);
+        throw elevatedRoleError;
+      }
+
+      // Filter to get only basic users (have 'user' role but not 'member' or 'admin')
+      const userRoleUserIds = new Set((usersWithUserRole || []).map(ur => ur.user_id));
+      const elevatedRoleUserIds = new Set((usersWithElevatedRoles || []).map(ur => ur.user_id));
+      
+      const basicUserIds = Array.from(userRoleUserIds).filter(userId => 
+        !elevatedRoleUserIds.has(userId)
+      );
+
+      console.log(`Found ${basicUserIds.length} basic user IDs`);
+
+      if (basicUserIds.length === 0) {
+        return { data: [], count: 0, userRoleMap: {} };
+      }
+
+      // Get profiles for basic users with pagination
+      const { data: basicUserProfiles, error: profilesError, count } = await supabase
         .from('profiles')
-        .select(`
-          *,
-          user_roles!inner(role)
-        `, { count: 'exact' })
-        .eq('user_roles.role', 'user')
-        .not('id', 'in', `(
-          SELECT DISTINCT user_id 
-          FROM user_roles 
-          WHERE role IN ('member', 'admin')
-        )`)
+        .select('*', { count: 'exact' })
+        .in('id', basicUserIds)
         .order('created_at', { ascending: false })
         .range(from, to);
 
-      if (basicUserError) {
-        console.error("Error fetching basic users:", basicUserError);
-        throw basicUserError;
+      if (profilesError) {
+        console.error("Error fetching basic user profiles:", profilesError);
+        throw profilesError;
       }
 
       // Build role map for basic users
@@ -87,6 +117,8 @@ export const fetchUsersByRole = async (role: UserRole | 'all', page = 1, pageSiz
 
     } else {
       // For admin/member roles: direct JOIN query
+      console.log(`Fetching users with role: ${role}`);
+      
       const { data: roleProfiles, error: roleError, count } = await supabase
         .from('profiles')
         .select(`
@@ -144,14 +176,21 @@ export const fetchUsersByRole = async (role: UserRole | 'all', page = 1, pageSiz
  */
 export const fetchUserRoles = async (userId: string): Promise<UserRole[]> => {
   try {
+    console.log(`Fetching roles for user: ${userId}`);
+    
     const { data, error } = await supabase
       .from('user_roles')
       .select('role')
       .eq('user_id', userId);
     
-    if (error) throw error;
+    if (error) {
+      console.error(`Error fetching roles for user ${userId}:`, error);
+      throw error;
+    }
     
-    return (data || []).map(row => row.role as UserRole);
+    const roles = (data || []).map(row => row.role as UserRole);
+    console.log(`User ${userId} has roles:`, roles);
+    return roles;
   } catch (error) {
     console.error(`Error fetching roles for user ${userId}:`, error);
     return [];
