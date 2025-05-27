@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -13,6 +14,7 @@ import Layout from "@/components/Layout";
 import SprintLayout from "@/components/sprint/SprintLayout";
 
 // Pages
+import Index from "@/pages/Index";
 import HomePage from "@/pages/HomePage";
 import KnowledgeCenterPage from "@/pages/KnowledgeCenterPage";
 import MemberDirectoryPage from "@/pages/MemberDirectoryPage";
@@ -77,6 +79,9 @@ const App = () => (
           <SprintContextProvider>
             <MetaWrapper>
               <Routes>
+                {/* Root path - handles initial routing logic */}
+                <Route path="/" element={<Index />} />
+
                 {/* Public merch chooser route */}
                 <Route path="/merch" element={<MerchPage />} />
 
