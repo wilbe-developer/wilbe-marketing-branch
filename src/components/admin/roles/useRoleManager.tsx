@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { UserProfile, UserRole } from "@/types";
@@ -50,17 +49,16 @@ export const useRoleManager = () => {
       // Map to UserProfile format with role information
       const enhancedProfiles = mapProfilesToUserProfiles(fetchedUsers);
       
-      // Build simplified userRoles map from the fetched data (each user has only one role)
+      // Build simplified userRoles map from the fetched data
       const rolesMap: Record<string, UserRole[]> = {};
-      enhancedProfiles.forEach((user: any) => {
-        if (user.actualRole) {
-          rolesMap[user.id] = [user.actualRole];
+      fetchedUsers.forEach((user: any) => {
+        if (user.user_roles?.role) {
+          rolesMap[user.id] = [user.user_roles.role];
         }
       });
       setUserRoles(rolesMap);
       
       console.log(`Successfully processed ${enhancedProfiles.length} user profiles for filter: ${filter}`);
-      console.log('Enhanced profiles sample:', enhancedProfiles[0]);
       
       setUsers(enhancedProfiles);
     } catch (error) {
@@ -100,7 +98,7 @@ export const useRoleManager = () => {
   const handleRoleToggle = async (userId: string, role: UserRole, hasRole: boolean) => {
     try {
       if (hasRole) {
-        // Remove role (delete the user's role record)
+        // Remove role
         const { error } = await supabase
           .from('user_roles')
           .delete()
@@ -118,14 +116,7 @@ export const useRoleManager = () => {
             : "User role has been removed."
         });
       } else {
-        // Since users can only have one role, we need to replace their existing role
-        // First delete any existing role
-        await supabase
-          .from('user_roles')
-          .delete()
-          .eq('user_id', userId);
-        
-        // Then add the new role
+        // Add role
         const { error } = await supabase
           .from('user_roles')
           .insert({
