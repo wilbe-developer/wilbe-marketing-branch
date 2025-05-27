@@ -3,20 +3,60 @@ import { UserProfile, UserRole } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 
 /**
+ * Get user IDs that exist in both user_roles and profiles tables
+ */
+const getUserIdsWithProfiles = async (roleFilter?: UserRole): Promise<string[]> => {
+  try {
+    // Get user IDs from user_roles (with optional role filter)
+    let userRolesQuery = supabase
+      .from('user_roles')
+      .select('user_id');
+    
+    if (roleFilter) {
+      userRolesQuery = userRolesQuery.eq('role', roleFilter);
+    }
+    
+    const { data: userRoles, error: userRolesError } = await userRolesQuery;
+    if (userRolesError) throw userRolesError;
+    
+    const userRoleIds = [...new Set(userRoles?.map(ur => ur.user_id) || [])];
+    console.log(`Found ${userRoleIds.length} unique user IDs in user_roles${roleFilter ? ` with role ${roleFilter}` : ''}`);
+    
+    // Get user IDs that also exist in profiles
+    const { data: profiles, error: profilesError } = await supabase
+      .from('profiles')
+      .select('id')
+      .in('id', userRoleIds);
+    
+    if (profilesError) throw profilesError;
+    
+    const profileIds = profiles?.map(p => p.id) || [];
+    console.log(`Found ${profileIds.length} of those user IDs that also have profiles`);
+    
+    if (userRoleIds.length !== profileIds.length) {
+      const missingProfiles = userRoleIds.filter(id => !profileIds.includes(id));
+      console.warn(`${missingProfiles.length} user IDs have roles but no profiles:`, missingProfiles);
+    }
+    
+    return profileIds;
+  } catch (error) {
+    console.error('Error getting user IDs with profiles:', error);
+    return [];
+  }
+};
+
+/**
  * Fetches users with specified role using a more efficient approach
  */
 export const fetchUsersByRole = async (role: UserRole | 'all', page = 1, pageSize = 20) => {
   try {
+    console.log(`Fetching users by role: ${role}, page: ${page}, pageSize: ${pageSize}`);
+    
     if (role === 'all') {
-      // For 'all', get all user IDs that have any role, then fetch their profiles
-      const { data: allUserRoles, error: rolesError } = await supabase
-        .from('user_roles')
-        .select('user_id');
-
-      if (rolesError) throw rolesError;
-
-      // Get unique user IDs
-      const userIds = [...new Set(allUserRoles?.map(ur => ur.user_id) || [])];
+      // Get all user IDs that have any role AND a profile
+      const userIds = await getUserIdsWithProfiles();
+      
+      console.log(`Found ${userIds.length} total users with roles and profiles`);
       
       if (userIds.length === 0) {
         return { 
@@ -30,6 +70,8 @@ export const fetchUsersByRole = async (role: UserRole | 'all', page = 1, pageSiz
       const from = (page - 1) * pageSize;
       const to = from + pageSize - 1;
       const paginatedUserIds = userIds.slice(from, to + 1);
+      
+      console.log(`Paginating: showing users ${from + 1}-${Math.min(from + paginatedUserIds.length, userIds.length)} of ${userIds.length}`);
 
       // Fetch profiles for paginated user IDs
       const { data: profiles, error: profilesError } = await supabase
@@ -56,7 +98,7 @@ export const fetchUsersByRole = async (role: UserRole | 'all', page = 1, pageSiz
         userRoleMap[ur.user_id].push(ur.role as UserRole);
       });
       
-      console.log(`Fetched ${profiles?.length || 0} profiles for 'all' filter. Total users with roles: ${userIds.length}`);
+      console.log(`Successfully fetched ${profiles?.length || 0} profiles for 'all' filter`);
       
       return { 
         data: profiles || [], 
@@ -65,7 +107,7 @@ export const fetchUsersByRole = async (role: UserRole | 'all', page = 1, pageSiz
       };
     }
 
-    // For specific roles, first get all user IDs with that role
+    // For specific roles
     if (role === 'user') {
       // For 'user' role, get users who have 'user' role but NOT 'member' or 'admin'
       const { data: adminUsers } = await supabase
@@ -90,11 +132,27 @@ export const fetchUsersByRole = async (role: UserRole | 'all', page = 1, pageSiz
         ...(memberUsers?.map(u => u.user_id) || [])
       ];
 
-      const basicUserIds = (userRoleUsers || [])
+      const candidateUserIds = (userRoleUsers || [])
         .map(u => u.user_id)
         .filter(id => !excludeIds.includes(id));
 
-      console.log(`Basic user IDs found: ${basicUserIds.length}`);
+      console.log(`Found ${candidateUserIds.length} candidate basic user IDs`);
+
+      // Now filter to only those that have profiles
+      const { data: profilesCheck, error: profilesCheckError } = await supabase
+        .from('profiles')
+        .select('id')
+        .in('id', candidateUserIds);
+      
+      if (profilesCheckError) throw profilesCheckError;
+      
+      const basicUserIds = profilesCheck?.map(p => p.id) || [];
+      console.log(`Found ${basicUserIds.length} basic users with profiles`);
+
+      if (candidateUserIds.length !== basicUserIds.length) {
+        const missingProfiles = candidateUserIds.filter(id => !basicUserIds.includes(id));
+        console.warn(`${missingProfiles.length} basic user IDs have no profiles:`, missingProfiles);
+      }
 
       if (basicUserIds.length === 0) {
         return { data: [], count: 0, userRoleMap: {} };
@@ -105,7 +163,7 @@ export const fetchUsersByRole = async (role: UserRole | 'all', page = 1, pageSiz
       const to = from + pageSize - 1;
       const paginatedUserIds = basicUserIds.slice(from, to + 1);
 
-      console.log(`Paginated basic user IDs (page ${page}): ${paginatedUserIds.length}`);
+      console.log(`Paginating basic users: showing ${paginatedUserIds.length} users on page ${page}`);
 
       // Fetch profiles for these specific user IDs
       const { data: profiles, error: profilesError } = await supabase
@@ -116,7 +174,7 @@ export const fetchUsersByRole = async (role: UserRole | 'all', page = 1, pageSiz
 
       if (profilesError) throw profilesError;
 
-      console.log(`Fetched profiles for basic users: ${profiles?.length || 0}`);
+      console.log(`Fetched ${profiles?.length || 0} basic user profiles`);
 
       // Get all roles for these users
       const { data: allUserRoles, error: allRolesError } = await supabase
@@ -142,17 +200,10 @@ export const fetchUsersByRole = async (role: UserRole | 'all', page = 1, pageSiz
         userRoleMap
       };
     } else {
-      // For admin/member roles, get user IDs with that role
-      const { data: roleUsers, error: roleError } = await supabase
-        .from('user_roles')
-        .select('user_id')
-        .eq('role', role);
+      // For admin/member roles, get user IDs that have that role AND a profile
+      const userIds = await getUserIdsWithProfiles(role);
       
-      if (roleError) throw roleError;
-      
-      const userIds = roleUsers?.map(u => u.user_id) || [];
-      
-      console.log(`User IDs with role ${role}: ${userIds.length}`);
+      console.log(`Found ${userIds.length} users with role ${role} and profiles`);
       
       if (userIds.length === 0) {
         return { data: [], count: 0, userRoleMap: {} };
@@ -163,7 +214,7 @@ export const fetchUsersByRole = async (role: UserRole | 'all', page = 1, pageSiz
       const to = from + pageSize - 1;
       const paginatedUserIds = userIds.slice(from, to + 1);
 
-      console.log(`Paginated user IDs for role ${role} (page ${page}): ${paginatedUserIds.length}`);
+      console.log(`Paginating users with role ${role}: showing ${paginatedUserIds.length} users on page ${page}`);
 
       // Fetch profiles for these specific user IDs
       const { data: profiles, error: profilesError } = await supabase
@@ -174,7 +225,7 @@ export const fetchUsersByRole = async (role: UserRole | 'all', page = 1, pageSiz
 
       if (profilesError) throw profilesError;
 
-      console.log(`Fetched profiles for role ${role}: ${profiles?.length || 0}`);
+      console.log(`Fetched ${profiles?.length || 0} profiles for role ${role}`);
 
       // Get all roles for these users
       const { data: allUserRoles, error: allRolesError } = await supabase
@@ -226,42 +277,38 @@ export const fetchUserRoles = async (userId: string): Promise<UserRole[]> => {
 };
 
 /**
- * Counts users by role type
+ * Counts users by role type using consistent logic
  */
 export const fetchRoleCounts = async (): Promise<Record<UserRole | 'all', number>> => {
   try {
-    // Get total count of users who have any role (from user_roles table)
-    const { data: allUserRoles, error: allRolesError } = await supabase
-      .from('user_roles')
-      .select('user_id');
+    console.log('Fetching role counts...');
     
-    if (allRolesError) throw allRolesError;
-    
-    // Get unique user IDs who have roles
-    const uniqueUserIds = [...new Set(allUserRoles?.map(ur => ur.user_id) || [])];
-    const totalCount = uniqueUserIds.length;
+    // Get total count of users who have any role AND a profile
+    const allUserIds = await getUserIdsWithProfiles();
+    const totalCount = allUserIds.length;
+    console.log(`Total users with roles and profiles: ${totalCount}`);
     
     // Get admin count
-    const { data: adminRoles, error: adminError } = await supabase
+    const adminUserIds = await getUserIdsWithProfiles('admin');
+    const adminCount = adminUserIds.length;
+    console.log(`Admin users: ${adminCount}`);
+    
+    // Get member count
+    const memberUserIds = await getUserIdsWithProfiles('member');
+    const memberCount = memberUserIds.length;
+    console.log(`Member users: ${memberCount}`);
+    
+    // Get basic user count (users who have 'user' role but not 'member' or 'admin')
+    const { data: adminUsers } = await supabase
       .from('user_roles')
       .select('user_id')
       .eq('role', 'admin');
     
-    if (adminError) throw adminError;
-    
-    const adminCount = [...new Set(adminRoles?.map(ur => ur.user_id) || [])].length;
-    
-    // Get member count
-    const { data: memberRoles, error: memberError } = await supabase
+    const { data: memberUsers } = await supabase
       .from('user_roles')
       .select('user_id')
       .eq('role', 'member');
-    
-    if (memberError) throw memberError;
-    
-    const memberCount = [...new Set(memberRoles?.map(ur => ur.user_id) || [])].length;
-    
-    // Get basic user count (users who have 'user' role but not 'member' or 'admin')
+
     const { data: userRoles, error: userRolesError } = await supabase
       .from('user_roles')
       .select('user_id')
@@ -269,27 +316,32 @@ export const fetchRoleCounts = async (): Promise<Record<UserRole | 'all', number
     
     if (userRolesError) throw userRolesError;
     
-    const adminUserIds = new Set(adminRoles?.map(ur => ur.user_id) || []);
-    const memberUserIds = new Set(memberRoles?.map(ur => ur.user_id) || []);
+    const adminUserIds_basic = new Set(adminUsers?.map(ur => ur.user_id) || []);
+    const memberUserIds_basic = new Set(memberUsers?.map(ur => ur.user_id) || []);
     
-    const basicUserCount = (userRoles || [])
+    const candidateBasicUsers = (userRoles || [])
       .map(ur => ur.user_id)
-      .filter(id => !adminUserIds.has(id) && !memberUserIds.has(id))
-      .length;
+      .filter(id => !adminUserIds_basic.has(id) && !memberUserIds_basic.has(id));
     
-    console.log("Role counts:", {
-      'all': totalCount,
-      'admin': adminCount,
-      'member': memberCount,
-      'user': basicUserCount
-    });
+    // Filter to only those with profiles
+    const { data: basicUserProfiles } = await supabase
+      .from('profiles')
+      .select('id')
+      .in('id', candidateBasicUsers);
     
-    return {
+    const basicUserCount = basicUserProfiles?.length || 0;
+    console.log(`Basic users: ${basicUserCount}`);
+    
+    const counts = {
       'all': totalCount,
       'admin': adminCount,
       'member': memberCount,
       'user': basicUserCount
     };
+    
+    console.log("Final role counts:", counts);
+    
+    return counts;
   } catch (error) {
     console.error("Error fetching role counts:", error);
     return { 'all': 0, 'admin': 0, 'member': 0, 'user': 0 };
