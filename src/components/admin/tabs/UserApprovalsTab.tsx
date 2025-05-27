@@ -66,7 +66,7 @@ const UserApprovalsTab = () => {
             bio: profile.bio,
             approved: false, // These are pending users
             createdAt: new Date(profile.created_at || Date.now()),
-            avatar: profile.avatar || `https://randomuser.me/api/portraits/${Math.random() > 0.5 ? 'men' : 'women'}/${Math.floor(Math.random() * 100)}.jpg`
+            avatar: profile.avatar
           }));
           setPendingUsers(userProfiles);
         }
@@ -88,16 +88,15 @@ const UserApprovalsTab = () => {
   const handleApprovalAction = async (userId: string, status: ApprovalStatus) => {
     try {
       if (status === 'approved') {
-        // Add member role to approve the user
-        const { error: roleError } = await supabase
+        // Update user role from 'user' to 'member' to approve the user
+        const { error: updateError } = await supabase
           .from('user_roles')
-          .insert({ 
-            user_id: userId, 
-            role: 'member' 
-          });
+          .update({ role: 'member' })
+          .eq('user_id', userId)
+          .eq('role', 'user');
 
-        if (roleError) {
-          throw roleError;
+        if (updateError) {
+          throw updateError;
         }
       } else {
         // For rejection, we could remove the user role or mark them differently
@@ -150,11 +149,13 @@ const UserApprovalsTab = () => {
                 <TableRow key={user.id}>
                   <TableCell className="font-medium">
                     <div className="flex items-center">
-                      <img
-                        src={user.avatar}
-                        alt={user.firstName}
-                        className="w-8 h-8 rounded-full mr-2"
-                      />
+                      {user.avatar && (
+                        <img
+                          src={user.avatar}
+                          alt={user.firstName}
+                          className="w-8 h-8 rounded-full mr-2"
+                        />
+                      )}
                       <div>
                         {user.firstName} {user.lastName}
                         <div className="text-sm text-gray-500">

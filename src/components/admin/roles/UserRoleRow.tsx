@@ -20,11 +20,13 @@ const UserRoleRow = ({ user, userRoles, onRoleToggle }: UserRoleRowProps) => {
     <TableRow>
       <TableCell className="font-medium">
         <div className="flex items-center">
-          <img
-            src={user.avatar || `https://randomuser.me/api/portraits/${Math.random() > 0.5 ? 'men' : 'women'}/${Math.floor(Math.random() * 100)}.jpg`}
-            alt={user.firstName}
-            className="w-8 h-8 rounded-full mr-2"
-          />
+          {user.avatar && (
+            <img
+              src={user.avatar}
+              alt={user.firstName}
+              className="w-8 h-8 rounded-full mr-2"
+            />
+          )}
           <div>
             {user.firstName} {user.lastName}
             <div className="text-sm text-gray-500">
@@ -52,12 +54,6 @@ const UserRoleRow = ({ user, userRoles, onRoleToggle }: UserRoleRowProps) => {
         <Switch
           checked={hasMemberRole}
           onCheckedChange={(checked) => onRoleToggle(user.id, 'member', !checked)}
-        />
-      </TableCell>
-      <TableCell>
-        <Switch
-          checked={hasUserRole}
-          onCheckedChange={(checked) => onRoleToggle(user.id, 'user', !checked)}
         />
       </TableCell>
       <TableCell>

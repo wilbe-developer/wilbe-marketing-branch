@@ -21,7 +21,6 @@ const UsersTable = ({ users, userRoles, onRoleToggle }: UsersTableProps) => {
             <TableHead>User Type</TableHead>
             <TableHead>Admin Role</TableHead>
             <TableHead>Member Role</TableHead>
-            <TableHead>User Role</TableHead>
             <TableHead>Last Login</TableHead>
           </TableRow>
         </TableHeader>
