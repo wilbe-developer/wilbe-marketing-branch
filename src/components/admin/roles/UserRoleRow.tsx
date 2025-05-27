@@ -1,10 +1,9 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { TableCell, TableRow } from "@/components/ui/table";
-import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import { UserProfile, UserRole } from "@/types";
-import { supabase } from "@/integrations/supabase/client";
 
 interface UserRoleRowProps {
   user: UserProfile;
@@ -13,75 +12,56 @@ interface UserRoleRowProps {
 }
 
 const UserRoleRow = ({ user, userRoles, onRoleToggle }: UserRoleRowProps) => {
-  const [userType, setUserType] = useState<'Sprint User' | 'Sandbox User' | 'Unknown'>('Unknown');
-  
-  useEffect(() => {
-    const checkUserType = async () => {
-      try {
-        const { data: hasSprintProfile } = await supabase
-          .rpc('has_completed_sprint_onboarding', {
-            p_user_id: user.id
-          });
-        
-        setUserType(hasSprintProfile ? 'Sprint User' : 'Sandbox User');
-      } catch (error) {
-        console.error('Error checking user type:', error);
-        setUserType('Unknown');
-      }
-    };
-    
-    checkUserType();
-  }, [user.id]);
-
   const hasAdminRole = userRoles.includes('admin');
-  const hasMemberRole = userRoles.includes('user');
-
-  const formatDate = (date: Date | undefined) => {
-    if (!date) return 'Never';
-    return new Date(date).toLocaleDateString();
-  };
-
-  const getUserTypeColor = (type: string) => {
-    switch (type) {
-      case 'Sprint User':
-        return 'bg-blue-100 text-blue-800';
-      case 'Sandbox User':
-        return 'bg-green-100 text-green-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
+  const hasMemberRole = userRoles.includes('member');
+  const hasUserRole = userRoles.includes('user');
 
   return (
     <TableRow>
       <TableCell className="font-medium">
-        <div>
-          <div className="font-semibold">{user.firstName} {user.lastName}</div>
-          {user.institution && (
-            <div className="text-sm text-gray-500">{user.institution}</div>
-          )}
+        <div className="flex items-center">
+          <img
+            src={user.avatar || `https://randomuser.me/api/portraits/${Math.random() > 0.5 ? 'men' : 'women'}/${Math.floor(Math.random() * 100)}.jpg`}
+            alt={user.firstName}
+            className="w-8 h-8 rounded-full mr-2"
+          />
+          <div>
+            {user.firstName} {user.lastName}
+            <div className="text-sm text-gray-500">
+              {user.role}
+            </div>
+          </div>
         </div>
       </TableCell>
       <TableCell>{user.email}</TableCell>
       <TableCell>
-        <Badge className={`${getUserTypeColor(userType)}`}>
-          {userType}
-        </Badge>
+        <div className="flex flex-wrap gap-1">
+          {hasAdminRole && <Badge variant="destructive">Admin</Badge>}
+          {hasMemberRole && <Badge variant="default">Member</Badge>}
+          {hasUserRole && <Badge variant="secondary">User</Badge>}
+          {userRoles.length === 0 && <Badge variant="outline">No roles</Badge>}
+        </div>
       </TableCell>
       <TableCell>
         <Switch
           checked={hasAdminRole}
-          onCheckedChange={() => onRoleToggle(user.id, 'admin', hasAdminRole)}
+          onCheckedChange={(checked) => onRoleToggle(user.id, 'admin', !checked)}
         />
       </TableCell>
       <TableCell>
         <Switch
           checked={hasMemberRole}
-          onCheckedChange={() => onRoleToggle(user.id, 'user', hasMemberRole)}
+          onCheckedChange={(checked) => onRoleToggle(user.id, 'member', !checked)}
         />
       </TableCell>
-      <TableCell className="text-sm text-gray-500">
-        {formatDate(user.lastLoginDate)}
+      <TableCell>
+        <Switch
+          checked={hasUserRole}
+          onCheckedChange={(checked) => onRoleToggle(user.id, 'user', !checked)}
+        />
+      </TableCell>
+      <TableCell>
+        {user.lastLoginDate ? new Date(user.lastLoginDate).toLocaleDateString() : 'Never'}
       </TableCell>
     </TableRow>
   );

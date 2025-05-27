@@ -170,6 +170,14 @@ export const fetchRoleCounts = async (): Promise<Record<UserRole | 'all', number
     
     if (adminError) throw adminError;
     
+    // Get member count
+    const { count: memberCount, error: memberError } = await supabase
+      .from('user_roles')
+      .select('*', { count: 'exact', head: true })
+      .eq('role', 'member');
+    
+    if (memberError) throw memberError;
+    
     // Get user role count
     const { count: userCount, error: userError } = await supabase
       .from('user_roles')
@@ -181,17 +189,19 @@ export const fetchRoleCounts = async (): Promise<Record<UserRole | 'all', number
     console.log("Role counts:", {
       'all': totalCount || 0,
       'admin': adminCount || 0,
+      'member': memberCount || 0,
       'user': userCount || 0
     });
     
     return {
       'all': totalCount || 0,
       'admin': adminCount || 0,
+      'member': memberCount || 0,
       'user': userCount || 0
     };
   } catch (error) {
     console.error("Error fetching role counts:", error);
-    return { 'all': 0, 'admin': 0, 'user': 0 };
+    return { 'all': 0, 'admin': 0, 'member': 0, 'user': 0 };
   }
 };
 
@@ -209,7 +219,7 @@ export const mapProfilesToUserProfiles = (profiles: any[], roleMap: Record<strin
     location: profile.location,
     role: profile.role,
     bio: profile.bio,
-    approved: roleMap[profile.id]?.includes("user") || false,
+    approved: roleMap[profile.id]?.includes("member") || false,
     isAdmin: roleMap[profile.id]?.includes("admin") || false,
     createdAt: new Date(profile.created_at || Date.now()),
     avatar: profile.avatar

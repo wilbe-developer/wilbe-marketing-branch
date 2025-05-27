@@ -16,6 +16,7 @@ export const useRoleManager = () => {
   const [roleCounts, setRoleCounts] = useState<Record<UserRole | 'all', number>>({
     'all': 0,
     'admin': 0,
+    'member': 0,
     'user': 0
   });
   const pageSize = 10;
@@ -90,10 +91,12 @@ export const useRoleManager = () => {
         if (error) throw error;
         
         toast({
-          title: role === "admin" ? "Admin Role Removed" : "Member Access Revoked",
+          title: role === "admin" ? "Admin Role Removed" : role === "member" ? "Member Role Removed" : "User Role Removed",
           description: role === "admin" 
             ? "Admin privileges have been removed."
-            : "Member access has been revoked."
+            : role === "member"
+            ? "Member access has been revoked."
+            : "User role has been removed."
         });
       } else {
         // Add role
@@ -107,10 +110,12 @@ export const useRoleManager = () => {
         if (error) throw error;
         
         toast({
-          title: role === "admin" ? "Admin Role Added" : "Member Access Granted",
+          title: role === "admin" ? "Admin Role Added" : role === "member" ? "Member Role Added" : "User Role Added",
           description: role === "admin" 
             ? "Admin privileges have been added."
-            : "Member access has been granted."
+            : role === "member"
+            ? "Member access has been granted."
+            : "User role has been added."
         });
       }
       

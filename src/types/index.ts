@@ -50,7 +50,7 @@ export interface Video {
   deckBuilderModuleId?: string; // To store the deck builder specific module
 }
 
-// Updated to match what's actually used in the database
-export type UserRole = 'user' | 'admin';
+// Updated to include the new member role
+export type UserRole = 'user' | 'member' | 'admin';
 
 export type ApprovalStatus = 'pending' | 'approved' | 'rejected';

@@ -17,10 +17,37 @@ const UserApprovalsTab = () => {
   useEffect(() => {
     const fetchPendingUsers = async () => {
       try {
+        // Get users who have 'user' role but not 'member' role (pending approval)
+        const { data: usersWithUserRole, error: userRoleError } = await supabase
+          .from('user_roles')
+          .select('user_id')
+          .eq('role', 'user');
+
+        if (userRoleError) throw userRoleError;
+
+        const { data: usersWithMemberRole, error: memberRoleError } = await supabase
+          .from('user_roles')
+          .select('user_id')
+          .eq('role', 'member');
+
+        if (memberRoleError) throw memberRoleError;
+
+        // Get user IDs that have 'user' role but not 'member' role
+        const userRoleIds = new Set(usersWithUserRole?.map(ur => ur.user_id) || []);
+        const memberRoleIds = new Set(usersWithMemberRole?.map(ur => ur.user_id) || []);
+        const pendingUserIds = Array.from(userRoleIds).filter(id => !memberRoleIds.has(id));
+
+        if (pendingUserIds.length === 0) {
+          setPendingUsers([]);
+          setLoading(false);
+          return;
+        }
+
+        // Fetch profiles for pending users
         const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .select('*')
-          .eq('approved', false);
+          .in('id', pendingUserIds);
 
         if (profileError) {
           throw profileError;
@@ -37,7 +64,7 @@ const UserApprovalsTab = () => {
             location: profile.location,
             role: profile.role,
             bio: profile.bio,
-            approved: profile.approved || false,
+            approved: false, // These are pending users
             createdAt: new Date(profile.created_at || Date.now()),
             avatar: profile.avatar || `https://randomuser.me/api/portraits/${Math.random() > 0.5 ? 'men' : 'women'}/${Math.floor(Math.random() * 100)}.jpg`
           }));
@@ -60,38 +87,29 @@ const UserApprovalsTab = () => {
 
   const handleApprovalAction = async (userId: string, status: ApprovalStatus) => {
     try {
-      // First, update the profile's approved field for backward compatibility
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({ approved: status === 'approved' })
-        .eq('id', userId);
-
-      if (profileError) {
-        throw profileError;
-      }
-
-      // If approving the user, add the user role
       if (status === 'approved') {
-        // Add user role if approved
+        // Add member role to approve the user
         const { error: roleError } = await supabase
           .from('user_roles')
-          .upsert({ 
+          .insert({ 
             user_id: userId, 
-            role: 'user' 
-          }, { 
-            onConflict: 'user_id,role' 
+            role: 'member' 
           });
 
         if (roleError) {
           throw roleError;
         }
+      } else {
+        // For rejection, we could remove the user role or mark them differently
+        // For now, we'll just remove them from the pending list
+        // You might want to add a 'rejected' status or handle this differently
       }
 
       setPendingUsers(pendingUsers.filter(user => user.id !== userId));
       
       toast({
         title: status === 'approved' ? "User Approved" : "User Rejected",
-        description: `User has been ${status}. ${status === 'approved' ? 'They will be notified by email.' : ''}`,
+        description: `User has been ${status}. ${status === 'approved' ? 'They now have member access.' : ''}`,
       });
       
       console.log(`User ${userId} ${status}. This would trigger a notification to the user.`);
@@ -110,7 +128,7 @@ const UserApprovalsTab = () => {
       <CardHeader>
         <CardTitle>Pending Approvals</CardTitle>
         <CardDescription>
-          Review and approve new user registrations
+          Review and approve users for member access (users with basic access pending member approval)
         </CardDescription>
       </CardHeader>
       <CardContent>

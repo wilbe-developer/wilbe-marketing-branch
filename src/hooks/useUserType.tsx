@@ -44,7 +44,7 @@ export const useUserType = () => {
           .select('role')
           .eq('user_id', user.id);
 
-        const isApproved = userRoles?.some(role => role.role === 'user') || false;
+        const isApproved = userRoles?.some(role => role.role === 'member') || false;
         const isSprintUser = hasSprintProfile || false;
         const isSandboxUser = !isSprintUser;
 
