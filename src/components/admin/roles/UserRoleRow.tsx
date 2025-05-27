@@ -6,15 +6,18 @@ import { Switch } from "@/components/ui/switch";
 import { UserProfile, UserRole } from "@/types";
 
 interface UserRoleRowProps {
-  user: UserProfile;
+  user: UserProfile & { actualRole?: UserRole };
   userRoles: UserRole[];
   onRoleToggle: (userId: string, role: UserRole, hasRole: boolean) => void;
 }
 
 const UserRoleRow = ({ user, userRoles, onRoleToggle }: UserRoleRowProps) => {
-  const hasAdminRole = userRoles.includes('admin');
-  const hasMemberRole = userRoles.includes('member');
-  const hasUserRole = userRoles.includes('user');
+  // Use the actualRole from the database if available, otherwise fall back to userRoles array
+  const currentRole = user.actualRole || userRoles[0];
+  
+  const hasAdminRole = currentRole === 'admin';
+  const hasMemberRole = currentRole === 'member';
+  const hasUserRole = currentRole === 'user';
 
   return (
     <TableRow>
@@ -41,7 +44,7 @@ const UserRoleRow = ({ user, userRoles, onRoleToggle }: UserRoleRowProps) => {
           {hasAdminRole && <Badge variant="destructive">Admin</Badge>}
           {hasMemberRole && <Badge variant="default">Member</Badge>}
           {hasUserRole && <Badge variant="secondary">User</Badge>}
-          {userRoles.length === 0 && <Badge variant="outline">No roles</Badge>}
+          {!currentRole && <Badge variant="outline">No roles</Badge>}
         </div>
       </TableCell>
       <TableCell>
