@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import { PATHS } from "@/lib/constants";
 import HomePage from "./HomePage";
 
-// This is just a wrapper to redirect to the appropriate page based on auth status and user type
+// This component only handles initial routing when users land on app.wilbe.com
 const Index = () => {
   const { isAuthenticated, loading: authLoading, isRecoveryMode } = useAuth();
   const { isSprintUser, isSandboxUser, loading: userTypeLoading } = useUserType();
@@ -29,15 +29,16 @@ const Index = () => {
       return;
     }
 
-    // If sprint user, redirect to dashboard
+    // ONLY redirect sprint users to dashboard when they land on the index page
+    // This determines their "home" page, but they can still navigate to sandbox
     if (isSprintUser) {
-      console.log("Sprint user detected, redirecting to dashboard");
+      console.log("Sprint user landing on index, redirecting to dashboard");
       navigate(PATHS.SPRINT_DASHBOARD);
       return;
     }
 
-    // If sandbox user, stay on home page (will be handled by HomePage component)
-    console.log("Sandbox user detected, staying on homepage");
+    // Sandbox users stay on home page
+    console.log("Sandbox user on homepage");
   }, [isAuthenticated, authLoading, userTypeLoading, navigate, isSprintUser, isSandboxUser, isRecoveryMode]);
   
   if (authLoading || userTypeLoading) {

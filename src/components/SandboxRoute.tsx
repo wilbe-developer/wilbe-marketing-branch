@@ -43,13 +43,8 @@ const SandboxRoute = () => {
     return <Navigate to={PATHS.LOGIN} state={{ from: location }} replace />;
   }
 
-  // Redirect sprint users to their dashboard
-  if (isSprintUser) {
-    console.log("Sprint user accessing sandbox, redirecting to dashboard");
-    return <Navigate to={PATHS.SPRINT_DASHBOARD} replace />;
-  }
-
-  // Render the sandbox content (approved or partial access)
+  // Allow both sprint users AND sandbox users to access sandbox pages
+  // The content will be controlled by the individual page components based on approval status
   console.log("Rendering sandbox content for user");
   return <Outlet />;
 };
