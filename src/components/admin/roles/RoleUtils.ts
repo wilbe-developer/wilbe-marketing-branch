@@ -3,7 +3,7 @@ import { UserProfile, UserRole } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 
 /**
- * Fetches users with specified role using a simplified two-step approach
+ * Fetches users with specified role using a simplified single-query approach
  */
 export const fetchUsersByRole = async (role: UserRole | 'all', page = 1, pageSize = 20) => {
   try {
@@ -13,10 +13,15 @@ export const fetchUsersByRole = async (role: UserRole | 'all', page = 1, pageSiz
     const to = from + pageSize - 1;
 
     if (role === 'all') {
-      // Get all profiles with their roles using a simple approach
-      const { data: profiles, error: profilesError, count } = await supabase
+      // Get all profiles with their roles using LEFT JOIN
+      const { data: results, error: profilesError, count } = await supabase
         .from('profiles')
-        .select('*', { count: 'exact' })
+        .select(`
+          *,
+          user_roles!inner (
+            role
+          )
+        `, { count: 'exact' })
         .order('created_at', { ascending: false })
         .range(from, to);
 
@@ -25,70 +30,22 @@ export const fetchUsersByRole = async (role: UserRole | 'all', page = 1, pageSiz
         throw profilesError;
       }
 
-      // Get roles for these users
-      const userIds = (profiles || []).map(profile => profile.id);
-      let userRoleMap: Record<string, UserRole[]> = {};
-      
-      if (userIds.length > 0) {
-        const { data: allRoles, error: allRolesError } = await supabase
-          .from('user_roles')
-          .select('user_id, role')
-          .in('user_id', userIds);
-
-        if (allRolesError) {
-          console.error("Error fetching roles for users:", allRolesError);
-          console.warn("Proceeding with incomplete role data");
-        } else {
-          allRoles?.forEach(ur => {
-            if (!userRoleMap[ur.user_id]) {
-              userRoleMap[ur.user_id] = [];
-            }
-            userRoleMap[ur.user_id].push(ur.role as UserRole);
-          });
-        }
-      }
-
-      console.log(`Fetched ${(profiles || []).length} profiles for 'all'. Total: ${count || 0}`);
-      return { data: profiles || [], count: count || 0, userRoleMap };
+      console.log(`Fetched ${(results || []).length} profiles for 'all'. Total: ${count || 0}`);
+      return { data: results || [], count: count || 0 };
 
     } else {
-      // For specific roles: first get user IDs with that role, then get their profiles
-      console.log(`Getting user IDs with role: ${role}`);
+      // For specific roles: use JOIN to get profiles with that specific role
+      console.log(`Getting profiles with role: ${role}`);
       
-      const { data: userRoles, error: userRolesError } = await supabase
-        .from('user_roles')
-        .select('user_id')
-        .eq('role', role);
-
-      if (userRolesError) {
-        console.error(`Error fetching user IDs for role ${role}:`, userRolesError);
-        throw userRolesError;
-      }
-
-      const userIds = (userRoles || []).map(ur => ur.user_id);
-      console.log(`Found ${userIds.length} users with role ${role}`);
-
-      if (userIds.length === 0) {
-        console.log(`No users found with role: ${role}`);
-        return { data: [], count: 0, userRoleMap: {} };
-      }
-
-      // Get count for pagination
-      const { count, error: countError } = await supabase
+      const { data: results, error: profilesError, count } = await supabase
         .from('profiles')
-        .select('*', { count: 'exact', head: true })
-        .in('id', userIds);
-
-      if (countError) {
-        console.error(`Error getting count for role ${role}:`, countError);
-        throw countError;
-      }
-
-      // Get profiles for these users with pagination
-      const { data: profiles, error: profilesError } = await supabase
-        .from('profiles')
-        .select('*')
-        .in('id', userIds)
+        .select(`
+          *,
+          user_roles!inner (
+            role
+          )
+        `, { count: 'exact' })
+        .eq('user_roles.role', role)
         .order('created_at', { ascending: false })
         .range(from, to);
 
@@ -97,34 +54,10 @@ export const fetchUsersByRole = async (role: UserRole | 'all', page = 1, pageSiz
         throw profilesError;
       }
 
-      // Build role map for these users
-      const profileIds = (profiles || []).map(p => p.id);
-      let userRoleMap: Record<string, UserRole[]> = {};
-      
-      if (profileIds.length > 0) {
-        const { data: allRoles, error: allRolesError } = await supabase
-          .from('user_roles')
-          .select('user_id, role')
-          .in('user_id', profileIds);
-
-        if (allRolesError) {
-          console.error("Error fetching all roles for users:", allRolesError);
-          console.warn("Proceeding with incomplete role data");
-        } else {
-          allRoles?.forEach(ur => {
-            if (!userRoleMap[ur.user_id]) {
-              userRoleMap[ur.user_id] = [];
-            }
-            userRoleMap[ur.user_id].push(ur.role as UserRole);
-          });
-        }
-      }
-
-      console.log(`Fetched ${(profiles || []).length} profiles with role: ${role}. Total: ${count || 0}`);
+      console.log(`Fetched ${(results || []).length} profiles with role: ${role}. Total: ${count || 0}`);
       return { 
-        data: profiles || [], 
-        count: count || 0,
-        userRoleMap
+        data: results || [], 
+        count: count || 0
       };
     }
   } catch (error) {
@@ -153,38 +86,47 @@ export const fetchUserRoles = async (userId: string): Promise<UserRole[]> => {
 };
 
 /**
- * Counts users by role type - simplified since no duplicate roles
+ * Counts users by role type using JOIN for consistency
  */
 export const fetchRoleCounts = async (): Promise<Record<UserRole | 'all', number>> => {
   try {
-    // Get total user count from profiles table
-    const { count: totalCount, error: totalError } = await supabase
-      .from('profiles')
-      .select('*', { count: 'exact', head: true });
-    
-    if (totalError) {
-      console.error("Error getting total count:", totalError);
-      throw totalError;
-    }
-    
-    // Get counts for each role directly
-    const [adminResult, memberResult, userResult] = await Promise.all([
+    // Get counts using the same JOIN approach as the main query for consistency
+    const [allResult, adminResult, memberResult, userResult] = await Promise.all([
       supabase
-        .from('user_roles')
+        .from('profiles')
         .select('*', { count: 'exact', head: true })
-        .eq('role', 'admin'),
+        .not('user_roles.role', 'is', null),
       supabase
-        .from('user_roles')
-        .select('*', { count: 'exact', head: true })
-        .eq('role', 'member'),
+        .from('profiles')
+        .select(`
+          *,
+          user_roles!inner (
+            role
+          )
+        `, { count: 'exact', head: true })
+        .eq('user_roles.role', 'admin'),
       supabase
-        .from('user_roles')
-        .select('*', { count: 'exact', head: true })
-        .eq('role', 'user')
+        .from('profiles')
+        .select(`
+          *,
+          user_roles!inner (
+            role
+          )
+        `, { count: 'exact', head: true })
+        .eq('user_roles.role', 'member'),
+      supabase
+        .from('profiles')
+        .select(`
+          *,
+          user_roles!inner (
+            role
+          )
+        `, { count: 'exact', head: true })
+        .eq('user_roles.role', 'user')
     ]);
 
     const counts = {
-      'all': totalCount || 0,
+      'all': allResult.count || 0,
       'admin': adminResult.count || 0,
       'member': memberResult.count || 0,
       'user': userResult.count || 0
@@ -200,22 +142,27 @@ export const fetchRoleCounts = async (): Promise<Record<UserRole | 'all', number
 };
 
 /**
- * Maps database profiles to UserProfile objects
+ * Maps database profiles to UserProfile objects - simplified since we get role directly
  */
-export const mapProfilesToUserProfiles = (profiles: any[], roleMap: Record<string, UserRole[]> = {}): UserProfile[] => {
-  return profiles.map(profile => ({
-    id: profile.id,
-    firstName: profile.first_name || '',
-    lastName: profile.last_name || '',
-    email: profile.email || '',
-    linkedIn: profile.linked_in,
-    institution: profile.institution,
-    location: profile.location,
-    role: profile.role,
-    bio: profile.bio,
-    approved: roleMap[profile.id]?.includes("member") || false,
-    isAdmin: roleMap[profile.id]?.includes("admin") || false,
-    createdAt: new Date(profile.created_at || Date.now()),
-    avatar: profile.avatar
-  }));
+export const mapProfilesToUserProfiles = (profiles: any[]): UserProfile[] => {
+  return profiles.map(profile => {
+    // Extract the role from the joined user_roles data
+    const userRole = profile.user_roles?.role;
+    
+    return {
+      id: profile.id,
+      firstName: profile.first_name || '',
+      lastName: profile.last_name || '',
+      email: profile.email || '',
+      linkedIn: profile.linked_in,
+      institution: profile.institution,
+      location: profile.location,
+      role: profile.role,
+      bio: profile.bio,
+      approved: userRole === "member",
+      isAdmin: userRole === "admin",
+      createdAt: new Date(profile.created_at || Date.now()),
+      avatar: profile.avatar
+    };
+  });
 };

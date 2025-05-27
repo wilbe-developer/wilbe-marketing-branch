@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { UserProfile, UserRole } from "@/types";
@@ -40,18 +39,24 @@ export const useRoleManager = () => {
       
       const fetchPromise = fetchUsersByRole(filter, currentPage, pageSize);
       
-      const { data: fetchedUsers, count, userRoleMap } = await Promise.race([
+      const { data: fetchedUsers, count } = await Promise.race([
         fetchPromise,
         timeoutPromise
       ]) as any;
       
       setTotalUsers(count);
       
-      // Update user roles state
-      setUserRoles(userRoleMap || {});
-      
       // Map to UserProfile format with role information
-      const enhancedProfiles = mapProfilesToUserProfiles(fetchedUsers, userRoleMap);
+      const enhancedProfiles = mapProfilesToUserProfiles(fetchedUsers);
+      
+      // Build simplified userRoles map from the fetched data
+      const rolesMap: Record<string, UserRole[]> = {};
+      fetchedUsers.forEach((user: any) => {
+        if (user.user_roles?.role) {
+          rolesMap[user.id] = [user.user_roles.role];
+        }
+      });
+      setUserRoles(rolesMap);
       
       console.log(`Successfully processed ${enhancedProfiles.length} user profiles for filter: ${filter}`);
       
