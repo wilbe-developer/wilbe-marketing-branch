@@ -1,3 +1,4 @@
+
 import { UserProfile, UserRole } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -113,15 +114,16 @@ export const fetchUsersByRole = async (role: UserRole | 'all', page = 1, pageSiz
 
         if (allRolesError) {
           console.error("Error fetching all roles for users:", allRolesError);
-          throw allRolesError;
+          // Don't throw here, just use empty role map
+          console.warn("Proceeding with incomplete role data");
+        } else {
+          allRoles?.forEach(ur => {
+            if (!userRoleMap[ur.user_id]) {
+              userRoleMap[ur.user_id] = [];
+            }
+            userRoleMap[ur.user_id].push(ur.role as UserRole);
+          });
         }
-
-        allRoles?.forEach(ur => {
-          if (!userRoleMap[ur.user_id]) {
-            userRoleMap[ur.user_id] = [];
-          }
-          userRoleMap[ur.user_id].push(ur.role as UserRole);
-        });
       }
 
       console.log(`Fetched ${(roleProfiles || []).length} profiles with role: ${role}. Total: ${count || 0}`);
@@ -157,7 +159,7 @@ export const fetchUserRoles = async (userId: string): Promise<UserRole[]> => {
 };
 
 /**
- * Counts users by role type
+ * Counts users by role type - now with better error handling
  */
 export const fetchRoleCounts = async (): Promise<Record<UserRole | 'all', number>> => {
   try {
@@ -166,14 +168,20 @@ export const fetchRoleCounts = async (): Promise<Record<UserRole | 'all', number
       .from('profiles')
       .select('*', { count: 'exact', head: true });
     
-    if (totalError) throw totalError;
+    if (totalError) {
+      console.error("Error getting total count:", totalError);
+      throw totalError;
+    }
     
-    // Get all user roles
+    // Get all user roles with better error handling
     const { data: allUserRoles, error: allRolesError } = await supabase
       .from('user_roles')
       .select('user_id, role');
     
-    if (allRolesError) throw allRolesError;
+    if (allRolesError) {
+      console.error("Error getting role data:", allRolesError);
+      throw allRolesError;
+    }
     
     // Count users by role
     const adminUsers = new Set();
@@ -202,10 +210,11 @@ export const fetchRoleCounts = async (): Promise<Record<UserRole | 'all', number
       'user': basicUserCount
     };
     
-    console.log("Role counts:", counts);
+    console.log("Role counts calculated successfully:", counts);
     return counts;
   } catch (error) {
     console.error("Error fetching role counts:", error);
+    // Return defaults on error to prevent UI from breaking
     return { 'all': 0, 'admin': 0, 'member': 0, 'user': 0 };
   }
 };
