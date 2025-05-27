@@ -1,4 +1,3 @@
-
 import { UserProfile, UserRole } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -50,15 +49,17 @@ const getUserIdsWithProfiles = async (roleFilter?: UserRole): Promise<string[]> 
  */
 export const fetchUsersByRole = async (role: UserRole | 'all', page = 1, pageSize = 20) => {
   try {
-    console.log(`Fetching users by role: ${role}, page: ${page}, pageSize: ${pageSize}`);
+    console.log(`\n=== FETCHING USERS BY ROLE ===`);
+    console.log(`Role: ${role}, Page: ${page}, PageSize: ${pageSize}`);
     
     if (role === 'all') {
       // Get all user IDs that have any role AND a profile
       const userIds = await getUserIdsWithProfiles();
       
-      console.log(`Found ${userIds.length} total users with roles and profiles`);
+      console.log(`Total users with roles and profiles: ${userIds.length}`);
       
       if (userIds.length === 0) {
+        console.log('No users found with roles and profiles');
         return { 
           data: [], 
           count: 0,
@@ -66,12 +67,12 @@ export const fetchUsersByRole = async (role: UserRole | 'all', page = 1, pageSiz
         };
       }
 
-      // Apply pagination to user IDs
+      // Apply pagination to user IDs - FIXED PAGINATION LOGIC
       const from = (page - 1) * pageSize;
-      const to = from + pageSize - 1;
-      const paginatedUserIds = userIds.slice(from, to + 1);
+      const paginatedUserIds = userIds.slice(from, from + pageSize);
       
-      console.log(`Paginating: showing users ${from + 1}-${Math.min(from + paginatedUserIds.length, userIds.length)} of ${userIds.length}`);
+      console.log(`Pagination: showing ${paginatedUserIds.length} users (${from + 1}-${from + paginatedUserIds.length} of ${userIds.length})`);
+      console.log(`Paginated user IDs:`, paginatedUserIds);
 
       // Fetch profiles for paginated user IDs
       const { data: profiles, error: profilesError } = await supabase
@@ -81,6 +82,8 @@ export const fetchUsersByRole = async (role: UserRole | 'all', page = 1, pageSiz
         .order('created_at', { ascending: false });
 
       if (profilesError) throw profilesError;
+      
+      console.log(`Fetched ${profiles?.length || 0} profiles from database`);
       
       // Get roles for these profiles
       const { data: userRoles, error: allRolesError } = await supabase
@@ -98,6 +101,7 @@ export const fetchUsersByRole = async (role: UserRole | 'all', page = 1, pageSiz
         userRoleMap[ur.user_id].push(ur.role as UserRole);
       });
       
+      console.log(`Role map created for ${Object.keys(userRoleMap).length} users`);
       console.log(`Successfully fetched ${profiles?.length || 0} profiles for 'all' filter`);
       
       return { 
@@ -109,6 +113,8 @@ export const fetchUsersByRole = async (role: UserRole | 'all', page = 1, pageSiz
 
     // For specific roles
     if (role === 'user') {
+      console.log('Processing basic users (user role without member/admin)');
+      
       // For 'user' role, get users who have 'user' role but NOT 'member' or 'admin'
       const { data: adminUsers } = await supabase
         .from('user_roles')
@@ -137,6 +143,7 @@ export const fetchUsersByRole = async (role: UserRole | 'all', page = 1, pageSiz
         .filter(id => !excludeIds.includes(id));
 
       console.log(`Found ${candidateUserIds.length} candidate basic user IDs`);
+      console.log(`Candidate IDs:`, candidateUserIds);
 
       // Now filter to only those that have profiles
       const { data: profilesCheck, error: profilesCheckError } = await supabase
@@ -148,6 +155,7 @@ export const fetchUsersByRole = async (role: UserRole | 'all', page = 1, pageSiz
       
       const basicUserIds = profilesCheck?.map(p => p.id) || [];
       console.log(`Found ${basicUserIds.length} basic users with profiles`);
+      console.log(`Basic user IDs with profiles:`, basicUserIds);
 
       if (candidateUserIds.length !== basicUserIds.length) {
         const missingProfiles = candidateUserIds.filter(id => !basicUserIds.includes(id));
@@ -155,15 +163,16 @@ export const fetchUsersByRole = async (role: UserRole | 'all', page = 1, pageSiz
       }
 
       if (basicUserIds.length === 0) {
+        console.log('No basic users found');
         return { data: [], count: 0, userRoleMap: {} };
       }
 
-      // Apply pagination to the filtered user IDs
+      // Apply pagination to the filtered user IDs - FIXED PAGINATION LOGIC
       const from = (page - 1) * pageSize;
-      const to = from + pageSize - 1;
-      const paginatedUserIds = basicUserIds.slice(from, to + 1);
+      const paginatedUserIds = basicUserIds.slice(from, from + pageSize);
 
-      console.log(`Paginating basic users: showing ${paginatedUserIds.length} users on page ${page}`);
+      console.log(`Pagination for basic users: showing ${paginatedUserIds.length} users (${from + 1}-${from + paginatedUserIds.length} of ${basicUserIds.length})`);
+      console.log(`Paginated basic user IDs:`, paginatedUserIds);
 
       // Fetch profiles for these specific user IDs
       const { data: profiles, error: profilesError } = await supabase
@@ -174,7 +183,7 @@ export const fetchUsersByRole = async (role: UserRole | 'all', page = 1, pageSiz
 
       if (profilesError) throw profilesError;
 
-      console.log(`Fetched ${profiles?.length || 0} basic user profiles`);
+      console.log(`Fetched ${profiles?.length || 0} basic user profiles from database`);
 
       // Get all roles for these users
       const { data: allUserRoles, error: allRolesError } = await supabase
@@ -200,21 +209,25 @@ export const fetchUsersByRole = async (role: UserRole | 'all', page = 1, pageSiz
         userRoleMap
       };
     } else {
+      console.log(`Processing users with role: ${role}`);
+      
       // For admin/member roles, get user IDs that have that role AND a profile
       const userIds = await getUserIdsWithProfiles(role);
       
       console.log(`Found ${userIds.length} users with role ${role} and profiles`);
+      console.log(`User IDs for role ${role}:`, userIds);
       
       if (userIds.length === 0) {
+        console.log(`No users found with role ${role}`);
         return { data: [], count: 0, userRoleMap: {} };
       }
 
-      // Apply pagination to the filtered user IDs
+      // Apply pagination to the filtered user IDs - FIXED PAGINATION LOGIC
       const from = (page - 1) * pageSize;
-      const to = from + pageSize - 1;
-      const paginatedUserIds = userIds.slice(from, to + 1);
+      const paginatedUserIds = userIds.slice(from, from + pageSize);
 
-      console.log(`Paginating users with role ${role}: showing ${paginatedUserIds.length} users on page ${page}`);
+      console.log(`Pagination for role ${role}: showing ${paginatedUserIds.length} users (${from + 1}-${from + paginatedUserIds.length} of ${userIds.length})`);
+      console.log(`Paginated user IDs for role ${role}:`, paginatedUserIds);
 
       // Fetch profiles for these specific user IDs
       const { data: profiles, error: profilesError } = await supabase
@@ -225,7 +238,7 @@ export const fetchUsersByRole = async (role: UserRole | 'all', page = 1, pageSiz
 
       if (profilesError) throw profilesError;
 
-      console.log(`Fetched ${profiles?.length || 0} profiles for role ${role}`);
+      console.log(`Fetched ${profiles?.length || 0} profiles for role ${role} from database`);
 
       // Get all roles for these users
       const { data: allUserRoles, error: allRolesError } = await supabase
@@ -281,7 +294,7 @@ export const fetchUserRoles = async (userId: string): Promise<UserRole[]> => {
  */
 export const fetchRoleCounts = async (): Promise<Record<UserRole | 'all', number>> => {
   try {
-    console.log('Fetching role counts...');
+    console.log('\n=== FETCHING ROLE COUNTS ===');
     
     // Get total count of users who have any role AND a profile
     const allUserIds = await getUserIdsWithProfiles();
