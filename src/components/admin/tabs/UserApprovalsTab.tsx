@@ -10,7 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import LoadingState from "../roles/LoadingState";
 import EmptyState from "../roles/EmptyState";
 
-const getInitials = (firstName: string, lastName: string) => {
+const getInitials = (firstName: string, lastName: string, email: string) => {
   const firstInitial = firstName && firstName.trim() ? firstName.charAt(0).toUpperCase() : '';
   const lastInitial = lastName && lastName.trim() ? lastName.charAt(0).toUpperCase() : '';
   
@@ -21,7 +21,8 @@ const getInitials = (firstName: string, lastName: string) => {
   } else if (lastInitial) {
     return lastInitial;
   } else {
-    return 'U';
+    // Fallback to email if no names
+    return email.charAt(0).toUpperCase() || 'U';
   }
 };
 
@@ -48,10 +49,23 @@ const UserApprovalsTab = () => {
 
         if (memberRoleError) throw memberRoleError;
 
-        // Get user IDs that have 'user' role but not 'member' role
+        const { data: usersWithAdminRole, error: adminRoleError } = await supabase
+          .from('user_roles')
+          .select('user_id')
+          .eq('role', 'admin');
+
+        if (adminRoleError) throw adminRoleError;
+
+        // Get user IDs that have 'user' role but not 'member' or 'admin' role
         const userRoleIds = new Set(usersWithUserRole?.map(ur => ur.user_id) || []);
         const memberRoleIds = new Set(usersWithMemberRole?.map(ur => ur.user_id) || []);
-        const pendingUserIds = Array.from(userRoleIds).filter(id => !memberRoleIds.has(id));
+        const adminRoleIds = new Set(usersWithAdminRole?.map(ur => ur.user_id) || []);
+        
+        const pendingUserIds = Array.from(userRoleIds).filter(id => 
+          !memberRoleIds.has(id) && !adminRoleIds.has(id)
+        );
+
+        console.log(`Found ${pendingUserIds.length} pending users for approval`);
 
         if (pendingUserIds.length === 0) {
           setPendingUsers([]);
@@ -104,27 +118,32 @@ const UserApprovalsTab = () => {
   const handleApprovalAction = async (userId: string, status: ApprovalStatus) => {
     try {
       if (status === 'approved') {
-        // Update user role from 'user' to 'member' to approve the user
-        const { error: updateError } = await supabase
+        // Add member role to the user (they already have user role)
+        const { error: insertError } = await supabase
           .from('user_roles')
-          .update({ role: 'member' })
+          .insert({ user_id: userId, role: 'member' });
+
+        if (insertError) {
+          throw insertError;
+        }
+      } else {
+        // For rejection, remove the user role entirely
+        const { error: deleteError } = await supabase
+          .from('user_roles')
+          .delete()
           .eq('user_id', userId)
           .eq('role', 'user');
 
-        if (updateError) {
-          throw updateError;
+        if (deleteError) {
+          throw deleteError;
         }
-      } else {
-        // For rejection, we could remove the user role or mark them differently
-        // For now, we'll just remove them from the pending list
-        // You might want to add a 'rejected' status or handle this differently
       }
 
       setPendingUsers(pendingUsers.filter(user => user.id !== userId));
       
       toast({
         title: status === 'approved' ? "User Approved" : "User Rejected",
-        description: `User has been ${status}. ${status === 'approved' ? 'They now have member access.' : ''}`,
+        description: `User has been ${status}. ${status === 'approved' ? 'They now have member access.' : 'Their access has been revoked.'}`,
       });
       
       console.log(`User ${userId} ${status}. This would trigger a notification to the user.`);
@@ -163,7 +182,7 @@ const UserApprovalsTab = () => {
             <TableBody>
               {pendingUsers.map((user) => {
                 const displayName = `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email;
-                const initials = getInitials(user.firstName || '', user.lastName || '');
+                const initials = getInitials(user.firstName || '', user.lastName || '', user.email || '');
                 
                 return (
                   <TableRow key={user.id}>
