@@ -128,9 +128,6 @@ export default function FoundersStories() {
                   <div className="absolute bottom-4 left-4 right-4">
                     <div className="bg-black/70 backdrop-blur-sm p-3">
                       <h3 className="text-white font-bold text-sm mb-1">{video.title}</h3>
-                      {video.description && (
-                        <p className="text-gray-300 text-xs line-clamp-2">{video.description}</p>
-                      )}
                     </div>
                   </div>
                 </div>
