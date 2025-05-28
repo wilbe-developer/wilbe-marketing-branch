@@ -125,11 +125,6 @@ export default function FoundersStories() {
                       </Badge>
                     </div>
                   )}
-                  <div className="absolute bottom-4 left-4 right-4">
-                    <div className="bg-black/70 backdrop-blur-sm p-3">
-                      <h3 className="text-white font-bold text-sm mb-1">{video.title}</h3>
-                    </div>
-                  </div>
                 </div>
                 <div className="p-4">
                   <h4 className="font-bold text-gray-900 text-sm mb-2">{video.title}</h4>
