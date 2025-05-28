@@ -1,24 +1,23 @@
-
 export interface UserProfile {
   id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
   linkedIn?: string;
   institution?: string;
-  location?: string;
   role?: string;
-  bio?: string;
-  about?: string;
-  approved: boolean;
-  createdAt: Date;
+  location?: string;
+  approved?: boolean;
   avatar?: string;
-  isAdmin?: boolean;
-  twitterHandle?: string;
+  about?: string;
   expertise?: string;
-  activityStatus?: string;
-  lastLoginDate?: Date;
+  bio?: string;
+  coverPhoto?: string;
+  twitterHandle?: string;
   status?: string;
+  activityStatus?: string;
+  isAdmin?: boolean;
+  isMember?: boolean; // New field for member status (includes admins)
 }
 
 export interface Module {
