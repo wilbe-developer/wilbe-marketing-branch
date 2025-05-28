@@ -26,7 +26,7 @@ import AdminPage from "./pages/AdminPage";
 import ProfilePage from "@/pages/ProfilePage";
 import SprintProfilePage from "@/pages/SprintProfilePage";
 import NotFoundPage from "@/pages/NotFoundPage";
-import LandingPage from "@/components/LandingPageOld";
+import LandingPage from "@/pages/LandingPage";
 import BsfPage from "@/components/BsfOld";
 import EventsPage from "@/pages/EventsPage";
 import BuildYourDeckPage from "@/pages/BuildYourDeckPage";
