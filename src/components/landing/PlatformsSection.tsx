@@ -1,7 +1,9 @@
+
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import BackedFoundersSection from "./BackedFoundersSection";
 import LatestContentFeed from "./LatestContentFeed";
+import UpcomingEventsFeeder from "./UpcomingEventsFeeder";
 
 export default function PlatformsSection() {
   const platforms = [{
@@ -97,14 +99,19 @@ export default function PlatformsSection() {
                   </Button>
                 )}
 
-                {/* Latest Content Feed - only show for Wilbe Sandbox */}
+                {/* Latest Content Feed and Upcoming Events - only show for Wilbe Sandbox */}
                 {platform.showLatestContent && (
                   <>
-                    <div className="mt-8 bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
-                      <LatestContentFeed />
+                    <div className="mt-8 grid md:grid-cols-2 gap-6">
+                      <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+                        <LatestContentFeed />
+                      </div>
+                      <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+                        <UpcomingEventsFeeder />
+                      </div>
                     </div>
                     
-                    {/* Button for Wilbe Sandbox - show after the content feed */}
+                    {/* Button for Wilbe Sandbox - show after the content feeds */}
                     <div className="mt-6">
                       <Button asChild className="bg-green-500 hover:bg-green-600 text-white font-medium px-6 py-2">
                         <a href={platform.buttonLink}>
