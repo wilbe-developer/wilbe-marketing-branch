@@ -1,4 +1,3 @@
-
 import LandingNavigation from "@/components/landing/LandingNavigation"
 import TickerStrips from "@/components/landing/TickerStrips"
 import HeroSection from "@/components/landing/HeroSection"
@@ -7,6 +6,7 @@ import FoundersStories from "@/components/landing/FoundersStories"
 import PlatformsSection from "@/components/landing/PlatformsSection"
 import PortfolioSection from "@/components/landing/PortfolioSection"
 import WilbeLabsSection from "@/components/landing/WilbeLabsSection"
+import WilbeSandboxSection from "@/components/landing/WilbeSandboxSection"
 import ScientistsFirstSection from "@/components/landing/ScientistsFirstSection"
 import LandingFooter from "@/components/landing/LandingFooter"
 
@@ -54,6 +54,7 @@ export default function LandingPage() {
       <PlatformsSection />
       <PortfolioSection />
       <WilbeLabsSection />
+      <WilbeSandboxSection />
       <ScientistsFirstSection />
       <LandingFooter />
     </div>
