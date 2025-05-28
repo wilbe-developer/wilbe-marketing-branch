@@ -13,7 +13,7 @@ export default function HeroSection() {
       </div>
       <h1 className="text-5xl lg:text-7xl font-bold mb-6 leading-tight text-white">
         THE MOVEMENT FOR
-        <span className="text-green-500"> REAL WORLD</span>
+        <span className="text-green-500"> ENTREPRENEURIAL</span>
         <span className="text-green-500"> SCIENTISTS</span>
       </h1>
       <p className="text-xl text-gray-300 mb-8 max-w-2xl">
