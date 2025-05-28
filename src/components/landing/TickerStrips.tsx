@@ -1,6 +1,4 @@
 
-
-
 export default function TickerStrips() {
   const communityAsks = [
     "How do I validate my technology in the market?",
@@ -19,7 +17,7 @@ export default function TickerStrips() {
         <div className="flex items-center">
           {/* Static Title */}
           <span className="text-sm font-bold text-white uppercase tracking-wide whitespace-nowrap flex-shrink-0 px-4">
-            FROM THE TRENCHES: THE LEADERS
+            COMMUNITY OPPORTUNITIES
           </span>
           
           {/* Scrolling Content */}
@@ -39,5 +37,3 @@ export default function TickerStrips() {
     </div>
   );
 }
-
-
