@@ -67,11 +67,6 @@ function FounderCard({ founder }: FounderCardProps) {
             <p className="text-gray-600 text-xs">{founder.title}</p>
           </div>
           <div className="flex flex-col gap-1">
-            {founder.fundingRound && (
-              <span className="bg-green-100 text-green-700 text-xs px-1 py-0.5 rounded-full font-medium">
-                {founder.fundingRound}
-              </span>
-            )}
             {founder.bsfClass && (
               <span className="bg-blue-100 text-blue-700 text-xs px-1 py-0.5 rounded-full font-medium">
                 {founder.bsfClass}
