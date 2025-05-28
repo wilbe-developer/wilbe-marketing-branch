@@ -8,13 +8,6 @@ export default function WilbeCapitalStrip() {
     <section className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex">
-          {/* Left border line */}
-          <div className="flex flex-col items-center mr-8">
-            <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-white font-bold text-lg mb-4">
-              3
-            </div>
-          </div>
-
           {/* Content */}
           <div className="flex-1 pb-8">
             <h3 className="text-2xl font-bold text-gray-900 mb-4">
