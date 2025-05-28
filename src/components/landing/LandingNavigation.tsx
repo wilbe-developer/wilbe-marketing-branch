@@ -11,7 +11,7 @@ export default function LandingNavigation() {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-8">
             <Menu className="h-6 w-6 md:hidden" />
-            <Link to="/" className="flex items-center">
+            <Link to="/landing-page" className="flex items-center">
               <WilbeLogo
                 className="h-6 w-auto"
                 style={{
