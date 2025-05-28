@@ -5,28 +5,20 @@ import { Linkedin, Twitter, Mail } from "lucide-react"
 export default function TeamShowcase() {
   const teamMembers = [
     {
-      name: "Dr. Sarah Chen",
-      role: "Co-Founder & CEO",
-      expertise: "Biotech Entrepreneur",
-      image: "/placeholder.svg",
-      bio: "Former scientist turned entrepreneur with 3 successful biotech exits.",
-      social: { linkedin: "#", twitter: "#", email: "sarah@wilbe.com" }
+      name: "Ale Maiano",
+      role: "CEO & Co-Founder",
+      expertise: "Deep Tech Leadership",
+      image: "/lovable-uploads/00943097-b362-4bca-8b93-6e3a0cc3d76f.png",
+      bio: "CEO at Wilbe, started in policy, trained as a corporate attorney to then lead operations at multiple deep tech ventures. Rage Against The Machine for breakfast.",
+      social: { linkedin: "#", twitter: "#", email: "ale@wilbe.com" }
     },
     {
-      name: "Prof. Michael Rodriguez",
-      role: "Co-Founder & CTO",
-      expertise: "Deep Tech Innovation",
-      image: "/placeholder.svg",
-      bio: "PhD in Materials Science, 15+ years building scientist communities.",
-      social: { linkedin: "#", twitter: "#", email: "michael@wilbe.com" }
-    },
-    {
-      name: "Dr. Aisha Patel",
-      role: "Head of Capital",
-      expertise: "Venture Investment",
-      image: "/placeholder.svg",
-      bio: "Former VC partner specializing in science-based startups.",
-      social: { linkedin: "#", twitter: "#", email: "aisha@wilbe.com" }
+      name: "Devika Thapar",
+      role: "COO & Co-Founder",
+      expertise: "Technology Commercialization",
+      image: "/lovable-uploads/00943097-b362-4bca-8b93-6e3a0cc3d76f.png",
+      bio: "COO at Wilbe. Dee has been commercializing frontier technologies first as new product development lead at IBM Watson and before in tech transfer at Yale. She began her career at Accenture and serves on the board of several organizations, promoting STEM through dance.",
+      social: { linkedin: "#", twitter: "#", email: "devika@wilbe.com" }
     }
   ]
 
@@ -35,22 +27,29 @@ export default function TeamShowcase() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <Badge className="mb-4 bg-black text-white border-0 uppercase tracking-wide text-sm">
-            Our Team
+            Our Founders
           </Badge>
           <h2 className="text-5xl font-bold text-gray-900 mb-4 uppercase tracking-wide">
             Scientists Leading Scientists
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Our team combines deep scientific expertise with entrepreneurial experience, 
+            Our founding team combines deep scientific expertise with entrepreneurial experience, 
             creating a unique perspective on what scientist founders need to succeed.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           {teamMembers.map((member, index) => (
             <div key={index} className="bg-white rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition-transform">
-              <div className="h-64 bg-gray-200 flex items-center justify-center">
-                <span className="text-gray-500 text-sm">Team Photo Coming Soon</span>
+              <div className="h-64 bg-gray-200 flex items-center justify-center relative overflow-hidden">
+                <img 
+                  src={member.image} 
+                  alt={member.name}
+                  className="w-full h-full object-cover"
+                  style={{
+                    objectPosition: index === 0 ? '25% 20%' : '75% 20%'
+                  }}
+                />
               </div>
               <div className="p-6">
                 <h3 className="text-xl font-bold text-gray-900 mb-1">{member.name}</h3>
