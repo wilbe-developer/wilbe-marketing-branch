@@ -9,7 +9,11 @@ import { PATHS } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Users, Building2, MapPin, Briefcase, Lock } from "lucide-react";
 
-const MemberPreview = () => {
+interface MemberPreviewProps {
+  onNonMemberClick?: () => void;
+}
+
+const MemberPreview = ({ onNonMemberClick }: MemberPreviewProps) => {
   const { members, loading } = useMembers();
   const { isMember } = useAuth();
   const [featuredMembers, setFeaturedMembers] = useState<UserProfile[]>([]);
@@ -30,6 +34,13 @@ const MemberPreview = () => {
     }
   }, [members, loading]);
 
+  const handleMemberClick = (e: React.MouseEvent) => {
+    if (!isMember && onNonMemberClick) {
+      e.preventDefault();
+      onNonMemberClick();
+    }
+  };
+
   if (loading) {
     return (
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -44,70 +55,93 @@ const MemberPreview = () => {
     );
   }
 
-  // Show limited preview for non-members
-  if (!isMember) {
-    return (
-      <div>
-        <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-          <Lock className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-          <h3 className="text-lg font-semibold text-gray-700 mb-2">Member Directory Preview</h3>
-          <p className="text-gray-600 mb-4">
-            Connect with our community of {members.length}+ scientists and entrepreneurs.
-          </p>
-          <Button asChild>
-            <Link to={PATHS.REGISTER}>
-              Join to View Full Directory
-            </Link>
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div>
       {featuredMembers.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
           {featuredMembers.map(member => (
-            <Link 
+            <div 
               key={member.id} 
-              to={`${PATHS.MEMBER_DIRECTORY}`} 
-              className="group bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-all"
+              className={`bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-all ${!isMember ? 'cursor-pointer' : ''}`}
+              onClick={handleMemberClick}
             >
-              <div className="flex flex-col items-center">
-                <Avatar className="w-20 h-20 border-2 border-white shadow-md group-hover:border-brand-pink transition-colors">
-                  <AvatarImage src={member.avatar} alt={`${member.firstName} ${member.lastName}`} />
-                  <AvatarFallback className="text-lg">
-                    {member.firstName[0]}{member.lastName[0]}
-                  </AvatarFallback>
-                </Avatar>
-                
-                <h3 className="font-medium mt-3 text-center group-hover:text-brand-pink transition-colors">
-                  {member.firstName} {member.lastName}
-                </h3>
-                
-                <div className="mt-4 space-y-2 w-full text-sm text-gray-600">
-                  {member.expertise && (
-                    <div className="flex items-center gap-2">
-                      <Briefcase className="w-4 h-4 text-gray-400" />
-                      <span className="truncate">{member.expertise}</span>
+              {isMember ? (
+                <Link to={`${PATHS.MEMBER_DIRECTORY}`} className="group">
+                  <div className="flex flex-col items-center">
+                    <Avatar className="w-20 h-20 border-2 border-white shadow-md group-hover:border-brand-pink transition-colors">
+                      <AvatarImage src={member.avatar} alt={`${member.firstName} ${member.lastName}`} />
+                      <AvatarFallback className="text-lg">
+                        {member.firstName[0]}{member.lastName[0]}
+                      </AvatarFallback>
+                    </Avatar>
+                    
+                    <h3 className="font-medium mt-3 text-center group-hover:text-brand-pink transition-colors">
+                      {member.firstName} {member.lastName}
+                    </h3>
+                    
+                    <div className="mt-4 space-y-2 w-full text-sm text-gray-600">
+                      {member.expertise && (
+                        <div className="flex items-center gap-2">
+                          <Briefcase className="w-4 h-4 text-gray-400" />
+                          <span className="truncate">{member.expertise}</span>
+                        </div>
+                      )}
+                      {member.institution && (
+                        <div className="flex items-center gap-2">
+                          <Building2 className="w-4 h-4 text-gray-400" />
+                          <span className="truncate">{member.institution}</span>
+                        </div>
+                      )}
+                      {member.location && (
+                        <div className="flex items-center gap-2">
+                          <MapPin className="w-4 h-4 text-gray-400" />
+                          <span className="truncate">{member.location}</span>
+                        </div>
+                      )}
                     </div>
-                  )}
-                  {member.institution && (
-                    <div className="flex items-center gap-2">
-                      <Building2 className="w-4 h-4 text-gray-400" />
-                      <span className="truncate">{member.institution}</span>
+                  </div>
+                </Link>
+              ) : (
+                <div className="flex flex-col items-center">
+                  <div className="relative">
+                    <div className="w-20 h-20 overflow-hidden rounded-full blur-sm">
+                      <Avatar className="w-20 h-20 border-2 border-white shadow-md">
+                        <AvatarImage src={member.avatar} alt="Member photo blurred" />
+                        <AvatarFallback className="text-lg">
+                          {member.firstName[0]}{member.lastName[0]}
+                        </AvatarFallback>
+                      </Avatar>
                     </div>
-                  )}
-                  {member.location && (
-                    <div className="flex items-center gap-2">
-                      <MapPin className="w-4 h-4 text-gray-400" />
-                      <span className="truncate">{member.location}</span>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Lock className="h-6 w-6 text-gray-400" />
                     </div>
-                  )}
+                  </div>
+                  
+                  <div className="h-5 w-24 bg-gray-200 rounded mt-3 mb-4"></div>
+                  
+                  <div className="mt-4 space-y-2 w-full text-sm text-gray-600">
+                    {member.expertise && (
+                      <div className="flex items-center gap-2">
+                        <Briefcase className="w-4 h-4 text-gray-400" />
+                        <span className="truncate">{member.expertise}</span>
+                      </div>
+                    )}
+                    {member.institution && (
+                      <div className="flex items-center gap-2">
+                        <Building2 className="w-4 h-4 text-gray-400" />
+                        <span className="truncate">{member.institution}</span>
+                      </div>
+                    )}
+                    {member.location && (
+                      <div className="flex items-center gap-2">
+                        <MapPin className="w-4 h-4 text-gray-400" />
+                        <span className="truncate">{member.location}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </Link>
+              )}
+            </div>
           ))}
         </div>
       ) : (
@@ -118,11 +152,17 @@ const MemberPreview = () => {
       )}
       
       <div className="mt-6 text-center">
-        <Button asChild variant="outline">
-          <Link to={PATHS.MEMBER_DIRECTORY}>
-            View All Members
-          </Link>
-        </Button>
+        {isMember ? (
+          <Button asChild variant="outline">
+            <Link to={PATHS.MEMBER_DIRECTORY}>
+              View All Members
+            </Link>
+          </Button>
+        ) : (
+          <Button variant="outline" onClick={onNonMemberClick}>
+            Complete Profile to Access Directory
+          </Button>
+        )}
       </div>
     </div>
   );

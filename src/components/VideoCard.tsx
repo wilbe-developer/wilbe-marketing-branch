@@ -1,10 +1,12 @@
 
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { PATHS } from "@/lib/constants";
 import { Video } from "@/types";
 import { CheckCircle, Lock } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import ProfileCompletionDialog from "@/components/ProfileCompletionDialog";
 
 interface VideoCardProps {
   video: Video;
@@ -20,6 +22,7 @@ const VideoCard = ({
   isDeckBuilderView = false
 }: VideoCardProps) => {
   const { isMember } = useAuth();
+  const [showProfileDialog, setShowProfileDialog] = useState(false);
   
   // Construct the URL with the appropriate query parameters
   const videoUrl = `${PATHS.VIDEO}/${video.id}${
@@ -75,6 +78,13 @@ const VideoCard = ({
     }
   };
 
+  const handleVideoClick = (e: React.MouseEvent) => {
+    if (!isMember) {
+      e.preventDefault();
+      setShowProfileDialog(true);
+    }
+  };
+
   const cardContent = (
     <Card className={`overflow-hidden group hover:shadow-md transition-shadow h-full flex flex-col ${!isMember ? 'opacity-75' : ''}`}>
       <div className="flex flex-col h-full">
@@ -92,7 +102,7 @@ const VideoCard = ({
             <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
               <div className="text-center text-white">
                 <Lock className="h-8 w-8 mx-auto mb-2" />
-                <span className="text-sm font-medium">Member Only</span>
+                <span className="text-sm font-medium">Complete Profile</span>
               </div>
             </div>
           )}
@@ -126,22 +136,30 @@ const VideoCard = ({
           </p>
           <div className={`text-sm ${isMember ? 'text-brand-pink' : 'text-gray-500'} flex items-center gap-1`}>
             {!isMember && <Lock className="h-3 w-3" />}
-            {isMember ? 'View Class' : 'Join to Watch'}
+            {isMember ? 'View Class' : 'Complete Profile'}
           </div>
         </CardContent>
       </div>
     </Card>
   );
 
-  // If user is not a member, don't make it clickable
-  if (!isMember) {
-    return cardContent;
-  }
-
   return (
-    <Link to={videoUrl} className="block h-full">
-      {cardContent}
-    </Link>
+    <>
+      {isMember ? (
+        <Link to={videoUrl} className="block h-full">
+          {cardContent}
+        </Link>
+      ) : (
+        <div onClick={handleVideoClick} className="cursor-pointer h-full">
+          {cardContent}
+        </div>
+      )}
+
+      <ProfileCompletionDialog
+        open={showProfileDialog}
+        onOpenChange={setShowProfileDialog}
+      />
+    </>
   );
 };
 

@@ -19,7 +19,7 @@ import KnowledgeCenterPage from "@/pages/KnowledgeCenterPage";
 import MemberDirectoryPage from "@/pages/MemberDirectoryPage";
 import VideoPlayerPage from "@/pages/VideoPlayerPage";
 import LoginPage from "@/pages/LoginPage";
-import RegisterPage from "@/pages/RegisterPage";
+import AdminLoginPage from "@/pages/AdminLoginPage";
 import AdminPage from "./pages/AdminPage";
 import ProfilePage from "@/pages/ProfilePage";
 import SprintProfilePage from "@/pages/SprintProfilePage";
@@ -78,8 +78,8 @@ const App = () => (
 
                 {/* Auth routes */}
                 <Route path={PATHS.LOGIN} element={<LoginPage />} />
+                <Route path="/admin-login" element={<AdminLoginPage />} />
                 <Route path="/password-reset" element={<PasswordResetPage />} />
-                <Route path={PATHS.REGISTER} element={<RegisterPage />} />
                 <Route path={PATHS.LANDING_PAGE} element={<LandingPage />} />
                 <Route path={PATHS.BSF_PAGE} element={<BsfPage />} />
                 
@@ -114,9 +114,9 @@ const App = () => (
                 <Route path="/referral" element={<SprintReferralPage />} />
                 <Route path="/ref/:code" element={<SprintWaitlistPage />} />
 
-                {/* Member-only protected routes */}
+                {/* Routes accessible to authenticated users but with conditional UI for non-members */}
                 <Route element={<Layout />}>
-                  <Route element={<MemberRoute />}>
+                  <Route element={<ProtectedRoute />}>
                     <Route path={PATHS.HOME} element={<HomePage />} />
                     <Route path={PATHS.KNOWLEDGE_CENTER} element={<KnowledgeCenterPage />} />
                     <Route path={PATHS.MEMBER_DIRECTORY} element={<MemberDirectoryPage />} />
