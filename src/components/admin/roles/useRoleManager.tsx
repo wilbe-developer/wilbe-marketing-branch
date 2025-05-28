@@ -9,7 +9,6 @@ export const useRoleManager = () => {
   const { toast } = useToast();
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
-  const [userRoles, setUserRoles] = useState<Record<string, UserRole[]>>({});
   const [filter, setFilter] = useState<UserRole | 'all'>('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalUsers, setTotalUsers] = useState(0);
@@ -45,24 +44,7 @@ export const useRoleManager = () => {
       const enhancedProfiles = mapProfilesToUserProfiles(fetchedUsers);
       
       console.log(`[useRoleManager] Enhanced profiles:`, enhancedProfiles);
-      
-      // Build simplified userRoles map - each user has exactly one role
-      const rolesMap: Record<string, UserRole[]> = {};
-      enhancedProfiles.forEach((profile) => {
-        const roles: UserRole[] = [];
-        
-        if (profile.userRole) {
-          roles.push(profile.userRole);
-        }
-        
-        rolesMap[profile.id] = roles;
-        console.log(`[useRoleManager] User ${profile.id} final roles:`, roles);
-      });
-      
-      setUserRoles(rolesMap);
-      
       console.log(`[useRoleManager] Successfully processed ${enhancedProfiles.length} user profiles for filter: ${filter}`);
-      console.log(`[useRoleManager] Final users state will be:`, enhancedProfiles);
       
       setUsers(enhancedProfiles);
     } catch (error) {
@@ -83,7 +65,6 @@ export const useRoleManager = () => {
       // Set empty state on error
       setUsers([]);
       setTotalUsers(0);
-      setUserRoles({});
     } finally {
       setLoading(false);
     }
@@ -174,7 +155,6 @@ export const useRoleManager = () => {
   return {
     users,
     loading,
-    userRoles,
     filter,
     handleRoleToggle,
     handleFilterChange,

@@ -7,17 +7,18 @@ import { UserProfile, UserRole } from "@/types";
 
 interface UserRoleRowProps {
   user: UserProfile;
-  userRoles: UserRole[];
   onRoleToggle: (userId: string, role: UserRole, hasRole: boolean) => void;
 }
 
-const UserRoleRow = ({ user, userRoles, onRoleToggle }: UserRoleRowProps) => {
-  const hasAdminRole = userRoles.includes('admin');
-  const hasMemberRole = userRoles.includes('member');
-  const hasUserRole = userRoles.includes('user');
+const UserRoleRow = ({ user, onRoleToggle }: UserRoleRowProps) => {
+  // Since each user has exactly one role, check the userRole property
+  const currentRole = user.userRole;
+  const hasAdminRole = currentRole === 'admin';
+  const hasMemberRole = currentRole === 'member';
+  const hasUserRole = currentRole === 'user';
 
   // Display the actual system role from user_roles table
-  const systemRole = userRoles.length > 0 ? userRoles[0] : 'No role';
+  const systemRole = currentRole || 'No role';
 
   return (
     <TableRow>

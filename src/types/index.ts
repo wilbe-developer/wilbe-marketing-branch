@@ -1,4 +1,3 @@
-
 export interface UserProfile {
   id: string;
   firstName: string;
@@ -19,6 +18,7 @@ export interface UserProfile {
   activityStatus?: string;
   lastLoginDate?: Date;
   status?: string;
+  userRole?: UserRole; // Add this property to store the system role
 }
 
 export interface Module {
