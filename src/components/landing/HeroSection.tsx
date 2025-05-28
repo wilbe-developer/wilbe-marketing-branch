@@ -17,7 +17,7 @@ export default function HeroSection() {
         <span className="text-green-500"> ENTREPRENEURS</span>
       </h1>
       <p className="text-xl text-gray-300 mb-8 max-w-2xl">
-        From breakthrough to business. We're the world's first end-to-end platform connecting entrepreneurial scientists with market intelligence, exclusive insights, venture tools, founders community and lab space—all in one place. Also investing in the best performing.
+        From breakthrough to business growth. We're the world's first end-to-end platform connecting entrepreneurial scientists with market intelligence, exclusive insights, venture tools, founders community and lab space—all in one place. Also investing in the best performing.
       </p>
 
       <div className="grid sm:grid-cols-3 gap-4 mb-8">
