@@ -11,13 +11,15 @@ export default function LandingNavigation() {
           <div className="flex items-center space-x-8">
             <Menu className="h-6 w-6 md:hidden" />
             <Link to="/" className="flex items-center">
-              <WilbeLogo
-                className="h-8 w-auto"
-                style={{
-                  '--sails-color': 'white',
-                  '--text-color': 'white',
-                } as React.CSSProperties}
-              />
+              <div className="bg-black px-3 py-1 rounded">
+                <WilbeLogo
+                  className="h-8 w-auto"
+                  style={{
+                    '--sails-color': 'white',
+                    '--text-color': 'white',
+                  } as React.CSSProperties}
+                />
+              </div>
             </Link>
             <div className="hidden md:flex space-x-8 text-sm font-medium">
               <Link to="/media" className="text-gray-900 hover:text-gray-700 transition-colors uppercase tracking-wide">
