@@ -75,7 +75,7 @@ export const getSimpleRoleCounts = async (): Promise<Record<UserRole | 'all', nu
 };
 
 /**
- * Fetch users with their roles using simple LEFT JOIN
+ * Fetch users with their roles using appropriate JOIN strategy
  */
 export const getSimpleUsersWithRoles = async (
   roleFilter: UserRole | 'all', 
@@ -88,41 +88,71 @@ export const getSimpleUsersWithRoles = async (
     const from = (page - 1) * pageSize;
     const to = from + pageSize - 1;
     
-    let query = supabase
-      .from('profiles')
-      .select(`
-        id,
-        first_name,
-        last_name,
-        email,
-        linked_in,
-        institution,
-        location,
-        role,
-        bio,
-        avatar,
-        created_at,
-        user_roles!left(role)
-      `, { count: 'exact' })
-      .order('created_at', { ascending: false });
-    
-    // Apply role filter if not 'all'
-    if (roleFilter !== 'all') {
-      query = query.eq('user_roles.role', roleFilter);
+    if (roleFilter === 'all') {
+      // For "All Users": Use LEFT JOIN to include all profiles (with or without roles)
+      const { data, error, count } = await supabase
+        .from('profiles')
+        .select(`
+          id,
+          first_name,
+          last_name,
+          email,
+          linked_in,
+          institution,
+          location,
+          role,
+          bio,
+          avatar,
+          created_at,
+          user_roles!left(role)
+        `, { count: 'exact' })
+        .order('created_at', { ascending: false })
+        .range(from, to);
+      
+      if (error) throw error;
+      
+      // Transform data to include user_role directly
+      const transformedData: ProfileWithRole[] = (data || []).map(profile => ({
+        ...profile,
+        user_role: profile.user_roles?.[0]?.role || null
+      }));
+      
+      console.log(`[SimpleRoleUtils] Fetched ${transformedData.length} users for 'all', total: ${count}`);
+      return { data: transformedData, count: count || 0 };
+      
+    } else {
+      // For specific roles: Use INNER JOIN to only get profiles with that specific role
+      const { data, error, count } = await supabase
+        .from('profiles')
+        .select(`
+          id,
+          first_name,
+          last_name,
+          email,
+          linked_in,
+          institution,
+          location,
+          role,
+          bio,
+          avatar,
+          created_at,
+          user_roles!inner(role)
+        `, { count: 'exact' })
+        .eq('user_roles.role', roleFilter)
+        .order('created_at', { ascending: false })
+        .range(from, to);
+      
+      if (error) throw error;
+      
+      // Transform data to include user_role directly
+      const transformedData: ProfileWithRole[] = (data || []).map(profile => ({
+        ...profile,
+        user_role: profile.user_roles?.[0]?.role || null
+      }));
+      
+      console.log(`[SimpleRoleUtils] Fetched ${transformedData.length} users for role '${roleFilter}', total: ${count}`);
+      return { data: transformedData, count: count || 0 };
     }
-    
-    const { data, error, count } = await query.range(from, to);
-    
-    if (error) throw error;
-    
-    // Transform data to include user_role directly
-    const transformedData: ProfileWithRole[] = (data || []).map(profile => ({
-      ...profile,
-      user_role: profile.user_roles?.[0]?.role || null
-    }));
-    
-    console.log(`[SimpleRoleUtils] Fetched ${transformedData.length} users, total: ${count}`);
-    return { data: transformedData, count: count || 0 };
   } catch (error) {
     console.error(`[SimpleRoleUtils] Error fetching users:`, error);
     throw error;
