@@ -52,12 +52,10 @@ export default function ScientistsFirstSection() {
 
             <div className="relative h-64 lg:h-auto">
               <img
-                src={advocacyImageUrl || "/lovable-uploads/80934f40-f381-433a-afea-69f37fe637ab.png"}
+                src={advocacyImageUrl || "https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/images/scientists-first-advocacy-team.png"}
                 alt="Scientists First advocacy team wearing t-shirts"
                 className="absolute inset-0 w-full h-full object-cover"
-                onError={(e) => {
-                  e.currentTarget.src = "/lovable-uploads/80934f40-f381-433a-afea-69f37fe637ab.png"
-                }}
+                loading="lazy"
               />
               <div className="absolute inset-0 bg-gradient-to-r from-gray-900/50 to-transparent" />
             </div>

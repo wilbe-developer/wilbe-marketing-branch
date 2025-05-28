@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { Play, Pause, Volume2, VolumeX, Maximize, Calendar } from "lucide-react"
 import { videoPlaylist } from "@/data/videoPlaylist"
 
@@ -10,30 +10,47 @@ export default function WilbeStreamPlayer() {
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0)
   const [progress, setProgress] = useState(0)
   const videoRef = useRef<HTMLVideoElement>(null)
+  const progressIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const countdownIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
-  // Live countdown timer
+  // Live countdown timer - only update once per second
   const [timeToLive, setTimeToLive] = useState({
     minutes: Math.floor(Math.random() * 15) + 1,
     seconds: Math.floor(Math.random() * 60),
   })
 
+  // Optimized progress update - less frequent updates
   useEffect(() => {
+    if (progressIntervalRef.current) {
+      clearInterval(progressIntervalRef.current)
+    }
+
     if (isPlaying && !isLive) {
-      const interval = setInterval(() => {
+      progressIntervalRef.current = setInterval(() => {
         setProgress((prev) => {
           if (prev >= 100) {
             setCurrentVideoIndex((prevIndex) => (prevIndex === videoPlaylist.length - 1 ? 0 : prevIndex + 1))
             return 0
           }
-          return prev + 0.5
+          return prev + 1 // Slower progress updates
         })
-      }, 200)
-      return () => clearInterval(interval)
+      }, 500) // Less frequent updates
+    }
+
+    return () => {
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current)
+      }
     }
   }, [isPlaying, isLive])
 
+  // Countdown timer - update once per second only
   useEffect(() => {
-    const interval = setInterval(() => {
+    if (countdownIntervalRef.current) {
+      clearInterval(countdownIntervalRef.current)
+    }
+
+    countdownIntervalRef.current = setInterval(() => {
       setTimeToLive((prev) => {
         if (prev.seconds > 0) {
           return { ...prev, seconds: prev.seconds - 1 }
@@ -44,22 +61,28 @@ export default function WilbeStreamPlayer() {
         }
       })
     }, 1000)
-    return () => clearInterval(interval)
+
+    return () => {
+      if (countdownIntervalRef.current) {
+        clearInterval(countdownIntervalRef.current)
+      }
+    }
   }, [])
 
   const currentVideo = videoPlaylist[currentVideoIndex]
 
-  const handlePlayPause = () => setIsPlaying(!isPlaying)
-  const handleMute = () => setIsMuted(!isMuted)
+  const handlePlayPause = useCallback(() => setIsPlaying(!isPlaying), [isPlaying])
+  const handleMute = useCallback(() => setIsMuted(!isMuted), [isMuted])
+  const handleLiveToggle = useCallback(() => setIsLive(!isLive), [isLive])
 
-  const getCurrentTime = () => {
+  const getCurrentTime = useCallback(() => {
     if (isLive) return "LIVE"
     const totalSeconds = Number.parseInt(currentVideo.duration.split(":")[0]) * 60 + Number.parseInt(currentVideo.duration.split(":")[1])
     const currentSeconds = Math.floor((progress / 100) * totalSeconds)
     const minutes = Math.floor(currentSeconds / 60)
     const seconds = currentSeconds % 60
     return `${minutes}:${seconds.toString().padStart(2, "0")}`
-  }
+  }, [isLive, currentVideo.duration, progress])
 
   return (
     <div className="space-y-6">
@@ -125,7 +148,7 @@ export default function WilbeStreamPlayer() {
                     Full Screen
                   </a>
                   <button
-                    onClick={() => setIsLive(!isLive)}
+                    onClick={handleLiveToggle}
                     className="px-3 py-1 bg-white/20 backdrop-blur-sm text-white text-xs font-medium hover:bg-white/30 transition-colors uppercase tracking-wide"
                   >
                     {isLive ? "Switch to Playlist" : "Go Live"}

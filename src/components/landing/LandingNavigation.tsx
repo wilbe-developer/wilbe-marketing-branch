@@ -12,31 +12,34 @@ export default function LandingNavigation() {
             <Menu className="h-6 w-6 md:hidden" />
             <Link to="/" className="flex items-center">
               <img
-                src="/images/wilbe-logo.png"
+                src="https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/images/wilbe-logo.png"
                 alt="Wilbe"
                 className="h-8 w-auto"
                 onError={(e) => {
-                  e.currentTarget.src = "https://via.placeholder.com/120x32/000000/ffffff?text=WILBE"
+                  const target = e.target as HTMLImageElement;
+                  if (target.src !== "https://via.placeholder.com/120x32/000000/ffffff?text=WILBE") {
+                    target.src = "https://via.placeholder.com/120x32/000000/ffffff?text=WILBE";
+                  }
                 }}
               />
             </Link>
             <div className="hidden md:flex space-x-8 text-sm font-medium">
-              <Link to="#" className="text-gray-900 hover:text-gray-900 transition-colors uppercase tracking-wide">
+              <Link to="/media" className="text-gray-900 hover:text-gray-700 transition-colors uppercase tracking-wide">
                 Media
               </Link>
-              <Link to="#" className="text-gray-900 hover:text-gray-900 transition-colors uppercase tracking-wide">
+              <Link to="/terminal" className="text-gray-900 hover:text-gray-700 transition-colors uppercase tracking-wide">
                 Terminal
               </Link>
-              <Link to="#" className="text-gray-900 hover:text-gray-900 transition-colors uppercase tracking-wide">
+              <Link to="/capital" className="text-gray-900 hover:text-gray-700 transition-colors uppercase tracking-wide">
                 Capital
               </Link>
-              <Link to="#" className="text-gray-900 hover:text-gray-900 transition-colors uppercase tracking-wide">
+              <Link to="/labs" className="text-gray-900 hover:text-gray-700 transition-colors uppercase tracking-wide">
                 Labs
               </Link>
-              <Link to="#" className="text-gray-900 hover:text-gray-900 transition-colors uppercase tracking-wide">
+              <Link to="/advocacy" className="text-gray-900 hover:text-gray-700 transition-colors uppercase tracking-wide">
                 Advocacy
               </Link>
-              <Link to="#" className="text-gray-900 hover:text-gray-900 transition-colors uppercase tracking-wide">
+              <Link to="/merch" className="text-gray-900 hover:text-gray-700 transition-colors uppercase tracking-wide">
                 Merch
               </Link>
             </div>
