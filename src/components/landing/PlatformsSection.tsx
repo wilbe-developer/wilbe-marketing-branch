@@ -23,7 +23,8 @@ export default function PlatformsSection() {
       title: "Wilbe Capital: Fund Your Breakthrough",
       description: "Wilbe Capital backs scientist-led startups solving critical challenges in health, climate, and security. Offering strategic funding and partnerships, it helps researchers transform discoveries into scalable businesses, supporting BSF graduates and Sandbox members to drive impact.",
       buttonText: "Explore Wilbe Capital",
-      buttonLink: "/capital"
+      buttonLink: "/capital",
+      showCompanies: true
     },
     {
       number: 4,
@@ -64,33 +65,35 @@ export default function PlatformsSection() {
                 </p>
                 <Button 
                   asChild
-                  className="bg-green-500 hover:bg-green-600 text-white font-medium px-6 py-2"
+                  className="bg-green-500 hover:bg-green-600 text-white font-medium px-6 py-2 mb-6"
                 >
                   <a href={platform.buttonLink}>
                     {platform.buttonText}
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </a>
                 </Button>
+
+                {/* Companies section - only show for Wilbe Capital */}
+                {platform.showCompanies && (
+                  <div className="mt-8">
+                    <h4 className="text-lg font-medium text-gray-500 uppercase tracking-wide mb-6">
+                      SCIENTIST FOUNDERS WE HAVE BACKED
+                    </h4>
+                    <div className="flex flex-wrap gap-4">
+                      {[1, 2, 3, 4, 5].map((company) => (
+                        <div 
+                          key={company} 
+                          className="bg-gray-200 px-6 py-3 rounded text-gray-600"
+                        >
+                          Company {company}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           ))}
-        </div>
-
-        {/* Companies section */}
-        <div className="mt-20 text-center">
-          <h3 className="text-lg font-medium text-gray-500 uppercase tracking-wide mb-8">
-            COMPANIES WE'VE INVESTED IN
-          </h3>
-          <div className="flex justify-center space-x-8 flex-wrap">
-            {[1, 2, 3, 4, 5].map((company) => (
-              <div 
-                key={company} 
-                className="bg-gray-200 px-6 py-3 rounded text-gray-600 mb-4"
-              >
-                Company {company}
-              </div>
-            ))}
-          </div>
         </div>
       </div>
     </section>
