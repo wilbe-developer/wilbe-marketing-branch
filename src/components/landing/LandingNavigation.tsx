@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button"
 import { Menu, Search } from "lucide-react"
 import { Link } from "react-router-dom"
@@ -12,15 +11,13 @@ export default function LandingNavigation() {
           <div className="flex items-center space-x-8">
             <Menu className="h-6 w-6 md:hidden" />
             <Link to="/" className="flex items-center">
-              <div className="bg-black px-2 py-1 rounded">
-                <WilbeLogo
-                  className="h-4 w-auto"
-                  style={{
-                    '--sails-color': 'white',
-                    '--text-color': 'white',
-                  } as React.CSSProperties}
-                />
-              </div>
+              <WilbeLogo
+                className="h-6 w-auto"
+                style={{
+                  '--sails-color': 'var(--brand-pink, #FF2C6D)',
+                  '--text-color': 'black',
+                } as React.CSSProperties}
+              />
             </Link>
             <div className="hidden md:flex space-x-8 text-sm font-medium">
               <Link to="/media" className="text-gray-900 hover:text-gray-700 transition-colors uppercase tracking-wide">
