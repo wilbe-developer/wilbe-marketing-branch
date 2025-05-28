@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import BackedFoundersSection from "./BackedFoundersSection";
@@ -15,7 +14,7 @@ export default function PlatformsSection() {
     showLatestContent: true
   }, {
     number: 2,
-    title: "Become a Scientist Founder: our flagship program",
+    title: "Breakthrough to Scientist Founder (BSF): our flagship program",
     description: "Get practical building your company with the guidance and founders community needed to avoid expensive mistakes and validate the most ambitious version of your vision. Complete our tech-enabled process in 10 days and you will grab our attention as investors to be invited for Bootcamp our in-person residency where we chart the operational steps to kick-off.",
     buttonText: "Join the BSF Waitlist",
     buttonLink: "/waitlist",
