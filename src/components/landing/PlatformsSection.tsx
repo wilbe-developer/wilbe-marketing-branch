@@ -1,6 +1,7 @@
 
 import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
+import BackedFoundersSection from "./BackedFoundersSection"
 
 export default function PlatformsSection() {
   const platforms = [
@@ -73,23 +74,9 @@ export default function PlatformsSection() {
                   </a>
                 </Button>
 
-                {/* Companies section - only show for Wilbe Capital */}
+                {/* Backed Founders section - only show for Wilbe Capital */}
                 {platform.showCompanies && (
-                  <div className="mt-8">
-                    <h4 className="text-lg font-medium text-gray-500 uppercase tracking-wide mb-6">
-                      SCIENTIST FOUNDERS WE HAVE BACKED
-                    </h4>
-                    <div className="flex flex-wrap gap-4">
-                      {[1, 2, 3, 4, 5].map((company) => (
-                        <div 
-                          key={company} 
-                          className="bg-gray-200 px-6 py-3 rounded text-gray-600"
-                        >
-                          Company {company}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                  <BackedFoundersSection initialCount={6} loadMoreCount={6} />
                 )}
               </div>
             </div>
