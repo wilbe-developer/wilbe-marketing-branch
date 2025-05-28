@@ -1,7 +1,7 @@
-
 import { Button } from "@/components/ui/button"
 import { Menu, Search } from "lucide-react"
 import { Link } from "react-router-dom"
+import WilbeLogo from "@/assets/WilbeLogo"
 
 export default function LandingNavigation() {
   return (
@@ -11,16 +11,12 @@ export default function LandingNavigation() {
           <div className="flex items-center space-x-8">
             <Menu className="h-6 w-6 md:hidden" />
             <Link to="/" className="flex items-center">
-              <img
-                src="https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/images/wilbe-logo.png"
-                alt="Wilbe"
+              <WilbeLogo
                 className="h-8 w-auto"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  if (target.src !== "https://via.placeholder.com/120x32/000000/ffffff?text=WILBE") {
-                    target.src = "https://via.placeholder.com/120x32/000000/ffffff?text=WILBE";
-                  }
-                }}
+                style={{
+                  '--sails-color': 'white',
+                  '--text-color': 'white',
+                } as React.CSSProperties}
               />
             </Link>
             <div className="hidden md:flex space-x-8 text-sm font-medium">
