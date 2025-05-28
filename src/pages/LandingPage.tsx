@@ -5,7 +5,6 @@ import HeroSection from "@/components/landing/HeroSection"
 import WilbeStreamPlayer from "@/components/landing/WilbeStreamPlayer"
 import FoundersStories from "@/components/landing/FoundersStories"
 import PlatformsSection from "@/components/landing/PlatformsSection"
-import PortfolioSection from "@/components/landing/PortfolioSection"
 import WilbeLabsSection from "@/components/landing/WilbeLabsSection"
 import ScientistsFirstSection from "@/components/landing/ScientistsFirstSection"
 import LandingFooter from "@/components/landing/LandingFooter"
@@ -52,7 +51,6 @@ export default function LandingPage() {
 
       <FoundersStories />
       <PlatformsSection />
-      <PortfolioSection />
       <WilbeLabsSection />
       <ScientistsFirstSection />
       <LandingFooter />
