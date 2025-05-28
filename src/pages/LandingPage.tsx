@@ -8,6 +8,7 @@ import FoundersStories from "@/components/landing/FoundersStories"
 import PlatformsSection from "@/components/landing/PlatformsSection"
 import WilbeCapitalStrip from "@/components/landing/WilbeCapitalStrip"
 import ScientistsFirstSection from "@/components/landing/ScientistsFirstSection"
+import WilbeLabsSection from "@/components/landing/WilbeLabsSection"
 import LandingFooter from "@/components/landing/LandingFooter"
 
 export default function LandingPage() {
@@ -56,6 +57,7 @@ export default function LandingPage() {
       <FoundersStories />
       <PlatformsSection />
       <WilbeCapitalStrip />
+      <WilbeLabsSection />
       <ScientistsFirstSection />
       <LandingFooter />
     </div>
