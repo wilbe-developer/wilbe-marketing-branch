@@ -1,154 +1,79 @@
 
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Play, Clock } from "lucide-react";
-import { useScrollHandler } from "@/hooks/useScrollHandler";
-import { fetchVideos } from "@/services/videoService";
-import { formatDistanceToNow } from "date-fns";
+import React from 'react';
 
-interface Video {
-  id: string;
-  title: string;
-  description?: string;
-  thumbnail_url?: string;
-  duration?: string;
-  presenter?: string;
-  created_at: string;
-}
-
-export default function FoundersStories() {
-  const { scrollRef, handleScroll, handleMouseWheel } = useScrollHandler();
-  const [videos, setVideos] = useState<Video[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const loadVideos = async () => {
-      try {
-        setLoading(true);
-        const videosData = await fetchVideos();
-        
-        // Sort by created_at and take all published videos
-        const sortedVideos = videosData
-          .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-        
-        setVideos(sortedVideos);
-      } catch (err) {
-        console.error("Error fetching videos:", err);
-        setError("Failed to load videos");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadVideos();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl font-bold uppercase tracking-wide text-gray-900 mb-8">Real world in practice: the leaders</h2>
-          <div className="flex space-x-6">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="flex-shrink-0 w-80 bg-gray-200 animate-pulse">
-                <div className="aspect-video bg-gray-300"></div>
-                <div className="p-4 space-y-3">
-                  <div className="h-4 bg-gray-300 rounded w-3/4"></div>
-                  <div className="h-3 bg-gray-300 rounded w-1/2"></div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error || videos.length === 0) {
-    return (
-      <div className="py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl font-bold uppercase tracking-wide text-gray-900 mb-8">Real world in practice: the leaders</h2>
-          <p className="text-gray-600">
-            {error || "No videos available at the moment."}
-          </p>
-        </div>
-      </div>
-    );
-  }
-
+const FoundersStories = () => {
   return (
-    <div className="py-12">
+    <section className="bg-gray-50 py-16 lg:py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-4xl font-bold uppercase tracking-wide text-gray-900">Real world in practice: the leaders</h2>
-          <div className="flex space-x-4">
-            <button onClick={() => handleScroll(-300)} className="bg-gray-200 hover:bg-gray-300 p-2">
-              <ArrowRight className="w-5 h-5 transform rotate-180" />
-            </button>
-            <button onClick={() => handleScroll(300)} className="bg-gray-200 hover:bg-gray-300 p-2">
-              <ArrowRight className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-
-        <div className="relative overflow-hidden">
-          <div className="flex space-x-6" ref={scrollRef} onWheel={handleMouseWheel}>
-            {videos.map((video) => (
-              <div
-                key={video.id}
-                className="flex-shrink-0 w-80 bg-gray-50 overflow-hidden shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
-                onClick={() => window.open(`/video/${video.id}`, '_blank')}
-              >
-                <div className="relative aspect-video bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg overflow-hidden">
-                  <img
-                    src={video.thumbnail_url || "/placeholder.svg"}
-                    alt={video.title}
-                    className="absolute inset-0 w-full h-full object-cover"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = "/placeholder.svg";
-                    }}
-                  />
-                  <div className="absolute inset-0 bg-black/40" />
-                  {video.duration && (
-                    <div className="absolute top-4 left-4">
-                      <Badge className="bg-gray-900 text-white text-xs flex items-center">
-                        <Clock className="h-3 w-3 mr-1" />
-                        {video.duration}
-                      </Badge>
-                    </div>
-                  )}
-                </div>
-                <div className="p-4">
-                  <h4 className="font-bold text-gray-900 text-sm mb-2">{video.title}</h4>
-                  {video.description && (
-                    <p className="text-gray-600 text-xs leading-relaxed mb-3 line-clamp-3">{video.description}</p>
-                  )}
-                  <div className="flex items-center justify-between">
-                    {video.presenter && (
-                      <span className="text-gray-500 text-xs">by {video.presenter}</span>
-                    )}
-                    <span className="text-gray-500 text-xs">
-                      {formatDistanceToNow(new Date(video.created_at), { addSuffix: true })}
-                    </span>
+        <div className="mb-12">
+          <h2 className="text-lg font-medium text-gray-500 uppercase tracking-wide mb-8">FROM THE TRENCHES: THE LEADERS</h2>
+          
+          {/* Video content grid */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* Conversations at the Crossroads */}
+            <div className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+              <div className="aspect-video bg-gray-200 relative">
+                <img 
+                  src="/lovable-uploads/d2adef55-edba-455a-9952-2a1d35e7f7c7.png" 
+                  alt="Conversations at the Crossroads"
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
+                  <div className="w-12 h-12 bg-white bg-opacity-90 rounded-full flex items-center justify-center">
+                    <div className="w-0 h-0 border-l-4 border-l-gray-800 border-t-2 border-t-transparent border-b-2 border-b-transparent ml-1"></div>
                   </div>
                 </div>
               </div>
-            ))}
+              <div className="p-4">
+                <h3 className="font-semibold text-gray-900 mb-2">Conversations at the Crossroads: Navigating Technological and Societal Forces</h3>
+                <p className="text-sm text-gray-600">Exploring the intersection of technology and society with industry leaders.</p>
+              </div>
+            </div>
+
+            {/* The Entrepreneurial Mindset */}
+            <div className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+              <div className="aspect-video bg-gray-200 relative">
+                <img 
+                  src="/lovable-uploads/ec58856d-e030-4ce2-806d-cc07bd376fe5.png" 
+                  alt="The Entrepreneurial Mindset"
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
+                  <div className="w-12 h-12 bg-white bg-opacity-90 rounded-full flex items-center justify-center">
+                    <div className="w-0 h-0 border-l-4 border-l-gray-800 border-t-2 border-t-transparent border-b-2 border-b-transparent ml-1"></div>
+                  </div>
+                </div>
+              </div>
+              <div className="p-4">
+                <h3 className="font-semibold text-gray-900 mb-2">The Entrepreneurial Mindset: An Insider's Guide</h3>
+                <p className="text-sm text-gray-600">Insights from successful entrepreneurs on building the right mindset.</p>
+              </div>
+            </div>
+
+            {/* Building the Future of Science */}
+            <div className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+              <div className="aspect-video bg-gray-200 relative">
+                <img 
+                  src="/lovable-uploads/fdf11930-f17c-4bb7-b2a1-91a164c453d3.png" 
+                  alt="Building the Future of Science"
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
+                  <div className="w-12 h-12 bg-white bg-opacity-90 rounded-full flex items-center justify-center">
+                    <div className="w-0 h-0 border-l-4 border-l-gray-800 border-t-2 border-t-transparent border-b-2 border-b-transparent ml-1"></div>
+                  </div>
+                </div>
+              </div>
+              <div className="p-4">
+                <h3 className="font-semibold text-gray-900 mb-2">Building the Future of Science: The Arcadia Way with Prachee Avasthi</h3>
+                <p className="text-sm text-gray-600">Learn about innovative approaches to scientific research and development.</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-
-      <div className="text-center mt-12">
-        <a href="https://wilbe.com/media">
-          <Button size="lg" className="bg-gray-900 hover:bg-black text-white font-bold uppercase tracking-wide px-8">
-            VIEW ALL MEDIA
-            <ArrowRight className="ml-2 h-5 w-5" />
-          </Button>
-        </a>
-      </div>
-    </div>
+    </section>
   );
-}
+};
+
+export default FoundersStories;
