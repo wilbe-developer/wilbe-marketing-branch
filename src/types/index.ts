@@ -19,6 +19,7 @@ export interface UserProfile {
   isAdmin?: boolean;
   isMember?: boolean; // New field for member status (includes admins)
   createdAt?: Date; // Add missing createdAt property
+  lastLoginDate?: Date; // Add missing lastLoginDate property
 }
 
 export interface Module {
