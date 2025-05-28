@@ -1,6 +1,7 @@
 
 import LandingNavigation from "@/components/landing/LandingNavigation"
 import TickerStrips from "@/components/landing/TickerStrips"
+import LiveNewsStrip from "@/components/landing/LiveNewsStrip"
 import HeroSection from "@/components/landing/HeroSection"
 import WilbeStreamPlayer from "@/components/landing/WilbeStreamPlayer"
 import FoundersStories from "@/components/landing/FoundersStories"
@@ -38,6 +39,9 @@ export default function LandingPage() {
 
       {/* Community Asks Ticker Strip */}
       <TickerStrips />
+
+      {/* Live News Ticker Strip */}
+      <LiveNewsStrip />
 
       {/* Main Hero Section with Video Player */}
       <section className="bg-black text-white py-20 lg:py-32">
