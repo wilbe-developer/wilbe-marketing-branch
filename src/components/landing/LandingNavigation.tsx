@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button"
 import { Menu, Search } from "lucide-react"
 import { Link } from "react-router-dom"
@@ -14,7 +15,7 @@ export default function LandingNavigation() {
               <WilbeLogo
                 className="h-6 w-auto"
                 style={{
-                  '--sails-color': 'var(--brand-pink, #FF2C6D)',
+                  '--sails-color': 'black',
                   '--text-color': 'black',
                 } as React.CSSProperties}
               />
