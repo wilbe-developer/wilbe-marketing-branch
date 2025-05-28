@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -102,7 +101,7 @@ export default function FoundersStories() {
                 className="flex-shrink-0 w-80 bg-gray-50 overflow-hidden shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
                 onClick={() => window.open(`/video/${video.id}`, '_blank')}
               >
-                <div className="relative aspect-video bg-gradient-to-br from-gray-800 to-gray-900">
+                <div className="relative aspect-video bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg overflow-hidden">
                   <img
                     src={video.thumbnail_url || "/placeholder.svg"}
                     alt={video.title}
@@ -112,11 +111,6 @@ export default function FoundersStories() {
                     }}
                   />
                   <div className="absolute inset-0 bg-black/40" />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <button className="w-16 h-16 bg-white flex items-center justify-center hover:bg-gray-100 transition-colors shadow-lg">
-                      <Play className="h-6 w-6 text-gray-900 ml-1" />
-                    </button>
-                  </div>
                   {video.duration && (
                     <div className="absolute top-4 left-4">
                       <Badge className="bg-gray-900 text-white text-xs flex items-center">
