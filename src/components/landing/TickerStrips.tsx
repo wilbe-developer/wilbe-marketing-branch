@@ -1,5 +1,6 @@
 
 
+
 export default function TickerStrips() {
   const communityAsks = [
     "How do I validate my technology in the market?",
@@ -14,19 +15,23 @@ export default function TickerStrips() {
 
   return (
     <div className="bg-brand-darkBlue border-y border-brand-navy">
-      {/* Single Strip with Title and Content */}
       <div className="py-3 overflow-hidden">
-        <div className="relative">
-          <div className="ticker-content animate-scroll">
-            <div className="flex items-center space-x-12 px-4">
-              <span className="text-sm font-bold text-white uppercase tracking-wide whitespace-nowrap flex-shrink-0">
-                FROM THE TRENCHES: THE LEADERS
-              </span>
-              {[...communityAsks, ...communityAsks].map((ask, index) => (
-                <span key={index} className="text-sm text-gray-300 whitespace-nowrap flex-shrink-0">
-                  {ask}
-                </span>
-              ))}
+        <div className="flex items-center">
+          {/* Static Title */}
+          <span className="text-sm font-bold text-white uppercase tracking-wide whitespace-nowrap flex-shrink-0 px-4">
+            FROM THE TRENCHES: THE LEADERS
+          </span>
+          
+          {/* Scrolling Content */}
+          <div className="relative flex-1">
+            <div className="ticker-content animate-scroll">
+              <div className="flex space-x-12 px-4">
+                {[...communityAsks, ...communityAsks].map((ask, index) => (
+                  <span key={index} className="text-sm text-gray-300 whitespace-nowrap flex-shrink-0">
+                    {ask}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -34,4 +39,5 @@ export default function TickerStrips() {
     </div>
   );
 }
+
 
