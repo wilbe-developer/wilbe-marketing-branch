@@ -42,6 +42,7 @@ export default function BackedFoundersSection({
 
   return (
     <div className="mt-8 w-full">
+      {/* Header and controls stay within container */}
       <div className="flex justify-between items-center mb-6">
         <h4 className="text-lg font-medium text-gray-500 uppercase tracking-wide">
           SCIENTIST FOUNDERS WE HAVE BACKED
@@ -67,24 +68,31 @@ export default function BackedFoundersSection({
         </div>
       </div>
       
-      <div className="relative w-full overflow-hidden">
-        <div 
-          id="founders-gallery"
-          className="flex gap-4 overflow-x-auto scrollbar-hide pb-4 mb-6 w-full"
-          style={{ 
-            scrollbarWidth: 'none', 
-            msOverflowStyle: 'none',
-            WebkitOverflowScrolling: 'touch'
-          }}
-        >
-          {visibleFounders.map((founder) => (
-            <FounderCard key={founder.id} founder={founder} />
-          ))}
+      {/* Full-width gallery container that breaks out of parent padding */}
+      <div className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] overflow-hidden">
+        <div className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+          <div 
+            id="founders-gallery"
+            className="flex gap-4 overflow-x-auto scrollbar-hide pb-4 mb-6"
+            style={{ 
+              scrollbarWidth: 'none', 
+              msOverflowStyle: 'none',
+              WebkitOverflowScrolling: 'touch'
+            }}
+          >
+            {visibleFounders.map((founder) => (
+              <FounderCard key={founder.id} founder={founder} />
+            ))}
+          </div>
         </div>
+        
+        {/* Gradient fade indicators */}
+        <div className="absolute left-0 top-0 bottom-4 w-8 bg-gradient-to-r from-gray-50 to-transparent pointer-events-none"></div>
+        <div className="absolute right-0 top-0 bottom-4 w-8 bg-gradient-to-l from-gray-50 to-transparent pointer-events-none"></div>
       </div>
 
       {/* Load More / Show Less buttons */}
-      <div className="flex justify-center space-x-4">
+      <div className="flex justify-center space-x-4 mt-4">
         {hasMore && (
           <Button
             onClick={handleLoadMore}
@@ -115,8 +123,8 @@ interface FounderCardProps {
 
 function FounderCard({ founder }: FounderCardProps) {
   return (
-    <div className="flex-shrink-0 w-56 bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow group">
-      <div className="relative h-28 bg-gray-100">
+    <div className="flex-shrink-0 w-72 sm:w-64 md:w-56 bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow group">
+      <div className="relative h-32 sm:h-28 bg-gray-100">
         <img
           src={founder.image}
           alt={founder.name}
