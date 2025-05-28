@@ -1,4 +1,3 @@
-
 import { useState, useEffect, createContext, useContext, ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
@@ -79,6 +78,7 @@ export const SimplifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ chil
         role: data.role || '',
         location: data.location || '',
         approved: data.approved || false,
+        createdAt: data.created_at ? new Date(data.created_at) : new Date(),
         isAdmin: false // Will be set by role check
       };
 
