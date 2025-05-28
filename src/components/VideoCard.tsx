@@ -3,7 +3,8 @@ import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { PATHS } from "@/lib/constants";
 import { Video } from "@/types";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, Lock } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 interface VideoCardProps {
   video: Video;
@@ -18,6 +19,8 @@ const VideoCard = ({
   moduleTitle,
   isDeckBuilderView = false
 }: VideoCardProps) => {
+  const { isMember } = useAuth();
+  
   // Construct the URL with the appropriate query parameters
   const videoUrl = `${PATHS.VIDEO}/${video.id}${
     video.isDeckBuilderVideo ? `?deckBuilder=true${
@@ -50,12 +53,10 @@ const VideoCard = ({
       const module = document.querySelector(`[data-module-id="${video.moduleId}"]`);
       const moduleName = module?.getAttribute('data-module-title');
       
-      // If we have a module element, return its title
       if (moduleName) {
         return moduleName;
       }
       
-      // Try to extract module name from the video object or fall back to a default
       if (video.moduleId.includes('proposition') || video.moduleId.includes('prop')) {
         return 'Proposition';
       } else if (video.moduleId.includes('market')) {
@@ -68,16 +69,15 @@ const VideoCard = ({
         return 'MVD Introduction';
       }
       
-      // Final fallback
       return "Member Stories";
     } else {
       return "Member Stories";
     }
   };
-  
-  return (
-    <Card className="overflow-hidden group hover:shadow-md transition-shadow h-full flex flex-col">
-      <Link to={videoUrl} className="flex flex-col h-full">
+
+  const cardContent = (
+    <Card className={`overflow-hidden group hover:shadow-md transition-shadow h-full flex flex-col ${!isMember ? 'opacity-75' : ''}`}>
+      <div className="flex flex-col h-full">
         <div className="relative">
           <img 
             src={video.thumbnailUrl || "/placeholder.svg"} 
@@ -88,12 +88,20 @@ const VideoCard = ({
               (e.target as HTMLImageElement).src = "/placeholder.svg";
             }}
           />
+          {!isMember && (
+            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+              <div className="text-center text-white">
+                <Lock className="h-8 w-8 mx-auto mb-2" />
+                <span className="text-sm font-medium">Member Only</span>
+              </div>
+            </div>
+          )}
           {video.duration && (
             <div className="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-sm px-2 py-0.5 rounded">
               {video.duration}
             </div>
           )}
-          {video.completed && (
+          {video.completed && isMember && (
             <div className="absolute top-2 right-2">
               <CheckCircle className="h-5 w-5 text-green-500 bg-white rounded-full" />
             </div>
@@ -116,10 +124,24 @@ const VideoCard = ({
           <p className="text-sm text-gray-700 line-clamp-2 mb-2 flex-grow">
             {video.description || "No description available"}
           </p>
-          <div className="text-sm text-brand-pink">View Class</div>
+          <div className={`text-sm ${isMember ? 'text-brand-pink' : 'text-gray-500'} flex items-center gap-1`}>
+            {!isMember && <Lock className="h-3 w-3" />}
+            {isMember ? 'View Class' : 'Join to Watch'}
+          </div>
         </CardContent>
-      </Link>
+      </div>
     </Card>
+  );
+
+  // If user is not a member, don't make it clickable
+  if (!isMember) {
+    return cardContent;
+  }
+
+  return (
+    <Link to={videoUrl} className="block h-full">
+      {cardContent}
+    </Link>
   );
 };
 

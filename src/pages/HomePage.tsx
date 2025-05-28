@@ -5,9 +5,10 @@ import { PATHS } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import VideoCarousel from "@/components/VideoCarousel";
 import MemberPreview from "@/components/MemberPreview";
+import { Lock } from "lucide-react";
 
 const HomePage = () => {
-  const { user } = useAuth();
+  const { user, isMember } = useAuth();
 
   return (
     <div className="max-w-6xl mx-auto px-4">
@@ -16,17 +17,55 @@ const HomePage = () => {
         <p className="text-lg mb-6">
           Your professional network for scientists exploring alternative careers in innovation and entrepreneurship.
         </p>
+        {!isMember && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <div className="flex items-center gap-2 mb-2">
+              <Lock className="h-5 w-5 text-blue-600" />
+              <h3 className="font-semibold text-blue-800">Join Our Community</h3>
+            </div>
+            <p className="text-blue-700 mb-3">
+              Become a member to access exclusive videos, connect with fellow scientists, and unlock premium features.
+            </p>
+            <Button asChild size="sm">
+              <Link to={PATHS.REGISTER}>
+                Become a Member
+              </Link>
+            </Button>
+          </div>
+        )}
       </section>
       
       <section className="mb-12 allow-overflow-x">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-semibold">Latest Videos</h2>
-          <Link to={PATHS.KNOWLEDGE_CENTER} className="text-brand-pink hover:underline">
-            View All
-          </Link>
+          {isMember ? (
+            <Link to={PATHS.KNOWLEDGE_CENTER} className="text-brand-pink hover:underline">
+              View All
+            </Link>
+          ) : (
+            <div className="flex items-center gap-2 text-gray-500">
+              <Lock className="h-4 w-4" />
+              <span className="text-sm">Member access required</span>
+            </div>
+          )}
         </div>
         
-        <VideoCarousel />
+        {isMember ? (
+          <VideoCarousel />
+        ) : (
+          <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+            <Lock className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+            <h3 className="text-lg font-semibold text-gray-700 mb-2">Member-Only Content</h3>
+            <p className="text-gray-600 mb-4">
+              Access our extensive video library with expert insights and career transition stories.
+            </p>
+            <Button asChild>
+              <Link to={PATHS.REGISTER}>
+                Join to Watch Videos
+              </Link>
+            </Button>
+          </div>
+        )}
       </section>
       
       <section className="mb-12">
@@ -36,11 +75,20 @@ const HomePage = () => {
             <p className="text-gray-600 mb-4">
               Access expert insights and stories from scientists who have successfully navigated career transitions.
             </p>
-            <Button asChild>
-              <Link to={PATHS.KNOWLEDGE_CENTER}>
-                Explore Videos
-              </Link>
-            </Button>
+            {isMember ? (
+              <Button asChild>
+                <Link to={PATHS.KNOWLEDGE_CENTER}>
+                  Explore Videos
+                </Link>
+              </Button>
+            ) : (
+              <Button asChild variant="outline">
+                <Link to={PATHS.REGISTER}>
+                  <Lock className="h-4 w-4 mr-2" />
+                  Join to Access
+                </Link>
+              </Button>
+            )}
           </div>
           
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
@@ -48,11 +96,20 @@ const HomePage = () => {
             <p className="text-gray-600 mb-4">
               Connect with like-minded scientists and entrepreneurs from around the world.
             </p>
-            <Button asChild>
-              <Link to={PATHS.MEMBER_DIRECTORY}>
-                Browse Members
-              </Link>
-            </Button>
+            {isMember ? (
+              <Button asChild>
+                <Link to={PATHS.MEMBER_DIRECTORY}>
+                  Browse Members
+                </Link>
+              </Button>
+            ) : (
+              <Button asChild variant="outline">
+                <Link to={PATHS.REGISTER}>
+                  <Lock className="h-4 w-4 mr-2" />
+                  Join to Connect
+                </Link>
+              </Button>
+            )}
           </div>
           
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
@@ -72,9 +129,16 @@ const HomePage = () => {
       <section className="mb-12">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-semibold">Community Members</h2>
-          <Link to={PATHS.MEMBER_DIRECTORY} className="text-brand-pink hover:underline">
-            View All
-          </Link>
+          {isMember ? (
+            <Link to={PATHS.MEMBER_DIRECTORY} className="text-brand-pink hover:underline">
+              View All
+            </Link>
+          ) : (
+            <div className="flex items-center gap-2 text-gray-500">
+              <Lock className="h-4 w-4" />
+              <span className="text-sm">Member access required</span>
+            </div>
+          )}
         </div>
         
         <MemberPreview />

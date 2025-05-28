@@ -2,14 +2,16 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useMembers } from "@/hooks/useMembers";
+import { useAuth } from "@/hooks/useAuth";
 import { UserProfile } from "@/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { PATHS } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
-import { Users, Building2, MapPin, Briefcase } from "lucide-react";
+import { Users, Building2, MapPin, Briefcase, Lock } from "lucide-react";
 
 const MemberPreview = () => {
   const { members, loading } = useMembers();
+  const { isMember } = useAuth();
   const [featuredMembers, setFeaturedMembers] = useState<UserProfile[]>([]);
 
   useEffect(() => {
@@ -19,7 +21,7 @@ const MemberPreview = () => {
         .filter(member => member.avatar)
         .sort((a, b) => {
           // Sort by creation date, newest first
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+          return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
         })
         .reverse()
         .slice(0, 4); // Get top 4 for preview
@@ -38,6 +40,26 @@ const MemberPreview = () => {
             <div className="h-3 w-24 bg-gray-100 rounded"></div>
           </div>
         ))}
+      </div>
+    );
+  }
+
+  // Show limited preview for non-members
+  if (!isMember) {
+    return (
+      <div>
+        <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+          <Lock className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+          <h3 className="text-lg font-semibold text-gray-700 mb-2">Member Directory Preview</h3>
+          <p className="text-gray-600 mb-4">
+            Connect with our community of {members.length}+ scientists and entrepreneurs.
+          </p>
+          <Button asChild>
+            <Link to={PATHS.REGISTER}>
+              Join to View Full Directory
+            </Link>
+          </Button>
+        </div>
       </div>
     );
   }

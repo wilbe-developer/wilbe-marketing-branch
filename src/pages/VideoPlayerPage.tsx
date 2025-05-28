@@ -2,9 +2,13 @@
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useVideos } from "@/hooks/useVideos";
+import { useAuth } from "@/hooks/useAuth";
 import { PATHS } from "@/lib/constants";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { getYoutubeEmbedId, getModuleTitle, DECK_BUILDER_TEMPLATE_URL } from "@/utils/videoPlayerUtils";
+import { Lock } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 // Component imports
 import VideoHeader from "@/components/video-player/VideoHeader";
@@ -19,6 +23,7 @@ const VideoPlayerPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { isMember } = useAuth();
   const {
     getVideoById,
     getModule,
@@ -103,6 +108,43 @@ const VideoPlayerPage = () => {
       navigate(PATHS.KNOWLEDGE_CENTER);
     }
   };
+
+  // Show member access required if user is not a member
+  if (!isMember) {
+    return (
+      <div className="max-w-4xl mx-auto text-center">
+        <div className="bg-white rounded-lg shadow-sm p-12">
+          <Lock className="h-16 w-16 mx-auto text-gray-400 mb-6" />
+          <h1 className="text-3xl font-bold mb-4">Members-Only Content</h1>
+          <p className="text-lg text-gray-600 mb-6">
+            This video is part of our exclusive member content library.
+          </p>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+            <h3 className="text-lg font-semibold text-blue-800 mb-2">Join Wilbe to Access</h3>
+            <p className="text-blue-700 mb-4">
+              Become a member to unlock our full video library featuring:
+            </p>
+            <ul className="text-left text-blue-700 mb-4 space-y-1">
+              <li>• Expert insights from successful scientist entrepreneurs</li>
+              <li>• Career transition stories and advice</li>
+              <li>• Industry-specific guidance and resources</li>
+              <li>• Exclusive member-only content</li>
+            </ul>
+          </div>
+          <div className="flex gap-4 justify-center">
+            <Button asChild size="lg">
+              <Link to={PATHS.REGISTER}>
+                Become a Member
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="lg" onClick={handleBackClick}>
+              <span>Back to Knowledge Center</span>
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
