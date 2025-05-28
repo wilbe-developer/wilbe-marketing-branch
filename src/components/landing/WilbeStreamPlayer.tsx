@@ -1,7 +1,7 @@
-
 import { useState, useEffect, useRef, useCallback } from "react"
-import { Play, Pause } from "lucide-react"
+import { Play, Pause, Bell } from "lucide-react"
 import { fetchVideos } from "@/services/videoService"
+import { Button } from "@/components/ui/button"
 
 interface Video {
   id: string;
@@ -19,8 +19,22 @@ export default function WilbeStreamPlayer() {
   const [progress, setProgress] = useState(0)
   const [videos, setVideos] = useState<Video[]>([])
   const [loading, setLoading] = useState(true)
+  const [timeLeft, setTimeLeft] = useState({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0
+  })
   const videoRef = useRef<HTMLVideoElement>(null)
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Next live event (mock data - replace with real event data)
+  const nextEvent = {
+    title: "AI in Drug Discovery Panel",
+    date: "2025-06-15T18:00:00Z",
+    speakers: ["Dr. Sarah Chen", "Prof. Michael Rodriguez"],
+    description: "Join leading scientists discussing the latest breakthroughs in AI-powered drug discovery"
+  }
 
   // Fetch videos from the same source as FoundersStories
   useEffect(() => {
@@ -45,6 +59,29 @@ export default function WilbeStreamPlayer() {
 
     loadVideos()
   }, [])
+
+  // Countdown timer for next event
+  useEffect(() => {
+    const calculateTimeLeft = () => {
+      const eventDate = new Date(nextEvent.date).getTime()
+      const now = new Date().getTime()
+      const difference = eventDate - now
+
+      if (difference > 0) {
+        setTimeLeft({
+          days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+          hours: Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+          minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
+          seconds: Math.floor((difference % (1000 * 60)) / 1000)
+        })
+      }
+    }
+
+    calculateTimeLeft()
+    const timer = setInterval(calculateTimeLeft, 1000)
+
+    return () => clearInterval(timer)
+  }, [nextEvent.date])
 
   // Progress and video cycling logic
   useEffect(() => {
@@ -73,6 +110,11 @@ export default function WilbeStreamPlayer() {
   }, [isPlaying, videos.length])
 
   const handlePlayPause = useCallback(() => setIsPlaying(!isPlaying), [isPlaying])
+
+  const handleReminderRequest = () => {
+    // This would typically send a request to your backend
+    alert("Reminder set! We'll notify you before the event starts.")
+  }
 
   // Show loading state
   if (loading) {
@@ -125,6 +167,7 @@ export default function WilbeStreamPlayer() {
 
   return (
     <div className="space-y-6">
+      {/* Video Player */}
       <div className="relative">
         <div className="relative bg-black overflow-hidden shadow-2xl">
           <div className="relative aspect-video bg-gradient-to-br from-gray-900 to-black">
@@ -171,19 +214,64 @@ export default function WilbeStreamPlayer() {
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Current Program Info - Moved below the player */}
-        <div className="bg-gray-900 p-4 mt-2">
-          <div className="text-green-500 text-xs font-bold uppercase tracking-wide mb-1">NOW STREAMING</div>
-          <h3 className="text-white font-bold text-lg leading-tight mb-2">
-            {currentVideo.title}
-          </h3>
-          <p className="text-gray-300 text-sm">
-            {currentVideo.description}
-          </p>
-          {currentVideo.presenter && (
-            <p className="text-gray-400 text-xs mt-1">by {currentVideo.presenter}</p>
-          )}
+      {/* Next Live Event Section */}
+      <div className="bg-gray-900 border border-gray-800 overflow-hidden">
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+              <h3 className="text-green-500 text-sm font-bold uppercase tracking-wide">
+                NEXT LIVE EVENT
+              </h3>
+            </div>
+          </div>
+          
+          <h4 className="text-white font-bold text-xl mb-2">{nextEvent.title}</h4>
+          <p className="text-gray-300 text-sm mb-4">{nextEvent.description}</p>
+          
+          <div className="flex items-center space-x-2 text-gray-400 text-sm mb-4">
+            <span>Speakers:</span>
+            <span>{nextEvent.speakers.join(", ")}</span>
+          </div>
+
+          {/* Countdown Timer */}
+          <div className="grid grid-cols-4 gap-4 mb-6">
+            <div className="text-center">
+              <div className="bg-green-600 text-white text-xl font-bold py-2 px-3 rounded">
+                {timeLeft.days.toString().padStart(2, '0')}
+              </div>
+              <div className="text-gray-400 text-xs mt-1">DAYS</div>
+            </div>
+            <div className="text-center">
+              <div className="bg-green-600 text-white text-xl font-bold py-2 px-3 rounded">
+                {timeLeft.hours.toString().padStart(2, '0')}
+              </div>
+              <div className="text-gray-400 text-xs mt-1">HOURS</div>
+            </div>
+            <div className="text-center">
+              <div className="bg-green-600 text-white text-xl font-bold py-2 px-3 rounded">
+                {timeLeft.minutes.toString().padStart(2, '0')}
+              </div>
+              <div className="text-gray-400 text-xs mt-1">MINUTES</div>
+            </div>
+            <div className="text-center">
+              <div className="bg-green-600 text-white text-xl font-bold py-2 px-3 rounded">
+                {timeLeft.seconds.toString().padStart(2, '0')}
+              </div>
+              <div className="text-gray-400 text-xs mt-1">SECONDS</div>
+            </div>
+          </div>
+
+          {/* Reminder Button */}
+          <Button 
+            onClick={handleReminderRequest}
+            className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2"
+          >
+            <Bell className="w-4 h-4 mr-2" />
+            Send Me a Reminder
+          </Button>
         </div>
       </div>
     </div>
