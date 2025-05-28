@@ -1,88 +1,140 @@
 
-import { Button } from "@/components/ui/button"
-import { ArrowRight } from "lucide-react"
-import BackedFoundersSection from "./BackedFoundersSection"
+import { Button } from "@/components/ui/button";
+import { ArrowRight, Database, Users, Lightbulb, Calendar, FileText } from "lucide-react";
+import LatestMaterialFeed from "./LatestMaterialFeed";
+import EventsFeed from "./EventsFeed";
 
 export default function PlatformsSection() {
-  const platforms = [
-    {
-      number: 1,
-      title: "Wilbe Sandbox: Connect and Kickstart Your Journey",
-      description: "The Wilbe Sandbox is a global community platform uniting scientists to explore entrepreneurial paths and launch startups. It provides startup basics videos, pitch deck guidance, funding opportunities, and exclusive job listings, empowering PhD students, postdocs, and industry scientists to move from academia to impact.",
-      buttonText: "Join the Sandbox",
-      buttonLink: "/login"
-    },
-    {
-      number: 2,
-      title: "Bootcamp for Scientist Founders (BSF): Become a Founder",
-      description: "The Bootcamp for Scientist Founders (BSF) is a 4-week intensive program training scientists to lead startups. Guided by expert entrepreneurs, it covers product development, market strategy, and fundraising. Over 120 fellows have graduated, with 25% founding startups, 30% joining ventures, and 45% becoming entrepreneurial academics. Join the waitlist today.",
-      buttonText: "Join the BSF Waitlist",
-      buttonLink: "/sprint-signup"
-    },
-    {
-      number: 3,
-      title: "Wilbe Capital: Fund Your Breakthrough",
-      description: "Wilbe Capital backs scientist-led startups solving critical challenges in health, climate, and security. Offering strategic funding and partnerships, it helps researchers transform discoveries into scalable businesses, supporting BSF graduates and Sandbox members to drive impact.",
-      buttonText: "Explore Wilbe Capital",
-      buttonLink: "/capital",
-      showCompanies: true
-    },
-    {
-      number: 4,
-      title: "Wilbe Labs: Build Your Science Hub",
-      description: "Wilbe Labs creates fully operational science labs and innovation hubs for ventures and property owners. By managing fit-outs, compliance, and operations, it delivers vibrant workspaces that attract talent and investors, supporting pre-seed to Series B science ventures.",
-      buttonText: "Discover Wilbe Labs",
-      buttonLink: "/labs"
-    }
-  ]
-
   return (
     <section className="py-20 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-gray-900 mb-4">Our Platforms</h2>
+          <p className="text-xl text-gray-700 max-w-3xl mx-auto">
+            From ideation to market success, we provide comprehensive support across every stage of your scientific entrepreneurship journey.
+          </p>
         </div>
 
-        <div className="space-y-12">
-          {platforms.map((platform, index) => (
-            <div key={platform.number} className="flex">
-              {/* Left border line */}
-              <div className="flex flex-col items-center mr-8">
-                <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-white font-bold text-lg mb-4">
-                  {platform.number}
+        <div className="space-y-16">
+          {/* Wilbe Labs */}
+          <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div className="grid lg:grid-cols-2 gap-8 items-center">
+              <div className="p-8 lg:p-12">
+                <div className="flex items-center mb-6">
+                  <Lightbulb className="h-8 w-8 text-orange-600 mr-3" />
+                  <h3 className="text-3xl font-bold text-gray-900">Wilbe Labs</h3>
                 </div>
-                {index < platforms.length - 1 && (
-                  <div className="w-0.5 bg-green-500 flex-grow min-h-32"></div>
-                )}
-              </div>
-
-              {/* Content */}
-              <div className="flex-1 pb-8">
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                  {platform.title}
-                </h3>
-                <p className="text-gray-700 text-lg leading-relaxed mb-6 max-w-4xl">
-                  {platform.description}
+                <p className="text-gray-600 mb-8 text-lg">
+                  Transform your breakthrough research into a viable business. Our comprehensive incubator program provides the resources, mentorship, and network you need to navigate from lab bench to market launch.
                 </p>
-                <Button 
-                  asChild
-                  className="bg-green-500 hover:bg-green-600 text-white font-medium px-6 py-2 mb-6"
-                >
-                  <a href={platform.buttonLink}>
-                    {platform.buttonText}
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </a>
+                <div className="grid grid-cols-2 gap-4 mb-8">
+                  <div className="flex items-center text-sm text-gray-700">
+                    <div className="w-2 h-2 bg-orange-500 rounded-full mr-3"></div>
+                    12-week intensive program
+                  </div>
+                  <div className="flex items-center text-sm text-gray-700">
+                    <div className="w-2 h-2 bg-orange-500 rounded-full mr-3"></div>
+                    Expert mentorship network
+                  </div>
+                  <div className="flex items-center text-sm text-gray-700">
+                    <div className="w-2 h-2 bg-orange-500 rounded-full mr-3"></div>
+                    Seed funding opportunities
+                  </div>
+                  <div className="flex items-center text-sm text-gray-700">
+                    <div className="w-2 h-2 bg-orange-500 rounded-full mr-3"></div>
+                    IP development support
+                  </div>
+                </div>
+                <Button className="bg-orange-600 hover:bg-orange-700 text-white">
+                  Apply to Labs
+                  <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
-
-                {/* Backed Founders section - only show for Wilbe Capital */}
-                {platform.showCompanies && (
-                  <BackedFoundersSection initialCount={6} loadMoreCount={6} />
-                )}
+              </div>
+              <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-8 lg:p-12 h-full flex items-center justify-center">
+                <div className="text-center">
+                  <div className="text-6xl font-bold text-orange-600 mb-2">85%</div>
+                  <div className="text-gray-700">Success Rate</div>
+                  <div className="text-sm text-gray-600 mt-4">
+                    Companies that successfully raise Series A funding
+                  </div>
+                </div>
               </div>
             </div>
-          ))}
+          </div>
+
+          {/* Wilbe Sandbox */}
+          <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div className="p-8 lg:p-12">
+              <div className="flex items-center mb-6">
+                <Database className="h-8 w-8 text-blue-600 mr-3" />
+                <h3 className="text-3xl font-bold text-gray-900">Wilbe Sandbox</h3>
+                <span className="ml-4 text-lg text-gray-600">Connect and Kickstart Your Journey</span>
+              </div>
+              <p className="text-gray-600 mb-8 text-lg max-w-4xl">
+                Your collaborative workspace for building, learning, and connecting with fellow scientist entrepreneurs. Access exclusive content, join events, and accelerate your journey from lab to market.
+              </p>
+              
+              <div className="grid md:grid-cols-2 gap-8 mb-8">
+                {/* Latest Material Feed */}
+                <div className="bg-gray-50 p-6 rounded-lg">
+                  <LatestMaterialFeed />
+                </div>
+
+                {/* Events Feed */}
+                <div className="bg-gray-50 p-6 rounded-lg">
+                  <EventsFeed />
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-4 gap-4 mb-8">
+                <div className="flex items-center text-sm text-gray-700">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
+                  Exclusive workshops
+                </div>
+                <div className="flex items-center text-sm text-gray-700">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
+                  Founder network access
+                </div>
+                <div className="flex items-center text-sm text-gray-700">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
+                  Resource library
+                </div>
+                <div className="flex items-center text-sm text-gray-700">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
+                  Investor connections
+                </div>
+              </div>
+
+              <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                Enter Sandbox
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Community Stats */}
+          <div className="bg-white rounded-xl shadow-lg p-8">
+            <div className="grid md:grid-cols-4 gap-8 text-center">
+              <div>
+                <div className="text-3xl font-bold text-blue-600 mb-2">250+</div>
+                <div className="text-gray-600">Active Scientists</div>
+              </div>
+              <div>
+                <div className="text-3xl font-bold text-purple-600 mb-2">150+</div>
+                <div className="text-gray-600">Startups Launched</div>
+              </div>
+              <div>
+                <div className="text-3xl font-bold text-green-600 mb-2">$50M+</div>
+                <div className="text-gray-600">Funding Raised</div>
+              </div>
+              <div>
+                <div className="text-3xl font-bold text-orange-600 mb-2">95%</div>
+                <div className="text-gray-600">Success Rate</div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
-  )
+  );
 }
