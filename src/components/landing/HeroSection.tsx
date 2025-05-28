@@ -40,7 +40,7 @@ export default function HeroSection() {
           size="lg"
           className="bg-green-500 hover:bg-green-600 text-black font-bold uppercase tracking-wide px-8"
         >
-          Start Your Journey
+          Getting Started
           <ArrowRight className="ml-2 h-5 w-5" />
         </Button>
         <Button
@@ -48,7 +48,7 @@ export default function HeroSection() {
           variant="outline"
           className="border-gray-600 text-white hover:bg-gray-800 font-bold uppercase tracking-wide px-8"
         >
-          Explore Tools
+          Infinite Quiz
         </Button>
       </div>
     </div>
