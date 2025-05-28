@@ -1,6 +1,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { Play, Pause, Volume2, VolumeX, Maximize, Calendar } from "lucide-react"
+import { videoPlaylist } from "@/data/videoPlaylist"
 
 export default function WilbeStreamPlayer() {
   const [isPlaying, setIsPlaying] = useState(true)
@@ -9,26 +10,6 @@ export default function WilbeStreamPlayer() {
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0)
   const [progress, setProgress] = useState(0)
   const videoRef = useRef<HTMLVideoElement>(null)
-
-  // Video playlist
-  const videoPlaylist = [
-    {
-      id: 1,
-      title: "From PhD to $100M: Dr. Maria Rodriguez's Journey",
-      duration: "24:30",
-      thumbnail: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
-      category: "Founder Stories",
-      description: "How a failed cancer drug became revolutionary gene therapy",
-    },
-    {
-      id: 2,
-      title: "CRISPR's $50B Market: Dr. Jennifer Doudna Interview",
-      duration: "18:45",
-      thumbnail: "https://images.unsplash.com/photo-1582719471384-894fbb16e074?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
-      category: "Science Deep Dive",
-      description: "The future of gene editing and biotechnology startups",
-    },
-  ]
 
   // Live countdown timer
   const [timeToLive, setTimeToLive] = useState({
@@ -49,7 +30,7 @@ export default function WilbeStreamPlayer() {
       }, 200)
       return () => clearInterval(interval)
     }
-  }, [isPlaying, isLive, videoPlaylist.length])
+  }, [isPlaying, isLive])
 
   useEffect(() => {
     const interval = setInterval(() => {
