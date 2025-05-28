@@ -17,10 +17,10 @@ export default function ScientistsFirstSection() {
             <h2 className="text-5xl font-bold text-gray-900 uppercase tracking-wide">Scientists First: The movement</h2>
           </div>
           <p className="text-xl text-gray-600 max-w-4xl mx-auto">
-            Born in 2020 to free all 8.8million scientists from the politics of legacy academia, industry and government and accelerate the rate of application of science in the real world by empowering scientists.
+            Born in 2020 to free all 8.8million scientists from the politics of legacy academia, industry and government and accelerate the rate of application of science in the real world.
           </p>
           <p className="text-xl text-gray-600 max-w-4xl mx-auto mt-4">
-            Scientists First is the tagline of all our community not-for-profit work as we continue pressing institutions like Tech Transfer Offices (TTOs) and policy makers to improve the way that scientists can perform in the century ahead.
+            Scientists First is the tagline of all our community work as we continue pressing institutions like Tech Transfer Offices (TTOs) and policy makers to improve the way that scientists can perform in the century ahead.
           </p>
         </div>
 
