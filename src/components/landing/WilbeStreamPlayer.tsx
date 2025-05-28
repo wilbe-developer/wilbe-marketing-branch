@@ -167,28 +167,28 @@ export default function WilbeStreamPlayer() {
               </div>
             </div>
 
-            {/* Current Program Info */}
-            <div className="absolute top-4 right-4 bg-black/70 backdrop-blur-sm p-3 max-w-xs">
-              <div className="text-green-500 text-xs font-bold uppercase tracking-wide mb-1">NOW PLAYING</div>
-              <h3 className="text-white font-bold text-sm leading-tight mb-1">
-                {isLive ? "Live: Founder Spotlight Series" : currentVideo.title}
-              </h3>
-              <p className="text-gray-300 text-xs">
-                {isLive ? "Dr. Maria Rodriguez discusses her $100M journey" : currentVideo.description}
-              </p>
+            {/* Wilbe Stream Branding */}
+            <div className="absolute bottom-4 left-4 flex items-center space-x-2">
+              <div className="bg-green-500 p-2">
+                <Play className="h-4 w-4 text-black" />
+              </div>
+              <div>
+                <div className="text-white font-bold text-sm uppercase tracking-wide">Wilbe STREAM</div>
+                <div className="text-gray-300 text-xs">24/7 Scientist Entrepreneur Content</div>
+              </div>
             </div>
           </div>
+        </div>
 
-          {/* Wilbe Stream Branding */}
-          <div className="absolute bottom-4 left-4 flex items-center space-x-2">
-            <div className="bg-green-500 p-2">
-              <Play className="h-4 w-4 text-black" />
-            </div>
-            <div>
-              <div className="text-white font-bold text-sm uppercase tracking-wide">Wilbe STREAM</div>
-              <div className="text-gray-300 text-xs">24/7 Scientist Entrepreneur Content</div>
-            </div>
-          </div>
+        {/* Current Program Info - Moved below the player */}
+        <div className="bg-gray-900 p-4 mt-2">
+          <div className="text-green-500 text-xs font-bold uppercase tracking-wide mb-1">NOW PLAYING</div>
+          <h3 className="text-white font-bold text-lg leading-tight mb-2">
+            {isLive ? "Live: Founder Spotlight Series" : currentVideo.title}
+          </h3>
+          <p className="text-gray-300 text-sm">
+            {isLive ? "Dr. Maria Rodriguez discusses her $100M journey" : currentVideo.description}
+          </p>
         </div>
 
         {/* Compact Up Next Panel */}
