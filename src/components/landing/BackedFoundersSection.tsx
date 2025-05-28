@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight } from "lucide-react";
@@ -15,40 +14,11 @@ export default function BackedFoundersSection({
 }: BackedFoundersSectionProps) {
   const visibleFounders = backedFounders.slice(0, 4);
   
-  const scrollLeft = () => {
-    const container = document.getElementById('founders-gallery');
-    if (container) {
-      container.scrollBy({
-        left: -300,
-        behavior: 'smooth'
-      });
-    }
-  };
-  
-  const scrollRight = () => {
-    const container = document.getElementById('founders-gallery');
-    if (container) {
-      container.scrollBy({
-        left: 300,
-        behavior: 'smooth'
-      });
-    }
-  };
-  
   return (
     <div className="mt-8 w-full">
-      {/* Header and controls */}
-      <div className="flex justify-between items-center mb-6">
+      {/* Header without controls */}
+      <div className="mb-6">
         <h4 className="text-lg font-medium text-gray-500 uppercase tracking-wide">SOME OF THE SCIENTIST FOUNDERS WE HAVE BACKED</h4>
-        
-        <div className="flex space-x-2">
-          <Button onClick={scrollLeft} variant="outline" size="sm" className="p-2">
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <Button onClick={scrollRight} variant="outline" size="sm" className="p-2">
-            <ArrowRight className="h-4 w-4" />
-          </Button>
-        </div>
       </div>
       
       {/* Gallery container aligned with content */}
