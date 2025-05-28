@@ -59,17 +59,31 @@ export default function PlatformsSection() {
                   {platform.description}
                 </p>
 
-                {/* BSF Screenshot Image */}
+                {/* BSF Screenshots */}
                 {platform.showImage && (
                   <div className="mb-6">
-                    <img 
-                      src="/lovable-uploads/07ca7619-e835-4216-b83e-b13ee865bdd6.png" 
-                      alt="Sprint Journey Dashboard Screenshot" 
-                      className="w-full max-w-4xl rounded-lg shadow-lg border border-gray-200" 
-                    />
-                    <p className="text-gray-600 text-xs mt-3 max-w-4xl">
-                      Start off on the right foot by putting together the core pieces of the company and we can then start talking about funding.
-                    </p>
+                    <div className="grid md:grid-cols-2 gap-6 max-w-4xl">
+                      <div>
+                        <img 
+                          src="/lovable-uploads/07ca7619-e835-4216-b83e-b13ee865bdd6.png" 
+                          alt="Sprint Journey Dashboard Screenshot" 
+                          className="w-full rounded-lg shadow-lg border border-gray-200" 
+                        />
+                        <p className="text-gray-600 text-xs mt-3">
+                          Start off on the right foot by putting together the core pieces of the company and we can then start talking about funding.
+                        </p>
+                      </div>
+                      <div>
+                        <img 
+                          src="/lovable-uploads/dd3d3cc0-9511-45e0-ab92-cd673ffec128.png" 
+                          alt="BSF Class 13 gathering in Austin TX" 
+                          className="w-full rounded-lg shadow-lg border border-gray-200" 
+                        />
+                        <p className="text-gray-600 text-xs mt-3">
+                          Austin TX sunset views for BSF Class 13 (Mar 2025)
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 )}
                 
