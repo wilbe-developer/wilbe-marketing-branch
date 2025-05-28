@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
  */
 export const fetchUsersByRole = async (role: UserRole | 'all', page = 1, pageSize = 20) => {
   try {
-    console.log(`Fetching users with role: ${role}, page: ${page}, pageSize: ${pageSize}`);
+    console.log(`[RoleUtils] Fetching users with role: ${role}, page: ${page}, pageSize: ${pageSize}`);
     
     const from = (page - 1) * pageSize;
     const to = from + pageSize - 1;
@@ -26,15 +26,18 @@ export const fetchUsersByRole = async (role: UserRole | 'all', page = 1, pageSiz
         .range(from, to);
 
       if (profilesError) {
-        console.error("Error fetching all profiles:", profilesError);
+        console.error("[RoleUtils] Error fetching all profiles:", profilesError);
         throw profilesError;
       }
 
-      console.log(`Fetched ${(results || []).length} profiles for 'all'. Total: ${count || 0}`);
+      console.log(`[RoleUtils] Raw results for 'all':`, results);
+      console.log(`[RoleUtils] Fetched ${(results || []).length} profiles for 'all'. Total: ${count || 0}`);
       return { data: results || [], count: count || 0 };
 
     } else {
       // For specific roles: use INNER JOIN to get profiles with that specific role
+      console.log(`[RoleUtils] Building query for specific role: ${role}`);
+      
       const { data: results, error: profilesError, count } = await supabase
         .from('profiles')
         .select(`
@@ -48,18 +51,20 @@ export const fetchUsersByRole = async (role: UserRole | 'all', page = 1, pageSiz
         .range(from, to);
 
       if (profilesError) {
-        console.error(`Error fetching profiles for role ${role}:`, profilesError);
+        console.error(`[RoleUtils] Error fetching profiles for role ${role}:`, profilesError);
         throw profilesError;
       }
 
-      console.log(`Fetched ${(results || []).length} profiles with role: ${role}. Total: ${count || 0}`);
+      console.log(`[RoleUtils] Raw results for role '${role}':`, results);
+      console.log(`[RoleUtils] Query returned ${(results || []).length} profiles with role: ${role}. Total: ${count || 0}`);
+      
       return { 
         data: results || [], 
         count: count || 0
       };
     }
   } catch (error) {
-    console.error("Error in fetchUsersByRole:", error);
+    console.error("[RoleUtils] Error in fetchUsersByRole:", error);
     throw new Error(`Failed to fetch users with role ${role}: ${error.message || 'Unknown error'}`);
   }
 };
@@ -78,7 +83,7 @@ export const fetchUserRoles = async (userId: string): Promise<UserRole[]> => {
     
     return (data || []).map(row => row.role as UserRole);
   } catch (error) {
-    console.error(`Error fetching roles for user ${userId}:`, error);
+    console.error(`[RoleUtils] Error fetching roles for user ${userId}:`, error);
     return [];
   }
 };
@@ -88,6 +93,8 @@ export const fetchUserRoles = async (userId: string): Promise<UserRole[]> => {
  */
 export const fetchRoleCounts = async (): Promise<Record<UserRole | 'all', number>> => {
   try {
+    console.log("[RoleUtils] Fetching role counts...");
+    
     // Get counts using the same approach as the main query for consistency
     const [allResult, adminResult, memberResult, userResult] = await Promise.all([
       // Count all profiles (using LEFT JOIN to include those without roles)
@@ -133,33 +140,41 @@ export const fetchRoleCounts = async (): Promise<Record<UserRole | 'all', number
       'user': userResult.count || 0
     };
     
-    console.log("Role counts calculated successfully:", counts);
+    console.log("[RoleUtils] Role counts calculated successfully:", counts);
     return counts;
   } catch (error) {
-    console.error("Error fetching role counts:", error);
+    console.error("[RoleUtils] Error fetching role counts:", error);
     // Return defaults on error to prevent UI from breaking
     return { 'all': 0, 'admin': 0, 'member': 0, 'user': 0 };
   }
 };
 
 /**
- * Maps database profiles to UserProfile objects with proper role extraction
+ * Maps database profiles to UserProfile objects with simplified role extraction
  */
 export const mapProfilesToUserProfiles = (profiles: any[]): UserProfile[] => {
-  return profiles.map(profile => {
-    // Extract the single role from the user_roles array (each user has only one role)
-    const userRoleData = profile.user_roles;
+  console.log(`[RoleUtils] Mapping ${profiles.length} profiles to UserProfile objects`);
+  
+  return profiles.map((profile, index) => {
+    // Simplified role extraction - each user has exactly one role
     let userRole: UserRole | undefined;
     
-    if (Array.isArray(userRoleData) && userRoleData.length > 0) {
-      userRole = userRoleData[0].role as UserRole;
-    } else if (userRoleData && userRoleData.role) {
-      userRole = userRoleData.role as UserRole;
+    // Handle the user_roles data structure from the query
+    if (profile.user_roles) {
+      if (Array.isArray(profile.user_roles)) {
+        // If it's an array, take the first role (there should only be one)
+        if (profile.user_roles.length > 0 && profile.user_roles[0]?.role) {
+          userRole = profile.user_roles[0].role as UserRole;
+        }
+      } else if (profile.user_roles.role) {
+        // If it's a single object, get the role directly
+        userRole = profile.user_roles.role as UserRole;
+      }
     }
     
-    console.log(`User ${profile.id} role data:`, userRoleData, 'extracted role:', userRole);
+    console.log(`[RoleUtils] Profile ${index + 1} (${profile.id}): role data =`, profile.user_roles, `extracted role = ${userRole}`);
     
-    return {
+    const userProfile: UserProfile = {
       id: profile.id,
       firstName: profile.first_name || '',
       lastName: profile.last_name || '',
@@ -175,5 +190,15 @@ export const mapProfilesToUserProfiles = (profiles: any[]): UserProfile[] => {
       avatar: profile.avatar,
       userRole: userRole // Store the actual system role
     };
+    
+    console.log(`[RoleUtils] Mapped profile ${index + 1}:`, {
+      id: userProfile.id,
+      name: `${userProfile.firstName} ${userProfile.lastName}`,
+      userRole: userProfile.userRole,
+      approved: userProfile.approved,
+      isAdmin: userProfile.isAdmin
+    });
+    
+    return userProfile;
   });
 };

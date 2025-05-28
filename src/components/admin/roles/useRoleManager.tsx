@@ -27,7 +27,7 @@ export const useRoleManager = () => {
     try {
       setLoading(true);
       
-      console.log(`Attempting to fetch users for filter: ${filter}, page: ${currentPage}`);
+      console.log(`[useRoleManager] Attempting to fetch users for filter: ${filter}, page: ${currentPage}`);
       
       // Get role counts for filter indicators
       const counts = await fetchRoleCounts();
@@ -36,38 +36,40 @@ export const useRoleManager = () => {
       // Fetch users based on the current filter and page
       const { data: fetchedUsers, count } = await fetchUsersByRole(filter, currentPage, pageSize);
       
+      console.log(`[useRoleManager] Raw fetched users:`, fetchedUsers);
+      console.log(`[useRoleManager] Total count from query: ${count}`);
+      
       setTotalUsers(count);
       
       // Map to UserProfile format with role information
       const enhancedProfiles = mapProfilesToUserProfiles(fetchedUsers);
       
-      // Build simplified userRoles map - each user has only one role
+      console.log(`[useRoleManager] Enhanced profiles:`, enhancedProfiles);
+      
+      // Build simplified userRoles map - each user has exactly one role
       const rolesMap: Record<string, UserRole[]> = {};
-      fetchedUsers.forEach((user: any) => {
+      enhancedProfiles.forEach((profile) => {
         const roles: UserRole[] = [];
         
-        if (user.user_roles) {
-          if (Array.isArray(user.user_roles) && user.user_roles.length > 0) {
-            roles.push(user.user_roles[0].role as UserRole);
-          } else if (user.user_roles.role) {
-            roles.push(user.user_roles.role as UserRole);
-          }
+        if (profile.userRole) {
+          roles.push(profile.userRole);
         }
         
-        rolesMap[user.id] = roles;
-        console.log(`User ${user.id} roles:`, roles);
+        rolesMap[profile.id] = roles;
+        console.log(`[useRoleManager] User ${profile.id} final roles:`, roles);
       });
       
       setUserRoles(rolesMap);
       
-      console.log(`Successfully processed ${enhancedProfiles.length} user profiles for filter: ${filter}`);
+      console.log(`[useRoleManager] Successfully processed ${enhancedProfiles.length} user profiles for filter: ${filter}`);
+      console.log(`[useRoleManager] Final users state will be:`, enhancedProfiles);
       
       setUsers(enhancedProfiles);
     } catch (error) {
-      console.error(`Error fetching users (attempt ${retryCount + 1}):`, error);
+      console.error(`[useRoleManager] Error fetching users (attempt ${retryCount + 1}):`, error);
       
       if (retryCount < maxRetries && (error.message?.includes('timeout') || error.message?.includes('network'))) {
-        console.log(`Retrying fetch users (attempt ${retryCount + 2}/${maxRetries + 1})...`);
+        console.log(`[useRoleManager] Retrying fetch users (attempt ${retryCount + 2}/${maxRetries + 1})...`);
         setTimeout(() => fetchUsers(retryCount + 1), 1000 * (retryCount + 1));
         return;
       }
@@ -88,17 +90,20 @@ export const useRoleManager = () => {
   }, [filter, currentPage, toast]);
 
   const handleFilterChange = (newFilter: UserRole | 'all') => {
-    console.log(`Changing filter from ${filter} to ${newFilter}`);
+    console.log(`[useRoleManager] Changing filter from ${filter} to ${newFilter}`);
     setFilter(newFilter);
     setCurrentPage(1); // Reset to first page when changing filters
   };
 
   const handlePageChange = (page: number) => {
+    console.log(`[useRoleManager] Changing page from ${currentPage} to ${page}`);
     setCurrentPage(page);
   };
 
   const handleRoleToggle = async (userId: string, role: UserRole, hasRole: boolean) => {
     try {
+      console.log(`[useRoleManager] Toggling role ${role} for user ${userId}. Current state: ${hasRole ? 'has role' : 'does not have role'}`);
+      
       if (hasRole) {
         // Remove role
         const { error } = await supabase
@@ -145,13 +150,14 @@ export const useRoleManager = () => {
       }
       
       // Refresh users
+      console.log(`[useRoleManager] Role toggle completed, refreshing users...`);
       fetchUsers();
       
       // Also update role counts
       const counts = await fetchRoleCounts();
       setRoleCounts(counts);
     } catch (error) {
-      console.error("Error updating role:", error);
+      console.error("[useRoleManager] Error updating role:", error);
       toast({
         title: "Error",
         description: "Failed to update role. Please try again.",
@@ -161,6 +167,7 @@ export const useRoleManager = () => {
   };
 
   useEffect(() => {
+    console.log(`[useRoleManager] useEffect triggered: filter=${filter}, currentPage=${currentPage}`);
     fetchUsers();
   }, [fetchUsers]);
 
