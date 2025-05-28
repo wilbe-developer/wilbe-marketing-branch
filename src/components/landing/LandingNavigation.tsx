@@ -13,7 +13,7 @@ export default function LandingNavigation() {
             <Link to="/" className="flex items-center">
               <div className="bg-black px-3 py-1 rounded">
                 <WilbeLogo
-                  className="h-6 w-auto"
+                  className="h-8 w-auto"
                   style={{
                     '--sails-color': 'white',
                     '--text-color': 'white',
