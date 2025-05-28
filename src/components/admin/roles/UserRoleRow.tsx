@@ -16,6 +16,9 @@ const UserRoleRow = ({ user, userRoles, onRoleToggle }: UserRoleRowProps) => {
   const hasMemberRole = userRoles.includes('member');
   const hasUserRole = userRoles.includes('user');
 
+  // Display the actual system role from user_roles table
+  const systemRole = userRoles.length > 0 ? userRoles[0] : 'No role';
+
   return (
     <TableRow>
       <TableCell className="font-medium">
@@ -29,20 +32,20 @@ const UserRoleRow = ({ user, userRoles, onRoleToggle }: UserRoleRowProps) => {
           )}
           <div>
             {user.firstName} {user.lastName}
-            <div className="text-sm text-gray-500">
-              {user.role}
-            </div>
+            {user.role && (
+              <div className="text-sm text-gray-500">
+                {user.role}
+              </div>
+            )}
           </div>
         </div>
       </TableCell>
       <TableCell>{user.email}</TableCell>
       <TableCell>
-        <div className="flex flex-wrap gap-1">
-          {hasAdminRole && <Badge variant="destructive">Admin</Badge>}
-          {hasMemberRole && <Badge variant="default">Member</Badge>}
-          {hasUserRole && <Badge variant="secondary">User</Badge>}
-          {userRoles.length === 0 && <Badge variant="outline">No roles</Badge>}
-        </div>
+        {systemRole === 'admin' && <Badge variant="destructive">Admin</Badge>}
+        {systemRole === 'member' && <Badge variant="default">Member</Badge>}
+        {systemRole === 'user' && <Badge variant="secondary">User</Badge>}
+        {systemRole === 'No role' && <Badge variant="outline">No role</Badge>}
       </TableCell>
       <TableCell>
         <Switch

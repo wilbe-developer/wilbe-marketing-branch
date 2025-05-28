@@ -3,7 +3,7 @@ import { UserProfile, UserRole } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 
 /**
- * Fetches users with specified role using a simplified single-query approach
+ * Fetches users with specified role using simplified approach
  */
 export const fetchUsersByRole = async (role: UserRole | 'all', page = 1, pageSize = 20) => {
   try {
@@ -13,12 +13,12 @@ export const fetchUsersByRole = async (role: UserRole | 'all', page = 1, pageSiz
     const to = from + pageSize - 1;
 
     if (role === 'all') {
-      // Get all profiles with their roles using LEFT JOIN
+      // Get all profiles with their roles using LEFT JOIN to include profiles without roles
       const { data: results, error: profilesError, count } = await supabase
         .from('profiles')
         .select(`
           *,
-          user_roles!inner (
+          user_roles (
             role
           )
         `, { count: 'exact' })
@@ -34,9 +34,7 @@ export const fetchUsersByRole = async (role: UserRole | 'all', page = 1, pageSiz
       return { data: results || [], count: count || 0 };
 
     } else {
-      // For specific roles: use JOIN to get profiles with that specific role
-      console.log(`Getting profiles with role: ${role}`);
-      
+      // For specific roles: use INNER JOIN to get profiles with that specific role
       const { data: results, error: profilesError, count } = await supabase
         .from('profiles')
         .select(`
@@ -86,16 +84,17 @@ export const fetchUserRoles = async (userId: string): Promise<UserRole[]> => {
 };
 
 /**
- * Counts users by role type using JOIN for consistency
+ * Counts users by role type using consistent approach
  */
 export const fetchRoleCounts = async (): Promise<Record<UserRole | 'all', number>> => {
   try {
-    // Get counts using the same JOIN approach as the main query for consistency
+    // Get counts using the same approach as the main query for consistency
     const [allResult, adminResult, memberResult, userResult] = await Promise.all([
+      // Count all profiles (using LEFT JOIN to include those without roles)
       supabase
         .from('profiles')
-        .select('*', { count: 'exact', head: true })
-        .not('user_roles.role', 'is', null),
+        .select('*', { count: 'exact', head: true }),
+      // Count admins using INNER JOIN
       supabase
         .from('profiles')
         .select(`
@@ -105,6 +104,7 @@ export const fetchRoleCounts = async (): Promise<Record<UserRole | 'all', number
           )
         `, { count: 'exact', head: true })
         .eq('user_roles.role', 'admin'),
+      // Count members using INNER JOIN
       supabase
         .from('profiles')
         .select(`
@@ -114,6 +114,7 @@ export const fetchRoleCounts = async (): Promise<Record<UserRole | 'all', number
           )
         `, { count: 'exact', head: true })
         .eq('user_roles.role', 'member'),
+      // Count basic users using INNER JOIN
       supabase
         .from('profiles')
         .select(`
@@ -142,12 +143,21 @@ export const fetchRoleCounts = async (): Promise<Record<UserRole | 'all', number
 };
 
 /**
- * Maps database profiles to UserProfile objects - simplified since we get role directly
+ * Maps database profiles to UserProfile objects with proper role extraction
  */
 export const mapProfilesToUserProfiles = (profiles: any[]): UserProfile[] => {
   return profiles.map(profile => {
-    // Extract the role from the joined user_roles data
-    const userRole = profile.user_roles?.role;
+    // Extract the single role from the user_roles array (each user has only one role)
+    const userRoleData = profile.user_roles;
+    let userRole: UserRole | undefined;
+    
+    if (Array.isArray(userRoleData) && userRoleData.length > 0) {
+      userRole = userRoleData[0].role as UserRole;
+    } else if (userRoleData && userRoleData.role) {
+      userRole = userRoleData.role as UserRole;
+    }
+    
+    console.log(`User ${profile.id} role data:`, userRoleData, 'extracted role:', userRole);
     
     return {
       id: profile.id,
@@ -157,12 +167,13 @@ export const mapProfilesToUserProfiles = (profiles: any[]): UserProfile[] => {
       linkedIn: profile.linked_in,
       institution: profile.institution,
       location: profile.location,
-      role: profile.role,
+      role: profile.role, // This is job role, not system role
       bio: profile.bio,
       approved: userRole === "member",
       isAdmin: userRole === "admin",
       createdAt: new Date(profile.created_at || Date.now()),
-      avatar: profile.avatar
+      avatar: profile.avatar,
+      userRole: userRole // Store the actual system role
     };
   });
 };

@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { UserProfile, UserRole } from "@/types";
@@ -32,30 +33,31 @@ export const useRoleManager = () => {
       const counts = await fetchRoleCounts();
       setRoleCounts(counts);
       
-      // Fetch users based on the current filter and page with timeout
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Request timeout')), 15000)
-      );
-      
-      const fetchPromise = fetchUsersByRole(filter, currentPage, pageSize);
-      
-      const { data: fetchedUsers, count } = await Promise.race([
-        fetchPromise,
-        timeoutPromise
-      ]) as any;
+      // Fetch users based on the current filter and page
+      const { data: fetchedUsers, count } = await fetchUsersByRole(filter, currentPage, pageSize);
       
       setTotalUsers(count);
       
       // Map to UserProfile format with role information
       const enhancedProfiles = mapProfilesToUserProfiles(fetchedUsers);
       
-      // Build simplified userRoles map from the fetched data
+      // Build simplified userRoles map - each user has only one role
       const rolesMap: Record<string, UserRole[]> = {};
       fetchedUsers.forEach((user: any) => {
-        if (user.user_roles?.role) {
-          rolesMap[user.id] = [user.user_roles.role];
+        const roles: UserRole[] = [];
+        
+        if (user.user_roles) {
+          if (Array.isArray(user.user_roles) && user.user_roles.length > 0) {
+            roles.push(user.user_roles[0].role as UserRole);
+          } else if (user.user_roles.role) {
+            roles.push(user.user_roles.role as UserRole);
+          }
         }
+        
+        rolesMap[user.id] = roles;
+        console.log(`User ${user.id} roles:`, roles);
       });
+      
       setUserRoles(rolesMap);
       
       console.log(`Successfully processed ${enhancedProfiles.length} user profiles for filter: ${filter}`);
@@ -116,7 +118,13 @@ export const useRoleManager = () => {
             : "User role has been removed."
         });
       } else {
-        // Add role
+        // Add role - but first remove any existing role since each user should only have one
+        await supabase
+          .from('user_roles')
+          .delete()
+          .eq('user_id', userId);
+        
+        // Add the new role
         const { error } = await supabase
           .from('user_roles')
           .insert({
