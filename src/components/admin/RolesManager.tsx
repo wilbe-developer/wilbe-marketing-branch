@@ -1,6 +1,6 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useRoleManager } from "./roles/useRoleManager";
+import { useSimpleRoleManager } from "./roles/useSimpleRoleManager";
 import UsersTable from "./roles/UsersTable";
 import LoadingState from "./roles/LoadingState";
 import EmptyState from "./roles/EmptyState";
@@ -18,7 +18,7 @@ const RolesManager = () => {
     totalPages,
     handlePageChange,
     roleCounts
-  } = useRoleManager();
+  } = useSimpleRoleManager();
 
   // Generate pagination items with a reasonable range
   const generatePaginationItems = () => {
