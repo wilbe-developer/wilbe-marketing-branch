@@ -1,6 +1,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useAuth } from "./useAuth";
+import { useAuthCoordinator } from "./useAuthCoordinator";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "./use-toast";
 
@@ -28,21 +29,37 @@ interface SprintContextProviderProps {
 
 export const SprintContextProvider = ({ children }: SprintContextProviderProps) => {
   const { user } = useAuth();
+  const { isFullyReady, isLoading } = useAuthCoordinator();
   const [currentSprintOwnerId, setCurrentSprintOwnerId] = useState<string | null>(null);
   const [isSharedSprint, setIsSharedSprint] = useState(false);
   const [sprintOwnerName, setSprintOwnerName] = useState<string | null>(null);
 
-  // Initialize with user's own sprint
+  // Wait for auth to be fully ready before initializing
   useEffect(() => {
-    if (user?.id) {
+    console.log("SprintContext - Initialization check:", { 
+      isFullyReady, 
+      isLoading, 
+      hasUser: !!user?.id 
+    });
+
+    // Don't initialize until auth is fully ready
+    if (!isFullyReady || isLoading) {
+      console.log("SprintContext - Waiting for auth to be ready");
+      return;
+    }
+
+    // Initialize with user's own sprint if authenticated
+    if (user?.id && !currentSprintOwnerId) {
+      console.log("SprintContext - Initializing with user's own sprint:", user.id);
       setCurrentSprintOwnerId(user.id);
       setIsSharedSprint(false);
       setSprintOwnerName(null);
     }
-  }, [user?.id]);
+  }, [user?.id, isFullyReady, isLoading, currentSprintOwnerId]);
 
   const switchToOwnSprint = () => {
     if (user?.id) {
+      console.log("SprintContext - Switching to own sprint:", user.id);
       setCurrentSprintOwnerId(user.id);
       setIsSharedSprint(false);
       setSprintOwnerName(null);
@@ -50,6 +67,7 @@ export const SprintContextProvider = ({ children }: SprintContextProviderProps) 
   };
 
   const switchToSharedSprint = (ownerId: string, ownerName: string) => {
+    console.log("SprintContext - Switching to shared sprint:", { ownerId, ownerName });
     setCurrentSprintOwnerId(ownerId);
     setIsSharedSprint(true);
     setSprintOwnerName(ownerName);

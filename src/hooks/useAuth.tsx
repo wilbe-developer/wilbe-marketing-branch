@@ -76,7 +76,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const search = window.location.search;
     const urlParams = new URLSearchParams(search);
     
-    console.log("Checking for auth tokens:", { hash, search });
+    console.log("Auth - Checking for auth tokens:", { hash, search });
     
     // Check for magic link tokens in hash
     const hasMagicLinkHash = hash.includes('access_token=') || 
@@ -89,7 +89,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Check for recovery tokens
     const hasRecoveryToken = search.includes('type=recovery') || hash.includes('type=recovery');
     
-    console.log("Auth token detection:", { hasMagicLinkHash, hasOAuthCode, hasRecoveryToken });
+    console.log("Auth - Token detection:", { hasMagicLinkHash, hasOAuthCode, hasRecoveryToken });
     
     return hasMagicLinkHash || hasOAuthCode || hasRecoveryToken;
   };
@@ -105,7 +105,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Clear hash fragment
     url.hash = '';
     
-    console.log("Cleaning up auth URL, redirecting to:", url.pathname + url.search);
+    console.log("Auth - Cleaning up auth URL, redirecting to:", url.pathname + url.search);
     window.history.replaceState(null, '', url.pathname + url.search);
   };
 
@@ -116,15 +116,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const type = url.searchParams.get("type");
       
       if (type === "recovery") {
-        console.log("Recovery mode detected from URL param");
+        console.log("Auth - Recovery mode detected from URL param");
         setIsRecoveryMode(true);
         return;
       }
       
       if (window.location.pathname === PATHS.PASSWORD_RESET) {
-        console.log("On password reset page, checking for hash fragment...");
+        console.log("Auth - On password reset page, checking for hash fragment...");
         if (window.location.hash) {
-          console.log("Hash fragment found, likely a recovery token");
+          console.log("Auth - Hash fragment found, likely a recovery token");
           setIsRecoveryMode(true);
           return;
         }
@@ -146,53 +146,55 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Main authentication initialization effect
   useEffect(() => {
-    console.log("Initializing authentication system...");
+    console.log("Auth - Initializing authentication system...");
     
     // Check for any auth tokens immediately
     const hasTokens = hasAuthTokens();
     if (hasTokens && !isRecoveryMode) {
-      console.log("Auth tokens detected, starting processing...");
+      console.log("Auth - Auth tokens detected, starting processing...");
       setIsMagicLinkProcessing(true);
     }
 
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, newSession) => {
-        console.log("Auth state changed:", event, !!newSession?.user);
+        console.log("Auth - State changed:", event, !!newSession?.user);
         
         // Handle successful authentication
-        if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && isMagicLinkProcessing) {
-          console.log("Authentication successful, cleaning up...");
-          setIsMagicLinkProcessing(false);
+        if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && newSession?.user) {
+          console.log("Auth - Authentication successful, fetching profile...");
           
-          // Clean up URL after successful auth
-          setTimeout(() => {
-            cleanupAuthUrl();
-          }, 100);
+          // Stop processing and clean up URL
+          if (isMagicLinkProcessing) {
+            setIsMagicLinkProcessing(false);
+            setTimeout(() => {
+              cleanupAuthUrl();
+            }, 100);
+          }
+          
+          // Set session first
+          setSession(newSession);
+          
+          // Then fetch user profile
+          try {
+            await fetchUserProfile(newSession.user.id);
+            console.log("Auth - Profile fetched successfully");
+          } catch (error) {
+            console.error("Auth - Error fetching user profile:", error);
+          }
         }
         
         // Handle sign out
         if (event === 'SIGNED_OUT') {
-          console.log("User signed out");
+          console.log("Auth - User signed out");
           setIsMagicLinkProcessing(false);
-        }
-        
-        setSession(newSession);
-        
-        // If signed in, fetch user profile
-        if (newSession?.user) {
-          console.log("User signed in, fetching profile for:", newSession.user.id);
-          try {
-            await fetchUserProfile(newSession.user.id);
-          } catch (error) {
-            console.error("Error fetching user profile:", error);
-          }
-        } else {
+          setSession(null);
           setUser(null);
         }
         
         // Mark auth as initialized after first state change
         if (!authInitialized) {
+          console.log("Auth - Marking as initialized");
           setAuthInitialized(true);
           setLoading(false);
         }
@@ -202,18 +204,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Get initial session with enhanced error handling
     const getInitialSession = async () => {
       try {
-        console.log("Checking for existing session...");
+        console.log("Auth - Checking for existing session...");
         const { data: { session: existingSession }, error } = await supabase.auth.getSession();
         
         if (error) {
-          console.error("Error getting session:", error);
-          // If we have auth tokens but session failed, try to process them
-          if (hasTokens && !isRecoveryMode) {
-            console.log("Session error but auth tokens present, attempting to process...");
-            // Let the auth state change handler deal with it
-          } else {
-            setIsMagicLinkProcessing(false);
-          }
+          console.error("Auth - Error getting session:", error);
+          setIsMagicLinkProcessing(false);
           
           if (!authInitialized) {
             setAuthInitialized(true);
@@ -222,15 +218,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           return;
         }
         
-        console.log("Initial session check:", !!existingSession?.user);
+        console.log("Auth - Initial session check:", !!existingSession?.user);
         
         if (existingSession?.user) {
           setSession(existingSession);
-          console.log("Found existing session, fetching profile for:", existingSession.user.id);
+          console.log("Auth - Found existing session, fetching profile for:", existingSession.user.id);
+          
           try {
             await fetchUserProfile(existingSession.user.id);
+            console.log("Auth - Existing session profile fetched");
           } catch (error) {
-            console.error("Error fetching user profile:", error);
+            console.error("Auth - Error fetching profile for existing session:", error);
           }
           
           // If we were processing auth tokens and now have a session, we're done
@@ -242,13 +240,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
         }
         
-        // Mark auth as initialized if not already done by auth state change
+        // Mark auth as initialized
         if (!authInitialized) {
+          console.log("Auth - Initial session check complete, marking as initialized");
           setAuthInitialized(true);
           setLoading(false);
         }
       } catch (error) {
-        console.error("Error in initial session check:", error);
+        console.error("Auth - Error in initial session check:", error);
         setIsMagicLinkProcessing(false);
         if (!authInitialized) {
           setAuthInitialized(true);
@@ -257,28 +256,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     };
 
-    // Immediate session check for faster auth resolution
+    // Immediate session check
     getInitialSession();
 
-    // Set timeout to stop processing if it takes too long
+    // Set timeout for auth processing
     let processingTimeout: NodeJS.Timeout;
     if (hasTokens && !isRecoveryMode) {
       processingTimeout = setTimeout(() => {
-        console.log("Auth processing timeout - stopping processing and cleaning up");
+        console.warn("Auth - Processing timeout reached");
         setIsMagicLinkProcessing(false);
         
-        // If we're still stuck processing, clean up the URL and redirect to login
+        // If still processing and no session, clean up and show error
         if (isMagicLinkProcessing && !session?.user) {
-          console.log("Auth processing failed, cleaning up and redirecting to login");
+          console.error("Auth - Processing failed, cleaning up");
           cleanupAuthUrl();
           toast({
             title: "Authentication failed",
             description: "Please try logging in again.",
             variant: "destructive"
           });
-          navigate(PATHS.LOGIN);
         }
-      }, 8000); // Increased timeout for OAuth flows
+      }, 8000);
     }
 
     return () => {
@@ -287,29 +285,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         clearTimeout(processingTimeout);
       }
     };
-  }, [isRecoveryMode, fetchUserProfile, toast, navigate]);
-
-  // Stop magic link processing when user becomes authenticated
-  useEffect(() => {
-    if (session?.user && isMagicLinkProcessing) {
-      console.log("User authenticated during processing, stopping processing");
-      setIsMagicLinkProcessing(false);
-    }
-  }, [session?.user, isMagicLinkProcessing]);
+  }, [isRecoveryMode]);
 
   // Using the roles from the user_roles table now
   const isAdmin = !!user?.isAdmin;
   const isApproved = !!user?.approved;
   const isAuthenticated = !!user;
 
-  console.log("Auth provider state:", { 
+  console.log("Auth - Provider state:", { 
     isAuthenticated, 
     isAdmin, 
     isApproved, 
     loading: loading || !authInitialized, 
     isRecoveryMode, 
     isMagicLinkProcessing,
-    authInitialized
+    authInitialized,
+    hasUser: !!user
   });
 
   return (
