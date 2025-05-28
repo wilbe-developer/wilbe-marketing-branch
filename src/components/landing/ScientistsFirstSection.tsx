@@ -28,7 +28,7 @@ export default function ScientistsFirstSection() {
           ))}
         </div>
 
-        <div className="bg-gray-900 overflow-hidden">
+        <div className="bg-gray-900 rounded-lg overflow-hidden">
           <div className="grid lg:grid-cols-2 gap-0">
             <div className="p-8 lg:p-12">
               <h3 className="text-2xl font-bold mb-4 text-white">Support our advocacy work</h3>
@@ -38,7 +38,7 @@ export default function ScientistsFirstSection() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button size="lg" className="bg-white text-gray-900 hover:bg-gray-100 font-bold">
-                  Buy T-Shirt
+                  Get me one 🤘
                 </Button>
                 <Button
                   size="lg"
