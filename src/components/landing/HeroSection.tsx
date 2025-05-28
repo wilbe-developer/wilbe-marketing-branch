@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, PartyPopper } from "lucide-react"
 
 export default function HeroSection() {
   return (
@@ -45,9 +45,9 @@ export default function HeroSection() {
         </Button>
         <Button
           size="lg"
-          variant="outline"
-          className="border-gray-600 text-white hover:bg-gray-800 font-bold uppercase tracking-wide px-8"
+          className="bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 hover:from-purple-600 hover:via-pink-600 hover:to-orange-600 text-white font-bold uppercase tracking-wide px-8 border-0 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl animate-pulse"
         >
+          <PartyPopper className="mr-2 h-5 w-5" />
           Infinite Quiz
         </Button>
       </div>
