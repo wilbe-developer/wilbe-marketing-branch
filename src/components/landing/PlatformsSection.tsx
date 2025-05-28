@@ -13,7 +13,7 @@ export default function PlatformsSection() {
   }, {
     number: 2,
     title: "Bootcamp for Scientist Founders (BSF): Become a Founder",
-    description: "Start putting the company pieces together with the guidance and founders community needed to avoid expensive mistakes and validate the most ambitious version of your vision. Complete our guided process in 10 days and you will grab our attention as investors to be invited for our in-person residency where we chart the operational steps to kick-off.",
+    description: "Start putting the company pieces together with the guidance and founders community needed to avoid expensive mistakes and validate the most ambitious version of your vision. Complete our tech-enabled process in 10 days and you will grab our attention as investors to be invited for our in-person residency where we chart the operational steps to kick-off.",
     buttonText: "Join the BSF Waitlist",
     buttonLink: "/sprint-signup"
   }, {
