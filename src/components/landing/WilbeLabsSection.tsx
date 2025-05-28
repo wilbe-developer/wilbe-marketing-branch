@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Building, Microscope, Users, Shield } from "lucide-react";
@@ -60,7 +59,7 @@ export default function WilbeLabsSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-5xl font-bold text-gray-900 mb-4 uppercase tracking-wide">
-            <span className="text-6xl">Wilbe</span> LABS
+            <span className="text-6xl">Wilbe</span> LABS: SECURE THE RIGHT LAB FOR YOUR TEAM
           </h2>
           <p className="text-xl text-gray-900 max-w-3xl mx-auto">
             Premium lab spaces designed for scientist entrepreneurs. From wet labs to dry labs, we provide the
@@ -126,7 +125,6 @@ export default function WilbeLabsSection() {
           </div>
         </div>
 
-        {/* Labs Delivered and Under Management Gallery */}
         <div className="bg-white rounded-lg p-8 shadow-lg">
           <div className="text-center mb-8">
             <h3 className="text-3xl font-bold text-gray-900 mb-4 uppercase tracking-wide">
