@@ -54,12 +54,16 @@ export default function PlatformsSection() {
                 <p className="text-gray-700 text-lg leading-relaxed mb-6 max-w-4xl">
                   {platform.description}
                 </p>
-                <Button asChild className="bg-green-500 hover:bg-green-600 text-white font-medium px-6 py-2 mb-6">
-                  <a href={platform.buttonLink}>
-                    {platform.buttonText}
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </a>
-                </Button>
+                
+                {/* Button - show for all platforms except Wilbe Capital */}
+                {!platform.showCompanies && (
+                  <Button asChild className="bg-green-500 hover:bg-green-600 text-white font-medium px-6 py-2 mb-6">
+                    <a href={platform.buttonLink}>
+                      {platform.buttonText}
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </a>
+                  </Button>
+                )}
 
                 {/* Latest Content Feed - only show for Wilbe Sandbox */}
                 {platform.showLatestContent && <div className="mt-8 bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
@@ -67,7 +71,21 @@ export default function PlatformsSection() {
                   </div>}
 
                 {/* Backed Founders section - only show for Wilbe Capital */}
-                {platform.showCompanies && <BackedFoundersSection initialCount={6} loadMoreCount={6} />}
+                {platform.showCompanies && (
+                  <>
+                    <BackedFoundersSection initialCount={6} loadMoreCount={6} />
+                    
+                    {/* Button for Wilbe Capital - show after the gallery */}
+                    <div className="mt-6">
+                      <Button asChild className="bg-green-500 hover:bg-green-600 text-white font-medium px-6 py-2">
+                        <a href={platform.buttonLink}>
+                          {platform.buttonText}
+                          <ArrowRight className="ml-2 h-4 w-4" />
+                        </a>
+                      </Button>
+                    </div>
+                  </>
+                )}
               </div>
             </div>)}
         </div>
