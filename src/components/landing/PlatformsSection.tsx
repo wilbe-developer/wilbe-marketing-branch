@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import BackedFoundersSection from "./BackedFoundersSection";
@@ -31,8 +32,33 @@ export default function PlatformsSection() {
     title: "Wilbe Labs: Build Your Science Hub",
     description: "Wilbe Labs creates fully operational science labs and innovation hubs for ventures and property owners. By managing fit-outs, compliance, and operations, it delivers vibrant workspaces that attract talent and investors, supporting pre-seed to Series B science ventures.",
     buttonText: "Discover Wilbe Labs",
-    buttonLink: "/labs"
+    buttonLink: "/labs",
+    showLabGallery: true
   }];
+
+  const labGallery = [
+    {
+      name: "UCL's IDEALondon",
+      location: "London, UK",
+      image: "https://images.unsplash.com/photo-1487958449943-2429e8be8625?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+    },
+    {
+      name: "Milvus Advanced", 
+      location: "Oxford, UK",
+      image: "https://images.unsplash.com/photo-1496307653780-42ee777d4833?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+    },
+    {
+      name: "Origen",
+      location: "Bristol, UK", 
+      image: "https://images.unsplash.com/photo-1431576901776-e539bd916ba2?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+    },
+    {
+      name: "CarpeCarbon",
+      location: "Turin, Italy",
+      image: "https://images.unsplash.com/photo-1449157291145-7efd050a4d0e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+    }
+  ];
+
   return (
     <section className="py-20 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -84,6 +110,29 @@ export default function PlatformsSection() {
                           Austin TX sunset views for BSF Class 13 (Mar 2025)
                         </p>
                       </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Lab Gallery - only show for Wilbe Labs */}
+                {platform.showLabGallery && (
+                  <div className="mb-6">
+                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-5xl">
+                      {labGallery.map((lab, labIndex) => (
+                        <div key={labIndex} className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow">
+                          <div className="aspect-video">
+                            <img
+                              src={lab.image}
+                              alt={`${lab.name} laboratory facility`}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <div className="p-4">
+                            <h4 className="font-bold text-gray-900 text-sm mb-1">{lab.name}</h4>
+                            <p className="text-xs text-gray-600">{lab.location}</p>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 )}
