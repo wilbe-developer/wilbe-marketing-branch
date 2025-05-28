@@ -1287,7 +1287,7 @@ export type Database = {
         Args: { user_id: string }
         Returns: boolean
       }
-      is_member: {
+      is_approved: {
         Args: { user_id: string }
         Returns: boolean
       }
