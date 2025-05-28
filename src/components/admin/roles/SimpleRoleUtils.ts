@@ -3,14 +3,14 @@ import { UserProfile, UserRole } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 
 /**
- * Ultra-simple role management - single query approach with SQL filtering
+ * Ultra-simple role management - single query approach with Supabase-compatible filtering
  */
 
 interface ProfileWithRole {
   id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
+  first_name: string | null;
+  last_name: string | null;
+  email: string | null;
   linked_in: string | null;
   institution: string | null;
   location: string | null;
@@ -18,7 +18,7 @@ interface ProfileWithRole {
   bio: string | null;
   avatar: string | null;
   created_at: string;
-  user_role: UserRole | null;
+  user_roles: { role: UserRole }[] | null;
 }
 
 /**
@@ -27,23 +27,22 @@ interface ProfileWithRole {
 const executeRoleQuery = async (
   roleFilter: UserRole | 'all', 
   page = 1, 
-  pageSize = 10,
-  countOnly = false
+  pageSize = 10
 ): Promise<{ data: ProfileWithRole[], count: number }> => {
   try {
-    console.log(`[SimpleRoleUtils] Query: roleFilter=${roleFilter}, page=${page}, countOnly=${countOnly}`);
+    console.log(`[SimpleRoleUtils] Query: roleFilter=${roleFilter}, page=${page}`);
     
     const from = (page - 1) * pageSize;
     const to = from + pageSize - 1;
     
-    // Build the base query with SQL filtering
+    // Build the base query with LEFT JOIN
     let query = supabase
       .from('profiles')
       .select(`
         id,
-        COALESCE(first_name, '') as first_name,
-        COALESCE(last_name, '') as last_name,
-        COALESCE(email, '') as email,
+        first_name,
+        last_name,
+        email,
         linked_in,
         institution,
         location,
@@ -68,24 +67,8 @@ const executeRoleQuery = async (
     
     if (error) throw error;
     
-    // Simple transformation with null safety
-    const transformedData: ProfileWithRole[] = (data || []).map(profile => ({
-      id: profile.id,
-      first_name: profile.first_name || '',
-      last_name: profile.last_name || '',
-      email: profile.email || '',
-      linked_in: profile.linked_in,
-      institution: profile.institution,
-      location: profile.location,
-      role: profile.role,
-      bio: profile.bio,
-      avatar: profile.avatar,
-      created_at: profile.created_at,
-      user_role: profile.user_roles?.[0]?.role || null
-    }));
-    
-    console.log(`[SimpleRoleUtils] Result: ${transformedData.length} users, total: ${count}`);
-    return { data: transformedData, count: count || 0 };
+    console.log(`[SimpleRoleUtils] Result: ${(data || []).length} users, total: ${count}`);
+    return { data: data || [], count: count || 0 };
     
   } catch (error) {
     console.error(`[SimpleRoleUtils] Query error:`, error);
@@ -102,10 +85,10 @@ export const getSimpleRoleCounts = async (): Promise<Record<UserRole | 'all', nu
     
     // Use Promise.all to run all count queries in parallel
     const [allResult, adminResult, memberResult, userResult] = await Promise.all([
-      executeRoleQuery('all', 1, 1, true),
-      executeRoleQuery('admin', 1, 1, true),
-      executeRoleQuery('member', 1, 1, true),
-      executeRoleQuery('user', 1, 1, true)
+      executeRoleQuery('all', 1, 1),
+      executeRoleQuery('admin', 1, 1),
+      executeRoleQuery('member', 1, 1),
+      executeRoleQuery('user', 1, 1)
     ]);
     
     const counts = {
@@ -131,25 +114,30 @@ export const getSimpleUsersWithRoles = async (
   page = 1, 
   pageSize = 10
 ): Promise<{ data: ProfileWithRole[], count: number }> => {
-  return executeRoleQuery(roleFilter, page, pageSize, false);
+  return executeRoleQuery(roleFilter, page, pageSize);
 };
 
 /**
- * Simple mapping with proper null handling
+ * Simple mapping with proper null handling in JavaScript
  */
 export const mapToUserProfiles = (profiles: ProfileWithRole[]): UserProfile[] => {
   console.log(`[SimpleRoleUtils] Mapping ${profiles.length} profiles`);
   
   return profiles.map((profile, index) => {
-    const userRole = profile.user_role;
+    // Extract user role from the LEFT JOIN result
+    let userRole: UserRole | undefined;
     
-    console.log(`[SimpleRoleUtils] Profile ${index + 1}: ${profile.first_name} ${profile.last_name} (${profile.email}) - role: ${userRole}`);
+    if (profile.user_roles && Array.isArray(profile.user_roles) && profile.user_roles.length > 0) {
+      userRole = profile.user_roles[0].role;
+    }
+    
+    console.log(`[SimpleRoleUtils] Profile ${index + 1}: ${profile.first_name || ''} ${profile.last_name || ''} (${profile.email || ''}) - role: ${userRole || 'none'}`);
     
     const userProfile: UserProfile = {
       id: profile.id,
-      firstName: profile.first_name,
-      lastName: profile.last_name,
-      email: profile.email,
+      firstName: profile.first_name || '',
+      lastName: profile.last_name || '',
+      email: profile.email || '',
       linkedIn: profile.linked_in,
       institution: profile.institution,
       location: profile.location,
