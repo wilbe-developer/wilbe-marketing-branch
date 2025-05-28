@@ -13,7 +13,7 @@ export default function PlatformsSection() {
   }, {
     number: 2,
     title: "Bootcamp for Scientist Founders (BSF): Become a Founder",
-    description: "The Bootcamp for Scientist Founders (BSF) is a 4-week intensive program training scientists to lead startups. Guided by expert entrepreneurs, it covers product development, market strategy, and fundraising. Over 120 fellows have graduated, with 25% founding startups, 30% joining ventures, and 45% becoming entrepreneurial academics. Join the waitlist today.",
+    description: "Turn your breakthrough into a high-performance startup - in 10 days. The Bootcamp for Scientist Founders (BSF) is our focused, guided path to help you make critical decisions and put together the most ambitious version of your company. Complete our online process in 10 days and get our attention as investors. When there's momentum and a clear plan, we invest $100K–$250K to help build your vision alongside our community of 300+ BSF alumni including 80 scientist founders. You'll be invited to join us at an in-person residency where we chart the future steps alongside fellow Wilbe founders. Worst case? You leave with a plan and a global network of entrepreneurial scientists.",
     buttonText: "Join the BSF Waitlist",
     buttonLink: "/sprint-signup"
   }, {
