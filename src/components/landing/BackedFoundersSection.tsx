@@ -9,8 +9,8 @@ interface BackedFoundersSectionProps {
 }
 
 export default function BackedFoundersSection({ 
-  initialCount = 6, 
-  loadMoreCount = 6 
+  initialCount = 8, 
+  loadMoreCount = 8 
 }: BackedFoundersSectionProps) {
   const [visibleCount, setVisibleCount] = useState(initialCount);
   
@@ -31,7 +31,7 @@ export default function BackedFoundersSection({
         SCIENTIST FOUNDERS WE HAVE BACKED
       </h4>
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {visibleFounders.map((founder) => (
           <FounderCard key={founder.id} founder={founder} />
         ))}
@@ -70,7 +70,7 @@ interface FounderCardProps {
 function FounderCard({ founder }: FounderCardProps) {
   return (
     <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow group">
-      <div className="relative h-48 bg-gray-100">
+      <div className="relative h-32 bg-gray-100">
         <img
           src={founder.image}
           alt={founder.name}
@@ -83,24 +83,24 @@ function FounderCard({ founder }: FounderCardProps) {
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
       </div>
       
-      <div className="p-4">
-        <div className="flex justify-between items-start mb-2">
+      <div className="p-3">
+        <div className="flex justify-between items-start mb-1">
           <div className="flex-1">
-            <h5 className="font-bold text-gray-900 text-sm leading-tight">{founder.name}</h5>
+            <h5 className="font-bold text-gray-900 text-xs leading-tight">{founder.name}</h5>
             <p className="text-gray-600 text-xs">{founder.title}</p>
           </div>
           {founder.fundingRound && (
-            <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-medium">
+            <span className="bg-green-100 text-green-700 text-xs px-1 py-0.5 rounded-full font-medium text-xs">
               {founder.fundingRound}
             </span>
           )}
         </div>
         
-        <h6 className="font-semibold text-gray-800 text-sm mb-2">{founder.company}</h6>
-        <p className="text-gray-600 text-xs leading-relaxed mb-3">{founder.description}</p>
+        <h6 className="font-semibold text-gray-800 text-xs mb-1">{founder.company}</h6>
+        <p className="text-gray-600 text-xs leading-relaxed mb-2 line-clamp-2">{founder.description}</p>
         
         <div className="flex justify-between items-center">
-          <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">{founder.sector}</span>
+          <span className="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded">{founder.sector}</span>
         </div>
       </div>
     </div>
