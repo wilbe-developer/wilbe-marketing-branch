@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ArrowRight } from "lucide-react"
@@ -20,16 +21,16 @@ export default function HeroSection() {
 
       <div className="grid sm:grid-cols-3 gap-4 mb-8">
         <div className="text-center">
-          <div className="text-3xl font-bold text-green-500 mb-1">10K+</div>
+          <div className="text-3xl font-bold text-green-500 mb-1">1.3K+</div>
+          <p className="text-gray-400 text-sm uppercase tracking-wide">Entrepreneurial Scientists</p>
+        </div>
+        <div className="text-center">
+          <div className="text-3xl font-bold text-green-500 mb-1">35%</div>
           <p className="text-gray-400 text-sm uppercase tracking-wide">Scientist Founders</p>
         </div>
         <div className="text-center">
-          <div className="text-3xl font-bold text-green-500 mb-1">$2.1B+</div>
-          <p className="text-gray-400 text-sm uppercase tracking-wide">Capital Deployed</p>
-        </div>
-        <div className="text-center">
-          <div className="text-3xl font-bold text-green-500 mb-1">47+</div>
-          <p className="text-gray-400 text-sm uppercase tracking-wide">Portfolio Companies</p>
+          <div className="text-3xl font-bold text-green-500 mb-1">62%</div>
+          <p className="text-gray-400 text-sm uppercase tracking-wide">MAU Growth</p>
         </div>
       </div>
 
