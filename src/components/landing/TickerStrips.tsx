@@ -1,4 +1,5 @@
 
+
 export default function TickerStrips() {
   return (
     <>
@@ -84,7 +85,7 @@ export default function TickerStrips() {
         <div className="flex items-center">
           <div className="bg-gray-900 px-4 py-1 text-xs font-bold uppercase tracking-wide whitespace-nowrap flex items-center space-x-2">
             <div className="w-2 h-2 bg-red-500 animate-pulse"></div>
-            <span>LIVE</span>
+            <span>REAL WORLD SCIENCE: THE LEADERS</span>
           </div>
           <div className="flex-1 relative overflow-hidden">
             <div className="ticker-content animate-scroll">
@@ -135,3 +136,4 @@ export default function TickerStrips() {
     </>
   )
 }
+
