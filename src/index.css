@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -92,7 +93,7 @@
   animation: highlight-pulse 1.5s ease-out;
 }
 
-/* Ticker animation - slower speed */
+/* Ticker animation - much slower speed */
 @keyframes scroll {
   0% {
     transform: translateX(0);
@@ -103,5 +104,5 @@
 }
 
 .animate-scroll {
-  animation: scroll 60s linear infinite;
+  animation: scroll 120s linear infinite;
 }
