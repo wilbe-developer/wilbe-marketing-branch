@@ -8,7 +8,7 @@ export default function HeroSection() {
     <div className="lg:col-span-2">
       <div className="mb-6">
         <Badge className="bg-green-500 text-black border-0 uppercase tracking-wide text-xs font-bold px-3 py-1">
-          The First & Only
+          Scientists First
         </Badge>
       </div>
       <h1 className="text-5xl lg:text-7xl font-bold mb-6 leading-tight">
