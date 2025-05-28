@@ -15,6 +15,8 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     autoRefreshToken: true,
     storageKey: 'wilbe-auth-token',
     detectSessionInUrl: true, // Essential for magic link processing
-    flowType: 'pkce'
+    flowType: 'pkce',
+    storage: localStorage, // Explicitly set storage
+    debug: true // Enable debug mode for better error tracking
   }
 });

@@ -41,6 +41,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   
   const [isRecoveryMode, setIsRecoveryMode] = useState(false);
   const [isMagicLinkProcessing, setIsMagicLinkProcessing] = useState(false);
+  const [authInitialized, setAuthInitialized] = useState(false);
   
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -69,7 +70,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return sendMagicLinkAction(email, redirectTo);
   };
 
-  // Centralized magic link detection
+  // Detect magic link tokens in URL
   const hasMagicLinkTokens = () => {
     const hash = window.location.hash;
     const search = window.location.search;
@@ -82,7 +83,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Check for recovery mode
   useEffect(() => {
     const checkRecoveryMode = () => {
-      // Check URL parameters for recovery mode
       const url = new URL(window.location.href);
       const type = url.searchParams.get("type");
       
@@ -92,7 +92,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return;
       }
       
-      // Check for hash fragment which might indicate password reset
       if (window.location.pathname === PATHS.PASSWORD_RESET) {
         console.log("On password reset page, checking for hash fragment...");
         if (window.location.hash) {
@@ -105,7 +104,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     checkRecoveryMode();
     
-    // Set up an event listener to catch changes to the URL
     const handleHashChange = () => {
       checkRecoveryMode();
     };
@@ -117,38 +115,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, []);
 
-  // Centralized magic link processing in auth hook
+  // Main authentication initialization effect
   useEffect(() => {
-    console.log("Setting up centralized auth processing...");
+    console.log("Initializing authentication system...");
     
     // Check for magic link tokens immediately
-    if (hasMagicLinkTokens() && !isRecoveryMode) {
+    const hasMagicTokens = hasMagicLinkTokens();
+    if (hasMagicTokens && !isRecoveryMode) {
       console.log("Magic link tokens detected, starting processing...");
       setIsMagicLinkProcessing(true);
-      
-      // Set a timeout to prevent infinite processing
-      const processingTimeout = setTimeout(() => {
-        console.log("Magic link processing timeout - continuing with normal auth flow");
-        setIsMagicLinkProcessing(false);
-      }, 5000);
-      
-      // Clean up timeout if component unmounts
-      return () => {
-        clearTimeout(processingTimeout);
-      };
     }
-  }, [isRecoveryMode]);
 
-  // Setup auth state listener and session checking
-  useEffect(() => {
-    console.log("Setting up auth state listener and session check...");
-    
-    // Set up auth state listener first
+    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, newSession) => {
+      async (event, newSession) => {
         console.log("Auth state changed:", event, !!newSession?.user);
         
-        // Handle magic link authentication events
+        // Handle magic link authentication success
         if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && isMagicLinkProcessing) {
           console.log("Magic link authentication successful");
           setIsMagicLinkProcessing(false);
@@ -165,26 +148,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // If signed in, fetch user profile
         if (newSession?.user) {
           console.log("User signed in, fetching profile for:", newSession.user.id);
-          // Use setTimeout to avoid potential Supabase client conflicts
-          setTimeout(() => {
-            fetchUserProfile(newSession.user.id);
-          }, 0);
+          try {
+            await fetchUserProfile(newSession.user.id);
+          } catch (error) {
+            console.error("Error fetching user profile:", error);
+          }
         } else {
           setUser(null);
+        }
+        
+        // Mark auth as initialized after first state change
+        if (!authInitialized) {
+          setAuthInitialized(true);
           setLoading(false);
         }
       }
     );
 
-    // Then check for existing session
-    const checkInitialSession = async () => {
+    // Get initial session
+    const getInitialSession = async () => {
       try {
         console.log("Checking for existing session...");
         const { data: { session: existingSession }, error } = await supabase.auth.getSession();
         
         if (error) {
           console.error("Error getting session:", error);
-          setLoading(false);
+          if (!authInitialized) {
+            setAuthInitialized(true);
+            setLoading(false);
+          }
           return;
         }
         
@@ -193,36 +185,55 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (existingSession?.user) {
           setSession(existingSession);
           console.log("Found existing session, fetching profile for:", existingSession.user.id);
-          await fetchUserProfile(existingSession.user.id);
-        } else {
+          try {
+            await fetchUserProfile(existingSession.user.id);
+          } catch (error) {
+            console.error("Error fetching user profile:", error);
+          }
+        }
+        
+        // Mark auth as initialized if not already done by auth state change
+        if (!authInitialized) {
+          setAuthInitialized(true);
           setLoading(false);
         }
       } catch (error) {
         console.error("Error in initial session check:", error);
-        setLoading(false);
+        if (!authInitialized) {
+          setAuthInitialized(true);
+          setLoading(false);
+        }
       }
     };
 
-    // If not processing magic link, check session immediately
-    if (!isMagicLinkProcessing) {
-      checkInitialSession();
-    } else {
-      // If processing magic link, wait a bit for Supabase to handle it
-      console.log("Waiting for magic link processing before session check...");
+    // Delay session check if processing magic link to avoid conflicts
+    if (hasMagicTokens && !isRecoveryMode) {
+      console.log("Delaying session check due to magic link processing...");
       const sessionCheckDelay = setTimeout(() => {
-        checkInitialSession();
-      }, 1000);
+        getInitialSession();
+      }, 1500);
+      
+      // Set timeout to stop magic link processing if it takes too long
+      const processingTimeout = setTimeout(() => {
+        console.log("Magic link processing timeout - stopping processing");
+        setIsMagicLinkProcessing(false);
+        getInitialSession();
+      }, 5000);
       
       return () => {
         clearTimeout(sessionCheckDelay);
+        clearTimeout(processingTimeout);
         subscription.unsubscribe();
       };
+    } else {
+      // No magic link tokens, check session immediately
+      getInitialSession();
     }
 
     return () => {
       subscription.unsubscribe();
     };
-  }, [fetchUserProfile, setLoading, setSession, setUser, isMagicLinkProcessing]);
+  }, [isRecoveryMode, fetchUserProfile]);
 
   // Stop magic link processing when user becomes authenticated
   useEffect(() => {
@@ -241,9 +252,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     isAuthenticated, 
     isAdmin, 
     isApproved, 
-    loading, 
+    loading: loading || !authInitialized, 
     isRecoveryMode, 
-    isMagicLinkProcessing 
+    isMagicLinkProcessing,
+    authInitialized
   });
 
   return (
@@ -261,7 +273,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         register,
         logout,
         updateProfile,
-        loading,
+        loading: loading || !authInitialized,
         isRecoveryMode,
         isMagicLinkProcessing
       }}
