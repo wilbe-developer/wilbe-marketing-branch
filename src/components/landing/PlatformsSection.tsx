@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import BackedFoundersSection from "./BackedFoundersSection";
@@ -21,7 +20,7 @@ export default function PlatformsSection() {
     showImage: true
   }, {
     number: 3,
-    title: "Wilbe Capital: Fund Your Breakthrough",
+    title: "Wilbe Capital: exclusively investing in scientist-led companies",
     description: "Wilbe Capital backs scientist-led startups solving critical challenges in health, climate, and security. Offering strategic funding and partnerships, it helps researchers transform discoveries into scalable businesses, supporting BSF graduates and Sandbox members to drive impact.",
     buttonText: "Explore Wilbe Capital",
     buttonLink: "https://www.wilbe.capital/",
