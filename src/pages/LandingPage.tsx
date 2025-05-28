@@ -4,6 +4,14 @@ import { Badge } from "@/components/ui/badge"
 import {
   Users,
   ArrowRight,
+  Menu,
+  Search,
+  Play,
+  Pause,
+  Volume2,
+  VolumeX,
+  Maximize,
+  Calendar,
   Microscope,
   Shield,
   Building,
@@ -18,22 +26,8 @@ import HeroSection from "@/components/landing/HeroSection"
 import WilbeStreamPlayer from "@/components/landing/WilbeStreamPlayer"
 import FoundersStories from "@/components/landing/FoundersStories"
 import LandingFooter from "@/components/landing/LandingFooter"
-import { uploadAdvocacyImage } from "@/utils/uploadAdvocacyImage"
 
 export default function LandingPage() {
-  const [advocacyImageUrl, setAdvocacyImageUrl] = useState<string | null>(null)
-
-  // Upload advocacy image on component mount
-  useEffect(() => {
-    const setupAdvocacyImage = async () => {
-      const imageUrl = await uploadAdvocacyImage()
-      if (imageUrl) {
-        setAdvocacyImageUrl(imageUrl)
-      }
-    }
-    setupAdvocacyImage()
-  }, [])
-
   const [isPlaying, setIsPlaying] = useState(true)
   const [isMuted, setIsMuted] = useState(true)
   const [isLive, setIsLive] = useState(false)
@@ -766,11 +760,11 @@ export default function LandingPage() {
 
               <div className="relative h-64 lg:h-auto">
                 <img
-                  src={advocacyImageUrl || "/lovable-uploads/80934f40-f381-433a-afea-69f37fe637ab.png"}
-                  alt="Scientists First advocacy team wearing t-shirts"
+                  src="/scientists-first-team.png"
+                  alt="Scientists First advocacy team"
                   className="absolute inset-0 w-full h-full object-cover"
                   onError={(e) => {
-                    e.currentTarget.src = "/lovable-uploads/80934f40-f381-433a-afea-69f37fe637ab.png"
+                    e.currentTarget.src = "https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
                   }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-r from-gray-900/50 to-transparent" />
