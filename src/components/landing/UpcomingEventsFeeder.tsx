@@ -76,7 +76,7 @@ export default function UpcomingEventsFeeder() {
 
   return (
     <div className="space-y-4">
-      <h4 className="text-lg font-semibold text-white mb-4">Upcoming Community Events</h4>
+      <h4 className="text-lg font-semibold text-gray-900 mb-4">Upcoming Community Events</h4>
       <div className="space-y-3 max-h-80 overflow-y-auto">
         {upcomingEvents.map((event) => (
           <div
