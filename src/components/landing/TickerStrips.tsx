@@ -1,4 +1,5 @@
 
+
 export default function TickerStrips() {
   const communityAsks = [
     "How do I validate my technology in the market?",
@@ -13,16 +14,14 @@ export default function TickerStrips() {
 
   return (
     <div className="bg-brand-darkBlue border-y border-brand-navy">
-      {/* Community Asks Ticker */}
+      {/* Single Strip with Title and Content */}
       <div className="py-3 overflow-hidden">
-        <div className="flex items-center mb-2">
-          <h3 className="text-sm font-bold text-white uppercase tracking-wide px-4">
-            FROM THE TRENCHES: THE LEADERS
-          </h3>
-        </div>
         <div className="relative">
           <div className="ticker-content animate-scroll">
-            <div className="flex space-x-12 px-4">
+            <div className="flex items-center space-x-12 px-4">
+              <span className="text-sm font-bold text-white uppercase tracking-wide whitespace-nowrap flex-shrink-0">
+                FROM THE TRENCHES: THE LEADERS
+              </span>
               {[...communityAsks, ...communityAsks].map((ask, index) => (
                 <span key={index} className="text-sm text-gray-300 whitespace-nowrap flex-shrink-0">
                   {ask}
@@ -35,3 +34,4 @@ export default function TickerStrips() {
     </div>
   );
 }
+
