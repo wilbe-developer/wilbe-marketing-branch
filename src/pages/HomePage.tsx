@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useSimplifiedAuth } from "@/hooks/useSimplifiedAuth";
+import { useAuth } from "@/hooks/useAuth";
 import { PATHS } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import VideoCarousel from "@/components/VideoCarousel";
@@ -9,19 +9,15 @@ import MemberPreview from "@/components/MemberPreview";
 import { ProfileCompletionModal } from "@/components/ProfileCompletionModal";
 
 const HomePage = () => {
-  const { user, isSprintUser, isApproved } = useSimplifiedAuth();
+  const { user } = useAuth();
   const [showProfileModal, setShowProfileModal] = useState(false);
+
+  const isApproved = user?.approved || false;
 
   const handleRestrictedClick = (e: React.MouseEvent) => {
     if (!isApproved) {
       e.preventDefault();
-      if (isSprintUser) {
-        // Sprint users just see approval pending message
-        return;
-      } else {
-        // Sandbox users see profile completion modal
-        setShowProfileModal(true);
-      }
+      setShowProfileModal(true);
     }
   };
 
@@ -32,32 +28,19 @@ const HomePage = () => {
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
         <div className="flex items-center">
           <div className="flex-1">
-            {isSprintUser ? (
-              <>
-                <h3 className="text-sm font-medium text-blue-900">
-                  Access Pending
-                </h3>
-                <p className="text-sm text-blue-700">
-                  We'll approve your sandbox access soon! You can continue working on your sprint tasks in the meantime.
-                </p>
-              </>
-            ) : (
-              <>
-                <h3 className="text-sm font-medium text-blue-900">
-                  Complete Your Profile for Member Access
-                </h3>
-                <p className="text-sm text-blue-700">
-                  Complete your profile to get member access to videos, member directory, and other features.
-                </p>
-                <Button
-                  size="sm"
-                  className="mt-2"
-                  onClick={() => setShowProfileModal(true)}
-                >
-                  Complete Profile
-                </Button>
-              </>
-            )}
+            <h3 className="text-sm font-medium text-blue-900">
+              Complete Your Profile for Member Access
+            </h3>
+            <p className="text-sm text-blue-700">
+              Complete your profile to get member access to videos, member directory, and other features.
+            </p>
+            <Button
+              size="sm"
+              className="mt-2"
+              onClick={() => setShowProfileModal(true)}
+            >
+              Complete Profile
+            </Button>
           </div>
         </div>
       </div>
@@ -67,17 +50,6 @@ const HomePage = () => {
   return (
     <div className="max-w-6xl mx-auto px-4">
       {renderApprovalMessage()}
-      
-      {/* Show back to dashboard button for sprint users */}
-      {isSprintUser && (
-        <div className="mb-6">
-          <Link to={PATHS.SPRINT_DASHBOARD}>
-            <Button variant="outline" size="sm">
-              ← Back to Dashboard
-            </Button>
-          </Link>
-        </div>
-      )}
 
       <section className="mb-12">
         <h1 className="text-3xl font-bold mb-4">Welcome to Wilbe{user ? `, ${user.firstName}` : ""}</h1>

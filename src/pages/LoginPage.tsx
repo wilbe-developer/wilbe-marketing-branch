@@ -1,29 +1,26 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useSimplifiedAuth } from "@/hooks/useSimplifiedAuth";
+import { useAuth } from "@/hooks/useAuth";
 import { PATHS } from "@/lib/constants";
 import Logo from "@/components/Logo";
 import { useToast } from "@/components/ui/use-toast";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
-  const { loginOrSignup, loading, isAuthenticated, error, retryAuth } = useSimplifiedAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { loginOrSignup, isAuthenticated } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      // Check if there's a redirect path stored
-      const redirectPath = sessionStorage.getItem("redirectAfterLogin") || PATHS.HOME;
-      sessionStorage.removeItem("redirectAfterLogin"); // Clean up
-      console.log("User authenticated, redirecting to:", redirectPath);
-      navigate(redirectPath);
-    }
-  }, [isAuthenticated, navigate]);
+  // Redirect if already authenticated
+  if (isAuthenticated) {
+    navigate(PATHS.HOME);
+    return null;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,39 +34,10 @@ const LoginPage = () => {
       return;
     }
     
+    setIsSubmitting(true);
     await loginOrSignup(email);
+    setIsSubmitting(false);
   };
-
-  // Show error state with retry option
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader className="space-y-2 text-center">
-            <div className="mx-auto mb-4">
-              <Logo />
-            </div>
-            <CardTitle className="text-2xl text-red-600">Authentication Error</CardTitle>
-            <CardDescription>
-              {error}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Button onClick={retryAuth} className="w-full">
-              Try Again
-            </Button>
-            <Button 
-              variant="outline" 
-              onClick={() => window.location.reload()}
-              className="w-full"
-            >
-              Refresh Page
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
@@ -96,18 +64,21 @@ const LoginPage = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                disabled={isSubmitting}
               />
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Processing..." : "Continue"}
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
+              {isSubmitting ? "Sending..." : "Continue"}
             </Button>
           </form>
+          
           <div className="mt-4 text-center text-sm">
             Don't have an account?{" "}
             <Link to={PATHS.REGISTER} className="text-brand-pink hover:underline">
               Sign up
             </Link>
           </div>
+          
           <div className="mt-2 p-4 bg-gray-50 rounded-md text-sm text-gray-600">
             <p>New users will be logged in instantly. Returning users will receive a magic link via email.</p>
           </div>

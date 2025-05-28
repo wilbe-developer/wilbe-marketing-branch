@@ -1,8 +1,6 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { useSimplifiedAuth } from "./useSimplifiedAuth";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "./use-toast";
+import { useAuth } from "./useAuth";
 
 type SprintContext = {
   currentSprintOwnerId: string | null;
@@ -27,32 +25,20 @@ interface SprintContextProviderProps {
 }
 
 export const SprintContextProvider = ({ children }: SprintContextProviderProps) => {
-  const { user, isFullyReady } = useSimplifiedAuth();
+  const { user } = useAuth();
   const [currentSprintOwnerId, setCurrentSprintOwnerId] = useState<string | null>(null);
   const [isSharedSprint, setIsSharedSprint] = useState(false);
   const [sprintOwnerName, setSprintOwnerName] = useState<string | null>(null);
 
-  // Wait for auth to be fully ready before initializing
+  // Initialize with user's own sprint when user is available
   useEffect(() => {
-    console.log("SprintContext - Initialization check:", { 
-      isFullyReady, 
-      hasUser: !!user?.id 
-    });
-
-    // Don't initialize until auth is fully ready
-    if (!isFullyReady) {
-      console.log("SprintContext - Waiting for auth to be ready");
-      return;
-    }
-
-    // Initialize with user's own sprint if authenticated
     if (user?.id && !currentSprintOwnerId) {
       console.log("SprintContext - Initializing with user's own sprint:", user.id);
       setCurrentSprintOwnerId(user.id);
       setIsSharedSprint(false);
       setSprintOwnerName(null);
     }
-  }, [user?.id, isFullyReady, currentSprintOwnerId]);
+  }, [user?.id, currentSprintOwnerId]);
 
   const switchToOwnSprint = () => {
     if (user?.id) {

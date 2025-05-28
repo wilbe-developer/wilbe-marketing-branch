@@ -1,45 +1,29 @@
 
 import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { useUnifiedAuth } from "@/hooks/useUnifiedAuth";
+import { useAuth } from "@/hooks/useAuth";
 import { PATHS } from "@/lib/constants";
 
 const SandboxRoute = () => {
-  const { isAuthenticated, loading, isRecoveryMode } = useUnifiedAuth();
+  const { isAuthenticated, loading } = useAuth();
   const location = useLocation();
 
-  console.log("SandboxRoute - Auth state:", { 
-    isAuthenticated, 
-    loading,
-    pathname: location.pathname,
-    isRecoveryMode
-  });
-
-  // Show loading states
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-gray-500">Loading your session...</p>
-        </div>
+        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
       </div>
     );
   }
 
-  // If in recovery mode and on password reset page, allow access
-  if (isRecoveryMode && location.pathname === PATHS.PASSWORD_RESET) {
+  // Handle password reset page
+  if (location.pathname === PATHS.PASSWORD_RESET) {
     return <Outlet />;
   }
 
-  // Redirect to login if not authenticated
   if (!isAuthenticated) {
-    console.log("User not authenticated, redirecting to login");
-    return <Navigate to={PATHS.LOGIN} state={{ from: location }} replace />;
+    return <Navigate to={PATHS.LOGIN} replace />;
   }
 
-  // For sandbox pages, we allow access but individual pages control content based on approval
-  // This ensures the routing works but content is properly gated
-  console.log("Rendering sandbox content for user");
   return <Outlet />;
 };
 

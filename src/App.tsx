@@ -4,7 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { SimplifiedAuthProvider } from "@/hooks/useSimplifiedAuth";
+import { AuthProvider } from "@/hooks/useAuth";
 import { SprintContextProvider } from "@/hooks/useSprintContext";
 import { PATHS } from "@/lib/constants";
 import MerchPage from "@/pages/MerchPage";
@@ -58,14 +58,13 @@ import UserApprovalsPage from "./pages/admin/UserApprovalsPage";
 import RolesManagerPage from "./pages/admin/RolesManagerPage";
 import UTMAnalyticsPage from "./pages/admin/UTMAnalyticsPage";
 
-// Simplified Route components
-import { SimplifiedProtectedRoute, SimplifiedMemberRoute, SimplifiedSandboxRoute } from "@/components/SimplifiedRoutes";
+// Route components
+import ProtectedRoute from "@/components/ProtectedRoute";
+import MemberRoute from "@/components/MemberRoute";
+import SandboxRoute from "@/components/SandboxRoute";
 
 // MetaWrapper for per-page <Helmet> tags
 import MetaWrapper from "@/components/MetaWrapper";
-
-// Smart redirect component
-import SmartRedirect from "@/components/SmartRedirect";
 
 const queryClient = new QueryClient();
 
@@ -75,35 +74,32 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <SimplifiedAuthProvider>
+        <AuthProvider>
           <SprintContextProvider>
             <MetaWrapper>
               <Routes>
-                {/* Root path - smart redirect based on user type */}
-                <Route path="/" element={<SmartRedirect />} />
+                {/* Root path redirects to home */}
+                <Route path="/" element={<Navigate to={PATHS.HOME} replace />} />
 
-                {/* Public merch chooser route */}
+                {/* Public routes */}
                 <Route path="/merch" element={<MerchPage />} />
-
-                {/* Auth routes */}
                 <Route path={PATHS.LOGIN} element={<LoginPage />} />
                 <Route path="/admin-login" element={<AdminLoginPage />} />
                 <Route path="/password-reset" element={<PasswordResetPage />} />
                 <Route path={PATHS.PENDING} element={<PendingApprovalPage />} />
                 <Route path={PATHS.LANDING_PAGE} element={<LandingPage />} />
                 <Route path={PATHS.BSF_PAGE} element={<BsfPage />} />
-                
-                {/* Quiz route - publicly accessible */}
                 <Route path={PATHS.QUIZ} element={<QuizPage />} />
-
-                {/* Sprint signup - publicly accessible */}
                 <Route path="/sprint-signup" element={<SprintSignupPage />} />
                 <Route path={PATHS.SPRINT_WAITING} element={<SprintWaitingPage />} />
+                <Route path="/waitlist" element={<SprintWaitlistPage />} />
+                <Route path="/referral" element={<SprintReferralPage />} />
+                <Route path="/ref/:code" element={<SprintWaitlistPage />} />
 
-                {/* Sprint routes - accessible to all authenticated users */}
+                {/* Sprint routes - protected */}
                 <Route path={PATHS.SPRINT} element={<SprintPage />} />
                 <Route element={<SprintLayout />}>
-                  <Route element={<SimplifiedProtectedRoute />}>
+                  <Route element={<ProtectedRoute />}>
                     <Route path={PATHS.SPRINT_DASHBOARD} element={<SprintDashboardPage />} />
                     <Route path={`${PATHS.SPRINT_TASK}/:taskId`} element={<SprintTaskPage />} />
                     <Route path={PATHS.SPRINT_PROFILE} element={<SprintProfilePage />} />
@@ -112,21 +108,16 @@ const App = () => (
 
                 {/* Community pages - require member approval */}
                 <Route element={<SprintLayout />}>
-                  <Route element={<SimplifiedMemberRoute />}>
+                  <Route element={<MemberRoute />}>
                     <Route path="/community" element={<CommunityPage />} />
                     <Route path="/community/new" element={<NewThreadPage />} />
                     <Route path="/community/thread/:threadId" element={<ThreadPage />} />
                   </Route>
                 </Route>
 
-                {/* Sprint waitlist routes - preserve query parameters */}
-                <Route path="/waitlist" element={<SprintWaitlistPage />} />
-                <Route path="/referral" element={<SprintReferralPage />} />
-                <Route path="/ref/:code" element={<SprintWaitlistPage />} />
-
-                {/* Sandbox routes with SandboxRoute wrapper */}
+                {/* Sandbox routes */}
                 <Route element={<Layout />}>
-                  <Route element={<SimplifiedSandboxRoute />}>
+                  <Route element={<SandboxRoute />}>
                     <Route path={PATHS.HOME} element={<HomePage />} />
                     <Route path={PATHS.KNOWLEDGE_CENTER} element={<KnowledgeCenterPage />} />
                     <Route path={PATHS.MEMBER_DIRECTORY} element={<MemberDirectoryPage />} />
@@ -134,20 +125,18 @@ const App = () => (
                     <Route path={PATHS.EVENTS} element={<EventsPage />} />
                     <Route path={PATHS.BUILD_YOUR_DECK} element={<BuildYourDeckPage />} />
                     <Route path={PATHS.PROFILE} element={<ProfilePage />} />
-
-                    {/* Placeholder routes */}
                     <Route path={PATHS.LAB_SEARCH} element={<div className="py-12 text-center"><h1 className="text-2xl font-bold mb-4">Lab Search</h1><p>This feature is coming soon.</p></div>} />
                     <Route path={PATHS.ASK} element={<div className="py-12 text-center"><h1 className="text-2xl font-bold mb-4">Ask & Invite</h1><p>This feature is coming soon.</p></div>} />
                   </Route>
                   
                   {/* Legacy Admin route */}
-                  <Route element={<SimplifiedProtectedRoute requireAdmin={true} />}>
+                  <Route element={<ProtectedRoute />}>
                     <Route path={PATHS.ADMIN} element={<AdminPage />} />
                   </Route>
                 </Route>
 
-                {/* New Admin routes - full screen layout */}
-                <Route element={<SimplifiedProtectedRoute requireAdmin={true} />}>
+                {/* Admin routes */}
+                <Route element={<ProtectedRoute />}>
                   <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
                   <Route path="/admin/users" element={<AdminUsersPage />} />
                   <Route path="/admin/approvals" element={<UserApprovalsPage />} />
@@ -159,16 +148,14 @@ const App = () => (
                   <Route path="/admin/settings" element={<AdminSettingsPage />} />
                 </Route>
 
-                {/* Catch-all route */}
-                <Route path="/sprint/data-room/:sprintId" element={
-                  <SprintDataRoomPage />
-                } />
+                {/* Special routes */}
+                <Route path="/sprint/data-room/:sprintId" element={<SprintDataRoomPage />} />
                 <Route path="/faqs" element={<FAQsPage />} />
                 <Route path="*" element={<NotFoundPage />} />
               </Routes>
             </MetaWrapper>
           </SprintContextProvider>
-        </SimplifiedAuthProvider>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
