@@ -11,7 +11,6 @@ const RolesManager = () => {
   const { 
     users, 
     loading, 
-    userRoles, 
     handleRoleToggle, 
     filter, 
     handleFilterChange,
@@ -93,7 +92,6 @@ const RolesManager = () => {
               <>
                 <UsersTable 
                   users={users} 
-                  userRoles={userRoles} 
                   onRoleToggle={handleRoleToggle} 
                 />
                 
