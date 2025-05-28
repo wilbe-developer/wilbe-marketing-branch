@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight } from "lucide-react";
@@ -10,21 +9,10 @@ interface BackedFoundersSectionProps {
 }
 
 export default function BackedFoundersSection({ 
-  initialCount = 8, 
+  initialCount = 4, 
   loadMoreCount = 8 
 }: BackedFoundersSectionProps) {
-  const [visibleCount, setVisibleCount] = useState(initialCount);
-  
-  const visibleFounders = backedFounders.slice(0, visibleCount);
-  const hasMore = visibleCount < backedFounders.length;
-
-  const handleLoadMore = () => {
-    setVisibleCount(prev => Math.min(prev + loadMoreCount, backedFounders.length));
-  };
-
-  const handleShowLess = () => {
-    setVisibleCount(initialCount);
-  };
+  const visibleFounders = backedFounders.slice(0, 4);
 
   const scrollLeft = () => {
     const container = document.getElementById('founders-gallery');
@@ -89,29 +77,6 @@ export default function BackedFoundersSection({
         {/* Gradient fade indicators */}
         <div className="absolute left-0 top-0 bottom-4 w-8 bg-gradient-to-r from-gray-50 to-transparent pointer-events-none"></div>
         <div className="absolute right-0 top-0 bottom-4 w-8 bg-gradient-to-l from-gray-50 to-transparent pointer-events-none"></div>
-      </div>
-
-      {/* Load More / Show Less buttons */}
-      <div className="flex justify-center space-x-4 mt-4">
-        {hasMore && (
-          <Button
-            onClick={handleLoadMore}
-            variant="outline"
-            className="border-green-500 text-green-600 hover:bg-green-50"
-          >
-            Load More Founders ({backedFounders.length - visibleCount} remaining)
-          </Button>
-        )}
-        
-        {visibleCount > initialCount && (
-          <Button
-            onClick={handleShowLess}
-            variant="ghost"
-            className="text-gray-500 hover:text-gray-700"
-          >
-            Show Less
-          </Button>
-        )}
       </div>
     </div>
   );
