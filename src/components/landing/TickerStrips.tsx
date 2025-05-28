@@ -12,11 +12,11 @@ export default function TickerStrips() {
   ];
 
   return (
-    <div className="bg-gray-100 border-y border-gray-200">
+    <div className="bg-brand-darkBlue border-y border-brand-navy">
       {/* Community Asks Ticker */}
       <div className="py-3 overflow-hidden">
         <div className="flex items-center mb-2">
-          <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wide px-4">
+          <h3 className="text-sm font-bold text-white uppercase tracking-wide px-4">
             FROM THE TRENCHES: THE LEADERS
           </h3>
         </div>
@@ -24,7 +24,7 @@ export default function TickerStrips() {
           <div className="ticker-content animate-scroll">
             <div className="flex space-x-12 px-4">
               {[...communityAsks, ...communityAsks].map((ask, index) => (
-                <span key={index} className="text-sm text-gray-600 whitespace-nowrap flex-shrink-0">
+                <span key={index} className="text-sm text-gray-300 whitespace-nowrap flex-shrink-0">
                   {ask}
                 </span>
               ))}
