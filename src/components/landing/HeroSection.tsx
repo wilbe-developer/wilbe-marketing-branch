@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ArrowRight } from "lucide-react"
@@ -16,9 +15,7 @@ export default function HeroSection() {
         <span className="text-green-500"> SCIENTIST</span> LEADERS
       </h1>
       <p className="text-xl text-gray-300 mb-8 max-w-2xl">
-        From breakthrough to business. We're the world's first comprehensive platform connecting scientist
-        founders with market intelligence, exclusive insights, venture tools, founders community, lab space and
-        capital—all in one place.
+        From breakthrough to business. We're the world's first end-to-end platform connecting entrepreneurial scientists with market intelligence, exclusive insights, venture tools, founders community and lab space—all in one place. Also investing in the best performing.
       </p>
 
       <div className="grid sm:grid-cols-3 gap-4 mb-8">
