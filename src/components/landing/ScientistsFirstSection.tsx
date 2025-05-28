@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Shield } from "lucide-react";
 import { useAdvocacyImage } from "@/hooks/useAdvocacyImage";
@@ -17,8 +16,7 @@ export default function ScientistsFirstSection() {
             <h2 className="text-5xl font-bold text-gray-900 uppercase tracking-wide">Scientists First</h2>
           </div>
           <p className="text-xl text-gray-600 max-w-4xl mx-auto">
-            An advocacy movement born in 2020 at the core of the Wilbe spirit, aimed at freeing all 8.8 million
-            scientists in the world from predatory practices within academia, business and politics.
+            Born in 2020 out of a movement aimed at freeing all 8.8million scientists from the politics of legacy academia, industry and governments to accelerate the rate of change in the r world. Scientists First quickly became our tagline including at all our social events. Our not-for-profit arms continues to be dedicated to pressing institutions like Tech Transfer Offices (TTOs) and policy maker to improve the way that science and scientists can perform for the century ahead.
           </p>
         </div>
 
