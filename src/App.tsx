@@ -82,6 +82,9 @@ const App = () => (
                 {/* Root path - handles initial routing logic */}
                 <Route path="/" element={<Index />} />
 
+                {/* Redirect old /landing route to /landing-page */}
+                <Route path="/landing" element={<Navigate to={PATHS.LANDING_PAGE} replace />} />
+
                 {/* Public merch chooser route */}
                 <Route path="/merch" element={<MerchPage />} />
 
