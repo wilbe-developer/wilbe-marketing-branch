@@ -46,7 +46,7 @@ const BuildYourDeckPage = () => {
 
   console.log("Introduction Module:", introModule?.slug, "with", introVideos.length, "videos");
 
-  // Team module (Slide 1)
+  // Team module (Slide 1).
   const teamModule = deckBuilderModules.find(m => m.slug === "the-team");
   const teamVideos = teamModule ? modules.find(m => m.id === teamModule.id)?.videos || [] : [];
   
