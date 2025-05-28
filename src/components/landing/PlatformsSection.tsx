@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import BackedFoundersSection from "./BackedFoundersSection";
@@ -102,12 +101,14 @@ export default function PlatformsSection() {
                 {/* Latest Content Feed and Upcoming Events - only show for Wilbe Sandbox */}
                 {platform.showLatestContent && (
                   <>
-                    <div className="mt-8 grid md:grid-cols-2 gap-6">
-                      <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
-                        <LatestContentFeed />
-                      </div>
-                      <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
-                        <UpcomingEventsFeeder />
+                    <div className="mt-8 max-w-4xl">
+                      <div className="grid md:grid-cols-2 gap-6">
+                        <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+                          <LatestContentFeed />
+                        </div>
+                        <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+                          <UpcomingEventsFeeder />
+                        </div>
                       </div>
                     </div>
                     
