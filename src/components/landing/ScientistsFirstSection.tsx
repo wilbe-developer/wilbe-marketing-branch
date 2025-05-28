@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Shield } from "lucide-react";
 import { useAdvocacyImage } from "@/hooks/useAdvocacyImage";
@@ -14,7 +13,7 @@ export default function ScientistsFirstSection() {
         <div className="text-center mb-16">
           <div className="flex items-center justify-center mb-6">
             <Shield className="h-12 w-12 text-gray-900 mr-4" />
-            <h2 className="text-5xl font-bold text-gray-900 uppercase tracking-wide">The movement: Scientists First</h2>
+            <h2 className="text-5xl font-bold text-gray-900 uppercase tracking-wide">Scientists First: The movement</h2>
           </div>
           <p className="text-xl text-gray-600 max-w-4xl mx-auto">
             Born in 2020 to free all 8.8million scientists from the politics of legacy academia, industry and governments and accelerate the rate of application of science in the real world with scientists at the center of the solution.
