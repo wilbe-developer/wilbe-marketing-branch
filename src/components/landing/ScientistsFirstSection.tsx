@@ -38,14 +38,14 @@ export default function ScientistsFirstSection() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button size="lg" className="bg-white text-gray-900 hover:bg-gray-100 font-bold">
-                  Get me one 🤘
+                  I'm With You ✊
                 </Button>
                 <Button
                   size="lg"
                   variant="outline"
                   className="border-white text-white hover:bg-white hover:text-gray-900 font-bold"
                 >
-                  Learn More
+                  Tell a Friend ✍️
                 </Button>
               </div>
             </div>
