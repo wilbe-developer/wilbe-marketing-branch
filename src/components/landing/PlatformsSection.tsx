@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import BackedFoundersSection from "./BackedFoundersSection";
@@ -70,7 +71,7 @@ export default function PlatformsSection() {
                           className="w-full h-64 object-cover rounded-lg shadow-lg border border-gray-200" 
                         />
                         <p className="text-gray-600 text-xs mt-3">
-                          Start off on the right foot by putting together the core pieces of the company and we can then start talking about funding.
+                          Tech tools to guide you when putting together the most investible proposition
                         </p>
                       </div>
                       <div>
