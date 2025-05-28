@@ -1,4 +1,5 @@
 
+
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import BackedFoundersSection from "./BackedFoundersSection";
@@ -63,7 +64,7 @@ export default function PlatformsSection() {
     <section className="py-20 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">All the tools to manage your entrepreneurial journey</h2>
+          <h2 className="text-4xl font-bold text-gray-900 mb-4">All the tools to secure funding</h2>
         </div>
 
         <div className="space-y-12">
