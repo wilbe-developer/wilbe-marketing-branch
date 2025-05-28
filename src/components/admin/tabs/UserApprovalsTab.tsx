@@ -38,7 +38,7 @@ const UserApprovalsTab = () => {
             role: profile.role,
             bio: profile.bio,
             approved: profile.approved || false,
-            createdAt: new Date(profile.created_at || Date.now()),
+            createdAt: profile.created_at ? new Date(profile.created_at) : new Date(),
             avatar: profile.avatar || `https://randomuser.me/api/portraits/${Math.random() > 0.5 ? 'men' : 'women'}/${Math.floor(Math.random() * 100)}.jpg`
           }));
           setPendingUsers(userProfiles);
@@ -148,7 +148,7 @@ const UserApprovalsTab = () => {
                   <TableCell>{user.email}</TableCell>
                   <TableCell>{user.institution}</TableCell>
                   <TableCell>
-                    {new Date(user.createdAt).toLocaleDateString()}
+                    {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Unknown'}
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">

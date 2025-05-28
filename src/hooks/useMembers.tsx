@@ -41,7 +41,7 @@ export const useMembers = () => {
             bio: profile.bio,
             about: profile.about,
             approved: profile.approved || false,
-            createdAt: new Date(profile.created_at || new Date()),
+            createdAt: profile.created_at ? new Date(profile.created_at) : new Date(),
             avatar: profile.avatar,
             isAdmin: profile.role === 'admin',
             twitterHandle: profile.twitter_handle,
@@ -108,7 +108,9 @@ export const useMembers = () => {
       }
       
       // If completeness score is the same, sort by creation date (newest first)
-      return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      const aCreatedAt = a.createdAt ? a.createdAt.getTime() : 0;
+      const bCreatedAt = b.createdAt ? b.createdAt.getTime() : 0;
+      return bCreatedAt - aCreatedAt;
     });
   };
 

@@ -42,21 +42,21 @@ export const useProfileActions = ({
         console.error('Error checking admin role:', isAdminError);
       }
       
-      // Check if user is approved using our database function
-      const { data: isApprovedData, error: isApprovedError } = await supabase
-        .rpc('is_approved', { user_id: userId });
+      // Check if user is member using our database function
+      const { data: isMemberData, error: isMemberError } = await supabase
+        .rpc('is_member', { user_id: userId });
       
-      if (isApprovedError) {
-        console.error('Error checking approval status:', isApprovedError);
+      if (isMemberError) {
+        console.error('Error checking member status:', isMemberError);
       }
       
       const isAdmin = isAdminData || false;
-      const isApproved = isApprovedData || false;
+      const isMember = isMemberData || false;
       
-      console.log("Role check results:", { isAdmin, isApproved });
+      console.log("Role check results:", { isAdmin, isMember });
       
       if (profileData) {
-        console.log("User profile found:", profileData, "Is admin:", isAdmin, "Is approved:", isApproved);
+        console.log("User profile found:", profileData, "Is admin:", isAdmin, "Is member:", isMember);
         // Transform database fields to match our UserProfile interface
         const userProfile: UserProfile = {
           id: profileData.id,
@@ -69,10 +69,11 @@ export const useProfileActions = ({
           role: profileData.role, // This is just job role, not system role
           bio: profileData.bio,
           about: profileData.about,
-          approved: isApproved, // Using the role-based check only
+          approved: profileData.approved || false,
           createdAt: new Date(profileData.created_at || new Date()),
           avatar: profileData.avatar,
-          isAdmin: isAdmin, // Using the role-based check only
+          isAdmin: isAdmin, // Using the role-based check
+          isMember: isMember, // Using the role-based check
           twitterHandle: profileData.twitter_handle,
           expertise: profileData.expertise,
           activityStatus: profileData.activity_status,
@@ -134,7 +135,8 @@ export const useProfileActions = ({
         ...user,
         ...data,
         approved: user.approved, // Preserve existing approval status
-        isAdmin: user.isAdmin     // Preserve existing admin status
+        isAdmin: user.isAdmin,   // Preserve existing admin status
+        isMember: user.isMember  // Preserve existing member status
       };
       
       setUser(updatedUser);
