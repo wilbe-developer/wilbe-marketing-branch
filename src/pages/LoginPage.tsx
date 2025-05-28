@@ -4,14 +4,14 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useUnifiedAuth } from "@/hooks/useUnifiedAuth";
+import { useSimplifiedAuth } from "@/hooks/useSimplifiedAuth";
 import { PATHS } from "@/lib/constants";
 import Logo from "@/components/Logo";
 import { useToast } from "@/components/ui/use-toast";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
-  const { loginOrSignup, loading, isAuthenticated } = useUnifiedAuth();
+  const { loginOrSignup, loading, isAuthenticated, error, retryAuth } = useSimplifiedAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -39,6 +39,37 @@ const LoginPage = () => {
     
     await loginOrSignup(email);
   };
+
+  // Show error state with retry option
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="space-y-2 text-center">
+            <div className="mx-auto mb-4">
+              <Logo />
+            </div>
+            <CardTitle className="text-2xl text-red-600">Authentication Error</CardTitle>
+            <CardDescription>
+              {error}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Button onClick={retryAuth} className="w-full">
+              Try Again
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={() => window.location.reload()}
+              className="w-full"
+            >
+              Refresh Page
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">

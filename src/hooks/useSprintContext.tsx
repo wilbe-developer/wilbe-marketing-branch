@@ -1,6 +1,6 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { useUnifiedAuth } from "./useUnifiedAuth";
+import { useSimplifiedAuth } from "./useSimplifiedAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "./use-toast";
 
@@ -27,7 +27,7 @@ interface SprintContextProviderProps {
 }
 
 export const SprintContextProvider = ({ children }: SprintContextProviderProps) => {
-  const { user, isFullyReady } = useUnifiedAuth();
+  const { user, isFullyReady } = useSimplifiedAuth();
   const [currentSprintOwnerId, setCurrentSprintOwnerId] = useState<string | null>(null);
   const [isSharedSprint, setIsSharedSprint] = useState(false);
   const [sprintOwnerName, setSprintOwnerName] = useState<string | null>(null);

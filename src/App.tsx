@@ -4,7 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { UnifiedAuthProvider } from "@/hooks/useUnifiedAuth";
+import { SimplifiedAuthProvider } from "@/hooks/useSimplifiedAuth";
 import { SprintContextProvider } from "@/hooks/useSprintContext";
 import { PATHS } from "@/lib/constants";
 import MerchPage from "@/pages/MerchPage";
@@ -58,13 +58,11 @@ import UserApprovalsPage from "./pages/admin/UserApprovalsPage";
 import RolesManagerPage from "./pages/admin/RolesManagerPage";
 import UTMAnalyticsPage from "./pages/admin/UTMAnalyticsPage";
 
-// Auth Route component
-import ProtectedRoute from "@/components/ProtectedRoute";
-import MemberRoute from "@/components/MemberRoute";
+// Simplified Route components
+import { SimplifiedProtectedRoute, SimplifiedMemberRoute, SimplifiedSandboxRoute } from "@/components/SimplifiedRoutes";
 
 // MetaWrapper for per-page <Helmet> tags
 import MetaWrapper from "@/components/MetaWrapper";
-import SandboxRoute from "@/components/SandboxRoute";
 
 // Smart redirect component
 import SmartRedirect from "@/components/SmartRedirect";
@@ -77,7 +75,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <UnifiedAuthProvider>
+        <SimplifiedAuthProvider>
           <SprintContextProvider>
             <MetaWrapper>
               <Routes>
@@ -105,7 +103,7 @@ const App = () => (
                 {/* Sprint routes - accessible to all authenticated users */}
                 <Route path={PATHS.SPRINT} element={<SprintPage />} />
                 <Route element={<SprintLayout />}>
-                  <Route element={<ProtectedRoute />}>
+                  <Route element={<SimplifiedProtectedRoute />}>
                     <Route path={PATHS.SPRINT_DASHBOARD} element={<SprintDashboardPage />} />
                     <Route path={`${PATHS.SPRINT_TASK}/:taskId`} element={<SprintTaskPage />} />
                     <Route path={PATHS.SPRINT_PROFILE} element={<SprintProfilePage />} />
@@ -114,7 +112,7 @@ const App = () => (
 
                 {/* Community pages - require member approval */}
                 <Route element={<SprintLayout />}>
-                  <Route element={<MemberRoute />}>
+                  <Route element={<SimplifiedMemberRoute />}>
                     <Route path="/community" element={<CommunityPage />} />
                     <Route path="/community/new" element={<NewThreadPage />} />
                     <Route path="/community/thread/:threadId" element={<ThreadPage />} />
@@ -128,7 +126,7 @@ const App = () => (
 
                 {/* Sandbox routes with SandboxRoute wrapper */}
                 <Route element={<Layout />}>
-                  <Route element={<SandboxRoute />}>
+                  <Route element={<SimplifiedSandboxRoute />}>
                     <Route path={PATHS.HOME} element={<HomePage />} />
                     <Route path={PATHS.KNOWLEDGE_CENTER} element={<KnowledgeCenterPage />} />
                     <Route path={PATHS.MEMBER_DIRECTORY} element={<MemberDirectoryPage />} />
@@ -143,13 +141,13 @@ const App = () => (
                   </Route>
                   
                   {/* Legacy Admin route */}
-                  <Route element={<ProtectedRoute requireAdmin={true} />}>
+                  <Route element={<SimplifiedProtectedRoute requireAdmin={true} />}>
                     <Route path={PATHS.ADMIN} element={<AdminPage />} />
                   </Route>
                 </Route>
 
                 {/* New Admin routes - full screen layout */}
-                <Route element={<ProtectedRoute requireAdmin={true} />}>
+                <Route element={<SimplifiedProtectedRoute requireAdmin={true} />}>
                   <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
                   <Route path="/admin/users" element={<AdminUsersPage />} />
                   <Route path="/admin/approvals" element={<UserApprovalsPage />} />
@@ -170,7 +168,7 @@ const App = () => (
               </Routes>
             </MetaWrapper>
           </SprintContextProvider>
-        </UnifiedAuthProvider>
+        </SimplifiedAuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
