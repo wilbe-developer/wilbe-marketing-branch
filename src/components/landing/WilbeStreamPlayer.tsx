@@ -1,39 +1,68 @@
 
 import { useState, useEffect, useRef, useCallback } from "react"
 import { Play, Pause } from "lucide-react"
-import { videoPlaylist } from "@/data/videoPlaylist"
+import { fetchVideos } from "@/services/videoService"
+
+interface Video {
+  id: string;
+  title: string;
+  description?: string;
+  thumbnail_url?: string;
+  duration?: string;
+  presenter?: string;
+  created_at: string;
+}
 
 export default function WilbeStreamPlayer() {
   const [isPlaying, setIsPlaying] = useState(true)
-  const [isLive, setIsLive] = useState(false)
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0)
   const [progress, setProgress] = useState(0)
+  const [videos, setVideos] = useState<Video[]>([])
+  const [loading, setLoading] = useState(true)
   const videoRef = useRef<HTMLVideoElement>(null)
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null)
-  const countdownIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
-  // Live countdown timer - only update once per second
-  const [timeToLive, setTimeToLive] = useState({
-    minutes: Math.floor(Math.random() * 15) + 1,
-    seconds: Math.floor(Math.random() * 60),
-  })
+  // Fetch videos from the same source as FoundersStories
+  useEffect(() => {
+    const loadVideos = async () => {
+      try {
+        setLoading(true)
+        const videosData = await fetchVideos()
+        
+        // Sort by created_at and take all published videos (same as FoundersStories)
+        const sortedVideos = videosData
+          .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+        
+        setVideos(sortedVideos)
+      } catch (err) {
+        console.error("Error fetching videos:", err)
+        // Fallback to empty array if fetch fails
+        setVideos([])
+      } finally {
+        setLoading(false)
+      }
+    }
 
-  // Optimized progress update - less frequent updates
+    loadVideos()
+  }, [])
+
+  // Progress and video cycling logic
   useEffect(() => {
     if (progressIntervalRef.current) {
       clearInterval(progressIntervalRef.current)
     }
 
-    if (isPlaying && !isLive) {
+    if (isPlaying && videos.length > 0) {
       progressIntervalRef.current = setInterval(() => {
         setProgress((prev) => {
           if (prev >= 100) {
-            setCurrentVideoIndex((prevIndex) => (prevIndex === videoPlaylist.length - 1 ? 0 : prevIndex + 1))
+            // Move to next video when progress reaches 100%
+            setCurrentVideoIndex((prevIndex) => (prevIndex === videos.length - 1 ? 0 : prevIndex + 1))
             return 0
           }
-          return prev + 1 // Slower progress updates
+          return prev + 1 // Progress every 500ms, so 100 steps = 50 seconds per video
         })
-      }, 500) // Less frequent updates
+      }, 500)
     }
 
     return () => {
@@ -41,36 +70,58 @@ export default function WilbeStreamPlayer() {
         clearInterval(progressIntervalRef.current)
       }
     }
-  }, [isPlaying, isLive])
-
-  // Countdown timer - update once per second only
-  useEffect(() => {
-    if (countdownIntervalRef.current) {
-      clearInterval(countdownIntervalRef.current)
-    }
-
-    countdownIntervalRef.current = setInterval(() => {
-      setTimeToLive((prev) => {
-        if (prev.seconds > 0) {
-          return { ...prev, seconds: prev.seconds - 1 }
-        } else if (prev.minutes > 0) {
-          return { minutes: prev.minutes - 1, seconds: 59 }
-        } else {
-          return { minutes: Math.floor(Math.random() * 15) + 1, seconds: Math.floor(Math.random() * 60) }
-        }
-      })
-    }, 1000)
-
-    return () => {
-      if (countdownIntervalRef.current) {
-        clearInterval(countdownIntervalRef.current)
-      }
-    }
-  }, [])
-
-  const currentVideo = videoPlaylist[currentVideoIndex]
+  }, [isPlaying, videos.length])
 
   const handlePlayPause = useCallback(() => setIsPlaying(!isPlaying), [isPlaying])
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="relative">
+          <div className="relative bg-black overflow-hidden shadow-2xl">
+            <div className="relative aspect-video bg-gradient-to-br from-gray-900 to-black">
+              <div className="absolute inset-0 bg-gray-800 animate-pulse" />
+              <div className="absolute top-4 left-4">
+                <div className="bg-red-600 px-3 py-1">
+                  <span className="text-white text-xs font-bold uppercase tracking-wide">
+                    LOADING...
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // If no videos available, show fallback
+  if (videos.length === 0) {
+    return (
+      <div className="space-y-6">
+        <div className="relative">
+          <div className="relative bg-black overflow-hidden shadow-2xl">
+            <div className="relative aspect-video bg-gradient-to-br from-gray-900 to-black">
+              <div className="absolute inset-0 bg-gray-800" />
+              <div className="absolute top-4 left-4">
+                <div className="bg-red-600 px-3 py-1">
+                  <span className="text-white text-xs font-bold uppercase tracking-wide">
+                    LIVE STREAM
+                  </span>
+                </div>
+              </div>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-white text-lg">No videos available</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const currentVideo = videos[currentVideoIndex]
 
   return (
     <div className="space-y-6">
@@ -78,18 +129,21 @@ export default function WilbeStreamPlayer() {
         <div className="relative bg-black overflow-hidden shadow-2xl">
           <div className="relative aspect-video bg-gradient-to-br from-gray-900 to-black">
             <img
-              src={currentVideo.thumbnail}
+              src={currentVideo.thumbnail_url || "/placeholder.svg"}
               alt={currentVideo.title}
               className="absolute inset-0 w-full h-full object-cover"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = "/placeholder.svg"
+              }}
             />
             <div className="absolute inset-0 bg-black/20" />
 
-            {/* Live Indicator */}
+            {/* Live Stream Indicator */}
             <div className="absolute top-4 left-4 flex items-center space-x-2">
               <div className="flex items-center space-x-2 bg-red-600 px-3 py-1">
-                <div className={`w-2 h-2 bg-white ${isLive ? "animate-pulse" : ""}`} />
+                <div className={`w-2 h-2 bg-white ${isPlaying ? "animate-pulse" : ""}`} />
                 <span className="text-white text-xs font-bold uppercase tracking-wide">
-                  {isLive ? "LIVE" : "PLAYLIST"}
+                  LIVE STREAM
                 </span>
               </div>
             </div>
@@ -112,7 +166,7 @@ export default function WilbeStreamPlayer() {
             <div className="absolute bottom-0 left-0 right-0 w-full bg-white/20 h-1">
               <div
                 className="bg-green-500 h-1 transition-all duration-200"
-                style={{ width: isLive ? "100%" : `${progress}%` }}
+                style={{ width: `${progress}%` }}
               />
             </div>
           </div>
@@ -120,41 +174,16 @@ export default function WilbeStreamPlayer() {
 
         {/* Current Program Info - Moved below the player */}
         <div className="bg-gray-900 p-4 mt-2">
-          <div className="text-green-500 text-xs font-bold uppercase tracking-wide mb-1">NOW PLAYING</div>
+          <div className="text-green-500 text-xs font-bold uppercase tracking-wide mb-1">NOW STREAMING</div>
           <h3 className="text-white font-bold text-lg leading-tight mb-2">
-            {isLive ? "Live: Founder Spotlight Series" : currentVideo.title}
+            {currentVideo.title}
           </h3>
           <p className="text-gray-300 text-sm">
-            {isLive ? "Dr. Maria Rodriguez discusses her $100M journey" : currentVideo.description}
+            {currentVideo.description}
           </p>
-        </div>
-
-        {/* Compact Up Next Panel */}
-        <div className="bg-gray-900 p-4 mt-4">
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-white font-bold text-sm uppercase tracking-wide flex items-center">
-                Upcoming Events
-              </h3>
-              <button className="text-green-500 text-xs font-medium hover:text-green-400 transition-colors">
-                Full Schedule →
-              </button>
-            </div>
-
-            <div className="bg-red-600 p-3 mb-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-white text-xs font-bold uppercase tracking-wide flex items-center mb-1">
-                    <div className="w-1.5 h-1.5 bg-white animate-pulse mr-2"></div>
-                    LIVE IN {timeToLive.minutes}:{String(timeToLive.seconds).padStart(2, "0")}
-                  </div>
-                  <h4 className="text-white font-bold text-sm">Science Deep Dive</h4>
-                  <p className="text-red-100 text-xs">Dr. Jennifer Doudna on CRISPR</p>
-                </div>
-                <button className="text-red-100 text-xs hover:text-white transition-colors">Remind Me</button>
-              </div>
-            </div>
-          </div>
+          {currentVideo.presenter && (
+            <p className="text-gray-400 text-xs mt-1">by {currentVideo.presenter}</p>
+          )}
         </div>
       </div>
     </div>
