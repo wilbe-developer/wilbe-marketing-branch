@@ -69,6 +69,9 @@ export default function PlatformsSection() {
                       alt="Sprint Journey Dashboard Screenshot"
                       className="w-full max-w-4xl rounded-lg shadow-lg border border-gray-200"
                     />
+                    <p className="text-gray-600 text-sm mt-3 italic max-w-4xl">
+                      "Start off on the right foot by putting together the core pieces of the company and we can then start talking about funding."
+                    </p>
                   </div>
                 )}
                 
