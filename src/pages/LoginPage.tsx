@@ -4,14 +4,14 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useAuth } from "@/hooks/useAuth";
+import { useUnifiedAuth } from "@/hooks/useUnifiedAuth";
 import { PATHS } from "@/lib/constants";
 import Logo from "@/components/Logo";
 import { useToast } from "@/components/ui/use-toast";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
-  const { loginOrSignup, loading, isAuthenticated } = useAuth();
+  const { loginOrSignup, loading, isAuthenticated } = useUnifiedAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
