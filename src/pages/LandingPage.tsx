@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -21,6 +20,12 @@ import {
 } from "lucide-react"
 import { Link } from "react-router-dom"
 import { useState, useEffect, useRef } from "react"
+import LandingNavigation from "@/components/landing/LandingNavigation"
+import TickerStrips from "@/components/landing/TickerStrips"
+import HeroSection from "@/components/landing/HeroSection"
+import WilbeStreamPlayer from "@/components/landing/WilbeStreamPlayer"
+import FoundersStories from "@/components/landing/FoundersStories"
+import LandingFooter from "@/components/landing/LandingFooter"
 
 export default function LandingPage() {
   const [isPlaying, setIsPlaying] = useState(true)
@@ -236,23 +241,18 @@ export default function LandingPage() {
 
   const [scrollPosition, setScrollPosition] = useState(0)
   const foundersStoriesRef = useRef<HTMLDivElement>(null)
+  const portfolioRef = useRef<HTMLDivElement>(null)
 
-  const handleScroll = (scrollOffset: number, refName = "foundersStoriesRef") => {
-    if (refName === "foundersStoriesRef" && foundersStoriesRef.current) {
-      foundersStoriesRef.current.scrollLeft += scrollOffset
-      setScrollPosition(foundersStoriesRef.current.scrollLeft)
-    } else if (typeof window !== "undefined" && (window as any)[refName]) {
-      (window as any)[refName].scrollLeft += scrollOffset
+  const handleScroll = (scrollOffset: number, ref: React.RefObject<HTMLDivElement>) => {
+    if (ref.current) {
+      ref.current.scrollLeft += scrollOffset
     }
   }
 
-  const handleMouseWheel = (e: any, refName = "foundersStoriesRef") => {
+  const handleMouseWheel = (e: any, ref: React.RefObject<HTMLDivElement>) => {
     e.preventDefault()
-    if (refName === "foundersStoriesRef" && foundersStoriesRef.current) {
-      foundersStoriesRef.current.scrollLeft += e.deltaY
-      setScrollPosition(foundersStoriesRef.current.scrollLeft)
-    } else if (typeof window !== "undefined" && (window as any)[refName]) {
-      (window as any)[refName].scrollLeft += e.deltaY
+    if (ref.current) {
+      ref.current.scrollLeft += e.deltaY
     }
   }
 
@@ -279,455 +279,22 @@ export default function LandingPage() {
         }
       `}</style>
       {/* Navigation */}
-      <nav className="border-b border-gray-200 bg-white sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-8">
-              <Menu className="h-6 w-6 md:hidden" />
-              <Link to="/" className="flex items-center">
-                <img
-                  src="/images/wilbe-logo.png"
-                  alt="Wilbe"
-                  className="h-8 w-auto"
-                  onError={(e) => {
-                    e.currentTarget.src = "https://via.placeholder.com/120x32/000000/ffffff?text=WILBE"
-                  }}
-                />
-              </Link>
-              <div className="hidden md:flex space-x-8 text-sm font-medium">
-                <Link to="#" className="text-gray-900 hover:text-gray-900 transition-colors uppercase tracking-wide">
-                  Media
-                </Link>
-                <Link to="#" className="text-gray-900 hover:text-gray-900 transition-colors uppercase tracking-wide">
-                  Terminal
-                </Link>
-                <Link to="#" className="text-gray-900 hover:text-gray-900 transition-colors uppercase tracking-wide">
-                  Capital
-                </Link>
-                <Link to="#" className="text-gray-900 hover:text-gray-900 transition-colors uppercase tracking-wide">
-                  Labs
-                </Link>
-                <Link to="#" className="text-gray-900 hover:text-gray-900 transition-colors uppercase tracking-wide">
-                  Advocacy
-                </Link>
-                <Link to="#" className="text-gray-900 hover:text-gray-900 transition-colors uppercase tracking-wide">
-                  Merch
-                </Link>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Button
-                variant="outline"
-                className="border-2 border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white text-sm font-bold uppercase tracking-wide px-6 py-2"
-              >
-                Scientists Log In
-              </Button>
-              <Search className="h-5 w-5 text-gray-900" />
-            </div>
-          </div>
-        </div>
-      </nav>
+      <LandingNavigation />
 
       {/* Community Asks Ticker Strip */}
-      <div className="bg-green-600 text-white py-2 overflow-hidden relative">
-        <div className="flex items-center">
-          <div className="bg-green-700 px-4 py-1 text-xs font-bold uppercase tracking-wide whitespace-nowrap">
-            COMMUNITY ASKS
-          </div>
-          <div className="flex-1 relative overflow-hidden">
-            <div className="ticker-content animate-scroll">
-              <div className="flex whitespace-nowrap w-full">
-                <span className="mx-8 text-sm font-medium">
-                  💼 NOW HIRING: Synthace seeks Senior Biotech Engineer - Remote OK - Apply via community
-                </span>
-                <span className="mx-8 text-sm font-medium">
-                  🚀 OPEN ROLE: Climeworks looking for Climate Policy Director - Berlin/Zurich - Community referrals
-                  welcome
-                </span>
-                <span className="mx-8 text-sm font-medium">
-                  🔬 OPPORTUNITY: Pivot Bio hiring Microbiology Lead - SF Bay Area - Founder: "Looking for Wilbe
-                  community talent"
-                </span>
-                <span className="mx-8 text-sm font-medium">
-                  ⚡ HOT ROLE: Oxford Nanopore seeks AI/ML Engineer - Cambridge UK - Fast track for community members
-                </span>
-                <span className="mx-8 text-sm font-medium">
-                  🧬 URGENT: Series A biotech needs VP of Product - Boston - Founder offering equity boost for Wilbe
-                  members
-                </span>
-                <span className="mx-8 text-sm font-medium">
-                  🌱 NEW POST: AgTech startup seeks CTO co-founder - Austin TX - Looking within Wilbe community first
-                </span>
-                <span className="mx-8 text-sm font-medium">
-                  💡 EXCLUSIVE: MedTech Series B hiring Head of Regulatory - San Diego - Community-only posting
-                </span>
-              </div>
-              <div className="flex whitespace-nowrap w-full">
-                <span className="mx-8 text-sm font-medium">
-                  💼 NOW HIRING: Synthace seeks Senior Biotech Engineer - Remote OK - Apply via community
-                </span>
-                <span className="mx-8 text-sm font-medium">
-                  🚀 OPEN ROLE: Climeworks looking for Climate Policy Director - Berlin/Zurich - Community referrals
-                  welcome
-                </span>
-                <span className="mx-8 text-sm font-medium">
-                  🔬 OPPORTUNITY: Pivot Bio hiring Microbiology Lead - SF Bay Area - Founder: "Looking for Wilbe
-                  community talent"
-                </span>
-                <span className="mx-8 text-sm font-medium">
-                  ⚡ HOT ROLE: Oxford Nanopore seeks AI/ML Engineer - Cambridge UK - Fast track for community members
-                </span>
-                <span className="mx-8 text-sm font-medium">
-                  🧬 URGENT: Series A biotech needs VP of Product - Boston - Founder offering equity boost for Wilbe
-                  members
-                </span>
-                <span className="mx-8 text-sm font-medium">
-                  🌱 NEW POST: AgTech startup seeks CTO co-founder - Austin TX - Looking within Wilbe community first
-                </span>
-                <span className="mx-8 text-sm font-medium">
-                  💡 EXCLUSIVE: MedTech Series B hiring Head of Regulatory - San Diego - Community-only posting
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <TickerStrips />
 
-      {/* Breaking News Ticker Strip */}
-      <div className="bg-gray-800 text-white py-2 overflow-hidden relative">
-        <div className="flex items-center">
-          <div className="bg-gray-900 px-4 py-1 text-xs font-bold uppercase tracking-wide whitespace-nowrap flex items-center space-x-2">
-            <div className="w-2 h-2 bg-red-500 animate-pulse"></div>
-            <span>LIVE</span>
-          </div>
-          <div className="flex-1 relative overflow-hidden">
-            <div className="ticker-content animate-scroll">
-              <div className="flex whitespace-nowrap w-full">
-                <span className="mx-8 text-sm font-medium">
-                  🚀 JUST IN: BioGenesis raises $100M Series A led by Wilbe Capital
-                </span>
-                <span className="mx-8 text-sm font-medium">
-                  📊 NEW PODCAST: Dr. Jennifer Doudna on CRISPR's $50B market opportunity
-                </span>
-                <span className="mx-8 text-sm font-medium">
-                  🔬 EXCLUSIVE: Inside the lab that's revolutionizing cancer treatment
-                </span>
-                <span className="mx-8 text-sm font-medium">
-                  💡 TOOLS UPDATE: Knowledge now supports AI-powered market analysis
-                </span>
-                <span className="mx-8 text-sm font-medium">
-                  🎯 INVESTMENT: Climeworks closes $110M Series C for carbon capture tech
-                </span>
-                <span className="mx-8 text-sm font-medium">
-                  📈 MARKET: Biotech IPOs surge 40% as scientist founders lead innovation
-                </span>
-              </div>
-              <div className="flex whitespace-nowrap w-full">
-                <span className="mx-8 text-sm font-medium">
-                  🚀 JUST IN: BioGenesis raises $100M Series A led by Wilbe Capital
-                </span>
-                <span className="mx-8 text-sm font-medium">
-                  📊 NEW PODCAST: Dr. Jennifer Doudna on CRISPR's $50B market opportunity
-                </span>
-                <span className="mx-8 text-sm font-medium">
-                  🔬 EXCLUSIVE: Inside the lab that's revolutionizing cancer treatment
-                </span>
-                <span className="mx-8 text-sm font-medium">
-                  💡 TOOLS UPDATE: Knowledge now supports AI-powered market analysis
-                </span>
-                <span className="mx-8 text-sm font-medium">
-                  🎯 INVESTMENT: Climeworks closes $110M Series C for carbon capture tech
-                </span>
-                <span className="mx-8 text-sm font-medium">
-                  📈 MARKET: Biotech IPOs surge 40% as scientist founders lead innovation
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Hero Section */}
+      {/* Main Hero Section with Video Player */}
       <section className="bg-black text-white py-20 lg:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-3 gap-12 items-start">
-            {/* Left Column - Hero Content */}
-            <div className="lg:col-span-2">
-              <div className="mb-6">
-                <Badge className="bg-green-500 text-black border-0 uppercase tracking-wide text-xs font-bold px-3 py-1">
-                  The First & Only
-                </Badge>
-              </div>
-              <h1 className="text-5xl lg:text-7xl font-bold mb-6 leading-tight">
-                THE HOME FOR
-                <span className="text-green-500"> ENTREPRENEURIAL SCIENTISTS</span>
-              </h1>
-              <p className="text-xl text-gray-300 mb-8 max-w-2xl">
-                From breakthrough to business. We're the world's first comprehensive platform connecting scientist
-                founders with market intelligence, exclusive insights, venture tools, founders community, lab space and
-                capital—all in one place.
-              </p>
-
-              <div className="grid sm:grid-cols-3 gap-4 mb-8">
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-green-500 mb-1">10K+</div>
-                  <p className="text-gray-400 text-sm uppercase tracking-wide">Scientist Founders</p>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-green-500 mb-1">$2.1B+</div>
-                  <p className="text-gray-400 text-sm uppercase tracking-wide">Capital Deployed</p>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-green-500 mb-1">47+</div>
-                  <p className="text-gray-400 text-sm uppercase tracking-wide">Portfolio Companies</p>
-                </div>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Button
-                  size="lg"
-                  className="bg-green-500 hover:bg-green-600 text-black font-bold uppercase tracking-wide px-8"
-                >
-                  Start Your Journey
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-gray-600 text-white hover:bg-gray-800 font-bold uppercase tracking-wide px-8"
-                >
-                  Explore Tools
-                </Button>
-              </div>
-            </div>
-
-            {/* Right Column - Wilbe Stream Player */}
-            <div className="space-y-6">
-              {/* Wilbe Stream Video Player */}
-              <div className="relative">
-                <div className="relative bg-black overflow-hidden shadow-2xl">
-                  {/* Video Container */}
-                  <div className="relative aspect-video bg-gradient-to-br from-gray-900 to-black">
-                    {/* Video Background */}
-                    <img
-                      src={currentVideo.thumbnail}
-                      alt={currentVideo.title}
-                      className="absolute inset-0 w-full h-full object-cover"
-                    />
-
-                    {/* Video Overlay */}
-                    <div className="absolute inset-0 bg-black/20" />
-
-                    {/* Live Indicator */}
-                    <div className="absolute top-4 left-4 flex items-center space-x-2">
-                      <div className="flex items-center space-x-2 bg-red-600 px-3 py-1">
-                        <div className={`w-2 h-2 bg-white ${isLive ? "animate-pulse" : ""}`} />
-                        <span className="text-white text-xs font-bold uppercase tracking-wide">
-                          {isLive ? "LIVE" : "PLAYLIST"}
-                        </span>
-                      </div>
-                      <div className="bg-black/70 backdrop-blur-sm px-3 py-1">
-                        <span className="text-white text-xs font-medium">Wilbe STREAM</span>
-                      </div>
-                    </div>
-
-                    {/* Video Controls */}
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center space-x-3">
-                          <button
-                            onClick={handlePlayPause}
-                            className="w-10 h-10 bg-white/20 backdrop-blur-sm flex items-center justify-center hover:bg-white/30 transition-colors"
-                          >
-                            {isPlaying ? (
-                              <Pause className="h-5 w-5 text-white" />
-                            ) : (
-                              <Play className="h-5 w-5 text-white ml-0.5" />
-                            )}
-                          </button>
-                          <button
-                            onClick={handleMute}
-                            className="w-10 h-10 bg-white/20 backdrop-blur-sm flex items-center justify-center hover:bg-white/30 transition-colors"
-                          >
-                            {isMuted ? (
-                              <VolumeX className="h-5 w-5 text-white" />
-                            ) : (
-                              <Volume2 className="h-5 w-5 text-white" />
-                            )}
-                          </button>
-                          <div className="text-white text-sm font-medium">
-                            {getCurrentTime()} / {isLive ? "LIVE" : currentVideo.duration}
-                          </div>
-                        </div>
-
-                        <div className="flex items-center space-x-3">
-                          <a
-                            href="https://wilbe.com/tv"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="px-3 py-1 bg-white/20 backdrop-blur-sm text-white text-xs font-medium hover:bg-white/30 transition-colors uppercase tracking-wide"
-                          >
-                            Full Screen
-                          </a>
-                          <button
-                            onClick={() => {
-                              if (videoRef.current) {
-                                videoRef.current.requestPictureInPicture()
-                              }
-                            }}
-                            className="px-3 py-1 bg-white/20 backdrop-blur-sm text-white text-xs font-medium hover:bg-white/30 transition-colors uppercase tracking-wide"
-                          >
-                            Picture-in-Picture
-                          </button>
-                          <button
-                            onClick={() => setIsLive(!isLive)}
-                            className="px-3 py-1 bg-white/20 backdrop-blur-sm text-white text-xs font-medium hover:bg-white/30 transition-colors uppercase tracking-wide"
-                          >
-                            {isLive ? "Switch to Playlist" : "Go Live"}
-                          </button>
-                          <button className="w-10 h-10 bg-white/20 backdrop-blur-sm flex items-center justify-center hover:bg-white/30 transition-colors">
-                            <Maximize className="h-5 w-5 text-white" />
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Progress Bar */}
-                      <div className="w-full bg-white/20 h-1">
-                        <div
-                          className="bg-green-500 h-1 transition-all duration-200"
-                          style={{ width: isLive ? "100%" : `${progress}%` }}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Current Program Info */}
-                    <div className="absolute top-4 right-4 bg-black/70 backdrop-blur-sm p-3 max-w-xs">
-                      <div className="text-green-500 text-xs font-bold uppercase tracking-wide mb-1">NOW PLAYING</div>
-                      <h3 className="text-white font-bold text-sm leading-tight mb-1">
-                        {isLive ? "Live: Founder Spotlight Series" : currentVideo.title}
-                      </h3>
-                      <p className="text-gray-300 text-xs">
-                        {isLive ? "Dr. Maria Rodriguez discusses her $100M journey" : currentVideo.description}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Wilbe Stream Branding */}
-                  <div className="absolute bottom-4 left-4 flex items-center space-x-2">
-                    <div className="bg-green-500 p-2">
-                      <Play className="h-4 w-4 text-black" />
-                    </div>
-                    <div>
-                      <div className="text-white font-bold text-sm uppercase tracking-wide">Wilbe STREAM</div>
-                      <div className="text-gray-300 text-xs">24/7 Scientist Entrepreneur Content</div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Compact Up Next Panel */}
-                <div className="bg-gray-900 p-4 mt-4">
-                  {/* Upcoming Events */}
-                  <div className="mb-8">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-white font-bold text-sm uppercase tracking-wide flex items-center">
-                        <Calendar className="h-4 w-4 mr-2" />
-                        Upcoming Events
-                      </h3>
-                      <button className="text-green-500 text-xs font-medium hover:text-green-400 transition-colors">
-                        Full Schedule →
-                      </button>
-                    </div>
-
-                    {/* Live Timer - Compact */}
-                    <div className="bg-red-600 p-3 mb-4">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <div className="text-white text-xs font-bold uppercase tracking-wide flex items-center mb-1">
-                            <div className="w-1.5 h-1.5 bg-white animate-pulse mr-2"></div>
-                            LIVE IN {timeToLive.minutes}:{String(timeToLive.seconds).padStart(2, "0")}
-                          </div>
-                          <h4 className="text-white font-bold text-sm">Science Deep Dive</h4>
-                          <p className="text-red-100 text-xs">Dr. Jennifer Doudna on CRISPR</p>
-                        </div>
-                        <button className="text-red-100 text-xs hover:text-white transition-colors">Remind Me</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <HeroSection />
+            <WilbeStreamPlayer />
           </div>
         </div>
       </section>
 
-      {/* Founders Stories - Single Row Carousel */}
-      <div className="py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-4xl font-bold uppercase tracking-wide text-gray-900">Founders Stories</h2>
-            <div className="flex space-x-4">
-              <button onClick={() => handleScroll(-300)} className="bg-gray-200 hover:bg-gray-300 p-2">
-                <ArrowRight className="w-5 h-5 transform rotate-180" />
-              </button>
-              <button onClick={() => handleScroll(300)} className="bg-gray-200 hover:bg-gray-300 p-2">
-                <ArrowRight className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-
-          {/* Horizontal Scrolling Container */}
-          <div className="relative overflow-hidden">
-            <div className="flex space-x-6" ref={foundersStoriesRef} onWheel={(e) => handleMouseWheel(e)}>
-              {videoPlaylist.map((video, index) => (
-                <div
-                  key={video.id}
-                  className="flex-shrink-0 w-80 bg-gray-50 overflow-hidden shadow-lg hover:shadow-xl transition-shadow"
-                >
-                  <div className="relative aspect-video bg-gradient-to-br from-gray-800 to-gray-900">
-                    <img
-                      src={video.thumbnail}
-                      alt={video.title}
-                      className="absolute inset-0 w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black/40" />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <button className="w-16 h-16 bg-white flex items-center justify-center hover:bg-gray-100 transition-colors shadow-lg">
-                        <Play className="h-6 w-6 text-gray-900 ml-1" />
-                      </button>
-                    </div>
-                    <div className="absolute top-4 left-4">
-                      <Badge className="bg-gray-900 text-white text-xs">{video.category}</Badge>
-                    </div>
-                    <div className="absolute bottom-4 left-4 right-4">
-                      <div className="bg-black/70 backdrop-blur-sm p-3">
-                        <h3 className="text-white font-bold text-sm mb-1">{video.title}</h3>
-                        <p className="text-gray-300 text-xs">{video.description}</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="p-4">
-                    <h4 className="font-bold text-gray-900 text-sm mb-2">{video.title}</h4>
-                    <p className="text-gray-600 text-xs leading-relaxed mb-3">{video.description}</p>
-                    <div className="flex items-center">
-                      <span className="text-gray-500 text-xs">{video.duration}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* View All Media Button */}
-        <div className="text-center mt-12">
-          <a href="https://wilbe.com/media">
-            <Button size="lg" className="bg-gray-900 hover:bg-black text-white font-bold uppercase tracking-wide px-8">
-              VIEW ALL MEDIA
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-          </a>
-        </div>
-      </div>
+      <FoundersStories />
 
       {/* Wilbe Capital Portfolio */}
       <section className="py-20 bg-white">
@@ -740,18 +307,17 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* Portfolio Carousel */}
           <div className="relative mb-12">
             <div className="flex justify-between items-center mb-8">
               <h3 className="text-2xl font-bold uppercase tracking-wide text-gray-900">Founder Spotlights</h3>
               <div className="flex space-x-4">
                 <button
-                  onClick={() => handleScroll(-300, "portfolioRef")}
+                  onClick={() => handleScroll(-300, portfolioRef)}
                   className="bg-gray-200 hover:bg-gray-300 p-2"
                 >
                   <ArrowRight className="w-5 h-5 transform rotate-180" />
                 </button>
-                <button onClick={() => handleScroll(300, "portfolioRef")} className="bg-gray-200 hover:bg-gray-300 p-2">
+                <button onClick={() => handleScroll(300, portfolioRef)} className="bg-gray-200 hover:bg-gray-300 p-2">
                   <ArrowRight className="w-5 h-5" />
                 </button>
               </div>
@@ -760,10 +326,8 @@ export default function LandingPage() {
             <div className="overflow-hidden">
               <div
                 className="flex space-x-6"
-                ref={(el) => {
-                  if (typeof window !== "undefined") (window as any).portfolioRef = el
-                }}
-                onWheel={(e) => handleMouseWheel(e, "portfolioRef")}
+                ref={portfolioRef}
+                onWheel={(e) => handleMouseWheel(e, portfolioRef)}
               >
                 {/* Portfolio Company 1 - Biotech */}
                 <div className="flex-shrink-0 w-80 bg-gray-50 overflow-hidden shadow-lg hover:shadow-xl transition-shadow group hover:bg-gray-900">
@@ -988,7 +552,6 @@ export default function LandingPage() {
           </div>
 
           <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Lab Image */}
             <div className="relative">
               <img
                 src="https://images.unsplash.com/photo-1582719471384-894fbb16e074?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
@@ -1005,7 +568,6 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Lab Features */}
             <div className="space-y-8">
               <div>
                 <h3 className="text-3xl font-bold text-gray-900 mb-4 uppercase tracking-wide">
@@ -1095,7 +657,6 @@ export default function LandingPage() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-            {/* TTO Negotiation */}
             <Card className="bg-white border border-gray-200 hover:border-gray-400 transition-colors">
               <CardContent className="p-6">
                 <div className="flex items-center mb-4">
@@ -1127,7 +688,6 @@ export default function LandingPage() {
               </CardContent>
             </Card>
 
-            {/* WilbeLeaks */}
             <Card className="bg-white border border-gray-200 hover:border-gray-400 transition-colors">
               <CardContent className="p-6">
                 <div className="flex items-center mb-4">
@@ -1148,7 +708,6 @@ export default function LandingPage() {
               </CardContent>
             </Card>
 
-            {/* Volunteer Team */}
             <Card className="bg-white border border-gray-200 hover:border-gray-400 transition-colors">
               <CardContent className="p-6">
                 <div className="flex items-center mb-4">
@@ -1179,7 +738,6 @@ export default function LandingPage() {
 
           <div className="bg-gray-900 overflow-hidden">
             <div className="grid lg:grid-cols-2 gap-0">
-              {/* Text Content */}
               <div className="p-8 lg:p-12">
                 <h3 className="text-2xl font-bold mb-4 text-white">Support our advocacy work</h3>
                 <p className="text-gray-300 mb-6">
@@ -1200,7 +758,6 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              {/* Team Image */}
               <div className="relative h-64 lg:h-auto">
                 <img
                   src="/scientists-first-team.png"
@@ -1217,95 +774,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div>
-              <h4 className="font-bold text-lg mb-4">About Wilbe</h4>
-              <p className="text-gray-400 text-sm">
-                Wilbe is the home for entrepreneurial scientists. We connect scientist founders with market
-                intelligence, exclusive insights, venture tools, founders community, lab space and capital—all in one
-                place.
-              </p>
-            </div>
-
-            <div>
-              <h4 className="font-bold text-lg mb-4">Quick Links</h4>
-              <ul className="space-y-2">
-                <li>
-                  <Link to="#" className="text-gray-400 hover:text-white transition-colors text-sm">
-                    Media
-                  </Link>
-                </li>
-                <li>
-                  <Link to="#" className="text-gray-400 hover:text-white transition-colors text-sm">
-                    Terminal
-                  </Link>
-                </li>
-                <li>
-                  <Link to="#" className="text-gray-400 hover:text-white transition-colors text-sm">
-                    Capital
-                  </Link>
-                </li>
-                <li>
-                  <Link to="#" className="text-gray-400 hover:text-white transition-colors text-sm">
-                    Labs
-                  </Link>
-                </li>
-                <li>
-                  <Link to="#" className="text-gray-400 hover:text-white transition-colors text-sm">
-                    Advocacy
-                  </Link>
-                </li>
-                <li>
-                  <Link to="#" className="text-gray-400 hover:text-white transition-colors text-sm">
-                    Merch
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-bold text-lg mb-4">Contact Us</h4>
-              <p className="text-gray-400 text-sm">123 Science Street</p>
-              <p className="text-gray-400 text-sm">Science City, CA 91234</p>
-              <p className="text-gray-400 text-sm">Email: info@wilbe.com</p>
-              <p className="text-gray-400 text-sm">Phone: (123) 456-7890</p>
-            </div>
-
-            <div>
-              <h4 className="font-bold text-lg mb-4">Subscribe to Newsletter</h4>
-              <p className="text-gray-400 text-sm mb-4">
-                Stay up to date with the latest news, insights, and opportunities for scientist entrepreneurs.
-              </p>
-              <div className="flex">
-                <input
-                  type="email"
-                  placeholder="Your email address"
-                  className="bg-gray-800 border border-gray-700 py-2 px-4 text-white focus:outline-none focus:border-green-500 text-sm"
-                />
-                <Button className="bg-green-500 hover:bg-green-600 text-black text-sm font-bold uppercase tracking-wide">
-                  Subscribe
-                </Button>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-12 border-t border-gray-800 pt-6">
-            <p className="text-gray-500 text-center text-sm">
-              © 2024 Wilbe. All rights reserved. |{" "}
-              <Link to="#" className="hover:text-white transition-colors">
-                Terms of Service
-              </Link>{" "}
-              |{" "}
-              <Link to="#" className="hover:text-white transition-colors">
-                Privacy Policy
-              </Link>
-            </p>
-          </div>
-        </div>
-      </footer>
+      <LandingFooter />
     </div>
   )
 }
