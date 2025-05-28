@@ -4,7 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "@/hooks/useAuth";
+import { UnifiedAuthProvider } from "@/hooks/useUnifiedAuth";
 import { SprintContextProvider } from "@/hooks/useSprintContext";
 import { PATHS } from "@/lib/constants";
 import MerchPage from "@/pages/MerchPage";
@@ -14,7 +14,6 @@ import Layout from "@/components/Layout";
 import SprintLayout from "@/components/sprint/SprintLayout";
 
 // Pages
-import Index from "@/pages/Index";
 import HomePage from "@/pages/HomePage";
 import KnowledgeCenterPage from "@/pages/KnowledgeCenterPage";
 import MemberDirectoryPage from "@/pages/MemberDirectoryPage";
@@ -67,6 +66,9 @@ import MemberRoute from "@/components/MemberRoute";
 import MetaWrapper from "@/components/MetaWrapper";
 import SandboxRoute from "@/components/SandboxRoute";
 
+// Smart redirect component
+import SmartRedirect from "@/components/SmartRedirect";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -75,12 +77,12 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <AuthProvider>
+        <UnifiedAuthProvider>
           <SprintContextProvider>
             <MetaWrapper>
               <Routes>
-                {/* Root path - handles initial routing logic */}
-                <Route path="/" element={<Index />} />
+                {/* Root path - smart redirect based on user type */}
+                <Route path="/" element={<SmartRedirect />} />
 
                 {/* Public merch chooser route */}
                 <Route path="/merch" element={<MerchPage />} />
@@ -168,7 +170,7 @@ const App = () => (
               </Routes>
             </MetaWrapper>
           </SprintContextProvider>
-        </AuthProvider>
+        </UnifiedAuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

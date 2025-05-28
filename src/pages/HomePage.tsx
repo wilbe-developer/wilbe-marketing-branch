@@ -1,8 +1,7 @@
 
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
-import { useUserType } from "@/hooks/useUserType";
+import { useUnifiedAuth } from "@/hooks/useUnifiedAuth";
 import { PATHS } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import VideoCarousel from "@/components/VideoCarousel";
@@ -10,8 +9,7 @@ import MemberPreview from "@/components/MemberPreview";
 import { ProfileCompletionModal } from "@/components/ProfileCompletionModal";
 
 const HomePage = () => {
-  const { user } = useAuth();
-  const { isSprintUser, isApproved } = useUserType();
+  const { user, isSprintUser, isApproved } = useUnifiedAuth();
   const [showProfileModal, setShowProfileModal] = useState(false);
 
   const handleRestrictedClick = (e: React.MouseEvent) => {

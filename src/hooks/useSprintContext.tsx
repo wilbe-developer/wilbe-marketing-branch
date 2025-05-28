@@ -1,7 +1,6 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { useAuth } from "./useAuth";
-import { useAuthCoordinator } from "./useAuthCoordinator";
+import { useUnifiedAuth } from "./useUnifiedAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "./use-toast";
 
@@ -28,8 +27,7 @@ interface SprintContextProviderProps {
 }
 
 export const SprintContextProvider = ({ children }: SprintContextProviderProps) => {
-  const { user } = useAuth();
-  const { isFullyReady, isLoading } = useAuthCoordinator();
+  const { user, isFullyReady } = useUnifiedAuth();
   const [currentSprintOwnerId, setCurrentSprintOwnerId] = useState<string | null>(null);
   const [isSharedSprint, setIsSharedSprint] = useState(false);
   const [sprintOwnerName, setSprintOwnerName] = useState<string | null>(null);
@@ -38,12 +36,11 @@ export const SprintContextProvider = ({ children }: SprintContextProviderProps) 
   useEffect(() => {
     console.log("SprintContext - Initialization check:", { 
       isFullyReady, 
-      isLoading, 
       hasUser: !!user?.id 
     });
 
     // Don't initialize until auth is fully ready
-    if (!isFullyReady || isLoading) {
+    if (!isFullyReady) {
       console.log("SprintContext - Waiting for auth to be ready");
       return;
     }
@@ -55,7 +52,7 @@ export const SprintContextProvider = ({ children }: SprintContextProviderProps) 
       setIsSharedSprint(false);
       setSprintOwnerName(null);
     }
-  }, [user?.id, isFullyReady, isLoading, currentSprintOwnerId]);
+  }, [user?.id, isFullyReady, currentSprintOwnerId]);
 
   const switchToOwnSprint = () => {
     if (user?.id) {

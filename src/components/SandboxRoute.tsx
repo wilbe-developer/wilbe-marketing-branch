@@ -1,27 +1,21 @@
 
 import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
-import { useUserType } from "@/hooks/useUserType";
+import { useUnifiedAuth } from "@/hooks/useUnifiedAuth";
 import { PATHS } from "@/lib/constants";
 
 const SandboxRoute = () => {
-  const { isAuthenticated, loading: authLoading, isRecoveryMode } = useAuth();
-  const { isSprintUser, isSandboxUser, isApproved, loading: userTypeLoading } = useUserType();
+  const { isAuthenticated, loading, isRecoveryMode } = useUnifiedAuth();
   const location = useLocation();
 
   console.log("SandboxRoute - Auth state:", { 
     isAuthenticated, 
-    isSprintUser, 
-    isSandboxUser, 
-    isApproved, 
-    authLoading, 
-    userTypeLoading,
+    loading,
     pathname: location.pathname,
     isRecoveryMode
   });
 
   // Show loading states
-  if (authLoading || userTypeLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">

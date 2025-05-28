@@ -1,10 +1,10 @@
 
 import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
+import { useUnifiedAuth } from "@/hooks/useUnifiedAuth";
 import { PATHS } from "@/lib/constants";
 
 const MemberRoute = () => {
-  const { isAuthenticated, isApproved, loading, isRecoveryMode } = useAuth();
+  const { isAuthenticated, isApproved, loading, isRecoveryMode } = useUnifiedAuth();
   const location = useLocation();
 
   console.log("MemberRoute - Auth state:", { isAuthenticated, isApproved, loading, isRecoveryMode });

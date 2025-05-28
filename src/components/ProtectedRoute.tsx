@@ -1,6 +1,6 @@
 
 import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
+import { useUnifiedAuth } from "@/hooks/useUnifiedAuth";
 import { PATHS } from "@/lib/constants";
 
 interface ProtectedRouteProps {
@@ -8,7 +8,7 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ requireAdmin = false }: ProtectedRouteProps) => {
-  const { isAuthenticated, isAdmin, loading, isRecoveryMode } = useAuth();
+  const { isAuthenticated, isAdmin, loading, isRecoveryMode } = useUnifiedAuth();
   const location = useLocation();
   
   const isAdminRoute = location.pathname.startsWith(PATHS.ADMIN) || 
