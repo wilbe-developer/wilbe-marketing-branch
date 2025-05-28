@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { PATHS } from "@/lib/constants";
 
-// This component only handles initial routing when users land on app.wilbe.com
+// This component only handles initial routing when users land on app.wilbe.com.
 const Index = () => {
   const { isAuthenticated, loading: authLoading, isRecoveryMode } = useAuth();
   const { isSprintUser, isSandboxUser, loading: userTypeLoading } = useUserType();
