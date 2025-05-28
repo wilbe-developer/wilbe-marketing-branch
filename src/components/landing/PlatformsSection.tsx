@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
 import BackedFoundersSection from "./BackedFoundersSection"
+import LatestContentFeed from "./LatestContentFeed"
 
 export default function PlatformsSection() {
   const platforms = [
@@ -10,7 +11,8 @@ export default function PlatformsSection() {
       title: "Wilbe Sandbox: Connect and Kickstart Your Journey",
       description: "The Wilbe Sandbox is a global community platform uniting scientists to explore entrepreneurial paths and launch startups. It provides startup basics videos, pitch deck guidance, funding opportunities, and exclusive job listings, empowering PhD students, postdocs, and industry scientists to move from academia to impact.",
       buttonText: "Join the Sandbox",
-      buttonLink: "/login"
+      buttonLink: "/login",
+      showLatestContent: true
     },
     {
       number: 2,
@@ -73,6 +75,13 @@ export default function PlatformsSection() {
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </a>
                 </Button>
+
+                {/* Latest Content Feed - only show for Wilbe Sandbox */}
+                {platform.showLatestContent && (
+                  <div className="mt-8 bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+                    <LatestContentFeed />
+                  </div>
+                )}
 
                 {/* Backed Founders section - only show for Wilbe Capital */}
                 {platform.showCompanies && (
