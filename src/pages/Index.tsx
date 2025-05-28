@@ -23,8 +23,8 @@ const Index = () => {
     }
     
     if (!isAuthenticated) {
-      // Redirect to landing page if not authenticated
-      navigate(PATHS.LANDING_PAGE);
+      // Redirect to login if not authenticated
+      navigate(PATHS.LOGIN);
       return;
     }
 
