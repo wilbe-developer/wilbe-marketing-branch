@@ -9,7 +9,7 @@ export default function TickerStrips() {
 
   return (
     <div className="bg-brand-darkBlue border-y border-brand-navy">
-      <div className="py-3 overflow-hidden relative">
+      <div className="py-2 overflow-hidden relative">
         {/* Scrolling Content - positioned behind */}
         <div className="absolute inset-0 flex items-center">
           <div className="ticker-content animate-scroll w-full">
@@ -25,7 +25,7 @@ export default function TickerStrips() {
 
         {/* Static Title - positioned on top with background */}
         <div className="relative z-10 flex justify-start">
-          <span className="text-sm font-bold text-white uppercase tracking-wide whitespace-nowrap bg-brand-darkBlue px-4 py-1">
+          <span className="text-sm font-bold text-white uppercase tracking-wide whitespace-nowrap bg-brand-darkBlue px-4 py-0.5">
             OPPORTUNITIES
           </span>
         </div>
