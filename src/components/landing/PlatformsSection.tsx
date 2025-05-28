@@ -15,7 +15,7 @@ export default function PlatformsSection() {
     title: "Become a Scientist Founder: our flagship program",
     description: "Start putting the company pieces together with the guidance and founders community needed to avoid expensive mistakes and validate the most ambitious version of your vision. Complete our tech-enabled process in 10 days and you will grab our attention as investors to be invited for our in-person residency where we chart the operational steps to kick-off.",
     buttonText: "Join the BSF Waitlist",
-    buttonLink: "/sprint-signup"
+    buttonLink: "/waitlist"
   }, {
     number: 3,
     title: "Wilbe Capital: Fund Your Breakthrough",
