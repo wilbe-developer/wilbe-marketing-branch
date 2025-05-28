@@ -24,14 +24,14 @@ export default function LandingNavigation() {
               <Link to="/media" className="text-gray-900 hover:text-gray-700 transition-colors uppercase tracking-wide">
                 Media
               </Link>
+              <Link to="/platform" className="text-gray-900 hover:text-gray-700 transition-colors uppercase tracking-wide">
+                Platform
+              </Link>
               <Link to="/capital" className="text-gray-900 hover:text-gray-700 transition-colors uppercase tracking-wide">
                 Capital
               </Link>
               <Link to="/advocacy" className="text-gray-900 hover:text-gray-700 transition-colors uppercase tracking-wide">
                 Advocacy
-              </Link>
-              <Link to="/merch" className="text-gray-900 hover:text-gray-700 transition-colors uppercase tracking-wide">
-                Merch
               </Link>
             </div>
           </div>
