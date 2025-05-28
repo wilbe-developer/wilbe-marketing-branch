@@ -13,25 +13,25 @@ export default function TickerStrips() {
 
   return (
     <div className="bg-brand-darkBlue border-y border-brand-navy">
-      <div className="py-3 overflow-hidden">
-        <div className="flex items-center">
-          {/* Static Title */}
-          <span className="text-sm font-bold text-white uppercase tracking-wide whitespace-nowrap flex-shrink-0 px-4">
-            COMMUNITY OPPORTUNITIES
-          </span>
-          
-          {/* Scrolling Content */}
-          <div className="relative flex-1">
-            <div className="ticker-content animate-scroll">
-              <div className="flex space-x-12 px-4">
-                {[...communityAsks, ...communityAsks].map((ask, index) => (
-                  <span key={index} className="text-sm text-gray-300 whitespace-nowrap flex-shrink-0">
-                    {ask}
-                  </span>
-                ))}
-              </div>
+      <div className="py-3 overflow-hidden relative">
+        {/* Scrolling Content - positioned behind */}
+        <div className="absolute inset-0 flex items-center">
+          <div className="ticker-content animate-scroll w-full">
+            <div className="flex space-x-12 px-4">
+              {[...communityAsks, ...communityAsks].map((ask, index) => (
+                <span key={index} className="text-sm text-gray-300 whitespace-nowrap flex-shrink-0">
+                  {ask}
+                </span>
+              ))}
             </div>
           </div>
+        </div>
+
+        {/* Static Title - positioned on top with background */}
+        <div className="relative z-10 flex justify-start">
+          <span className="text-sm font-bold text-white uppercase tracking-wide whitespace-nowrap bg-brand-darkBlue px-4 py-1">
+            COMMUNITY OPPORTUNITIES
+          </span>
         </div>
       </div>
     </div>
