@@ -4,12 +4,12 @@ import { Button } from "@/components/ui/button"
 
 export default function LandingFooter() {
   return (
-    <footer className="bg-gray-900 text-white py-8 sm:py-12">
+    <footer className="bg-gray-900 text-white py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
-          <div className="sm:col-span-2 lg:col-span-1">
-            <h4 className="font-bold text-base sm:text-lg mb-3 sm:mb-4">About Wilbe</h4>
-            <p className="text-gray-400 text-sm leading-relaxed">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div>
+            <h4 className="font-bold text-lg mb-4">About Wilbe</h4>
+            <p className="text-gray-400 text-sm">
               Wilbe is the home for entrepreneurial scientists. We connect scientist founders with market
               intelligence, exclusive insights, venture tools, founders community, lab space and capital—all in one
               place.
@@ -17,8 +17,8 @@ export default function LandingFooter() {
           </div>
 
           <div>
-            <h4 className="font-bold text-base sm:text-lg mb-3 sm:mb-4">Quick Links</h4>
-            <ul className="space-y-1.5 sm:space-y-2">
+            <h4 className="font-bold text-lg mb-4">Quick Links</h4>
+            <ul className="space-y-2">
               <li>
                 <Link to="#" className="text-gray-400 hover:text-white transition-colors text-sm">
                   Media
@@ -53,35 +53,33 @@ export default function LandingFooter() {
           </div>
 
           <div>
-            <h4 className="font-bold text-base sm:text-lg mb-3 sm:mb-4">Contact Us</h4>
-            <div className="text-gray-400 text-sm space-y-1">
-              <p>123 Science Street</p>
-              <p>Science City, CA 91234</p>
-              <p>Email: info@wilbe.com</p>
-              <p>Phone: (123) 456-7890</p>
-            </div>
+            <h4 className="font-bold text-lg mb-4">Contact Us</h4>
+            <p className="text-gray-400 text-sm">123 Science Street</p>
+            <p className="text-gray-400 text-sm">Science City, CA 91234</p>
+            <p className="text-gray-400 text-sm">Email: info@wilbe.com</p>
+            <p className="text-gray-400 text-sm">Phone: (123) 456-7890</p>
           </div>
 
-          <div className="sm:col-span-2 lg:col-span-1">
-            <h4 className="font-bold text-base sm:text-lg mb-3 sm:mb-4">Subscribe to Newsletter</h4>
-            <p className="text-gray-400 text-sm mb-3 sm:mb-4 leading-relaxed">
+          <div>
+            <h4 className="font-bold text-lg mb-4">Subscribe to Newsletter</h4>
+            <p className="text-gray-400 text-sm mb-4">
               Stay up to date with the latest news, insights, and opportunities for scientist entrepreneurs.
             </p>
-            <div className="flex flex-col sm:flex-row gap-2">
+            <div className="flex">
               <input
                 type="email"
                 placeholder="Your email address"
-                className="flex-1 bg-gray-800 border border-gray-700 py-2 px-3 sm:px-4 text-white focus:outline-none focus:border-green-500 text-sm rounded"
+                className="bg-gray-800 border border-gray-700 py-2 px-4 text-white focus:outline-none focus:border-green-500 text-sm"
               />
-              <Button className="bg-green-500 hover:bg-green-600 text-black text-sm font-bold uppercase tracking-wide px-4 py-2">
+              <Button className="bg-green-500 hover:bg-green-600 text-black text-sm font-bold uppercase tracking-wide">
                 Subscribe
               </Button>
             </div>
           </div>
         </div>
 
-        <div className="mt-8 sm:mt-12 border-t border-gray-800 pt-4 sm:pt-6">
-          <p className="text-gray-500 text-center text-xs sm:text-sm">
+        <div className="mt-12 border-t border-gray-800 pt-6">
+          <p className="text-gray-500 text-center text-sm">
             © 2024 Wilbe. All rights reserved. |{" "}
             <Link to="#" className="hover:text-white transition-colors">
               Terms of Service

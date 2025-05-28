@@ -39,9 +39,9 @@ export default function LandingPage() {
       <TickerStrips />
 
       {/* Main Hero Section with Video Player */}
-      <section className="bg-black text-white py-12 sm:py-16 lg:py-20 xl:py-32">
+      <section className="bg-black text-white py-20 lg:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 sm:gap-12 items-start">
+          <div className="grid lg:grid-cols-3 gap-12 items-start">
             <HeroSection />
             <WilbeStreamPlayer />
           </div>
