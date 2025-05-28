@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import BackedFoundersSection from "./BackedFoundersSection";
@@ -16,7 +17,8 @@ export default function PlatformsSection() {
     title: "Become a Scientist Founder: our flagship program",
     description: "Get practical building your company with the guidance and founders community needed to avoid expensive mistakes and validate the most ambitious version of your vision. Complete our tech-enabled process in 10 days and you will grab our attention as investors to be invited for Bootcamp our in-person residency where we chart the operational steps to kick-off.",
     buttonText: "Join the BSF Waitlist",
-    buttonLink: "/waitlist"
+    buttonLink: "/waitlist",
+    showImage: true
   }, {
     number: 3,
     title: "Wilbe Capital: Fund Your Breakthrough",
@@ -58,6 +60,17 @@ export default function PlatformsSection() {
                 <p className="text-gray-700 text-lg leading-relaxed mb-6 max-w-4xl">
                   {platform.description}
                 </p>
+
+                {/* BSF Screenshot Image */}
+                {platform.showImage && (
+                  <div className="mb-6">
+                    <img
+                      src="/lovable-uploads/07ca7619-e835-4216-b83e-b13ee865bdd6.png"
+                      alt="Sprint Journey Dashboard Screenshot"
+                      className="w-full max-w-4xl rounded-lg shadow-lg border border-gray-200"
+                    />
+                  </div>
+                )}
                 
                 {/* Button - show for platforms that don't have content feeds or companies, or show after content */}
                 {!platform.showLatestContent && !platform.showCompanies && (
