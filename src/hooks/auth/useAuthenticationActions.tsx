@@ -19,79 +19,12 @@ export const useAuthenticationActions = ({
   toast
 }: UseAuthenticationActionsProps) => {
   
-  // Unified login or signup function - automatically handles new vs existing users
-  const loginOrSignup = async (email: string) => {
-    try {
-      setLoading(true);
-      
-      // First attempt to sign up the user with a dummy password
-      // This will succeed for new users and fail for existing users
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password: Math.random().toString(36).slice(-10), // Random dummy password
-        options: {
-          emailRedirectTo: window.location.origin + "/",
-        }
-      });
-      
-      if (error) {
-        // If signup fails because user already exists, send magic link instead
-        if (error.message.includes("User already registered")) {
-          console.log("User exists, sending magic link");
-          
-          const { error: magicLinkError } = await supabase.auth.signInWithOtp({
-            email,
-            options: {
-              emailRedirectTo: window.location.origin + "/",
-            }
-          });
-          
-          if (magicLinkError) {
-            throw magicLinkError;
-          }
-          
-          toast({
-            title: "Magic link sent",
-            description: "Check your email for a login link.",
-          });
-          
-        } else {
-          throw error;
-        }
-      } else {
-        // New user was successfully created and automatically logged in
-        console.log("New user created and logged in");
-        
-        toast({
-          title: "Account created!",
-          description: "You have been successfully logged in.",
-        });
-        
-        // Navigate to root so Index component can handle routing
-        navigate("/");
-      }
-      
-      return { success: true };
-    } catch (error) {
-      toast({
-        title: "Login failed",
-        description: error instanceof Error ? error.message : "Unknown error occurred",
-        variant: "destructive",
-      });
-      
-      return { success: false };
-    } finally {
-      setLoading(false);
-    }
-  };
-
   // Magic link function with optional custom redirect
   const sendMagicLink = async (email: string, customRedirectTo?: string) => {
     try {
       setLoading(true);
       
-      // Default to root path so Index component can handle routing
-      const redirectPath = customRedirectTo || "/";
+      const redirectPath = customRedirectTo || PATHS.HOME;
       
       const { error } = await supabase.auth.signInWithOtp({
         email,
@@ -143,8 +76,7 @@ export const useAuthenticationActions = ({
         description: "You have been successfully logged in.",
       });
       
-      // Navigate to root so Index component can handle routing
-      navigate("/");
+      navigate(PATHS.HOME);
     } catch (error) {
       toast({
         title: "Login failed",
@@ -284,7 +216,6 @@ export const useAuthenticationActions = ({
   };
 
   return {
-    loginOrSignup,
     sendMagicLink,
     loginWithPassword,
     resetPassword,

@@ -11,7 +11,7 @@ interface UserRoleFilterProps {
 const UserRoleFilter = ({ 
   filter, 
   onFilterChange, 
-  roleCounts = { 'all': 0, 'admin': 0, 'user': 0, 'member': 0 } 
+  roleCounts = { 'all': 0, 'admin': 0, 'user': 0 } 
 }: UserRoleFilterProps) => {
   return (
     <div className="mb-4">
@@ -20,14 +20,13 @@ const UserRoleFilter = ({
         value={filter}
         onValueChange={(value) => onFilterChange(value as UserRole | 'all')}
       >
-        <SelectTrigger className="w-[280px]">
+        <SelectTrigger className="w-[220px]">
           <SelectValue placeholder="Filter by role" />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All Users ({roleCounts['all'] || 0})</SelectItem>
           <SelectItem value="admin">Admins ({roleCounts['admin'] || 0})</SelectItem>
-          <SelectItem value="member">Members ({roleCounts['member'] || 0})</SelectItem>
-          <SelectItem value="user">Basic Users ({roleCounts['user'] || 0})</SelectItem>
+          <SelectItem value="user">Members ({roleCounts['user'] || 0})</SelectItem>
         </SelectContent>
       </Select>
     </div>

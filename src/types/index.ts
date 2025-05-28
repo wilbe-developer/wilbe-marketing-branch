@@ -1,3 +1,4 @@
+
 export interface UserProfile {
   id: string;
   firstName: string;
@@ -18,7 +19,6 @@ export interface UserProfile {
   activityStatus?: string;
   lastLoginDate?: Date;
   status?: string;
-  userRole?: UserRole; // Add this property to store the system role
 }
 
 export interface Module {
@@ -50,7 +50,7 @@ export interface Video {
   deckBuilderModuleId?: string; // To store the deck builder specific module
 }
 
-// Updated to include the new member role
-export type UserRole = 'user' | 'member' | 'admin';
+// Updated to match what's actually used in the database
+export type UserRole = 'user' | 'admin';
 
 export type ApprovalStatus = 'pending' | 'approved' | 'rejected';

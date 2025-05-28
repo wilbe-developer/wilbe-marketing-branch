@@ -58,10 +58,9 @@ import UserApprovalsPage from "./pages/admin/UserApprovalsPage";
 import RolesManagerPage from "./pages/admin/RolesManagerPage";
 import UTMAnalyticsPage from "./pages/admin/UTMAnalyticsPage";
 
-// Route components
+// Auth Route component
 import ProtectedRoute from "@/components/ProtectedRoute";
 import MemberRoute from "@/components/MemberRoute";
-import SandboxRoute from "@/components/SandboxRoute";
 
 // MetaWrapper for per-page <Helmet> tags
 import MetaWrapper from "@/components/MetaWrapper";
@@ -78,25 +77,26 @@ const App = () => (
           <SprintContextProvider>
             <MetaWrapper>
               <Routes>
-                {/* Root path redirects to home */}
-                <Route path="/" element={<Navigate to={PATHS.HOME} replace />} />
-
-                {/* Public routes */}
+                {/* Public merch chooser route */}
                 <Route path="/merch" element={<MerchPage />} />
+
+                {/* Auth routes */}
                 <Route path={PATHS.LOGIN} element={<LoginPage />} />
                 <Route path="/admin-login" element={<AdminLoginPage />} />
                 <Route path="/password-reset" element={<PasswordResetPage />} />
+                <Route path={PATHS.REGISTER} element={<RegisterPage />} />
                 <Route path={PATHS.PENDING} element={<PendingApprovalPage />} />
                 <Route path={PATHS.LANDING_PAGE} element={<LandingPage />} />
                 <Route path={PATHS.BSF_PAGE} element={<BsfPage />} />
+                
+                {/* Quiz route - publicly accessible */}
                 <Route path={PATHS.QUIZ} element={<QuizPage />} />
+
+                {/* Sprint signup - publicly accessible */}
                 <Route path="/sprint-signup" element={<SprintSignupPage />} />
                 <Route path={PATHS.SPRINT_WAITING} element={<SprintWaitingPage />} />
-                <Route path="/waitlist" element={<SprintWaitlistPage />} />
-                <Route path="/referral" element={<SprintReferralPage />} />
-                <Route path="/ref/:code" element={<SprintWaitlistPage />} />
 
-                {/* Sprint routes - protected */}
+                {/* Sprint routes - accessible to all authenticated users */}
                 <Route path={PATHS.SPRINT} element={<SprintPage />} />
                 <Route element={<SprintLayout />}>
                   <Route element={<ProtectedRoute />}>
@@ -115,9 +115,14 @@ const App = () => (
                   </Route>
                 </Route>
 
-                {/* Sandbox routes */}
+                {/* Sprint waitlist routes - preserve query parameters */}
+                <Route path="/waitlist" element={<SprintWaitlistPage />} />
+                <Route path="/referral" element={<SprintReferralPage />} />
+                <Route path="/ref/:code" element={<SprintWaitlistPage />} />
+
+                {/* Member-only protected routes */}
                 <Route element={<Layout />}>
-                  <Route element={<SandboxRoute />}>
+                  <Route element={<MemberRoute />}>
                     <Route path={PATHS.HOME} element={<HomePage />} />
                     <Route path={PATHS.KNOWLEDGE_CENTER} element={<KnowledgeCenterPage />} />
                     <Route path={PATHS.MEMBER_DIRECTORY} element={<MemberDirectoryPage />} />
@@ -125,18 +130,20 @@ const App = () => (
                     <Route path={PATHS.EVENTS} element={<EventsPage />} />
                     <Route path={PATHS.BUILD_YOUR_DECK} element={<BuildYourDeckPage />} />
                     <Route path={PATHS.PROFILE} element={<ProfilePage />} />
+
+                    {/* Placeholder routes */}
                     <Route path={PATHS.LAB_SEARCH} element={<div className="py-12 text-center"><h1 className="text-2xl font-bold mb-4">Lab Search</h1><p>This feature is coming soon.</p></div>} />
                     <Route path={PATHS.ASK} element={<div className="py-12 text-center"><h1 className="text-2xl font-bold mb-4">Ask & Invite</h1><p>This feature is coming soon.</p></div>} />
                   </Route>
                   
                   {/* Legacy Admin route */}
-                  <Route element={<ProtectedRoute />}>
+                  <Route element={<ProtectedRoute requireAdmin={true} />}>
                     <Route path={PATHS.ADMIN} element={<AdminPage />} />
                   </Route>
                 </Route>
 
-                {/* Admin routes */}
-                <Route element={<ProtectedRoute />}>
+                {/* New Admin routes - full screen layout */}
+                <Route element={<ProtectedRoute requireAdmin={true} />}>
                   <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
                   <Route path="/admin/users" element={<AdminUsersPage />} />
                   <Route path="/admin/approvals" element={<UserApprovalsPage />} />
@@ -148,8 +155,10 @@ const App = () => (
                   <Route path="/admin/settings" element={<AdminSettingsPage />} />
                 </Route>
 
-                {/* Special routes */}
-                <Route path="/sprint/data-room/:sprintId" element={<SprintDataRoomPage />} />
+                {/* Catch-all route */}
+                <Route path="/sprint/data-room/:sprintId" element={
+                  <SprintDataRoomPage />
+                } />
                 <Route path="/faqs" element={<FAQsPage />} />
                 <Route path="*" element={<NotFoundPage />} />
               </Routes>

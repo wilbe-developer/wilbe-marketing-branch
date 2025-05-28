@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,16 +11,19 @@ import { useToast } from "@/components/ui/use-toast";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { loginOrSignup, isAuthenticated } = useAuth();
+  const { sendMagicLink, loading, isAuthenticated } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  // Redirect if already authenticated
-  if (isAuthenticated) {
-    navigate(PATHS.HOME);
-    return null;
-  }
+  useEffect(() => {
+    if (isAuthenticated) {
+      // Check if there's a redirect path stored
+      const redirectPath = sessionStorage.getItem("redirectAfterLogin") || PATHS.HOME;
+      sessionStorage.removeItem("redirectAfterLogin"); // Clean up
+      console.log("User authenticated, redirecting to:", redirectPath);
+      navigate(redirectPath);
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,9 +37,7 @@ const LoginPage = () => {
       return;
     }
     
-    setIsSubmitting(true);
-    await loginOrSignup(email);
-    setIsSubmitting(false);
+    await sendMagicLink(email);
   };
 
   return (
@@ -48,7 +49,7 @@ const LoginPage = () => {
           </div>
           <CardTitle className="text-2xl">Log In</CardTitle>
           <CardDescription>
-            Enter your email to get started
+            Enter your email to receive a magic link
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -64,23 +65,20 @@ const LoginPage = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                disabled={isSubmitting}
               />
             </div>
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? "Sending..." : "Continue"}
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? "Sending magic link..." : "Send Magic Link"}
             </Button>
           </form>
-          
           <div className="mt-4 text-center text-sm">
             Don't have an account?{" "}
             <Link to={PATHS.REGISTER} className="text-brand-pink hover:underline">
               Sign up
             </Link>
           </div>
-          
           <div className="mt-2 p-4 bg-gray-50 rounded-md text-sm text-gray-600">
-            <p>New users will be logged in instantly. Returning users will receive a magic link via email.</p>
+            <p>You'll receive an email with a login link. No password needed!</p>
           </div>
           
           <div className="mt-4 text-center text-xs text-gray-400">

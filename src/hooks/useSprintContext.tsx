@@ -1,6 +1,8 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useAuth } from "./useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "./use-toast";
 
 type SprintContext = {
   currentSprintOwnerId: string | null;
@@ -30,19 +32,17 @@ export const SprintContextProvider = ({ children }: SprintContextProviderProps) 
   const [isSharedSprint, setIsSharedSprint] = useState(false);
   const [sprintOwnerName, setSprintOwnerName] = useState<string | null>(null);
 
-  // Initialize with user's own sprint when user is available
+  // Initialize with user's own sprint
   useEffect(() => {
-    if (user?.id && !currentSprintOwnerId) {
-      console.log("SprintContext - Initializing with user's own sprint:", user.id);
+    if (user?.id) {
       setCurrentSprintOwnerId(user.id);
       setIsSharedSprint(false);
       setSprintOwnerName(null);
     }
-  }, [user?.id, currentSprintOwnerId]);
+  }, [user?.id]);
 
   const switchToOwnSprint = () => {
     if (user?.id) {
-      console.log("SprintContext - Switching to own sprint:", user.id);
       setCurrentSprintOwnerId(user.id);
       setIsSharedSprint(false);
       setSprintOwnerName(null);
@@ -50,7 +50,6 @@ export const SprintContextProvider = ({ children }: SprintContextProviderProps) 
   };
 
   const switchToSharedSprint = (ownerId: string, ownerName: string) => {
-    console.log("SprintContext - Switching to shared sprint:", { ownerId, ownerName });
     setCurrentSprintOwnerId(ownerId);
     setIsSharedSprint(true);
     setSprintOwnerName(ownerName);

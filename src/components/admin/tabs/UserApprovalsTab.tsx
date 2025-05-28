@@ -17,37 +17,10 @@ const UserApprovalsTab = () => {
   useEffect(() => {
     const fetchPendingUsers = async () => {
       try {
-        // Get users who have 'user' role but not 'member' role (pending approval)
-        const { data: usersWithUserRole, error: userRoleError } = await supabase
-          .from('user_roles')
-          .select('user_id')
-          .eq('role', 'user');
-
-        if (userRoleError) throw userRoleError;
-
-        const { data: usersWithMemberRole, error: memberRoleError } = await supabase
-          .from('user_roles')
-          .select('user_id')
-          .eq('role', 'member');
-
-        if (memberRoleError) throw memberRoleError;
-
-        // Get user IDs that have 'user' role but not 'member' role
-        const userRoleIds = new Set(usersWithUserRole?.map(ur => ur.user_id) || []);
-        const memberRoleIds = new Set(usersWithMemberRole?.map(ur => ur.user_id) || []);
-        const pendingUserIds = Array.from(userRoleIds).filter(id => !memberRoleIds.has(id));
-
-        if (pendingUserIds.length === 0) {
-          setPendingUsers([]);
-          setLoading(false);
-          return;
-        }
-
-        // Fetch profiles for pending users
         const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .select('*')
-          .in('id', pendingUserIds);
+          .eq('approved', false);
 
         if (profileError) {
           throw profileError;
@@ -64,9 +37,9 @@ const UserApprovalsTab = () => {
             location: profile.location,
             role: profile.role,
             bio: profile.bio,
-            approved: false, // These are pending users
+            approved: profile.approved || false,
             createdAt: new Date(profile.created_at || Date.now()),
-            avatar: profile.avatar
+            avatar: profile.avatar || `https://randomuser.me/api/portraits/${Math.random() > 0.5 ? 'men' : 'women'}/${Math.floor(Math.random() * 100)}.jpg`
           }));
           setPendingUsers(userProfiles);
         }
@@ -87,28 +60,38 @@ const UserApprovalsTab = () => {
 
   const handleApprovalAction = async (userId: string, status: ApprovalStatus) => {
     try {
-      if (status === 'approved') {
-        // Update user role from 'user' to 'member' to approve the user
-        const { error: updateError } = await supabase
-          .from('user_roles')
-          .update({ role: 'member' })
-          .eq('user_id', userId)
-          .eq('role', 'user');
+      // First, update the profile's approved field for backward compatibility
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({ approved: status === 'approved' })
+        .eq('id', userId);
 
-        if (updateError) {
-          throw updateError;
+      if (profileError) {
+        throw profileError;
+      }
+
+      // If approving the user, add the user role
+      if (status === 'approved') {
+        // Add user role if approved
+        const { error: roleError } = await supabase
+          .from('user_roles')
+          .upsert({ 
+            user_id: userId, 
+            role: 'user' 
+          }, { 
+            onConflict: 'user_id,role' 
+          });
+
+        if (roleError) {
+          throw roleError;
         }
-      } else {
-        // For rejection, we could remove the user role or mark them differently
-        // For now, we'll just remove them from the pending list
-        // You might want to add a 'rejected' status or handle this differently
       }
 
       setPendingUsers(pendingUsers.filter(user => user.id !== userId));
       
       toast({
         title: status === 'approved' ? "User Approved" : "User Rejected",
-        description: `User has been ${status}. ${status === 'approved' ? 'They now have member access.' : ''}`,
+        description: `User has been ${status}. ${status === 'approved' ? 'They will be notified by email.' : ''}`,
       });
       
       console.log(`User ${userId} ${status}. This would trigger a notification to the user.`);
@@ -127,7 +110,7 @@ const UserApprovalsTab = () => {
       <CardHeader>
         <CardTitle>Pending Approvals</CardTitle>
         <CardDescription>
-          Review and approve users for member access (users with basic access pending member approval)
+          Review and approve new user registrations
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -149,13 +132,11 @@ const UserApprovalsTab = () => {
                 <TableRow key={user.id}>
                   <TableCell className="font-medium">
                     <div className="flex items-center">
-                      {user.avatar && (
-                        <img
-                          src={user.avatar}
-                          alt={user.firstName}
-                          className="w-8 h-8 rounded-full mr-2"
-                        />
-                      )}
+                      <img
+                        src={user.avatar}
+                        alt={user.firstName}
+                        className="w-8 h-8 rounded-full mr-2"
+                      />
                       <div>
                         {user.firstName} {user.lastName}
                         <div className="text-sm text-gray-500">
