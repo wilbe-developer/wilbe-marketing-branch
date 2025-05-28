@@ -20,7 +20,6 @@ import MemberDirectoryPage from "@/pages/MemberDirectoryPage";
 import VideoPlayerPage from "@/pages/VideoPlayerPage";
 import LoginPage from "@/pages/LoginPage";
 import RegisterPage from "@/pages/RegisterPage";
-import PendingApprovalPage from "@/pages/PendingApprovalPage";
 import AdminPage from "./pages/AdminPage";
 import ProfilePage from "@/pages/ProfilePage";
 import SprintProfilePage from "@/pages/SprintProfilePage";
@@ -41,7 +40,6 @@ import SprintWaitlistPage from "@/pages/SprintWaitlistPage";
 import SprintReferralPage from "@/pages/SprintReferralPage";
 import LeadGeneratorPage from "@/pages/LeadGeneratorPage";
 import SprintDataRoomPage from "./pages/SprintDataRoomPage";
-import AdminLoginPage from "@/pages/AdminLoginPage";
 import PasswordResetPage from "@/pages/PasswordResetPage";
 import TaskBuilderPage from "@/pages/admin/TaskBuilderPage";
 import QuizPage from "@/pages/QuizPage";
@@ -54,8 +52,6 @@ import AdminUsersPage from "./pages/admin/AdminUsersPage";
 import AdminSettingsPage from "./pages/admin/AdminSettingsPage";
 import AdminDataExplorerPage from "./pages/admin/AdminDataExplorerPage";
 import AdminActivityLogPage from "./pages/admin/AdminActivityLogPage";
-import UserApprovalsPage from "./pages/admin/UserApprovalsPage";
-import RolesManagerPage from "./pages/admin/RolesManagerPage";
 import UTMAnalyticsPage from "./pages/admin/UTMAnalyticsPage";
 
 // Auth Route component
@@ -82,10 +78,8 @@ const App = () => (
 
                 {/* Auth routes */}
                 <Route path={PATHS.LOGIN} element={<LoginPage />} />
-                <Route path="/admin-login" element={<AdminLoginPage />} />
                 <Route path="/password-reset" element={<PasswordResetPage />} />
                 <Route path={PATHS.REGISTER} element={<RegisterPage />} />
-                <Route path={PATHS.PENDING} element={<PendingApprovalPage />} />
                 <Route path={PATHS.LANDING_PAGE} element={<LandingPage />} />
                 <Route path={PATHS.BSF_PAGE} element={<BsfPage />} />
                 
@@ -146,9 +140,7 @@ const App = () => (
                 <Route element={<ProtectedRoute requireAdmin={true} />}>
                   <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
                   <Route path="/admin/users" element={<AdminUsersPage />} />
-                  <Route path="/admin/approvals" element={<UserApprovalsPage />} />
                   <Route path="/admin/sprint-monitor" element={<SprintMonitorPage />} />
-                  <Route path="/admin/roles" element={<RolesManagerPage />} />
                   <Route path="/admin/task-builder" element={<TaskBuilderPage />} />
                   <Route path="/admin/utm-analytics" element={<UTMAnalyticsPage />} />
                   <Route path="/lead-generator" element={<LeadGeneratorPage />} />
