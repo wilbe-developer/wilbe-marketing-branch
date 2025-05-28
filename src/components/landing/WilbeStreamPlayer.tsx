@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef, useCallback } from "react"
 import { Play, Pause, Bell } from "lucide-react"
 import { fetchVideos } from "@/services/videoService"
@@ -119,7 +120,7 @@ export default function WilbeStreamPlayer() {
   // Show loading state
   if (loading) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4">
         <div className="relative">
           <div className="relative bg-black overflow-hidden shadow-2xl">
             <div className="relative aspect-video bg-gradient-to-br from-gray-900 to-black">
@@ -141,7 +142,7 @@ export default function WilbeStreamPlayer() {
   // If no videos available, show fallback
   if (videos.length === 0) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4">
         <div className="relative">
           <div className="relative bg-black overflow-hidden shadow-2xl">
             <div className="relative aspect-video bg-gradient-to-br from-gray-900 to-black">
@@ -166,7 +167,7 @@ export default function WilbeStreamPlayer() {
   const currentVideo = videos[currentVideoIndex]
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Video Player */}
       <div className="relative">
         <div className="relative bg-black overflow-hidden shadow-2xl">
@@ -216,61 +217,71 @@ export default function WilbeStreamPlayer() {
         </div>
       </div>
 
-      {/* Next Live Event Section */}
-      <div className="bg-gray-900 border border-gray-800 overflow-hidden">
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-              <h3 className="text-green-500 text-sm font-bold uppercase tracking-wide">
-                NEXT LIVE EVENT
-              </h3>
-            </div>
-          </div>
-          
-          <h4 className="text-white font-bold text-xl mb-2">{nextEvent.title}</h4>
-          <p className="text-gray-300 text-sm mb-4">{nextEvent.description}</p>
-          
-          <div className="flex items-center space-x-2 text-gray-400 text-sm mb-4">
-            <span>Speakers:</span>
-            <span>{nextEvent.speakers.join(", ")}</span>
-          </div>
+      {/* Current Video Description */}
+      <div className="bg-gray-900 border border-gray-800 p-4">
+        <h3 className="text-white font-semibold text-lg mb-2">{currentVideo.title}</h3>
+        {currentVideo.presenter && (
+          <p className="text-gray-400 text-sm mb-2">Presenter: {currentVideo.presenter}</p>
+        )}
+        {currentVideo.description && (
+          <p className="text-gray-300 text-sm">{currentVideo.description}</p>
+        )}
+      </div>
 
-          {/* Countdown Timer */}
-          <div className="grid grid-cols-4 gap-4 mb-6">
+      {/* Compact Next Live Event Section */}
+      <div className="bg-gray-900 border border-gray-800 p-4">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center space-x-2">
+            <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+            <h3 className="text-green-500 text-xs font-bold uppercase tracking-wide">
+              NEXT LIVE EVENT
+            </h3>
+          </div>
+        </div>
+        
+        <h4 className="text-white font-semibold text-base mb-2">{nextEvent.title}</h4>
+        
+        <div className="flex items-center space-x-2 text-gray-400 text-xs mb-3">
+          <span>{nextEvent.speakers.join(", ")}</span>
+        </div>
+
+        {/* Compact Countdown Timer */}
+        <div className="flex items-center space-x-2 mb-3">
+          <div className="flex space-x-1">
             <div className="text-center">
-              <div className="bg-green-600 text-white text-xl font-bold py-2 px-3 rounded">
+              <div className="bg-green-600 text-white text-sm font-bold py-1 px-2 rounded">
                 {timeLeft.days.toString().padStart(2, '0')}
               </div>
-              <div className="text-gray-400 text-xs mt-1">DAYS</div>
+              <div className="text-gray-400 text-xs mt-1">D</div>
             </div>
             <div className="text-center">
-              <div className="bg-green-600 text-white text-xl font-bold py-2 px-3 rounded">
+              <div className="bg-green-600 text-white text-sm font-bold py-1 px-2 rounded">
                 {timeLeft.hours.toString().padStart(2, '0')}
               </div>
-              <div className="text-gray-400 text-xs mt-1">HOURS</div>
+              <div className="text-gray-400 text-xs mt-1">H</div>
             </div>
             <div className="text-center">
-              <div className="bg-green-600 text-white text-xl font-bold py-2 px-3 rounded">
+              <div className="bg-green-600 text-white text-sm font-bold py-1 px-2 rounded">
                 {timeLeft.minutes.toString().padStart(2, '0')}
               </div>
-              <div className="text-gray-400 text-xs mt-1">MINUTES</div>
+              <div className="text-gray-400 text-xs mt-1">M</div>
             </div>
             <div className="text-center">
-              <div className="bg-green-600 text-white text-xl font-bold py-2 px-3 rounded">
+              <div className="bg-green-600 text-white text-sm font-bold py-1 px-2 rounded">
                 {timeLeft.seconds.toString().padStart(2, '0')}
               </div>
-              <div className="text-gray-400 text-xs mt-1">SECONDS</div>
+              <div className="text-gray-400 text-xs mt-1">S</div>
             </div>
           </div>
-
+          
           {/* Reminder Button */}
           <Button 
             onClick={handleReminderRequest}
-            className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2"
+            size="sm"
+            className="bg-green-600 hover:bg-green-700 text-white font-medium text-xs px-3 py-1"
           >
-            <Bell className="w-4 h-4 mr-2" />
-            Send Me a Reminder
+            <Bell className="w-3 h-3 mr-1" />
+            Remind Me
           </Button>
         </div>
       </div>
