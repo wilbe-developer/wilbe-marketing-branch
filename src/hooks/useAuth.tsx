@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
@@ -12,7 +13,6 @@ interface AuthContextType {
   user: UserProfile | null;
   isAuthenticated: boolean;
   isAdmin: boolean;
-  isApproved: boolean;
   sendMagicLink: (email: string, redirectTo?: string) => Promise<{ success: boolean }>;
   loginWithPassword: (email: string, password: string) => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
@@ -153,10 +153,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Using the roles from the user_roles table now
   const isAdmin = !!user?.isAdmin;
-  const isApproved = !!user?.approved;
   const isAuthenticated = !!user;
 
-  console.log("Auth provider state:", { isAuthenticated, isAdmin, isApproved, loading, isRecoveryMode });
+  console.log("Auth provider state:", { isAuthenticated, isAdmin, loading, isRecoveryMode });
 
   return (
     <AuthContext.Provider
@@ -164,7 +163,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         user,
         isAuthenticated,
         isAdmin,
-        isApproved,
         sendMagicLink,
         loginWithPassword,
         resetPassword,

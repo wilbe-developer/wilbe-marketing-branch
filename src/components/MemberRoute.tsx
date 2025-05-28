@@ -4,10 +4,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { PATHS } from "@/lib/constants";
 
 const MemberRoute = () => {
-  const { isAuthenticated, isApproved, loading, isRecoveryMode } = useAuth();
+  const { isAuthenticated, loading, isRecoveryMode } = useAuth();
   const location = useLocation();
 
-  console.log("MemberRoute - Auth state:", { isAuthenticated, isApproved, loading, isRecoveryMode });
+  console.log("MemberRoute - Auth state:", { isAuthenticated, loading, isRecoveryMode });
 
   // Show loading states
   if (loading) {
@@ -32,14 +32,8 @@ const MemberRoute = () => {
     return <Navigate to={PATHS.LOGIN} state={{ from: location }} replace />;
   }
 
-  // Redirect to pending approval page if not approved
-  if (!isApproved) {
-    console.log("User not approved, redirecting to pending approval");
-    return <Navigate to={PATHS.PENDING} state={{ from: location }} replace />;
-  }
-
-  // Render the protected outlet
-  console.log("User authenticated and approved, rendering protected content");
+  // Render the protected outlet - no approval check needed
+  console.log("User authenticated, rendering protected content");
   return <Outlet />;
 };
 
