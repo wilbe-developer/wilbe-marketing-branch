@@ -76,31 +76,31 @@ export default function UpcomingEventsFeeder() {
 
   return (
     <div className="space-y-4">
-      <h4 className="text-lg font-semibold text-gray-900 mb-4">Upcoming Community Events</h4>
+      <h4 className="text-lg font-semibold text-white mb-4">Upcoming Community Events</h4>
       <div className="space-y-3 max-h-80 overflow-y-auto">
         {upcomingEvents.map((event) => (
           <div
             key={event.id}
-            className="flex space-x-3 p-3 bg-white border border-gray-100 rounded-lg hover:shadow-sm transition-shadow cursor-pointer group"
+            className="flex space-x-3 p-3 bg-green-100 border border-green-200 rounded-lg hover:bg-green-200 transition-colors cursor-pointer group"
             onClick={() => window.open(event.url || '/events', '_blank')}
           >
-            <div className="flex-shrink-0 w-12 h-12 bg-green-100 rounded-lg flex flex-col items-center justify-center">
-              <div className="text-xs font-medium text-green-600">
+            <div className="flex-shrink-0 w-12 h-12 bg-green-500 rounded-lg flex flex-col items-center justify-center">
+              <div className="text-xs font-medium text-white">
                 {formatDate(event.date).split(' ')[0]}
               </div>
-              <div className="text-lg font-bold text-green-700">
+              <div className="text-lg font-bold text-white">
                 {formatDate(event.date).split(' ')[1]}
               </div>
             </div>
             
             <div className="flex-1 min-w-0">
-              <h5 className="font-medium text-sm text-gray-900 line-clamp-2 group-hover:text-green-600 transition-colors">
+              <h5 className="font-medium text-sm text-gray-900 line-clamp-2 group-hover:text-green-700 transition-colors">
                 {event.title}
               </h5>
               {event.description && (
-                <p className="text-xs text-gray-600 mt-1 line-clamp-2">{event.description}</p>
+                <p className="text-xs text-gray-700 mt-1 line-clamp-2">{event.description}</p>
               )}
-              <div className="flex items-center space-x-4 mt-2 text-xs text-gray-500">
+              <div className="flex items-center space-x-4 mt-2 text-xs text-gray-600">
                 {event.time && (
                   <div className="flex items-center space-x-1">
                     <Clock className="h-3 w-3" />
@@ -113,7 +113,7 @@ export default function UpcomingEventsFeeder() {
                     <span>{event.location}</span>
                   </div>
                 )}
-                <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-xs">
+                <span className="bg-green-200 text-green-800 px-2 py-0.5 rounded text-xs">
                   {event.event_type}
                 </span>
               </div>
