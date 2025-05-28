@@ -156,23 +156,28 @@ export const mapProfilesToUserProfiles = (profiles: any[]): UserProfile[] => {
   console.log(`[RoleUtils] Mapping ${profiles.length} profiles to UserProfile objects`);
   
   return profiles.map((profile, index) => {
-    // Simplified role extraction - each user has exactly one role
+    // Simplified role extraction logic
     let userRole: UserRole | undefined;
     
-    // Handle the user_roles data structure from the query
+    console.log(`[RoleUtils] Profile ${index + 1} (${profile.id}) raw user_roles:`, JSON.stringify(profile.user_roles, null, 2));
+    
     if (profile.user_roles) {
       if (Array.isArray(profile.user_roles)) {
-        // If it's an array, take the first role (there should only be one)
+        // LEFT JOIN result: array (could be empty for users without roles)
         if (profile.user_roles.length > 0 && profile.user_roles[0]?.role) {
           userRole = profile.user_roles[0].role as UserRole;
+          console.log(`[RoleUtils] Profile ${index + 1}: Extracted role from array: ${userRole}`);
+        } else {
+          console.log(`[RoleUtils] Profile ${index + 1}: No role found in array`);
         }
-      } else if (profile.user_roles.role) {
-        // If it's a single object, get the role directly
+      } else if (typeof profile.user_roles === 'object' && profile.user_roles.role) {
+        // INNER JOIN result: single object with role
         userRole = profile.user_roles.role as UserRole;
+        console.log(`[RoleUtils] Profile ${index + 1}: Extracted role from object: ${userRole}`);
       }
+    } else {
+      console.log(`[RoleUtils] Profile ${index + 1}: No user_roles data`);
     }
-    
-    console.log(`[RoleUtils] Profile ${index + 1} (${profile.id}): role data =`, profile.user_roles, `extracted role = ${userRole}`);
     
     const userProfile: UserProfile = {
       id: profile.id,
