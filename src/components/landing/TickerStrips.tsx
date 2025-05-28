@@ -26,7 +26,7 @@ export default function TickerStrips() {
         {/* Static Title - positioned on top with background */}
         <div className="relative z-10 flex justify-start">
           <span className="text-sm font-bold text-white uppercase tracking-wide whitespace-nowrap bg-brand-darkBlue px-4 py-1">
-            JOB OPPORTUNITIES
+            OPPORTUNITIES
           </span>
         </div>
       </div>
