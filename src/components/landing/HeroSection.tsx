@@ -13,7 +13,7 @@ export default function HeroSection() {
       </div>
       <h1 className="text-5xl lg:text-7xl font-bold mb-6 leading-tight">
         THE MOVEMENT FOR
-        <span className="text-green-500"> ENTREPRENEURIAL SCIENTISTS</span>
+        <span className="text-green-500"> SCIENTIST</span> LEADERS
       </h1>
       <p className="text-xl text-gray-300 mb-8 max-w-2xl">
         From breakthrough to business. We're the world's first comprehensive platform connecting scientist
