@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import BackedFoundersSection from "./BackedFoundersSection";
@@ -8,7 +7,7 @@ import UpcomingEventsFeeder from "./UpcomingEventsFeeder";
 export default function PlatformsSection() {
   const platforms = [{
     number: 1,
-    title: "Wilbe Breakthrough: Framing your journey and connecting with peers",
+    title: "Wilbe Breakthrough: framing your journey and connecting with peers",
     description: "The Wilbe Sandbox is a global community platform uniting scientists to explore entrepreneurial paths and launch startups. It provides startup basics videos, pitch deck guidance, funding opportunities, and exclusive job listings, empowering PhD students, postdocs, and industry scientists to move from academia to impact.",
     buttonText: "Scientists Access",
     buttonLink: "/login",
