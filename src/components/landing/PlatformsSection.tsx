@@ -21,7 +21,7 @@ export default function PlatformsSection() {
     title: "Wilbe Capital: Fund Your Breakthrough",
     description: "Wilbe Capital backs scientist-led startups solving critical challenges in health, climate, and security. Offering strategic funding and partnerships, it helps researchers transform discoveries into scalable businesses, supporting BSF graduates and Sandbox members to drive impact.",
     buttonText: "Explore Wilbe Capital",
-    buttonLink: "/capital",
+    buttonLink: "https://www.wilbe.capital/",
     showCompanies: true
   }, {
     number: 4,
