@@ -46,10 +46,10 @@ const HomePage = () => {
             ) : (
               <>
                 <h3 className="text-sm font-medium text-blue-900">
-                  Complete Your Profile
+                  Complete Your Profile for Member Access
                 </h3>
                 <p className="text-sm text-blue-700">
-                  Complete your profile to get full access to videos, member directory, and other features.
+                  Complete your profile to get member access to videos, member directory, and other features.
                 </p>
                 <Button
                   size="sm"

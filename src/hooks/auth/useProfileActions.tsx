@@ -34,26 +34,21 @@ export const useProfileActions = ({
         return;
       }
       
-      // Check if user has admin role using our database function
-      const { data: isAdminData, error: isAdminError } = await supabase
-        .rpc('is_admin', { user_id: userId });
+      // Get user roles using the unified user_roles table
+      const { data: userRoles, error: rolesError } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId);
       
-      if (isAdminError) {
-        console.error('Error checking admin role:', isAdminError);
+      if (rolesError) {
+        console.error('Error fetching user roles:', rolesError);
       }
       
-      // Check if user is approved using our database function
-      const { data: isApprovedData, error: isApprovedError } = await supabase
-        .rpc('is_approved', { user_id: userId });
+      // Check roles using the unified approach
+      const isAdmin = userRoles?.some(role => role.role === 'admin') || false;
+      const isApproved = userRoles?.some(role => role.role === 'member') || false;
       
-      if (isApprovedError) {
-        console.error('Error checking approval status:', isApprovedError);
-      }
-      
-      const isAdmin = isAdminData || false;
-      const isApproved = isApprovedData || false;
-      
-      console.log("Role check results:", { isAdmin, isApproved });
+      console.log("Role check results:", { isAdmin, isApproved, userRoles });
       
       if (profileData) {
         console.log("User profile found:", profileData, "Is admin:", isAdmin, "Is approved:", isApproved);

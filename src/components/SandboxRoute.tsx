@@ -43,8 +43,8 @@ const SandboxRoute = () => {
     return <Navigate to={PATHS.LOGIN} state={{ from: location }} replace />;
   }
 
-  // Allow both sprint users AND sandbox users to access sandbox pages
-  // The content will be controlled by the individual page components based on approval status
+  // For sandbox pages, we allow access but individual pages control content based on approval
+  // This ensures the routing works but content is properly gated
   console.log("Rendering sandbox content for user");
   return <Outlet />;
 };

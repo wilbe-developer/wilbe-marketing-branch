@@ -38,7 +38,7 @@ export const useUserType = () => {
             p_user_id: user.id
           });
 
-        // Check if user has member role (approved for sandbox)
+        // Check user roles - member role means approved for sandbox
         const { data: userRoles } = await supabase
           .from('user_roles')
           .select('role')
