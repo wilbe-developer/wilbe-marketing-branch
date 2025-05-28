@@ -1,11 +1,10 @@
 
 import { useState, useEffect, useRef, useCallback } from "react"
-import { Play, Pause, Volume2, VolumeX, Maximize, Calendar } from "lucide-react"
+import { Play, Pause } from "lucide-react"
 import { videoPlaylist } from "@/data/videoPlaylist"
 
 export default function WilbeStreamPlayer() {
   const [isPlaying, setIsPlaying] = useState(true)
-  const [isMuted, setIsMuted] = useState(true)
   const [isLive, setIsLive] = useState(false)
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0)
   const [progress, setProgress] = useState(0)
@@ -72,17 +71,6 @@ export default function WilbeStreamPlayer() {
   const currentVideo = videoPlaylist[currentVideoIndex]
 
   const handlePlayPause = useCallback(() => setIsPlaying(!isPlaying), [isPlaying])
-  const handleMute = useCallback(() => setIsMuted(!isMuted), [isMuted])
-  const handleLiveToggle = useCallback(() => setIsLive(!isLive), [isLive])
-
-  const getCurrentTime = useCallback(() => {
-    if (isLive) return "LIVE"
-    const totalSeconds = Number.parseInt(currentVideo.duration.split(":")[0]) * 60 + Number.parseInt(currentVideo.duration.split(":")[1])
-    const currentSeconds = Math.floor((progress / 100) * totalSeconds)
-    const minutes = Math.floor(currentSeconds / 60)
-    const seconds = currentSeconds % 60
-    return `${minutes}:${seconds.toString().padStart(2, "0")}`
-  }, [isLive, currentVideo.duration, progress])
 
   return (
     <div className="space-y-6">
@@ -104,78 +92,28 @@ export default function WilbeStreamPlayer() {
                   {isLive ? "LIVE" : "PLAYLIST"}
                 </span>
               </div>
-              <div className="bg-black/70 backdrop-blur-sm px-3 py-1">
-                <span className="text-white text-xs font-medium">Wilbe STREAM</span>
-              </div>
             </div>
 
-            {/* Video Controls */}
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center space-x-3">
-                  <button
-                    onClick={handlePlayPause}
-                    className="w-10 h-10 bg-white/20 backdrop-blur-sm flex items-center justify-center hover:bg-white/30 transition-colors"
-                  >
-                    {isPlaying ? (
-                      <Pause className="h-5 w-5 text-white" />
-                    ) : (
-                      <Play className="h-5 w-5 text-white ml-0.5" />
-                    )}
-                  </button>
-                  <button
-                    onClick={handleMute}
-                    className="w-10 h-10 bg-white/20 backdrop-blur-sm flex items-center justify-center hover:bg-white/30 transition-colors"
-                  >
-                    {isMuted ? (
-                      <VolumeX className="h-5 w-5 text-white" />
-                    ) : (
-                      <Volume2 className="h-5 w-5 text-white" />
-                    )}
-                  </button>
-                  <div className="text-white text-sm font-medium">
-                    {getCurrentTime()} / {isLive ? "LIVE" : currentVideo.duration}
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-3">
-                  <a
-                    href="https://wilbe.com/tv"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-3 py-1 bg-white/20 backdrop-blur-sm text-white text-xs font-medium hover:bg-white/30 transition-colors uppercase tracking-wide"
-                  >
-                    Full Screen
-                  </a>
-                  <button
-                    onClick={handleLiveToggle}
-                    className="px-3 py-1 bg-white/20 backdrop-blur-sm text-white text-xs font-medium hover:bg-white/30 transition-colors uppercase tracking-wide"
-                  >
-                    {isLive ? "Switch to Playlist" : "Go Live"}
-                  </button>
-                  <button className="w-10 h-10 bg-white/20 backdrop-blur-sm flex items-center justify-center hover:bg-white/30 transition-colors">
-                    <Maximize className="h-5 w-5 text-white" />
-                  </button>
-                </div>
-              </div>
-
-              <div className="w-full bg-white/20 h-1">
-                <div
-                  className="bg-green-500 h-1 transition-all duration-200"
-                  style={{ width: isLive ? "100%" : `${progress}%` }}
-                />
-              </div>
+            {/* Centered Play Button */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <button
+                onClick={handlePlayPause}
+                className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-colors"
+              >
+                {isPlaying ? (
+                  <Pause className="h-8 w-8 text-white" />
+                ) : (
+                  <Play className="h-8 w-8 text-white ml-1" />
+                )}
+              </button>
             </div>
 
-            {/* Wilbe Stream Branding */}
-            <div className="absolute bottom-4 left-4 flex items-center space-x-2">
-              <div className="bg-green-500 p-2">
-                <Play className="h-4 w-4 text-black" />
-              </div>
-              <div>
-                <div className="text-white font-bold text-sm uppercase tracking-wide">Wilbe STREAM</div>
-                <div className="text-gray-300 text-xs">24/7 Scientist Entrepreneur Content</div>
-              </div>
+            {/* Progress Bar */}
+            <div className="absolute bottom-0 left-0 right-0 w-full bg-white/20 h-1">
+              <div
+                className="bg-green-500 h-1 transition-all duration-200"
+                style={{ width: isLive ? "100%" : `${progress}%` }}
+              />
             </div>
           </div>
         </div>
@@ -196,7 +134,6 @@ export default function WilbeStreamPlayer() {
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-white font-bold text-sm uppercase tracking-wide flex items-center">
-                <Calendar className="h-4 w-4 mr-2" />
                 Upcoming Events
               </h3>
               <button className="text-green-500 text-xs font-medium hover:text-green-400 transition-colors">
