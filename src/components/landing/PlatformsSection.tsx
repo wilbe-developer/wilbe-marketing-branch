@@ -1,8 +1,6 @@
 
-
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import BackedFoundersSection from "./BackedFoundersSection";
 import LatestContentFeed from "./LatestContentFeed";
 import UpcomingEventsFeeder from "./UpcomingEventsFeeder";
 
@@ -23,13 +21,6 @@ export default function PlatformsSection() {
     showImage: true
   }, {
     number: 3,
-    title: "Wilbe Capital: investing exclusively in scientist-led companies",
-    description: "Wilbe Capital backs scientist-led startups solving critical challenges in health, climate, and security. Offering strategic funding and partnerships, it helps researchers transform discoveries into scalable businesses, supporting BSF graduates and Sandbox members to drive impact.",
-    buttonText: "Explore Wilbe Capital",
-    buttonLink: "https://www.wilbe.capital/",
-    showCompanies: true
-  }, {
-    number: 4,
     title: "Wilbe Labs: Build Your Science Hub",
     description: "Wilbe Labs creates fully operational science labs and innovation hubs for ventures and property owners. By managing fit-outs, compliance, and operations, it delivers vibrant workspaces that attract talent and investors, supporting pre-seed to Series B science ventures.",
     buttonText: "Discover Wilbe Labs",
@@ -138,8 +129,8 @@ export default function PlatformsSection() {
                   </div>
                 )}
                 
-                {/* Button - show for platforms that don't have content feeds or companies, or show after content */}
-                {!platform.showLatestContent && !platform.showCompanies && (
+                {/* Button - show for platforms that don't have content feeds */}
+                {!platform.showLatestContent && (
                   <Button asChild className="bg-green-500 hover:bg-green-600 text-white font-medium px-6 py-2 mb-6">
                     <a href={platform.buttonLink}>
                       {platform.buttonText}
@@ -163,23 +154,6 @@ export default function PlatformsSection() {
                     </div>
                     
                     {/* Button for Wilbe Sandbox - show after the content feeds */}
-                    <div className="mt-6">
-                      <Button asChild className="bg-green-500 hover:bg-green-600 text-white font-medium px-6 py-2">
-                        <a href={platform.buttonLink}>
-                          {platform.buttonText}
-                          <ArrowRight className="ml-2 h-4 w-4" />
-                        </a>
-                      </Button>
-                    </div>
-                  </>
-                )}
-
-                {/* Backed Founders section - only show for Wilbe Capital */}
-                {platform.showCompanies && (
-                  <>
-                    <BackedFoundersSection initialCount={6} loadMoreCount={6} />
-                    
-                    {/* Button for Wilbe Capital - show after the gallery */}
                     <div className="mt-6">
                       <Button asChild className="bg-green-500 hover:bg-green-600 text-white font-medium px-6 py-2">
                         <a href={platform.buttonLink}>
