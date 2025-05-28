@@ -1,6 +1,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { backedFounders, BackedFounder } from "@/data/backedFounders";
 
 interface BackedFoundersSectionProps {
@@ -25,13 +26,52 @@ export default function BackedFoundersSection({
     setVisibleCount(initialCount);
   };
 
+  const scrollLeft = () => {
+    const container = document.getElementById('founders-gallery');
+    if (container) {
+      container.scrollBy({ left: -300, behavior: 'smooth' });
+    }
+  };
+
+  const scrollRight = () => {
+    const container = document.getElementById('founders-gallery');
+    if (container) {
+      container.scrollBy({ left: 300, behavior: 'smooth' });
+    }
+  };
+
   return (
     <div className="mt-8">
-      <h4 className="text-lg font-medium text-gray-500 uppercase tracking-wide mb-6">
-        SCIENTIST FOUNDERS WE HAVE BACKED
-      </h4>
+      <div className="flex justify-between items-center mb-6">
+        <h4 className="text-lg font-medium text-gray-500 uppercase tracking-wide">
+          SCIENTIST FOUNDERS WE HAVE BACKED
+        </h4>
+        
+        <div className="flex space-x-2">
+          <Button
+            onClick={scrollLeft}
+            variant="outline"
+            size="sm"
+            className="p-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <Button
+            onClick={scrollRight}
+            variant="outline"
+            size="sm"
+            className="p-2"
+          >
+            <ArrowRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
       
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div 
+        id="founders-gallery"
+        className="flex gap-4 overflow-x-auto scrollbar-hide pb-4 mb-6"
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      >
         {visibleFounders.map((founder) => (
           <FounderCard key={founder.id} founder={founder} />
         ))}
@@ -69,7 +109,7 @@ interface FounderCardProps {
 
 function FounderCard({ founder }: FounderCardProps) {
   return (
-    <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow group">
+    <div className="flex-shrink-0 w-64 bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow group">
       <div className="relative h-32 bg-gray-100">
         <img
           src={founder.image}
