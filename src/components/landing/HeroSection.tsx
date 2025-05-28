@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ArrowRight, PartyPopper } from "lucide-react"
@@ -47,7 +46,7 @@ export default function HeroSection() {
         <Link to="/quiz" target="_blank" rel="noopener noreferrer">
           <Button
             size="lg"
-            className="relative bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 hover:from-purple-600 hover:via-pink-600 hover:to-orange-600 text-white font-bold uppercase tracking-wide px-8 border-0 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/30 before:to-transparent before:w-full before:h-full before:translate-x-[-100%] before:animate-[glow-wave_3s_ease-in-out_infinite] before:skew-x-12"
+            className="relative bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 hover:from-purple-600 hover:via-pink-600 hover:to-orange-600 text-white font-bold uppercase tracking-wide px-8 border-0 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl overflow-hidden before:absolute before:top-0 before:left-[-100%] before:w-full before:h-full before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:animate-[shimmer_2.5s_ease-in-out_infinite] before:skew-x-12"
           >
             <PartyPopper className="mr-2 h-5 w-5 relative z-10" />
             <span className="relative z-10">Infinite Quiz</span>
@@ -55,16 +54,13 @@ export default function HeroSection() {
         </Link>
       </div>
 
-      <style jsx>{`
-        @keyframes glow-wave {
+      <style>{`
+        @keyframes shimmer {
           0% {
             transform: translateX(-100%) skewX(12deg);
           }
-          50% {
-            transform: translateX(100%) skewX(12deg);
-          }
           100% {
-            transform: translateX(100%) skewX(12deg);
+            transform: translateX(200%) skewX(12deg);
           }
         }
       `}</style>
