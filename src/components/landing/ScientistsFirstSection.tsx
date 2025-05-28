@@ -43,7 +43,7 @@ export default function ScientistsFirstSection() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="border-white text-white hover:bg-white hover:text-gray-900 font-bold"
+                  className="border-white text-gray-900 hover:bg-white hover:text-gray-900 font-bold"
                 >
                   Tell a Friend ✍️
                 </Button>
