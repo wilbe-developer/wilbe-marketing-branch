@@ -41,7 +41,7 @@ export default function BackedFoundersSection({
   };
 
   return (
-    <div className="mt-8">
+    <div className="mt-8 w-full">
       <div className="flex justify-between items-center mb-6">
         <h4 className="text-lg font-medium text-gray-500 uppercase tracking-wide">
           SCIENTIST FOUNDERS WE HAVE BACKED
@@ -67,14 +67,20 @@ export default function BackedFoundersSection({
         </div>
       </div>
       
-      <div 
-        id="founders-gallery"
-        className="flex gap-4 overflow-x-auto scrollbar-hide pb-4 mb-6"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-      >
-        {visibleFounders.map((founder) => (
-          <FounderCard key={founder.id} founder={founder} />
-        ))}
+      <div className="relative w-full overflow-hidden">
+        <div 
+          id="founders-gallery"
+          className="flex gap-4 overflow-x-auto scrollbar-hide pb-4 mb-6 w-full"
+          style={{ 
+            scrollbarWidth: 'none', 
+            msOverflowStyle: 'none',
+            WebkitOverflowScrolling: 'touch'
+          }}
+        >
+          {visibleFounders.map((founder) => (
+            <FounderCard key={founder.id} founder={founder} />
+          ))}
+        </div>
       </div>
 
       {/* Load More / Show Less buttons */}
@@ -109,8 +115,8 @@ interface FounderCardProps {
 
 function FounderCard({ founder }: FounderCardProps) {
   return (
-    <div className="flex-shrink-0 w-64 bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow group">
-      <div className="relative h-32 bg-gray-100">
+    <div className="flex-shrink-0 w-56 bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow group">
+      <div className="relative h-28 bg-gray-100">
         <img
           src={founder.image}
           alt={founder.name}
@@ -130,7 +136,7 @@ function FounderCard({ founder }: FounderCardProps) {
             <p className="text-gray-600 text-xs">{founder.title}</p>
           </div>
           {founder.fundingRound && (
-            <span className="bg-green-100 text-green-700 text-xs px-1 py-0.5 rounded-full font-medium text-xs">
+            <span className="bg-green-100 text-green-700 text-xs px-1 py-0.5 rounded-full font-medium">
               {founder.fundingRound}
             </span>
           )}
