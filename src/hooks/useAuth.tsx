@@ -107,10 +107,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Setup auth state listener and check initial session
   useEffect(() => {
+    console.log("Setting up auth state listener...");
+    
     // First, set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, newSession) => {
         console.log("Auth state changed:", event, !!newSession);
+        
+        // Log magic link events specifically
+        if (event === 'TOKEN_REFRESHED' || event === 'SIGNED_IN') {
+          const currentUrl = window.location.href;
+          if (currentUrl.includes('access_token=') || currentUrl.includes('type=magiclink')) {
+            console.log("Magic link authentication detected in auth state change");
+          }
+        }
+        
         setSession(newSession);
         
         // If signed in, fetch user profile
