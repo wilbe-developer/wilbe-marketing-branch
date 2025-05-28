@@ -1,13 +1,15 @@
+
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import BackedFoundersSection from "./BackedFoundersSection";
 import LatestContentFeed from "./LatestContentFeed";
+
 export default function PlatformsSection() {
   const platforms = [{
     number: 1,
     title: "Wilbe Sandbox: Connect and Kickstart Your Journey",
     description: "The Wilbe Sandbox is a global community platform uniting scientists to explore entrepreneurial paths and launch startups. It provides startup basics videos, pitch deck guidance, funding opportunities, and exclusive job listings, empowering PhD students, postdocs, and industry scientists to move from academia to impact.",
-    buttonText: "Join the Sandbox",
+    buttonText: "Scientists Access",
     buttonLink: "/login",
     showLatestContent: true
   }, {
@@ -30,14 +32,17 @@ export default function PlatformsSection() {
     buttonText: "Discover Wilbe Labs",
     buttonLink: "/labs"
   }];
-  return <section className="py-20 bg-gray-50">
+
+  return (
+    <section className="py-20 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-gray-900 mb-4">All the tools to manage your entrepreneurial journey</h2>
         </div>
 
         <div className="space-y-12">
-          {platforms.map((platform, index) => <div key={platform.number} className="flex">
+          {platforms.map((platform, index) => (
+            <div key={platform.number} className="flex">
               {/* Left border line */}
               <div className="flex flex-col items-center mr-8">
                 <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-white font-bold text-lg mb-4">
@@ -55,8 +60,8 @@ export default function PlatformsSection() {
                   {platform.description}
                 </p>
                 
-                {/* Button - show for all platforms except Wilbe Capital */}
-                {!platform.showCompanies && (
+                {/* Button - show for platforms that don't have content feeds or companies, or show after content */}
+                {!platform.showLatestContent && !platform.showCompanies && (
                   <Button asChild className="bg-green-500 hover:bg-green-600 text-white font-medium px-6 py-2 mb-6">
                     <a href={platform.buttonLink}>
                       {platform.buttonText}
@@ -66,9 +71,23 @@ export default function PlatformsSection() {
                 )}
 
                 {/* Latest Content Feed - only show for Wilbe Sandbox */}
-                {platform.showLatestContent && <div className="mt-8 bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
-                    <LatestContentFeed />
-                  </div>}
+                {platform.showLatestContent && (
+                  <>
+                    <div className="mt-8 bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+                      <LatestContentFeed />
+                    </div>
+                    
+                    {/* Button for Wilbe Sandbox - show after the content feed */}
+                    <div className="mt-6">
+                      <Button asChild className="bg-green-500 hover:bg-green-600 text-white font-medium px-6 py-2">
+                        <a href={platform.buttonLink}>
+                          {platform.buttonText}
+                          <ArrowRight className="ml-2 h-4 w-4" />
+                        </a>
+                      </Button>
+                    </div>
+                  </>
+                )}
 
                 {/* Backed Founders section - only show for Wilbe Capital */}
                 {platform.showCompanies && (
@@ -87,8 +106,10 @@ export default function PlatformsSection() {
                   </>
                 )}
               </div>
-            </div>)}
+            </div>
+          ))}
         </div>
       </div>
-    </section>;
+    </section>
+  );
 }
