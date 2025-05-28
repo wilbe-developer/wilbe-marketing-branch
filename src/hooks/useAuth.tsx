@@ -11,7 +11,17 @@ interface AuthContextType {
   user: UserProfile | null;
   loading: boolean;
   isAuthenticated: boolean;
+  isAdmin: boolean;
+  isApproved: boolean;
+  isRecoveryMode: boolean;
+  isMagicLinkProcessing: boolean;
   loginOrSignup: (email: string) => Promise<void>;
+  loginWithPassword: (email: string, password: string) => Promise<void>;
+  sendMagicLink: (email: string, redirectTo?: string) => Promise<{ success: boolean }>;
+  resetPassword: (email: string) => Promise<void>;
+  updatePassword: (newPassword: string) => Promise<void>;
+  register: (userData: Partial<UserProfile>) => Promise<void>;
+  updateProfile: (data: Partial<UserProfile>) => Promise<void>;
   logout: () => void;
 }
 
@@ -20,6 +30,8 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isRecoveryMode, setIsRecoveryMode] = useState(false);
+  const [isMagicLinkProcessing, setIsMagicLinkProcessing] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -106,6 +118,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   // Login or signup function
   const loginOrSignup = async (email: string) => {
     try {
+      setLoading(true);
+      
       // Try signup first (for new users this creates account instantly)
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -144,6 +158,214 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         description: "Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Login with password
+  const loginWithPassword = async (email: string, password: string) => {
+    try {
+      setLoading(true);
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+      
+      if (error) {
+        throw error;
+      }
+      
+      toast({
+        title: "Login successful",
+        description: "You have been successfully logged in.",
+      });
+    } catch (error) {
+      console.error("Login error:", error);
+      toast({
+        title: "Login failed",
+        description: "Please check your credentials and try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Send magic link
+  const sendMagicLink = async (email: string, redirectTo?: string) => {
+    try {
+      setLoading(true);
+      const redirectPath = redirectTo || "/";
+      
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: window.location.origin + redirectPath,
+        }
+      });
+      
+      if (error) {
+        throw error;
+      }
+      
+      toast({
+        title: "Magic link sent",
+        description: "Check your email for a login link.",
+      });
+      
+      return { success: true };
+    } catch (error) {
+      console.error("Magic link error:", error);
+      toast({
+        title: "Failed to send magic link",
+        description: "Please try again.",
+        variant: "destructive",
+      });
+      
+      return { success: false };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Reset password
+  const resetPassword = async (email: string) => {
+    try {
+      setLoading(true);
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + PATHS.PASSWORD_RESET,
+      });
+      
+      if (error) {
+        throw error;
+      }
+      
+      toast({
+        title: "Password reset email sent",
+        description: "Check your email for a password reset link.",
+      });
+    } catch (error) {
+      console.error("Password reset error:", error);
+      toast({
+        title: "Failed to send password reset email",
+        description: "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Update password
+  const updatePassword = async (newPassword: string) => {
+    try {
+      setLoading(true);
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      });
+      
+      if (error) {
+        throw error;
+      }
+      
+      toast({
+        title: "Password updated",
+        description: "Your password has been successfully updated.",
+      });
+    } catch (error) {
+      console.error("Password update error:", error);
+      toast({
+        title: "Failed to update password",
+        description: "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Register new user
+  const register = async (userData: Partial<UserProfile>) => {
+    try {
+      setLoading(true);
+      const randomPassword = Math.random().toString(36).slice(-10);
+      
+      const { error } = await supabase.auth.signUp({
+        email: userData.email || "",
+        password: randomPassword,
+        options: {
+          data: {
+            firstName: userData.firstName,
+            lastName: userData.lastName,
+            linkedIn: userData.linkedIn,
+            institution: userData.institution,
+            location: userData.location,
+            role: userData.role,
+          },
+          emailRedirectTo: window.location.origin + PATHS.PENDING,
+        }
+      });
+      
+      if (error) {
+        throw error;
+      }
+      
+      toast({
+        title: "Registration successful",
+        description: "Your account is pending approval. We'll notify you once approved.",
+      });
+      
+      navigate(PATHS.PENDING);
+    } catch (error) {
+      console.error("Registration error:", error);
+      toast({
+        title: "Registration failed",
+        description: "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Update profile
+  const updateProfile = async (data: Partial<UserProfile>) => {
+    try {
+      if (!user) return;
+      
+      setLoading(true);
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          first_name: data.firstName,
+          last_name: data.lastName,
+          linked_in: data.linkedIn,
+          institution: data.institution,
+          location: data.location,
+          role: data.role,
+        })
+        .eq('id', user.id);
+      
+      if (error) {
+        throw error;
+      }
+      
+      setUser(prev => prev ? { ...prev, ...data } : null);
+      
+      toast({
+        title: "Profile updated",
+        description: "Your profile has been successfully updated.",
+      });
+    } catch (error) {
+      console.error("Profile update error:", error);
+      toast({
+        title: "Failed to update profile",
+        description: "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -162,8 +384,35 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  // Check for recovery mode
+  useEffect(() => {
+    const checkRecoveryMode = () => {
+      const url = new URL(window.location.href);
+      const type = url.searchParams.get("type");
+      
+      if (type === "recovery" || window.location.pathname === PATHS.PASSWORD_RESET) {
+        setIsRecoveryMode(true);
+      }
+    };
+    
+    checkRecoveryMode();
+  }, []);
+
   // Initialize auth
   useEffect(() => {
+    // Check for magic link processing
+    const hash = window.location.hash;
+    const search = window.location.search;
+    const urlParams = new URLSearchParams(search);
+    
+    const hasMagicLinkHash = hash.includes('access_token=') || hash.includes('type=magiclink');
+    const hasOAuthCode = urlParams.has('code');
+    const hasRecoveryToken = search.includes('type=recovery') || hash.includes('type=recovery');
+    
+    if ((hasMagicLinkHash || hasOAuthCode) && !hasRecoveryToken) {
+      setIsMagicLinkProcessing(true);
+    }
+
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
@@ -175,12 +424,21 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           setUser(userProfile);
           
           // Handle redirect for magic link users
-          if (event === 'SIGNED_IN') {
+          if (event === 'SIGNED_IN' && isMagicLinkProcessing) {
+            setIsMagicLinkProcessing(false);
+            // Clean up URL
+            const url = new URL(window.location.href);
+            url.searchParams.delete('code');
+            url.searchParams.delete('state');
+            url.hash = '';
+            window.history.replaceState(null, '', url.pathname + url.search);
+            
             setTimeout(() => handlePostAuthRedirect(session.user.id), 100);
           }
         } else {
           // User signed out
           setUser(null);
+          setIsMagicLinkProcessing(false);
         }
         
         setLoading(false);
@@ -203,6 +461,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, []);
 
   const isAuthenticated = !!user;
+  const isAdmin = !!user?.isAdmin;
+  const isApproved = !!user?.approved;
 
   return (
     <AuthContext.Provider
@@ -210,7 +470,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         user,
         loading,
         isAuthenticated,
+        isAdmin,
+        isApproved,
+        isRecoveryMode,
+        isMagicLinkProcessing,
         loginOrSignup,
+        loginWithPassword,
+        sendMagicLink,
+        resetPassword,
+        updatePassword,
+        register,
+        updateProfile,
         logout,
       }}
     >
