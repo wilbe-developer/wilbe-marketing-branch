@@ -1,15 +1,11 @@
 
+import { jobOpportunities } from "@/data/jobOpportunities";
+
 export default function TickerStrips() {
-  const communityAsks = [
-    "How do I validate my technology in the market?",
-    "What's the best way to protect my IP before fundraising?", 
-    "How do I find the right co-founder for my deep-tech startup?",
-    "What are the key metrics investors look for in biotech companies?",
-    "How do I transition from academia to entrepreneurship?",
-    "What's the difference between licensing and spinning out?",
-    "How do I build a business model around my research?",
-    "What are the common mistakes first-time founder-scientists make?"
-  ];
+  // Format job opportunities for display
+  const jobDisplayItems = jobOpportunities.map(job => 
+    `${job.title} at ${job.company} • ${job.location}`
+  );
 
   return (
     <div className="bg-brand-darkBlue border-y border-brand-navy">
@@ -18,9 +14,9 @@ export default function TickerStrips() {
         <div className="absolute inset-0 flex items-center">
           <div className="ticker-content animate-scroll w-full">
             <div className="flex space-x-12 px-4">
-              {[...communityAsks, ...communityAsks].map((ask, index) => (
+              {[...jobDisplayItems, ...jobDisplayItems].map((job, index) => (
                 <span key={index} className="text-sm text-gray-300 whitespace-nowrap flex-shrink-0">
-                  {ask}
+                  {job}
                 </span>
               ))}
             </div>
@@ -30,7 +26,7 @@ export default function TickerStrips() {
         {/* Static Title - positioned on top with background */}
         <div className="relative z-10 flex justify-start">
           <span className="text-sm font-bold text-white uppercase tracking-wide whitespace-nowrap bg-brand-darkBlue px-4 py-1">
-            COMMUNITY OPPORTUNITIES
+            JOB OPPORTUNITIES
           </span>
         </div>
       </div>
