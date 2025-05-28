@@ -70,14 +70,43 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return sendMagicLinkAction(email, redirectTo);
   };
 
-  // Detect magic link tokens in URL
-  const hasMagicLinkTokens = () => {
+  // Enhanced detection for all auth tokens including OAuth codes
+  const hasAuthTokens = () => {
     const hash = window.location.hash;
     const search = window.location.search;
-    return hash.includes('access_token=') || 
-           hash.includes('type=magiclink') || 
-           hash.includes('refresh_token=') ||
-           search.includes('type=recovery');
+    const urlParams = new URLSearchParams(search);
+    
+    console.log("Checking for auth tokens:", { hash, search });
+    
+    // Check for magic link tokens in hash
+    const hasMagicLinkHash = hash.includes('access_token=') || 
+                            hash.includes('type=magiclink') || 
+                            hash.includes('refresh_token=');
+    
+    // Check for OAuth code in query parameters
+    const hasOAuthCode = urlParams.has('code');
+    
+    // Check for recovery tokens
+    const hasRecoveryToken = search.includes('type=recovery') || hash.includes('type=recovery');
+    
+    console.log("Auth token detection:", { hasMagicLinkHash, hasOAuthCode, hasRecoveryToken });
+    
+    return hasMagicLinkHash || hasOAuthCode || hasRecoveryToken;
+  };
+
+  // Clean up auth parameters from URL after processing
+  const cleanupAuthUrl = () => {
+    const url = new URL(window.location.href);
+    
+    // Remove OAuth code parameter
+    url.searchParams.delete('code');
+    url.searchParams.delete('state');
+    
+    // Clear hash fragment
+    url.hash = '';
+    
+    console.log("Cleaning up auth URL, redirecting to:", url.pathname + url.search);
+    window.history.replaceState(null, '', url.pathname + url.search);
   };
 
   // Check for recovery mode
@@ -119,10 +148,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     console.log("Initializing authentication system...");
     
-    // Check for magic link tokens immediately
-    const hasMagicTokens = hasMagicLinkTokens();
-    if (hasMagicTokens && !isRecoveryMode) {
-      console.log("Magic link tokens detected, starting processing...");
+    // Check for any auth tokens immediately
+    const hasTokens = hasAuthTokens();
+    if (hasTokens && !isRecoveryMode) {
+      console.log("Auth tokens detected, starting processing...");
       setIsMagicLinkProcessing(true);
     }
 
@@ -131,16 +160,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       async (event, newSession) => {
         console.log("Auth state changed:", event, !!newSession?.user);
         
-        // Handle magic link authentication success
+        // Handle successful authentication
         if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && isMagicLinkProcessing) {
-          console.log("Magic link authentication successful");
+          console.log("Authentication successful, cleaning up...");
           setIsMagicLinkProcessing(false);
           
-          // Clear URL hash after successful magic link auth
-          if (window.location.hash) {
-            console.log("Cleaning up URL hash after magic link success");
-            window.history.replaceState(null, '', window.location.pathname + window.location.search);
-          }
+          // Clean up URL after successful auth
+          setTimeout(() => {
+            cleanupAuthUrl();
+          }, 100);
+        }
+        
+        // Handle sign out
+        if (event === 'SIGNED_OUT') {
+          console.log("User signed out");
+          setIsMagicLinkProcessing(false);
         }
         
         setSession(newSession);
@@ -165,7 +199,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     );
 
-    // Get initial session
+    // Get initial session with enhanced error handling
     const getInitialSession = async () => {
       try {
         console.log("Checking for existing session...");
@@ -173,6 +207,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         if (error) {
           console.error("Error getting session:", error);
+          // If we have auth tokens but session failed, try to process them
+          if (hasTokens && !isRecoveryMode) {
+            console.log("Session error but auth tokens present, attempting to process...");
+            // Let the auth state change handler deal with it
+          } else {
+            setIsMagicLinkProcessing(false);
+          }
+          
           if (!authInitialized) {
             setAuthInitialized(true);
             setLoading(false);
@@ -190,6 +232,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           } catch (error) {
             console.error("Error fetching user profile:", error);
           }
+          
+          // If we were processing auth tokens and now have a session, we're done
+          if (isMagicLinkProcessing) {
+            setIsMagicLinkProcessing(false);
+            setTimeout(() => {
+              cleanupAuthUrl();
+            }, 100);
+          }
         }
         
         // Mark auth as initialized if not already done by auth state change
@@ -199,6 +249,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       } catch (error) {
         console.error("Error in initial session check:", error);
+        setIsMagicLinkProcessing(false);
         if (!authInitialized) {
           setAuthInitialized(true);
           setLoading(false);
@@ -206,39 +257,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     };
 
-    // Delay session check if processing magic link to avoid conflicts
-    if (hasMagicTokens && !isRecoveryMode) {
-      console.log("Delaying session check due to magic link processing...");
-      const sessionCheckDelay = setTimeout(() => {
-        getInitialSession();
-      }, 1500);
-      
-      // Set timeout to stop magic link processing if it takes too long
-      const processingTimeout = setTimeout(() => {
-        console.log("Magic link processing timeout - stopping processing");
+    // Immediate session check for faster auth resolution
+    getInitialSession();
+
+    // Set timeout to stop processing if it takes too long
+    let processingTimeout: NodeJS.Timeout;
+    if (hasTokens && !isRecoveryMode) {
+      processingTimeout = setTimeout(() => {
+        console.log("Auth processing timeout - stopping processing and cleaning up");
         setIsMagicLinkProcessing(false);
-        getInitialSession();
-      }, 5000);
-      
-      return () => {
-        clearTimeout(sessionCheckDelay);
-        clearTimeout(processingTimeout);
-        subscription.unsubscribe();
-      };
-    } else {
-      // No magic link tokens, check session immediately
-      getInitialSession();
+        
+        // If we're still stuck processing, clean up the URL and redirect to login
+        if (isMagicLinkProcessing && !session?.user) {
+          console.log("Auth processing failed, cleaning up and redirecting to login");
+          cleanupAuthUrl();
+          toast({
+            title: "Authentication failed",
+            description: "Please try logging in again.",
+            variant: "destructive"
+          });
+          navigate(PATHS.LOGIN);
+        }
+      }, 8000); // Increased timeout for OAuth flows
     }
 
     return () => {
       subscription.unsubscribe();
+      if (processingTimeout) {
+        clearTimeout(processingTimeout);
+      }
     };
-  }, [isRecoveryMode, fetchUserProfile]);
+  }, [isRecoveryMode, fetchUserProfile, toast, navigate]);
 
   // Stop magic link processing when user becomes authenticated
   useEffect(() => {
     if (session?.user && isMagicLinkProcessing) {
-      console.log("User authenticated during magic link processing, stopping processing");
+      console.log("User authenticated during processing, stopping processing");
       setIsMagicLinkProcessing(false);
     }
   }, [session?.user, isMagicLinkProcessing]);

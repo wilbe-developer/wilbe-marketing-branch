@@ -7,7 +7,7 @@ import { PATHS } from "@/lib/constants";
 
 // This component only handles initial routing when users land on app.wilbe.com
 const Index = () => {
-  const { isAuthenticated, loading: authLoading, isRecoveryMode } = useAuth();
+  const { isAuthenticated, loading: authLoading, isRecoveryMode, isMagicLinkProcessing } = useAuth();
   const { isSprintUser, loading: userTypeLoading } = useUserType();
   const navigate = useNavigate();
 
@@ -17,12 +17,19 @@ const Index = () => {
       authLoading,
       userTypeLoading,
       isRecoveryMode,
-      isSprintUser
+      isSprintUser,
+      isMagicLinkProcessing
     });
     
     // Don't redirect if in recovery mode (let the password reset page handle it)
     if (isRecoveryMode) {
       console.log("Recovery mode detected, not redirecting");
+      return;
+    }
+    
+    // Don't redirect while processing magic links or OAuth
+    if (isMagicLinkProcessing) {
+      console.log("Magic link/OAuth processing in progress, waiting...");
       return;
     }
     
@@ -56,16 +63,21 @@ const Index = () => {
     userTypeLoading, 
     navigate, 
     isSprintUser, 
-    isRecoveryMode
+    isRecoveryMode,
+    isMagicLinkProcessing
   ]);
   
-  // Show loading state while processing
-  if (authLoading || userTypeLoading) {
+  // Show enhanced loading state while processing
+  if (authLoading || userTypeLoading || isMagicLinkProcessing) {
+    const loadingMessage = isMagicLinkProcessing 
+      ? "Authenticating..." 
+      : "Loading...";
+      
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-gray-500">Loading...</p>
+          <p className="text-gray-500">{loadingMessage}</p>
         </div>
       </div>
     );
