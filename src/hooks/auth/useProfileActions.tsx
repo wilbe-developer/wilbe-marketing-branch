@@ -1,5 +1,6 @@
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/integrations/supabase/client";
 
 export const useProfileActions = () => {
   const queryClient = useQueryClient();
@@ -24,6 +25,22 @@ export const useProfileActions = () => {
     },
   });
 
+  const fetchUserProfile = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+      throw error;
+    }
+  };
+
   const checkApprovalStatus = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return false;
@@ -38,7 +55,9 @@ export const useProfileActions = () => {
 
   return {
     updateProfile: updateProfileMutation.mutate,
+    updateProfileAsync: updateProfileMutation.mutateAsync,
     isUpdating: updateProfileMutation.isPending,
+    fetchUserProfile,
     checkApprovalStatus,
   };
 };
