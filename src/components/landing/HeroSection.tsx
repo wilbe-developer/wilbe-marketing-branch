@@ -1,5 +1,3 @@
-
-
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ArrowRight, PartyPopper } from "lucide-react"
@@ -29,7 +27,7 @@ export default function HeroSection() {
         </div>
         <div className="text-center">
           <div className="text-3xl font-bold text-green-500 mb-1">62%</div>
-          <p className="text-gray-400 text-sm uppercase tracking-wide">MAU Growth</p>
+          <p className="text-gray-400 text-sm uppercase tracking-wide">MAU Platform Growth</p>
         </div>
         <div className="text-center">
           <div className="text-3xl font-bold text-green-500 mb-1">1/3</div>
@@ -69,4 +67,3 @@ export default function HeroSection() {
     </div>
   )
 }
-
