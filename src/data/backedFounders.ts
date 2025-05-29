@@ -1,4 +1,3 @@
-
 // Import the founders data from WhySection
 const foundersFromWhySection = [
   {
@@ -9,7 +8,7 @@ const foundersFromWhySection = [
     image: "https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/founders//kart.png",
     sector: "Biotech",
     bsfClass: "BSF1",
-    quote: "Wilbe Capital understood our vision from day one. Their deep scientific expertise and network opened doors we never knew existed."
+    quote: "Honestly I can't imagine the company without them. Their devotion and energy kept me going when all seemed overly frustrating!"
   },
   {
     name: "Francesco Sciortino",
@@ -19,7 +18,7 @@ const foundersFromWhySection = [
     image: "https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/founders//francesco.png",
     sector: "Energy",
     bsfClass: "BSF7",
-    quote: "The technical due diligence and strategic guidance from Wilbe has been instrumental in scaling our fusion technology."
+    quote: "Wilbe believed in our project from day 1. It accelerated us enormously in the early days, helping us get on track to develop a first-class team"
   },
   {
     name: "Assia Kasdi",
@@ -29,7 +28,7 @@ const foundersFromWhySection = [
     image: "https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/founders//assia.png",
     sector: "Materials",
     bsfClass: "BSF3",
-    quote: "Beyond funding, Wilbe connected us with industry leaders who became key partners in our materials innovation journey."
+    quote: "Ale and Dee have followed me throughout my whole entrepreneurial journey with the same constant and relentless support. They are the people whom I trust the most in the entrepreneurial world and definitely the most human."
   },
   {
     name: "Shamit Shrivastava",
@@ -39,7 +38,7 @@ const foundersFromWhySection = [
     image: "https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/founders//shamit.png",
     sector: "AI/ML",
     bsfClass: "BSF1",
-    quote: "Wilbe's founder community became our technical advisory board. The peer learning has been invaluable."
+    quote: "Wilbe has always backed our biggest ambitions. And we get advice that is geared towards 'how can you be just completely true to yourself and to the reason you built the company'"
   },
   {
     name: "Alexandre Webster",
@@ -160,6 +159,7 @@ const foundersFromWhySection = [
   }
 ];
 
+// Convert to the BackedFounder format and add funding rounds
 export interface BackedFounder {
   id: number;
   name: string;
@@ -173,7 +173,6 @@ export interface BackedFounder {
   quote: string;
 }
 
-// Convert to the BackedFounder format and add funding rounds
 export const backedFounders: BackedFounder[] = foundersFromWhySection.map((founder, index) => ({
   id: index + 1,
   name: founder.name,
