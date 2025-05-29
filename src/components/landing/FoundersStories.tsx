@@ -91,15 +91,18 @@ export default function FoundersStories() {
             loop: false,
             dragFree: true,
             containScroll: "trimSnaps",
+            skipSnaps: false,
+            duration: 25,
           }}
-          className="w-full"
+          className="w-full select-none"
         >
           <CarouselContent className="-ml-2 md:-ml-4">
             {videos.map((video) => (
               <CarouselItem key={video.id} className="pl-2 md:pl-4 basis-80 md:basis-80">
                 <div
-                  className="bg-gray-50 overflow-hidden shadow-lg hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col"
+                  className="bg-gray-50 overflow-hidden shadow-lg hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col select-none"
                   onClick={() => window.open(`/video/${video.id}`, '_blank')}
+                  draggable={false}
                 >
                   <div className="relative aspect-video bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg overflow-hidden flex-shrink-0">
                     <img
@@ -109,6 +112,7 @@ export default function FoundersStories() {
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = "/placeholder.svg";
                       }}
+                      draggable={false}
                     />
                     <div className="absolute inset-0 bg-black/40" />
                     {video.duration && (
