@@ -103,6 +103,10 @@ const ProfileCompletionDialog = ({ open, onOpenChange }: ProfileCompletionDialog
     onOpenChange(false);
   };
 
+  const handleSubscribeChange = (checked: boolean | "indeterminate") => {
+    setSubscribeToUpdates(checked === true);
+  };
+
   if (submitted) {
     return (
       <Dialog open={open} onOpenChange={handleClose}>
@@ -204,7 +208,7 @@ const ProfileCompletionDialog = ({ open, onOpenChange }: ProfileCompletionDialog
             <Checkbox
               id="subscribe"
               checked={subscribeToUpdates}
-              onCheckedChange={setSubscribeToUpdates}
+              onCheckedChange={handleSubscribeChange}
             />
             <Label htmlFor="subscribe" className="text-sm">
               I want to receive updates exploring alternative careers in innovation and entrepreneurship for scientists
