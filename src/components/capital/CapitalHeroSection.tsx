@@ -8,7 +8,7 @@ export default function CapitalHeroSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h1 className="text-6xl font-bold text-white mb-6 uppercase tracking-wide">
-            <span className="text-7xl">Wilbe</span> Capital
+            Wilbe Capital
           </h1>
           <p className="text-2xl text-gray-300 max-w-4xl mx-auto leading-relaxed">
             Investing exclusively in scientist-led companies. Backed by exited founders from the Bay Area to Singapore, 
