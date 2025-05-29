@@ -89,6 +89,8 @@ export default function FoundersStories() {
           opts={{
             align: "start",
             loop: false,
+            dragFree: true,
+            containScroll: "trimSnaps",
           }}
           className="w-full"
         >
