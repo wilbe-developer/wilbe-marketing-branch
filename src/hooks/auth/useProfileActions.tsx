@@ -1,4 +1,5 @@
 
+
 import { UserProfile } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -79,7 +80,7 @@ export const useProfileActions = ({
           activityStatus: profileData.activity_status,
           lastLoginDate: profileData.last_login_date ? new Date(profileData.last_login_date) : undefined,
           status: profileData.status,
-          applicationStatus: profileData.application_status || 'not_started',
+          applicationStatus: (profileData.application_status as 'not_started' | 'under_review') || 'not_started',
           applicationSubmittedAt: profileData.application_submitted_at ? new Date(profileData.application_submitted_at) : undefined
         };
         setUser(userProfile);
@@ -165,3 +166,4 @@ export const useProfileActions = ({
     updateProfile
   };
 };
+
