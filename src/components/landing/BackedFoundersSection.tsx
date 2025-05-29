@@ -10,10 +10,11 @@ interface BackedFoundersSectionProps {
 }
 
 export default function BackedFoundersSection({
-  initialCount = 4,
+  initialCount = 6,
   loadMoreCount = 8
 }: BackedFoundersSectionProps) {
-  const visibleFounders = backedFounders;
+  // Limit to first row only (6 founders)
+  const visibleFounders = backedFounders.slice(0, 6);
 
   return (
     <div className="mt-8 w-full">
@@ -22,8 +23,8 @@ export default function BackedFoundersSection({
         <h4 className="text-lg font-medium text-gray-500 uppercase tracking-wide">FROM POSTDOCS TO FOUNDERS WITH US: LEADING THE PACK</h4>
       </div>
       
-      {/* Grid container */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-6">
+      {/* Grid container - single row */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 mb-6">
         {visibleFounders.map(founder => (
           <FounderCard key={founder.id} founder={founder} />
         ))}
