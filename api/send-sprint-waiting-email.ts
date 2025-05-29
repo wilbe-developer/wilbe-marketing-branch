@@ -3,7 +3,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import nodemailer from 'nodemailer';
 
 // Email transporter setup
-const transporter = nodemailer.createTransporter({
+const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
     user: process.env.GMAIL_USER || 'jesse@wilbe.com',
@@ -11,7 +11,7 @@ const transporter = nodemailer.createTransporter({
   },
 });
 
-// HTML email template for sprint waiting confirmation
+// HTML email template for sprint waiting confirmation.
 const createEmailHtml = (name: string) => `
 <!DOCTYPE html>
 <html>
@@ -35,8 +35,8 @@ const createEmailHtml = (name: string) => `
 </html>
 `;
 
-// Slack message formatter for waitlist notifications
-const createWaitlistSlackMessage = (name: string, email: string, linkedin: string = '', utmSource: string = '', utmMedium: string = '') => {
+// Slack message formatter
+const createSlackMessage = (name: string, email: string, linkedin: string = '', utmSource: string = '', utmMedium: string = '') => {
   let message = `✅ New BSF Signup: *${name}* (${email})`;
   
   if (linkedin) {
@@ -49,23 +49,6 @@ const createWaitlistSlackMessage = (name: string, email: string, linkedin: strin
     if (utmSource) message += ` source=${utmSource}`;
     if (utmMedium) message += ` medium=${utmMedium}`;
   }
-  
-  return { text: message };
-};
-
-// Slack message formatter for sandbox approval
-const createSandboxApprovalSlackMessage = (name: string, email: string, linkedin: string = '', utmSource: string = '') => {
-  let message = `🚀 New Sprint Profile Sandbox Review: *${name}* (${email})`;
-  
-  if (linkedin) {
-    message += `\nLinkedIn: ${linkedin}`;
-  }
-  
-  if (utmSource) {
-    message += `\nSource: ${utmSource}`;
-  }
-  
-  message += '\n\n💼 *Action Required:* Review and approve for sandbox access';
   
   return { text: message };
 };
@@ -102,21 +85,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       replyTo: 'members@wilbe.com'
     });
 
-    // Send Slack notification to waitlist channel
+    // Send Slack notification with UTM data
     if (process.env.SLACK_WEBHOOK_WAITLIST_URL) {
       await fetch(process.env.SLACK_WEBHOOK_WAITLIST_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(createWaitlistSlackMessage(name, email, linkedin, utmSource, utmMedium)),
-      });
-    }
-
-    // Send additional Slack notification to sandbox approval channel
-    if (process.env.SLACK_WEBHOOK_SANDBOX_APPROVAL) {
-      await fetch(process.env.SLACK_WEBHOOK_SANDBOX_APPROVAL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(createSandboxApprovalSlackMessage(name, email, linkedin, utmSource)),
+        body: JSON.stringify(createSlackMessage(name, email, linkedin, utmSource, utmMedium)),
       });
     }
 
