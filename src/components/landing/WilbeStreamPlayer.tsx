@@ -89,18 +89,6 @@ export default function WilbeStreamPlayer() {
           Remind Me
         </Button>
       </div>
-
-      {/* Stream Stats */}
-      <div className="grid grid-cols-2 gap-4 text-center">
-        <div>
-          <div className="text-2xl font-bold text-green-500">847</div>
-          <p className="text-gray-400 text-xs uppercase tracking-wide">Live Viewers</p>
-        </div>
-        <div>
-          <div className="text-2xl font-bold text-green-500">2.1K</div>
-          <p className="text-gray-400 text-xs uppercase tracking-wide">Weekly Audience</p>
-        </div>
-      </div>
     </div>
   );
 }
