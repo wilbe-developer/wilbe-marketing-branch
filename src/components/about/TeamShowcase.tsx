@@ -76,7 +76,7 @@ export default function TeamShowcase() {
           <Badge className="mb-4 bg-black text-white border-0 uppercase tracking-wide text-sm">
             Our Founders
           </Badge>
-          <h2 className="text-5xl font-bold text-gray-900 mb-4 uppercase tracking-wide">SCIENTISTS AND OPERATORS to define the future of science</h2>
+          <h2 className="text-5xl font-bold text-gray-900 mb-4 uppercase tracking-wide">SCIENTISTS AND OPERATORS TO DEFINE A NEW MEANING OF SCIENCE</h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Our founding team combines deep scientific expertise with entrepreneurial experience, 
             creating a unique perspective on what scientist founders need to succeed.
