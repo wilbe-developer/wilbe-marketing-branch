@@ -59,39 +59,83 @@ export const useRoleManagement = () => {
       console.log('🎭 DEBUG: Raw user roles from database:', userRoles);
       console.log('📊 DEBUG: Total role entries:', userRoles?.length);
 
-      // Group roles by user
-      const rolesByUser = userRoles?.reduce((acc, role) => {
-        if (!acc[role.user_id]) {
-          acc[role.user_id] = [];
-        }
-        acc[role.user_id].push(role.role);
-        return acc;
-      }, {} as Record<string, string[]>) || {};
-
-      console.log('🗂️ DEBUG: Roles grouped by user:', rolesByUser);
-
-      // Find the specific user we're debugging
-      const debugUser = userRoles?.find(role => {
+      // Debug: Check if Kärt's role exists in raw data
+      const kartRole = userRoles?.find(role => {
         const profile = profiles?.find(p => p.user_id === role.user_id);
         return profile?.email === 'kart.tomberg@expressionedits.com';
       });
       
-      if (debugUser) {
-        console.log('🎯 DEBUG: Found Kärt Tomberg in user_roles:', debugUser);
-        console.log('🎯 DEBUG: Kärt\'s roles array will be:', rolesByUser[debugUser.user_id]);
+      if (kartRole) {
+        console.log('🎯 DEBUG: Found Kärt Tomberg in raw user_roles:', kartRole);
+        console.log('🎯 DEBUG: Kärt user_id type:', typeof kartRole.user_id, 'value:', kartRole.user_id);
+        console.log('🎯 DEBUG: Kärt role:', kartRole.role);
+      } else {
+        console.log('❌ DEBUG: Kärt Tomberg NOT found in raw user_roles data');
+        // Check if profile exists
+        const kartProfile = profiles?.find(p => p.email === 'kart.tomberg@expressionedits.com');
+        if (kartProfile) {
+          console.log('🎯 DEBUG: But Kärt profile exists:', kartProfile.user_id);
+          console.log('🎯 DEBUG: Profile user_id type:', typeof kartProfile.user_id);
+        }
+      }
+
+      // Group roles by user with enhanced debugging
+      const rolesByUser = userRoles?.reduce((acc, role) => {
+        // Debug each entry
+        const userIdKey = String(role.user_id); // Ensure string conversion
+        
+        if (!acc[userIdKey]) {
+          acc[userIdKey] = [];
+        }
+        acc[userIdKey].push(role.role);
+        
+        // Special logging for Kärt
+        if (kartRole && String(role.user_id) === String(kartRole.user_id)) {
+          console.log('🎯 DEBUG: Processing Kärt role entry:');
+          console.log('  - Original user_id:', role.user_id, typeof role.user_id);
+          console.log('  - String key:', userIdKey);
+          console.log('  - Role:', role.role);
+          console.log('  - Accumulated roles so far:', acc[userIdKey]);
+        }
+        
+        return acc;
+      }, {} as Record<string, string[]>) || {};
+
+      console.log('🗂️ DEBUG: Roles grouped by user (first 5 entries):');
+      const entries = Object.entries(rolesByUser).slice(0, 5);
+      entries.forEach(([userId, roles]) => {
+        console.log(`  ${userId}: [${roles.join(', ')}]`);
+      });
+
+      // Debug: Check if Kärt's ID exists as a key
+      if (kartRole) {
+        const kartUserId = String(kartRole.user_id);
+        console.log('🎯 DEBUG: Looking for Kärt with key:', kartUserId);
+        console.log('🎯 DEBUG: Kärt roles in object:', rolesByUser[kartUserId]);
+        console.log('🎯 DEBUG: Object has this key?', Object.prototype.hasOwnProperty.call(rolesByUser, kartUserId));
+        
+        // Check all possible variations
+        console.log('🎯 DEBUG: All keys containing Kärt user_id:');
+        Object.keys(rolesByUser).forEach(key => {
+          if (key.includes(kartUserId.substring(0, 8))) {
+            console.log(`  Found similar key: ${key} -> [${rolesByUser[key].join(', ')}]`);
+          }
+        });
       }
 
       // Combine profiles with their roles
       const usersWithRoles: UserWithRoles[] = (profiles || []).map(profile => {
-        const userRoleArray = rolesByUser[profile.user_id] || ['user'];
+        const profileUserId = String(profile.user_id); // Ensure string conversion
+        const userRoleArray = rolesByUser[profileUserId] || ['user'];
         
         // Debug logging for Kärt specifically
         if (profile.email === 'kart.tomberg@expressionedits.com') {
-          console.log('🎯 DEBUG: Processing Kärt Tomberg:');
-          console.log('  - Profile:', profile);
-          console.log('  - User ID:', profile.user_id);
-          console.log('  - Roles from database:', rolesByUser[profile.user_id]);
+          console.log('🎯 DEBUG: Processing Kärt Profile Mapping:');
+          console.log('  - Profile user_id:', profile.user_id, typeof profile.user_id);
+          console.log('  - String key used for lookup:', profileUserId);
+          console.log('  - Lookup result:', rolesByUser[profileUserId]);
           console.log('  - Final roles array:', userRoleArray);
+          console.log('  - rolesByUser object keys sample:', Object.keys(rolesByUser).slice(0, 3));
         }
         
         return {
