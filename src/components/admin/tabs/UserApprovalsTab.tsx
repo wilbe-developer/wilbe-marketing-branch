@@ -113,10 +113,12 @@ const UserApprovalsTab = () => {
     setProcessingUsers(prev => new Set(prev).add(userId));
     
     try {
-      // Add member role
+      // Update the existing user role to member instead of inserting a new one
       const { error: roleError } = await supabase
         .from('user_roles')
-        .insert({ user_id: userId, role: 'member' });
+        .update({ role: 'member' })
+        .eq('user_id', userId)
+        .eq('role', 'user');
 
       if (roleError) {
         throw roleError;
