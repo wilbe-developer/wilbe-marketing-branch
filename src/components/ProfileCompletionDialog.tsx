@@ -40,6 +40,33 @@ const ProfileCompletionDialog = ({ open, onOpenChange, onShowPendingDialog }: Pr
     }
   }, [open, user?.membershipApplicationStatus, onOpenChange, onShowPendingDialog]);
 
+  // Send profile completion notifications
+  const sendCompletionNotifications = async (applicationData: any) => {
+    try {
+      const response = await fetch('/api/send-profile-completion-notification', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: `${applicationData.firstName} ${applicationData.lastName}`,
+          email: user?.email,
+          institution: applicationData.institution,
+          linkedin: applicationData.linkedIn,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`API call failed with status: ${response.status}`);
+      }
+
+      console.log('Profile completion notifications sent successfully');
+    } catch (error) {
+      console.error('Error sending profile completion notifications:', error);
+      // Don't block the main flow if notifications fail
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -94,6 +121,10 @@ const ProfileCompletionDialog = ({ open, onOpenChange, onShowPendingDialog }: Pr
       
       if (result.success) {
         console.log("ProfileCompletionDialog: Application submitted successfully");
+        
+        // Send notifications after successful application submission
+        await sendCompletionNotifications(applicationData);
+        
         setSubmitted(true);
       } else {
         console.error("ProfileCompletionDialog: Application submission failed");
