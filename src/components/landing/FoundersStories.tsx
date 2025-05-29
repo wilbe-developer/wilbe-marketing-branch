@@ -92,17 +92,19 @@ export default function FoundersStories() {
             dragFree: true,
             containScroll: "trimSnaps",
             skipSnaps: false,
-            duration: 25,
+            duration: 20,
+            inViewThreshold: 0.7,
           }}
-          className="w-full select-none"
+          className="w-full select-none touch-pan-x"
         >
-          <CarouselContent className="-ml-2 md:-ml-4">
+          <CarouselContent className="-ml-2 md:-ml-4" style={{ touchAction: 'pan-x' }}>
             {videos.map((video) => (
               <CarouselItem key={video.id} className="pl-2 md:pl-4 basis-80 md:basis-80">
                 <div
                   className="bg-gray-50 overflow-hidden shadow-lg hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col select-none"
                   onClick={() => window.open(`/video/${video.id}`, '_blank')}
                   draggable={false}
+                  style={{ touchAction: 'manipulation' }}
                 >
                   <div className="relative aspect-video bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg overflow-hidden flex-shrink-0">
                     <img
