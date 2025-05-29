@@ -1,7 +1,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Linkedin, Youtube, ExternalLink } from "lucide-react";
+import { ArrowRight, Linkedin, Youtube, ExternalLink, Instagram } from "lucide-react";
 
 export default function SocialMediaSection() {
   const socialPlatforms = [
@@ -50,6 +50,20 @@ export default function SocialMediaSection() {
         engagement: "Growing",
         focus: "Community Updates"
       }
+    },
+    {
+      name: "Instagram",
+      handle: "@wilbe_science",
+      url: "https://instagram.com/wilbe_science",
+      icon: Instagram,
+      description: "Behind-the-scenes content, visual stories, and community highlights",
+      followerCount: "2K+",
+      color: "from-purple-600 to-pink-600",
+      stats: {
+        posts: "200+",
+        engagement: "Growing",
+        focus: "Visual Storytelling"
+      }
     }
   ];
 
@@ -94,7 +108,7 @@ export default function SocialMediaSection() {
         </div>
 
         {/* Social Platforms */}
-        <div className="grid md:grid-cols-3 gap-8 mb-16">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
           {socialPlatforms.map((platform, index) => {
             const IconComponent = platform.icon;
             return (
