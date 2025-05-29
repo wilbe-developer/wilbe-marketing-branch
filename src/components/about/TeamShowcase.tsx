@@ -1,3 +1,4 @@
+
 import { Badge } from "@/components/ui/badge";
 import { Linkedin, Twitter, Mail, ArrowRight, Users, Building, Briefcase } from "lucide-react";
 
@@ -43,6 +44,18 @@ export default function TeamShowcase() {
       }
     },
     {
+      name: "Jesse Zondervan, PhD",
+      role: "Associate (Platform & Systems)",
+      expertise: "Technical Infrastructure",
+      image: "/lovable-uploads/798d9aa7-0159-46b6-8731-52abf7af74b8.png",
+      bio: "Associate (Platform & Systems) at Wilbe, Jesse brings a hacker's mindset and a healthy disregard for how things are \"supposed\" to work. He builds the infrastructure and behind-the-scenes machinery that keeps us scaling, iterating, and occasionally breaking things (on purpose). Ex-Oxford Earth scientist. Still fond of a good terraforming experiment.",
+      social: {
+        linkedin: "#",
+        twitter: "#",
+        email: "jesse@wilbe.com"
+      }
+    },
+    {
       name: "Ali Farzanehfar, PhD",
       role: "Founder Advocate",
       expertise: "Science Entrepreneurship",
@@ -64,18 +77,6 @@ export default function TeamShowcase() {
         linkedin: "#",
         twitter: "#",
         email: "anna@wilbe.com"
-      }
-    },
-    {
-      name: "Jesse Zondervan, PhD",
-      role: "Associate (Platform & Systems)",
-      expertise: "Technical Infrastructure",
-      image: "/lovable-uploads/798d9aa7-0159-46b6-8731-52abf7af74b8.png",
-      bio: "Associate (Platform & Systems) at Wilbe, Jesse brings a hacker's mindset and a healthy disregard for how things are \"supposed\" to work. He builds the infrastructure and behind-the-scenes machinery that keeps us scaling, iterating, and occasionally breaking things (on purpose). Ex-Oxford Earth scientist. Still fond of a good terraforming experiment.",
-      social: {
-        linkedin: "#",
-        twitter: "#",
-        email: "jesse@wilbe.com"
       }
     },
     {
