@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -21,6 +20,10 @@ const HomePage = () => {
     } else {
       setShowProfileDialog(true);
     }
+  };
+
+  const handleShowPendingDialog = () => {
+    setShowPendingDialog(true);
   };
 
   const renderMembershipBanner = () => {
@@ -166,7 +169,8 @@ const HomePage = () => {
 
       <ProfileCompletionDialog 
         open={showProfileDialog} 
-        onOpenChange={setShowProfileDialog} 
+        onOpenChange={setShowProfileDialog}
+        onShowPendingDialog={handleShowPendingDialog}
       />
 
       <ApplicationPendingDialog 

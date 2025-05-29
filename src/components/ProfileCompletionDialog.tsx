@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,9 +12,10 @@ import { Loader2 } from "lucide-react";
 interface ProfileCompletionDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onShowPendingDialog?: () => void;
 }
 
-const ProfileCompletionDialog = ({ open, onOpenChange }: ProfileCompletionDialogProps) => {
+const ProfileCompletionDialog = ({ open, onOpenChange, onShowPendingDialog }: ProfileCompletionDialogProps) => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [institutionOption, setInstitutionOption] = useState("enter");
@@ -28,6 +28,17 @@ const ProfileCompletionDialog = ({ open, onOpenChange }: ProfileCompletionDialog
   
   const { user, submitMembershipApplication } = useAuth();
   const { toast } = useToast();
+
+  // Auto-redirect logic: if user already has pending application, show pending dialog instead
+  useEffect(() => {
+    if (open && user?.membershipApplicationStatus === 'under_review') {
+      console.log("ProfileCompletionDialog: User already has pending application, redirecting to pending dialog");
+      onOpenChange(false);
+      if (onShowPendingDialog) {
+        onShowPendingDialog();
+      }
+    }
+  }, [open, user?.membershipApplicationStatus, onOpenChange, onShowPendingDialog]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

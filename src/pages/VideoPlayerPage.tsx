@@ -1,4 +1,3 @@
-
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useVideos } from "@/hooks/useVideos";
@@ -122,6 +121,10 @@ const VideoPlayerPage = () => {
     }
   };
 
+  const handleShowPendingDialog = () => {
+    setShowPendingDialog(true);
+  };
+
   // Show member access required if user is not a member
   if (!isMember) {
     return (
@@ -172,6 +175,7 @@ const VideoPlayerPage = () => {
         <ProfileCompletionDialog
           open={showProfileDialog}
           onOpenChange={setShowProfileDialog}
+          onShowPendingDialog={handleShowPendingDialog}
         />
         
         <ApplicationPendingDialog

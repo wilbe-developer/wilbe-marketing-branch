@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
@@ -7,22 +6,26 @@ import { Video } from "@/types";
 import { CheckCircle, Lock } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import ProfileCompletionDialog from "@/components/ProfileCompletionDialog";
+import ApplicationPendingDialog from "@/components/ApplicationPendingDialog";
 
 interface VideoCardProps {
   video: Video;
   showModule?: boolean;
   moduleTitle?: string;
   isDeckBuilderView?: boolean;
+  onNonMemberClick?: () => void;
 }
 
 const VideoCard = ({ 
   video, 
   showModule = false, 
   moduleTitle,
-  isDeckBuilderView = false
+  isDeckBuilderView = false,
+  onNonMemberClick
 }: VideoCardProps) => {
-  const { isMember } = useAuth();
+  const { isMember, user } = useAuth();
   const [showProfileDialog, setShowProfileDialog] = useState(false);
+  const [showPendingDialog, setShowPendingDialog] = useState(false);
   
   // Construct the URL with the appropriate query parameters
   const videoUrl = `${PATHS.VIDEO}/${video.id}${
@@ -81,8 +84,21 @@ const VideoCard = ({
   const handleVideoClick = (e: React.MouseEvent) => {
     if (!isMember) {
       e.preventDefault();
-      setShowProfileDialog(true);
+      if (onNonMemberClick) {
+        onNonMemberClick();
+      } else {
+        // Fallback behavior if no onNonMemberClick provided
+        if (user?.membershipApplicationStatus === 'under_review') {
+          setShowPendingDialog(true);
+        } else {
+          setShowProfileDialog(true);
+        }
+      }
     }
+  };
+
+  const handleShowPendingDialog = () => {
+    setShowPendingDialog(true);
   };
 
   const cardContent = (
@@ -102,7 +118,9 @@ const VideoCard = ({
             <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
               <div className="text-center text-white">
                 <Lock className="h-8 w-8 mx-auto mb-2" />
-                <span className="text-sm font-medium">Complete Profile</span>
+                <span className="text-sm font-medium">
+                  {user?.membershipApplicationStatus === 'under_review' ? 'Application Under Review' : 'Complete Profile'}
+                </span>
               </div>
             </div>
           )}
@@ -136,7 +154,9 @@ const VideoCard = ({
           </p>
           <div className={`text-sm ${isMember ? 'text-brand-pink' : 'text-gray-500'} flex items-center gap-1`}>
             {!isMember && <Lock className="h-3 w-3" />}
-            {isMember ? 'View Class' : 'Complete Profile'}
+            {isMember ? 'View Class' : (
+              user?.membershipApplicationStatus === 'under_review' ? 'Application Under Review' : 'Complete Profile'
+            )}
           </div>
         </CardContent>
       </div>
@@ -158,6 +178,12 @@ const VideoCard = ({
       <ProfileCompletionDialog
         open={showProfileDialog}
         onOpenChange={setShowProfileDialog}
+        onShowPendingDialog={handleShowPendingDialog}
+      />
+
+      <ApplicationPendingDialog
+        open={showPendingDialog}
+        onOpenChange={setShowPendingDialog}
       />
     </>
   );
