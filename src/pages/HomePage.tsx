@@ -8,6 +8,7 @@ import MemberPreview from "@/components/MemberPreview";
 import ProfileCompletionDialog from "@/components/ProfileCompletionDialog";
 import ApplicationPendingDialog from "@/components/ApplicationPendingDialog";
 import { Lock, Clock } from "lucide-react";
+
 const HomePage = () => {
   const {
     user,
@@ -137,9 +138,9 @@ const HomePage = () => {
       <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
         <h2 className="text-xl font-bold mb-2">⚡ Ready to turn your breakthrough into a high-performance startup?</h2>
         <p className="mb-4">Get practical building your company with the guidance and founders community needed to avoid expensive mistakes and validate the most ambitious version of your vision. Complete our tech-enabled process in 10 days and you will grab our attention as investors to be invited for Bootcamp our in-person residency where we chart the operational steps to kick-off.</p>
-        <Link to={PATHS.SPRINT_SIGNUP}>
-          <Button>Join the BSF waitlist </Button>
-        </Link>
+        <a href="https://wilbe.com/bsf" target="_blank" rel="noopener noreferrer">
+          <Button>Join the BSF waitlist</Button>
+        </a>
       </div>
 
       <ProfileCompletionDialog open={showProfileDialog} onOpenChange={setShowProfileDialog} onShowPendingDialog={handleShowPendingDialog} />
@@ -147,4 +148,5 @@ const HomePage = () => {
       <ApplicationPendingDialog open={showPendingDialog} onOpenChange={setShowPendingDialog} />
     </div>;
 };
+
 export default HomePage;
