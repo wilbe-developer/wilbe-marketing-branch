@@ -4,6 +4,7 @@ import AboutHeroSection from "@/components/about/AboutHeroSection"
 import AboutQuickNav from "@/components/about/AboutQuickNav"
 import TeamShowcase from "@/components/about/TeamShowcase"
 import OurStoryTimeline from "@/components/about/OurStoryTimeline"
+import SocialMediaSection from "@/components/about/SocialMediaSection"
 import RoadshowGallery from "@/components/about/RoadshowGallery"
 import CommunityImpact from "@/components/about/CommunityImpact"
 import LandingFooter from "@/components/landing/LandingFooter"
@@ -22,6 +23,7 @@ export default function AboutUsPage() {
       <AboutQuickNav />
       <TeamShowcase />
       <OurStoryTimeline />
+      <SocialMediaSection />
       <RoadshowGallery />
       <CommunityImpact />
       <LandingFooter />

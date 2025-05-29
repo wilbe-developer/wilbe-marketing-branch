@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Briefcase, ArrowRight, Users } from "lucide-react";
+import { Calendar, Briefcase, ArrowRight, Users, Share2 } from "lucide-react";
 
 export default function AboutQuickNav() {
   console.log("AboutQuickNav component is rendering");
@@ -34,7 +34,7 @@ export default function AboutQuickNav() {
           </p>
         </div>
         
-        <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+        <div className="grid md:grid-cols-4 gap-6 max-w-5xl mx-auto">
           <Button
             onClick={() => scrollToSection('team-section')}
             className="h-auto p-6 bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white border-0 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 group"
@@ -72,6 +72,20 @@ export default function AboutQuickNav() {
               <div className="text-left">
                 <div className="font-semibold text-lg">Our Story Timeline</div>
                 <div className="text-sm text-gray-300">Journey from 2020 to today</div>
+              </div>
+              <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform ml-auto" />
+            </div>
+          </Button>
+
+          <Button
+            onClick={() => scrollToSection('social-media-section')}
+            className="h-auto p-6 bg-gradient-to-r from-pink-600 to-red-600 hover:from-pink-700 hover:to-red-700 text-white border-0 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 group"
+          >
+            <div className="flex items-center gap-3">
+              <Share2 className="h-6 w-6" />
+              <div className="text-left">
+                <div className="font-semibold text-lg">Social Media</div>
+                <div className="text-sm text-pink-100">Connect & follow our journey</div>
               </div>
               <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform ml-auto" />
             </div>
