@@ -120,7 +120,7 @@ export default function WilbeStreamPlayer() {
     return (
       <div className="space-y-4">
         {/* Video Player Container - Loading/Fallback */}
-        <div className="bg-gray-900 rounded-lg overflow-hidden">
+        <div className="bg-gray-800 rounded-lg overflow-hidden">
           <div className="relative aspect-video">
             <div className="w-full h-full bg-gray-800 flex items-center justify-center">
               <div className="text-white text-center">
@@ -178,7 +178,7 @@ export default function WilbeStreamPlayer() {
   return (
     <div className="space-y-4">
       {/* Video Player Container - Framed with NOW PLAYING */}
-      <div className="bg-gray-900 rounded-lg overflow-hidden">
+      <div className="bg-gray-800 rounded-lg overflow-hidden">
         {/* Video Player */}
         <div className="relative aspect-video group">
           {/* Video thumbnail */}
