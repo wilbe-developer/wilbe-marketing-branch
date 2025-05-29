@@ -55,7 +55,7 @@ const VideoInfo = ({
         <CardFooter className="flex justify-between">
           <div className="flex items-center gap-2">
             <img
-              src="https://creativecommons.org/images/deed/cc-logo.jpg"
+              src="https://licensebuttons.net/l/by/4.0/88x31.png"
               alt="Creative Commons License"
               className="h-4"
             />
