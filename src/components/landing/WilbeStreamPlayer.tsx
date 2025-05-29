@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Play, Calendar, Clock, Users } from "lucide-react";
@@ -92,7 +93,7 @@ export default function WilbeStreamPlayer() {
     return (
       <div className="space-y-4">
         {/* Video Player - Loading/Fallback */}
-        <div className="relative bg-gray-900 rounded-lg overflow-hidden aspect-video">
+        <div className="relative bg-gray-900 overflow-hidden aspect-video">
           <div className="w-full h-full bg-gray-800 flex items-center justify-center">
             <div className="text-white text-center">
               {loading ? "Loading videos..." : "No videos available"}
@@ -148,7 +149,7 @@ export default function WilbeStreamPlayer() {
   return (
     <div className="space-y-4">
       {/* Video Player */}
-      <div className="relative bg-gray-900 rounded-lg overflow-hidden aspect-video">
+      <div className="relative bg-gray-900 overflow-hidden aspect-video">
         {/* Video thumbnail */}
         <img
           src={currentVideo.thumbnail_url || "/placeholder.svg"}
