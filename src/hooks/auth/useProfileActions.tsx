@@ -67,7 +67,7 @@ export const useProfileActions = ({
           lastName: profileData.last_name || '',
           email: profileData.email || '',
           linkedIn: profileData.linked_in,
-          institution: profileData.institution,
+          institution: profileData.institution, // Now includes current_job mapping
           location: profileData.location,
           role: profileData.role, // This is just job role, not system role
           bio: profileData.bio,
@@ -134,6 +134,20 @@ export const useProfileActions = ({
         throw error;
       }
       
+      // If institution was updated and user has a sprint profile, also update current_job
+      if (data.institution !== undefined) {
+        console.log("Updating sprint profile current_job to match institution:", data.institution);
+        const { error: sprintError } = await supabase
+          .from('sprint_profiles')
+          .update({ current_job: data.institution })
+          .eq('user_id', user.id);
+        
+        if (sprintError) {
+          console.error("Error updating sprint profile current_job:", sprintError);
+          // Don't throw error for this, as it's not critical
+        }
+      }
+      
       // Re-fetch the user profile to ensure we have the latest unified data
       await fetchUserProfile(user.id);
       
@@ -158,7 +172,6 @@ export const useProfileActions = ({
     firstName: string;
     lastName: string;
     institution?: string;
-    linkedIn?: string;
   }) => {
     try {
       setLoading(true);
