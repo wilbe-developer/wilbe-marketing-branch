@@ -1,7 +1,6 @@
-
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
 import { Play, Calendar, Clock, Users } from "lucide-react";
 import { fetchVideos } from "@/services/videoService";
 
@@ -19,6 +18,8 @@ export default function WilbeStreamPlayer() {
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(100); // Mock duration for demo
   const [timeLeft, setTimeLeft] = useState({
     days: 17,
     hours: 6,
@@ -89,6 +90,30 @@ export default function WilbeStreamPlayer() {
     return () => clearInterval(timer);
   }, []);
 
+  // Mock time progression for demo
+  useEffect(() => {
+    const timeTimer = setInterval(() => {
+      setCurrentTime(prev => {
+        const newTime = prev + 1;
+        return newTime >= duration ? 0 : newTime;
+      });
+    }, 1000);
+
+    return () => clearInterval(timeTimer);
+  }, [duration]);
+
+  // Format time for display
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  // Handle scrubber change
+  const handleTimeChange = (value: number[]) => {
+    setCurrentTime(value[0]);
+  };
+
   // Show loading state or fallback if no videos
   if (loading || videos.length === 0) {
     return (
@@ -153,8 +178,8 @@ export default function WilbeStreamPlayer() {
       <div className="relative bg-gray-900 overflow-hidden aspect-video">
         {/* Video thumbnail */}
         <img
-          src={currentVideo.thumbnail_url || "/placeholder.svg"}
-          alt={currentVideo.title}
+          src={currentVideo?.thumbnail_url || "/placeholder.svg"}
+          alt={currentVideo?.title || "Loading..."}
           className="w-full h-full object-cover"
           onError={(e) => {
             (e.target as HTMLImageElement).src = "/placeholder.svg";
@@ -163,7 +188,7 @@ export default function WilbeStreamPlayer() {
         
         {/* LIVE badge - Removed rounded corners */}
         <div className="absolute top-4 left-4 flex items-center gap-2 bg-black/75 backdrop-blur-sm px-3 py-1">
-          <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+          <div className="w-2 h-2 bg-red-500 animate-pulse"></div>
           <span className="text-white text-xs font-bold uppercase tracking-wide">LIVE</span>
         </div>
         
@@ -172,27 +197,46 @@ export default function WilbeStreamPlayer() {
           <Button 
             size="lg" 
             className="bg-green-500 hover:bg-green-600 text-black font-bold rounded-full p-6"
-            onClick={() => window.open(`/video/${currentVideo.id}`, '_blank')}
+            onClick={() => currentVideo && window.open(`/video/${currentVideo.id}`, '_blank')}
           >
             <Play className="h-8 w-8" />
           </Button>
         </div>
 
         {/* Duration badge */}
-        {currentVideo.duration && (
-          <div className="absolute top-4 right-4 bg-black/75 text-white text-xs px-2 py-1 rounded">
+        {currentVideo?.duration && (
+          <div className="absolute top-4 right-4 bg-black/75 text-white text-xs px-2 py-1">
             {currentVideo.duration}
           </div>
         )}
+
+        {/* Time Bar - Bottom overlay */}
+        <div className="absolute bottom-0 left-0 right-0 bg-black/75 backdrop-blur-sm p-4">
+          <div className="flex items-center gap-3">
+            <span className="text-white text-xs font-mono">
+              {formatTime(currentTime)}
+            </span>
+            <Slider
+              value={[currentTime]}
+              onValueChange={handleTimeChange}
+              max={duration}
+              step={1}
+              className="flex-1"
+            />
+            <span className="text-white text-xs font-mono">
+              {formatTime(duration)}
+            </span>
+          </div>
+        </div>
       </div>
 
       {/* Now Playing Info - Moved underneath the video */}
-      <div className="bg-black/80 backdrop-blur-sm rounded p-3">
-        <p className="text-white text-sm font-medium">🔴 NOW PLAYING: {currentVideo.title}</p>
-        {currentVideo.description && (
+      <div className="bg-black/80 backdrop-blur-sm p-3">
+        <p className="text-white text-sm font-medium">🔴 NOW PLAYING: {currentVideo?.title || "Loading..."}</p>
+        {currentVideo?.description && (
           <p className="text-gray-300 text-xs">{currentVideo.description}</p>
         )}
-        {currentVideo.presenter && (
+        {currentVideo?.presenter && (
           <p className="text-gray-400 text-xs mt-1">by {currentVideo.presenter}</p>
         )}
       </div>
@@ -234,4 +278,3 @@ export default function WilbeStreamPlayer() {
     </div>
   );
 }
-
