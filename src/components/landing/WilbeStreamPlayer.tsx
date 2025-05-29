@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -117,9 +118,9 @@ export default function WilbeStreamPlayer() {
   // Show loading state or fallback if no videos
   if (loading || videos.length === 0) {
     return (
-      <div className="space-y-4">
+      <div className="w-full max-w-md space-y-4">
         {/* Video Player Container - Loading/Fallback */}
-        <div className="bg-gray-900 rounded-lg overflow-hidden">
+        <div className="bg-gray-900 rounded-lg overflow-hidden w-full">
           <div className="relative aspect-video">
             <div className="w-full h-full bg-gray-900 flex items-center justify-center">
               <div className="text-white text-center">
@@ -128,43 +129,55 @@ export default function WilbeStreamPlayer() {
             </div>
           </div>
           
-          {/* Now Playing Info - Inside the container */}
-          <div className="bg-black/90 p-3">
+          {/* Now Playing Info */}
+          <div className="bg-gray-800 p-3">
             <p className="text-white text-sm font-medium">NOW PLAYING: Loading...</p>
           </div>
         </div>
 
-        {/* Next Live Event - Smaller Size */}
-        <div className="bg-gray-800 rounded-lg p-3 text-white max-w-xs">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-            <span className="text-xs font-bold text-gray-300 uppercase tracking-wide">Next Live Event</span>
+        {/* Next Live Event - Redesigned */}
+        <div className="bg-gray-800 rounded-lg p-4 text-white w-full border border-gray-700">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+            <span className="text-xs font-semibold text-gray-300 uppercase tracking-wide">Next Live Event</span>
           </div>
           
-          <h3 className="text-sm font-bold text-white mb-1">{nextEvent.title}</h3>
-          <p className="text-xs text-gray-300 mb-3">{nextEvent.speaker}</p>
+          <h3 className="text-lg font-bold text-white mb-2">{nextEvent.title}</h3>
+          <p className="text-sm text-gray-300 mb-4">{nextEvent.speaker}</p>
           
-          {/* Countdown Timer */}
-          <div className="grid grid-cols-4 gap-1 mb-3">
-            <div className="text-center">
-              <div className="bg-green-500 text-black text-sm font-bold py-1 px-1 rounded">{timeLeft.days}</div>
-              <div className="text-xs text-gray-400 mt-1">D</div>
+          {/* Event Date & Time */}
+          <div className="flex items-center gap-4 mb-4 text-sm text-gray-400">
+            <div className="flex items-center gap-1">
+              <Calendar className="h-4 w-4" />
+              <span>June 15, 2025</span>
             </div>
-            <div className="text-center">
-              <div className="bg-green-500 text-black text-sm font-bold py-1 px-1 rounded">{timeLeft.hours}</div>
-              <div className="text-xs text-gray-400 mt-1">H</div>
-            </div>
-            <div className="text-center">
-              <div className="bg-green-500 text-black text-sm font-bold py-1 px-1 rounded">{timeLeft.minutes}</div>
-              <div className="text-xs text-gray-400 mt-1">M</div>
-            </div>
-            <div className="text-center">
-              <div className="bg-green-500 text-black text-sm font-bold py-1 px-1 rounded">{timeLeft.seconds}</div>
-              <div className="text-xs text-gray-400 mt-1">S</div>
+            <div className="flex items-center gap-1">
+              <Clock className="h-4 w-4" />
+              <span>6:00 PM UTC</span>
             </div>
           </div>
           
-          <Button className="w-full bg-green-500 hover:bg-green-600 text-black font-bold text-xs py-1">
+          {/* Countdown Timer - Redesigned with less green */}
+          <div className="grid grid-cols-4 gap-2 mb-4">
+            <div className="text-center">
+              <div className="bg-gray-700 border border-gray-600 text-white text-lg font-bold py-2 px-2 rounded">{timeLeft.days}</div>
+              <div className="text-xs text-gray-400 mt-1">Days</div>
+            </div>
+            <div className="text-center">
+              <div className="bg-gray-700 border border-gray-600 text-white text-lg font-bold py-2 px-2 rounded">{timeLeft.hours}</div>
+              <div className="text-xs text-gray-400 mt-1">Hours</div>
+            </div>
+            <div className="text-center">
+              <div className="bg-gray-700 border border-gray-600 text-white text-lg font-bold py-2 px-2 rounded">{timeLeft.minutes}</div>
+              <div className="text-xs text-gray-400 mt-1">Min</div>
+            </div>
+            <div className="text-center">
+              <div className="bg-gray-700 border border-gray-600 text-white text-lg font-bold py-2 px-2 rounded">{timeLeft.seconds}</div>
+              <div className="text-xs text-gray-400 mt-1">Sec</div>
+            </div>
+          </div>
+          
+          <Button className="w-full bg-green-500 hover:bg-green-600 text-black font-bold py-2">
             Remind Me
           </Button>
         </div>
@@ -175,9 +188,9 @@ export default function WilbeStreamPlayer() {
   const currentVideo = videos[currentVideoIndex];
 
   return (
-    <div className="space-y-4">
-      {/* Video Player Container - Framed with NOW PLAYING */}
-      <div className="bg-gray-900 rounded-lg overflow-hidden">
+    <div className="w-full max-w-md space-y-4">
+      {/* Video Player Container - Fixed Width */}
+      <div className="bg-gray-900 rounded-lg overflow-hidden w-full">
         {/* Video Player */}
         <div className="relative aspect-video group">
           {/* Video thumbnail */}
@@ -252,8 +265,8 @@ export default function WilbeStreamPlayer() {
           </div>
         </div>
 
-        {/* Now Playing Info - Inside the same container */}
-        <div className="bg-black/90 p-3">
+        {/* Now Playing Info - Fixed background color */}
+        <div className="bg-gray-800 p-3">
           <p className="text-white text-sm font-medium">NOW PLAYING: {currentVideo?.title || "Loading..."}</p>
           {currentVideo?.description && (
             <p className="text-gray-300 text-xs">{currentVideo.description}</p>
@@ -264,37 +277,49 @@ export default function WilbeStreamPlayer() {
         </div>
       </div>
 
-      {/* Next Live Event - Smaller Design */}
-      <div className="bg-gray-800 rounded-lg p-3 text-white max-w-xs">
-        <div className="flex items-center gap-2 mb-2">
-          <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-          <span className="text-xs font-bold text-gray-300 uppercase tracking-wide">Next Live Event</span>
+      {/* Next Live Event - Redesigned with matching width */}
+      <div className="bg-gray-800 rounded-lg p-4 text-white w-full border border-gray-700">
+        <div className="flex items-center gap-2 mb-3">
+          <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+          <span className="text-xs font-semibold text-gray-300 uppercase tracking-wide">Next Live Event</span>
         </div>
         
-        <h3 className="text-sm font-bold text-white mb-1">{nextEvent.title}</h3>
-        <p className="text-xs text-gray-300 mb-3">{nextEvent.speaker}</p>
+        <h3 className="text-lg font-bold text-white mb-2">{nextEvent.title}</h3>
+        <p className="text-sm text-gray-300 mb-4">{nextEvent.speaker}</p>
         
-        {/* Countdown Timer */}
-        <div className="grid grid-cols-4 gap-1 mb-3">
-          <div className="text-center">
-            <div className="bg-green-500 text-black text-sm font-bold py-1 px-1 rounded">{timeLeft.days}</div>
-            <div className="text-xs text-gray-400 mt-1">D</div>
+        {/* Event Date & Time */}
+        <div className="flex items-center gap-4 mb-4 text-sm text-gray-400">
+          <div className="flex items-center gap-1">
+            <Calendar className="h-4 w-4" />
+            <span>June 15, 2025</span>
           </div>
-          <div className="text-center">
-            <div className="bg-green-500 text-black text-sm font-bold py-1 px-1 rounded">{timeLeft.hours}</div>
-            <div className="text-xs text-gray-400 mt-1">H</div>
-          </div>
-          <div className="text-center">
-            <div className="bg-green-500 text-black text-sm font-bold py-1 px-1 rounded">{timeLeft.minutes}</div>
-            <div className="text-xs text-gray-400 mt-1">M</div>
-          </div>
-          <div className="text-center">
-            <div className="bg-green-500 text-black text-sm font-bold py-1 px-1 rounded">{timeLeft.seconds}</div>
-            <div className="text-xs text-gray-400 mt-1">S</div>
+          <div className="flex items-center gap-1">
+            <Clock className="h-4 w-4" />
+            <span>6:00 PM UTC</span>
           </div>
         </div>
         
-        <Button className="w-full bg-green-500 hover:bg-green-600 text-black font-bold text-xs py-1">
+        {/* Countdown Timer - Redesigned with gray theme */}
+        <div className="grid grid-cols-4 gap-2 mb-4">
+          <div className="text-center">
+            <div className="bg-gray-700 border border-gray-600 text-white text-lg font-bold py-2 px-2 rounded">{timeLeft.days}</div>
+            <div className="text-xs text-gray-400 mt-1">Days</div>
+          </div>
+          <div className="text-center">
+            <div className="bg-gray-700 border border-gray-600 text-white text-lg font-bold py-2 px-2 rounded">{timeLeft.hours}</div>
+            <div className="text-xs text-gray-400 mt-1">Hours</div>
+          </div>
+          <div className="text-center">
+            <div className="bg-gray-700 border border-gray-600 text-white text-lg font-bold py-2 px-2 rounded">{timeLeft.minutes}</div>
+            <div className="text-xs text-gray-400 mt-1">Min</div>
+          </div>
+          <div className="text-center">
+            <div className="bg-gray-700 border border-gray-600 text-white text-lg font-bold py-2 px-2 rounded">{timeLeft.seconds}</div>
+            <div className="text-xs text-gray-400 mt-1">Sec</div>
+          </div>
+        </div>
+        
+        <Button className="w-full bg-green-500 hover:bg-green-600 text-black font-bold py-2">
           Remind Me
         </Button>
       </div>
