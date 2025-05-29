@@ -1,106 +1,279 @@
+import { useState, useEffect, useRef, useCallback } from "react"
+import { Play, Pause, Bell } from "lucide-react"
+import { fetchVideos } from "@/services/videoService"
+import { Button } from "@/components/ui/button"
 
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Play, Calendar, Clock, Users } from "lucide-react";
+interface Video {
+  id: string;
+  title: string;
+  description?: string;
+  thumbnail_url?: string;
+  duration?: string;
+  presenter?: string;
+  created_at: string;
+}
 
 export default function WilbeStreamPlayer() {
+  const [isPlaying, setIsPlaying] = useState(true)
+  const [currentVideoIndex, setCurrentVideoIndex] = useState(0)
+  const [progress, setProgress] = useState(0)
+  const [videos, setVideos] = useState<Video[]>([])
+  const [loading, setLoading] = useState(true)
   const [timeLeft, setTimeLeft] = useState({
-    days: 8,
+    days: 0,
     hours: 0,
     minutes: 0,
     seconds: 0
-  });
+  })
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const progressIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
-  // Next live event
+  // Next live event (mock data - replace with real event data)
   const nextEvent = {
-    title: "From PhD War Models to an AI x Defense Exit",
-    speaker: "with Sean Gourley",
+    title: "AI in Drug Discovery Panel",
     date: "2025-06-15T18:00:00Z",
+    speakers: ["Dr. Sarah Chen", "Prof. Michael Rodriguez"],
     description: "Join leading scientists discussing the latest breakthroughs in AI-powered drug discovery"
   }
 
+  // Fetch videos from the same source as FoundersStories
   useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev.seconds > 0) {
-          return { ...prev, seconds: prev.seconds - 1 };
-        } else if (prev.minutes > 0) {
-          return { ...prev, minutes: prev.minutes - 1, seconds: 59 };
-        } else if (prev.hours > 0) {
-          return { ...prev, hours: prev.hours - 1, minutes: 59, seconds: 59 };
-        } else if (prev.days > 0) {
-          return { ...prev, days: prev.days - 1, hours: 23, minutes: 59, seconds: 59 };
-        }
-        return prev;
-      });
-    }, 1000);
+    const loadVideos = async () => {
+      try {
+        setLoading(true)
+        const videosData = await fetchVideos()
+        
+        // Sort by created_at and take all published videos (same as FoundersStories)
+        const sortedVideos = videosData
+          .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+        
+        setVideos(sortedVideos)
+      } catch (err) {
+        console.error("Error fetching videos:", err)
+        // Fallback to empty array if fetch fails
+        setVideos([])
+      } finally {
+        setLoading(false)
+      }
+    }
 
-    return () => clearInterval(timer);
-  }, []);
+    loadVideos()
+  }, [])
+
+  // Countdown timer for next event
+  useEffect(() => {
+    const calculateTimeLeft = () => {
+      const eventDate = new Date(nextEvent.date).getTime()
+      const now = new Date().getTime()
+      const difference = eventDate - now
+
+      if (difference > 0) {
+        setTimeLeft({
+          days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+          hours: Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+          minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
+          seconds: Math.floor((difference % (1000 * 60)) / 1000)
+        })
+      }
+    }
+
+    calculateTimeLeft()
+    const timer = setInterval(calculateTimeLeft, 1000)
+
+    return () => clearInterval(timer)
+  }, [nextEvent.date])
+
+  // Progress and video cycling logic
+  useEffect(() => {
+    if (progressIntervalRef.current) {
+      clearInterval(progressIntervalRef.current)
+    }
+
+    if (isPlaying && videos.length > 0) {
+      progressIntervalRef.current = setInterval(() => {
+        setProgress((prev) => {
+          if (prev >= 100) {
+            // Move to next video when progress reaches 100%
+            setCurrentVideoIndex((prevIndex) => (prevIndex === videos.length - 1 ? 0 : prevIndex + 1))
+            return 0
+          }
+          return prev + 1 // Progress every 500ms, so 100 steps = 50 seconds per video
+        })
+      }, 500)
+    }
+
+    return () => {
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current)
+      }
+    }
+  }, [isPlaying, videos.length])
+
+  const handlePlayPause = useCallback(() => setIsPlaying(!isPlaying), [isPlaying])
+
+  const handleReminderRequest = () => {
+    // This would typically send a request to your backend
+    alert("Reminder set! We'll notify you before the event starts.")
+  }
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="relative">
+          <div className="relative bg-black overflow-hidden shadow-2xl">
+            <div className="relative aspect-video bg-gradient-to-br from-gray-900 to-black">
+              <div className="absolute inset-0 bg-gray-800 animate-pulse" />
+              <div className="absolute top-4 left-4">
+                <div className="bg-red-600 px-3 py-1">
+                  <span className="text-white text-xs font-bold uppercase tracking-wide">
+                    LOADING...
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // If no videos available, show fallback
+  if (videos.length === 0) {
+    return (
+      <div className="space-y-6">
+        <div className="relative">
+          <div className="relative bg-black overflow-hidden shadow-2xl">
+            <div className="relative aspect-video bg-gradient-to-br from-gray-900 to-black">
+              <div className="absolute inset-0 bg-gray-800" />
+              <div className="absolute top-4 left-4">
+                <div className="bg-red-600 px-3 py-1">
+                  <span className="text-white text-xs font-bold uppercase tracking-wide">
+                    LIVE STREAM
+                  </span>
+                </div>
+              </div>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-white text-lg">No videos available</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const currentVideo = videos[currentVideoIndex]
 
   return (
     <div className="space-y-6">
-      {/* Video Player Placeholder */}
-      <div className="relative bg-gray-900 rounded-lg overflow-hidden aspect-video">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <Button size="lg" className="bg-green-500 hover:bg-green-600 text-black font-bold rounded-full p-6">
-            <Play className="h-8 w-8" />
+      {/* Video Player */}
+      <div className="relative">
+        <div className="relative bg-black overflow-hidden shadow-2xl">
+          <div className="relative aspect-video bg-gradient-to-br from-gray-900 to-black">
+            <img
+              src={currentVideo.thumbnail_url || "/placeholder.svg"}
+              alt={currentVideo.title}
+              className="absolute inset-0 w-full h-full object-cover"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = "/placeholder.svg"
+              }}
+            />
+            <div className="absolute inset-0 bg-black/20" />
+
+            {/* Live Stream Indicator */}
+            <div className="absolute top-4 left-4 flex items-center space-x-2">
+              <div className="flex items-center space-x-2 bg-red-600 px-3 py-1">
+                <div className={`w-2 h-2 bg-white ${isPlaying ? "animate-pulse" : ""}`} />
+                <span className="text-white text-xs font-bold uppercase tracking-wide">
+                  LIVE STREAM
+                </span>
+              </div>
+            </div>
+
+            {/* Centered Play Button */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <button
+                onClick={handlePlayPause}
+                className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-colors"
+              >
+                {isPlaying ? (
+                  <Pause className="h-8 w-8 text-white" />
+                ) : (
+                  <Play className="h-8 w-8 text-white ml-1" />
+                )}
+              </button>
+            </div>
+
+            {/* Progress Bar */}
+            <div className="absolute bottom-0 left-0 right-0 w-full bg-white/20 h-1">
+              <div
+                className="bg-green-500 h-1 transition-all duration-200"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Next Live Event Section */}
+      <div className="bg-gray-900 border border-gray-800 overflow-hidden">
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+              <h3 className="text-green-500 text-sm font-bold uppercase tracking-wide">
+                NEXT LIVE EVENT
+              </h3>
+            </div>
+          </div>
+          
+          <h4 className="text-white font-bold text-xl mb-2">{nextEvent.title}</h4>
+          <p className="text-gray-300 text-sm mb-4">{nextEvent.description}</p>
+          
+          <div className="flex items-center space-x-2 text-gray-400 text-sm mb-4">
+            <span>Speakers:</span>
+            <span>{nextEvent.speakers.join(", ")}</span>
+          </div>
+
+          {/* Countdown Timer */}
+          <div className="grid grid-cols-4 gap-4 mb-6">
+            <div className="text-center">
+              <div className="bg-green-600 text-white text-xl font-bold py-2 px-3 rounded">
+                {timeLeft.days.toString().padStart(2, '0')}
+              </div>
+              <div className="text-gray-400 text-xs mt-1">DAYS</div>
+            </div>
+            <div className="text-center">
+              <div className="bg-green-600 text-white text-xl font-bold py-2 px-3 rounded">
+                {timeLeft.hours.toString().padStart(2, '0')}
+              </div>
+              <div className="text-gray-400 text-xs mt-1">HOURS</div>
+            </div>
+            <div className="text-center">
+              <div className="bg-green-600 text-white text-xl font-bold py-2 px-3 rounded">
+                {timeLeft.minutes.toString().padStart(2, '0')}
+              </div>
+              <div className="text-gray-400 text-xs mt-1">MINUTES</div>
+            </div>
+            <div className="text-center">
+              <div className="bg-green-600 text-white text-xl font-bold py-2 px-3 rounded">
+                {timeLeft.seconds.toString().padStart(2, '0')}
+              </div>
+              <div className="text-gray-400 text-xs mt-1">SECONDS</div>
+            </div>
+          </div>
+
+          {/* Reminder Button */}
+          <Button 
+            onClick={handleReminderRequest}
+            className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2"
+          >
+            <Bell className="w-4 h-4 mr-2" />
+            Send Me a Reminder
           </Button>
-        </div>
-        <div className="absolute bottom-4 left-4 right-4">
-          <div className="bg-black/80 backdrop-blur-sm rounded p-3">
-            <p className="text-white text-sm font-medium">🔴 LIVE: Wilbe Science Weekly Roundup</p>
-            <p className="text-gray-300 text-xs">Breaking down the latest in scientist entrepreneurship</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Next Live Event */}
-      <div className="bg-gray-50 rounded-lg p-6 border">
-        <div className="flex items-center gap-2 mb-3">
-          <Calendar className="h-4 w-4 text-green-500" />
-          <span className="text-sm font-bold text-gray-600 uppercase tracking-wide">Next Live Event</span>
-        </div>
-        
-        <h3 className="text-lg font-bold text-gray-900 mb-1">{nextEvent.title}</h3>
-        <p className="text-green-600 font-medium mb-4">{nextEvent.speaker}</p>
-        
-        {/* Countdown Timer */}
-        <div className="grid grid-cols-4 gap-3 mb-4">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-gray-900">{timeLeft.days}</div>
-            <div className="text-xs text-gray-500 uppercase tracking-wide">Days</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-gray-900">{timeLeft.hours}</div>
-            <div className="text-xs text-gray-500 uppercase tracking-wide">Hours</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-gray-900">{timeLeft.minutes}</div>
-            <div className="text-xs text-gray-500 uppercase tracking-wide">Min</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-gray-900">{timeLeft.seconds}</div>
-            <div className="text-xs text-gray-500 uppercase tracking-wide">Sec</div>
-          </div>
-        </div>
-        
-        <Button className="w-full bg-green-500 hover:bg-green-600 text-black font-bold uppercase tracking-wide">
-          Set Reminder
-        </Button>
-      </div>
-
-      {/* Stream Stats */}
-      <div className="grid grid-cols-2 gap-4 text-center">
-        <div>
-          <div className="text-2xl font-bold text-green-500">847</div>
-          <p className="text-gray-400 text-xs uppercase tracking-wide">Live Viewers</p>
-        </div>
-        <div>
-          <div className="text-2xl font-bold text-green-500">2.1K</div>
-          <p className="text-gray-400 text-xs uppercase tracking-wide">Weekly Audience</p>
         </div>
       </div>
     </div>
-  );
+  )
 }

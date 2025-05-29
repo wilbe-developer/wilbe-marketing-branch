@@ -1,5 +1,4 @@
 
-
 import { Button } from "@/components/ui/button"
 import { Menu, Search } from "lucide-react"
 import { Link } from "react-router-dom"
@@ -12,7 +11,7 @@ export default function LandingNavigation() {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-8">
             <Menu className="h-6 w-6 md:hidden" />
-            <Link to="/landing-page" className="flex items-center">
+            <Link to="/" className="flex items-center">
               <WilbeLogo
                 className="h-6 w-auto"
                 style={{
@@ -25,17 +24,20 @@ export default function LandingNavigation() {
               <Link to="/media" className="text-gray-900 hover:text-gray-700 transition-colors uppercase tracking-wide">
                 Media
               </Link>
+              <Link to="/terminal" className="text-gray-900 hover:text-gray-700 transition-colors uppercase tracking-wide">
+                Terminal
+              </Link>
               <Link to="/capital" className="text-gray-900 hover:text-gray-700 transition-colors uppercase tracking-wide">
                 Capital
               </Link>
-              <Link to="/platform" className="text-gray-900 hover:text-gray-700 transition-colors uppercase tracking-wide">
-                Platform
+              <Link to="/labs" className="text-gray-900 hover:text-gray-700 transition-colors uppercase tracking-wide">
+                Labs
               </Link>
               <Link to="/advocacy" className="text-gray-900 hover:text-gray-700 transition-colors uppercase tracking-wide">
                 Advocacy
               </Link>
-              <Link to="/about" className="text-gray-900 hover:text-gray-700 transition-colors uppercase tracking-wide">
-                About
+              <Link to="/merch" className="text-gray-900 hover:text-gray-700 transition-colors uppercase tracking-wide">
+                Merch
               </Link>
             </div>
           </div>
@@ -53,4 +55,3 @@ export default function LandingNavigation() {
     </nav>
   )
 }
-

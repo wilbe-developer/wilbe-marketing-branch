@@ -1,3 +1,4 @@
+
 import { Clock, Play } from "lucide-react";
 
 interface Video {
@@ -70,7 +71,7 @@ const featuredVideos: Video[] = [
 export default function LatestContentFeed() {
   return (
     <div className="space-y-4">
-      <h4 className="text-lg font-semibold text-gray-900 mb-4">Latest Know-How</h4>
+      <h4 className="text-lg font-semibold text-gray-900 mb-4">Latest Content</h4>
       <div className="space-y-3 max-h-80 overflow-y-auto">
         {featuredVideos.map((video) => (
           <div

@@ -15,7 +15,7 @@ interface UseAuthActionsProps {
 }
 
 export const useAuthActions = (props: UseAuthActionsProps) => {
-  const { fetchUserProfile, updateProfileAsync } = useProfileActions();
+  const { fetchUserProfile, updateProfile } = useProfileActions(props);
   const { 
     loginOrSignup,
     sendMagicLink, 
@@ -25,18 +25,9 @@ export const useAuthActions = (props: UseAuthActionsProps) => {
     register, 
     logout 
   } = useAuthenticationActions(props);
-
-  const updateProfile = async (data: Partial<UserProfile>) => {
-    try {
-      await updateProfileAsync(data);
-    } catch (error) {
-      console.error('Error updating profile:', error);
-      throw error;
-    }
-  };
   
   return {
-    fetchUserProfile: useCallback(fetchUserProfile, []),
+    fetchUserProfile: useCallback(fetchUserProfile, [props.setLoading, props.setUser]),
     loginOrSignup,
     sendMagicLink,
     loginWithPassword,

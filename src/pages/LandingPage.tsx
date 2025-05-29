@@ -1,12 +1,12 @@
 
 import LandingNavigation from "@/components/landing/LandingNavigation"
 import TickerStrips from "@/components/landing/TickerStrips"
-import LiveNewsStrip from "@/components/landing/LiveNewsStrip"
 import HeroSection from "@/components/landing/HeroSection"
 import WilbeStreamPlayer from "@/components/landing/WilbeStreamPlayer"
 import FoundersStories from "@/components/landing/FoundersStories"
 import PlatformsSection from "@/components/landing/PlatformsSection"
-import WilbeCapitalStrip from "@/components/landing/WilbeCapitalStrip"
+import PortfolioSection from "@/components/landing/PortfolioSection"
+import WilbeLabsSection from "@/components/landing/WilbeLabsSection"
 import ScientistsFirstSection from "@/components/landing/ScientistsFirstSection"
 import LandingFooter from "@/components/landing/LandingFooter"
 
@@ -40,9 +40,6 @@ export default function LandingPage() {
       {/* Community Asks Ticker Strip */}
       <TickerStrips />
 
-      {/* Live News Ticker Strip */}
-      <LiveNewsStrip />
-
       {/* Main Hero Section with Video Player */}
       <section className="bg-black text-white py-20 lg:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -55,7 +52,8 @@ export default function LandingPage() {
 
       <FoundersStories />
       <PlatformsSection />
-      <WilbeCapitalStrip />
+      <PortfolioSection />
+      <WilbeLabsSection />
       <ScientistsFirstSection />
       <LandingFooter />
     </div>

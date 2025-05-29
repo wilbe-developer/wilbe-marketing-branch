@@ -27,8 +27,6 @@ import ProfilePage from "@/pages/ProfilePage";
 import SprintProfilePage from "@/pages/SprintProfilePage";
 import NotFoundPage from "@/pages/NotFoundPage";
 import LandingPage from "@/pages/LandingPage";
-import AboutUsPage from "@/pages/AboutUsPage";
-import WilbeCapitalPage from "@/pages/WilbeCapitalPage";
 import BsfPage from "@/components/BsfOld";
 import EventsPage from "@/pages/EventsPage";
 import BuildYourDeckPage from "@/pages/BuildYourDeckPage";
@@ -96,8 +94,6 @@ const App = () => (
                 <Route path="/password-reset" element={<PasswordResetPage />} />
                 <Route path={PATHS.PENDING} element={<PendingApprovalPage />} />
                 <Route path={PATHS.LANDING_PAGE} element={<LandingPage />} />
-                <Route path="/about" element={<AboutUsPage />} />
-                <Route path="/capital" element={<WilbeCapitalPage />} />
                 <Route path={PATHS.BSF_PAGE} element={<BsfPage />} />
                 
                 {/* Quiz route - publicly accessible */}
