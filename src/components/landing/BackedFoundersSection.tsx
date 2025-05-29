@@ -26,7 +26,7 @@ export default function BackedFoundersSection({
       <div className="relative overflow-hidden">
         <div 
           id="founders-gallery" 
-          className="flex gap-4 overflow-x-auto scrollbar-hide pb-4 mb-6" 
+          className="flex gap-6 overflow-x-auto scrollbar-hide pb-4 mb-6" 
           style={{
             scrollbarWidth: 'none',
             msOverflowStyle: 'none',
@@ -52,7 +52,8 @@ interface FounderCardProps {
 
 function FounderCard({ founder }: FounderCardProps) {
   return (
-    <div className="flex-shrink-0 w-80 bg-white rounded-lg overflow-hidden hover:bg-gray-50 transition-all duration-200 group">
+    <div className="flex-shrink-0 w-80 bg-white hover:bg-gray-25 transition-colors duration-200 group">
+      {/* Image section - completely flat */}
       <div className="relative h-32 bg-gray-100">
         <img 
           src={founder.image} 
@@ -65,34 +66,37 @@ function FounderCard({ founder }: FounderCardProps) {
         />
       </div>
       
-      <div className="p-4">
-        <div className="flex justify-between items-start mb-2">
+      {/* Content section with geometric spacing */}
+      <div className="p-4 bg-white">
+        <div className="flex justify-between items-start mb-3">
           <div className="flex-1">
-            <h5 className="font-bold text-gray-900 text-sm leading-tight">{founder.name}</h5>
+            <h5 className="font-bold text-gray-900 text-sm leading-tight mb-1">{founder.name}</h5>
             <p className="text-gray-600 text-xs">{founder.title}</p>
           </div>
-          <div className="flex flex-col gap-1">
-            {/* Sector tag above BSF class */}
-            <span className="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded font-medium">
+          <div className="flex flex-col gap-2 ml-3">
+            {/* Flat rectangular tags */}
+            <div className="bg-gray-200 text-gray-700 text-xs px-3 py-1 font-medium">
               {founder.sector}
-            </span>
+            </div>
             {founder.bsfClass && (
-              <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded font-medium">
+              <div className="bg-blue-200 text-blue-800 text-xs px-3 py-1 font-medium">
                 {founder.bsfClass}
-              </span>
+              </div>
             )}
           </div>
         </div>
         
-        <h6 className="font-semibold text-gray-800 text-sm mb-1">{founder.company}</h6>
-        <p className="text-gray-600 text-xs leading-relaxed mb-3 line-clamp-2">{founder.description}</p>
+        <h6 className="font-semibold text-gray-800 text-sm mb-2">{founder.company}</h6>
+        <p className="text-gray-600 text-xs leading-relaxed mb-4 line-clamp-2">{founder.description}</p>
         
-        {/* Quote section with completely flat styling - no borders or shadows */}
-        <div className="mb-3 p-3 bg-gray-50 rounded-lg relative">
-          <Quote className="absolute top-2 left-2 h-3 w-3 text-gray-400" />
-          <p className="text-xs italic text-gray-700 leading-relaxed pl-4">
-            "{founder.quote}"
-          </p>
+        {/* Quote section - completely flat geometric design */}
+        <div className="bg-gray-100 p-4 relative">
+          <div className="flex items-start gap-2">
+            <Quote className="h-3 w-3 text-gray-500 mt-0.5 flex-shrink-0" />
+            <p className="text-xs text-gray-700 leading-relaxed font-medium">
+              {founder.quote}
+            </p>
+          </div>
         </div>
       </div>
     </div>
