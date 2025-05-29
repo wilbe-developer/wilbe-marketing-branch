@@ -5,16 +5,16 @@ import { Play, Calendar, Clock, Users } from "lucide-react";
 
 export default function WilbeStreamPlayer() {
   const [timeLeft, setTimeLeft] = useState({
-    days: 8,
-    hours: 0,
-    minutes: 0,
-    seconds: 0
+    days: 17,
+    hours: 6,
+    minutes: 33,
+    seconds: 23
   });
 
   // Next live event
   const nextEvent = {
-    title: "From PhD War Models to an AI x Defense Exit",
-    speaker: "with Sean Gourley",
+    title: "AI in Drug Discovery Panel",
+    speaker: "Dr. Sarah Chen, Prof. Michael Rodriguez",
     date: "2025-06-15T18:00:00Z",
     description: "Join leading scientists discussing the latest breakthroughs in AI-powered drug discovery"
   }
@@ -39,7 +39,7 @@ export default function WilbeStreamPlayer() {
   }, []);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Video Player Placeholder */}
       <div className="relative bg-gray-900 rounded-lg overflow-hidden aspect-video">
         <div className="absolute inset-0 flex items-center justify-center">
@@ -55,38 +55,38 @@ export default function WilbeStreamPlayer() {
         </div>
       </div>
 
-      {/* Next Live Event */}
-      <div className="bg-gray-50 rounded-lg p-6 border">
+      {/* Next Live Event - Compact Design */}
+      <div className="bg-gray-800 rounded-lg p-4 text-white max-w-md">
         <div className="flex items-center gap-2 mb-3">
-          <Calendar className="h-4 w-4 text-green-500" />
-          <span className="text-sm font-bold text-gray-600 uppercase tracking-wide">Next Live Event</span>
+          <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+          <span className="text-xs font-bold text-gray-300 uppercase tracking-wide">Next Live Event</span>
         </div>
         
-        <h3 className="text-lg font-bold text-gray-900 mb-1">{nextEvent.title}</h3>
-        <p className="text-green-600 font-medium mb-4">{nextEvent.speaker}</p>
+        <h3 className="text-base font-bold text-white mb-1">{nextEvent.title}</h3>
+        <p className="text-sm text-gray-300 mb-4">{nextEvent.speaker}</p>
         
         {/* Countdown Timer */}
-        <div className="grid grid-cols-4 gap-3 mb-4">
+        <div className="grid grid-cols-4 gap-2 mb-4">
           <div className="text-center">
-            <div className="text-2xl font-bold text-gray-900">{timeLeft.days}</div>
-            <div className="text-xs text-gray-500 uppercase tracking-wide">Days</div>
+            <div className="bg-green-500 text-black text-lg font-bold py-1 px-2 rounded">{timeLeft.days}</div>
+            <div className="text-xs text-gray-400 mt-1">D</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-gray-900">{timeLeft.hours}</div>
-            <div className="text-xs text-gray-500 uppercase tracking-wide">Hours</div>
+            <div className="bg-green-500 text-black text-lg font-bold py-1 px-2 rounded">{timeLeft.hours}</div>
+            <div className="text-xs text-gray-400 mt-1">H</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-gray-900">{timeLeft.minutes}</div>
-            <div className="text-xs text-gray-500 uppercase tracking-wide">Min</div>
+            <div className="bg-green-500 text-black text-lg font-bold py-1 px-2 rounded">{timeLeft.minutes}</div>
+            <div className="text-xs text-gray-400 mt-1">M</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-gray-900">{timeLeft.seconds}</div>
-            <div className="text-xs text-gray-500 uppercase tracking-wide">Sec</div>
+            <div className="bg-green-500 text-black text-lg font-bold py-1 px-2 rounded">{timeLeft.seconds}</div>
+            <div className="text-xs text-gray-400 mt-1">S</div>
           </div>
         </div>
         
-        <Button className="w-full bg-green-500 hover:bg-green-600 text-black font-bold uppercase tracking-wide">
-          Set Reminder
+        <Button className="w-full bg-green-500 hover:bg-green-600 text-black font-bold text-sm py-2">
+          Remind Me
         </Button>
       </div>
 
