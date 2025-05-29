@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent } from '@/components/ui/card';
-import { Check, X, User, Calendar, Building2, MapPin } from 'lucide-react';
+import { Check, X, User, Calendar, Building2, MapPin, ExternalLink } from 'lucide-react';
 
 interface PendingUser {
   user_id: string;
@@ -18,10 +18,11 @@ interface PendingUser {
   location: string | null;
   avatar: string | null;
   created_at: string | null;
+  linked_in: string | null;
   has_sprint_profile: boolean;
   has_profile: boolean;
   application_status: string | null;
-  current_roles: string[];
+  current_role: string;
 }
 
 const UserApprovalsTab = () => {
@@ -43,7 +44,7 @@ const UserApprovalsTab = () => {
         throw profilesError;
       }
 
-      // Get all user roles
+      // Get all user roles (each user should have one primary role)
       const { data: userRoles, error: rolesError } = await supabase
         .from('user_roles')
         .select('user_id, role');
@@ -52,37 +53,46 @@ const UserApprovalsTab = () => {
         throw rolesError;
       }
 
-      // Group roles by user
+      // Map roles by user (get the highest role per user)
       const rolesByUser = userRoles?.reduce((acc, role) => {
-        if (!acc[role.user_id]) acc[role.user_id] = [];
-        acc[role.user_id].push(role.role);
+        // Priority: admin > member > user
+        if (!acc[role.user_id] || 
+            (role.role === 'admin') ||
+            (role.role === 'member' && acc[role.user_id] === 'user')) {
+          acc[role.user_id] = role.role;
+        }
         return acc;
-      }, {} as Record<string, string[]>) || {};
+      }, {} as Record<string, string>) || {};
 
-      // Filter for users who need approval
+      // Filter for users who need approval (not already members/admins)
       const usersNeedingApproval = profiles?.filter(profile => {
-        const userRoles = rolesByUser[profile.user_id] || [];
-        const hasMemberOrAdmin = userRoles.includes('member') || userRoles.includes('admin');
+        const userRole = rolesByUser[profile.user_id] || 'user';
+        const isAlreadyMemberOrAdmin = userRole === 'member' || userRole === 'admin';
         const hasDataToReview = profile.has_sprint_profile || profile.has_profile;
         
-        // Show users who have provided data but aren't yet members/admins
-        return hasDataToReview && !hasMemberOrAdmin;
+        // Only show users who have provided data but aren't yet members/admins
+        return hasDataToReview && !isAlreadyMemberOrAdmin;
       }) || [];
 
-      // Get application status for each user
+      // Get application status for each user and filter for under_review only
       const usersWithStatus = await Promise.all(
         usersNeedingApproval.map(async (user) => {
           const status = await applicationService.getApplicationStatus(user.user_id);
           return {
             ...user,
             application_status: status,
-            current_roles: rolesByUser[user.user_id] || ['user']
+            current_role: rolesByUser[user.user_id] || 'user'
           };
         })
       );
 
-      console.log('Found users needing approval:', usersWithStatus.length);
-      setPendingUsers(usersWithStatus);
+      // Only show users with 'under_review' status
+      const filteredUsers = usersWithStatus.filter(user => 
+        user.application_status === 'under_review'
+      );
+
+      console.log('Found users needing approval:', filteredUsers.length);
+      setPendingUsers(filteredUsers);
     } catch (error) {
       console.error('Error fetching pending users:', error);
       toast({
@@ -273,6 +283,20 @@ const UserApprovalsTab = () => {
                         <span>{user.email}</span>
                       </div>
                       
+                      {user.linked_in && (
+                        <div className="flex items-center gap-1">
+                          <ExternalLink className="h-4 w-4" />
+                          <a 
+                            href={user.linked_in} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-800 hover:underline"
+                          >
+                            LinkedIn Profile
+                          </a>
+                        </div>
+                      )}
+                      
                       {user.institution && (
                         <div className="flex items-center gap-1">
                           <Building2 className="h-4 w-4" />
@@ -295,7 +319,7 @@ const UserApprovalsTab = () => {
                       )}
                       
                       <div className="text-xs text-gray-500">
-                        Current roles: {user.current_roles.join(', ')}
+                        Current role: {user.current_role}
                       </div>
                     </div>
                   </div>
