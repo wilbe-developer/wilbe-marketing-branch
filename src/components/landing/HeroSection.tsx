@@ -1,12 +1,9 @@
-
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { ArrowRight, PartyPopper } from "lucide-react"
-import { Link } from "react-router-dom"
-
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { ArrowRight, PartyPopper } from "lucide-react";
+import { Link } from "react-router-dom";
 export default function HeroSection() {
-  return (
-    <div className="lg:col-span-2">
+  return <div className="lg:col-span-2">
       <div className="mb-6">
         <Badge className="bg-green-500 text-black border-0 uppercase tracking-wide text-xs font-bold px-3 py-1">
           Scientists First
@@ -17,9 +14,7 @@ export default function HeroSection() {
         <span className="text-green-500"> SCIENTIST</span>
         <span className="text-green-500"> ENTREPRENEURS</span>
       </h1>
-      <p className="text-xl text-gray-300 mb-8 max-w-2xl">
-        From breakthrough to business growth. We're connecting entrepreneurial scientists with market intelligence, exclusive insights, venture tools, founders community and lab space—all in one place. Investing in the best performing.
-      </p>
+      <p className="text-xl text-gray-300 mb-8 max-w-2xl">Where breakthroughs become businesses. We help scientist founders turn research into high performing companies — with venture tools, capital, market intelligence, community, and lab space from day zero.</p>
 
       <div className="grid sm:grid-cols-3 gap-4 mb-8">
         <div className="text-center">
@@ -37,18 +32,12 @@ export default function HeroSection() {
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4">
-        <Button
-          size="lg"
-          className="bg-green-500 hover:bg-green-600 text-black font-bold uppercase tracking-wide px-8"
-        >
+        <Button size="lg" className="bg-green-500 hover:bg-green-600 text-black font-bold uppercase tracking-wide px-8">
           Getting Started
           <ArrowRight className="ml-2 h-5 w-5" />
         </Button>
         <Link to="/quiz" target="_blank" rel="noopener noreferrer">
-          <Button
-            size="lg"
-            className="relative bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 hover:from-purple-600 hover:via-pink-600 hover:to-orange-600 text-white font-bold uppercase tracking-wide px-8 border-0 transition-all duration-300 shadow-lg hover:shadow-2xl hover:shadow-purple-500/25 overflow-hidden before:absolute before:top-0 before:left-[-100%] before:w-full before:h-full before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:animate-[shimmer_2.5s_ease-in-out_infinite] before:skew-x-12 rounded-lg"
-          >
+          <Button size="lg" className="relative bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 hover:from-purple-600 hover:via-pink-600 hover:to-orange-600 text-white font-bold uppercase tracking-wide px-8 border-0 transition-all duration-300 shadow-lg hover:shadow-2xl hover:shadow-purple-500/25 overflow-hidden before:absolute before:top-0 before:left-[-100%] before:w-full before:h-full before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:animate-[shimmer_2.5s_ease-in-out_infinite] before:skew-x-12 rounded-lg">
             <PartyPopper className="mr-2 h-5 w-5 relative z-10" />
             <span className="relative z-10">Infinite Quiz</span>
           </Button>
@@ -65,6 +54,5 @@ export default function HeroSection() {
           }
         }
       `}</style>
-    </div>
-  )
+    </div>;
 }
