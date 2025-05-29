@@ -283,7 +283,7 @@ export default function TeamShowcase() {
   ];
 
   return (
-    <section className="py-20 bg-gray-50">
+    <section id="team-section" className="py-20 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Founders Section */}
         <div className="text-center mb-16">

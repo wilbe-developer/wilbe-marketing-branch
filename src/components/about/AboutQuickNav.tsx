@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Briefcase, ArrowRight } from "lucide-react";
+import { Calendar, Briefcase, ArrowRight, Users } from "lucide-react";
 
 export default function AboutQuickNav() {
   console.log("AboutQuickNav component is rendering");
@@ -34,7 +34,21 @@ export default function AboutQuickNav() {
           </p>
         </div>
         
-        <div className="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto">
+        <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+          <Button
+            onClick={() => scrollToSection('team-section')}
+            className="h-auto p-6 bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white border-0 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 group"
+          >
+            <div className="flex items-center gap-3">
+              <Users className="h-6 w-6" />
+              <div className="text-left">
+                <div className="font-semibold text-lg">Meet Our Team</div>
+                <div className="text-sm text-green-100">Founders, team & advisors</div>
+              </div>
+              <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform ml-auto" />
+            </div>
+          </Button>
+
           <Button
             onClick={() => scrollToSection('opportunities-section')}
             className="h-auto p-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 group"
