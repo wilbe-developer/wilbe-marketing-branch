@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { Linkedin, Twitter, Mail, ArrowRight } from "lucide-react";
+import { Linkedin, Twitter, Mail, ArrowRight, Users, Building, Briefcase } from "lucide-react";
 
 export default function TeamShowcase() {
   const founders = [
@@ -219,6 +219,56 @@ export default function TeamShowcase() {
     }
   ];
 
+  const alumniStats = [
+    {
+      metric: "15+",
+      label: "Alumni Network",
+      description: "Former team members making impact across the ecosystem"
+    },
+    {
+      metric: "8",
+      label: "Companies Founded",
+      description: "Startups launched by Wilbe alumni"
+    },
+    {
+      metric: "$50M+",
+      label: "Capital Raised",
+      description: "Total funding secured by alumni ventures"
+    },
+    {
+      metric: "12",
+      label: "Leadership Roles",
+      description: "VP+ positions at major organizations"
+    }
+  ];
+
+  const opportunityCards = [
+    {
+      title: "Join Wilbe",
+      icon: Building,
+      description: "Be part of our mission to support scientist entrepreneurs",
+      details: "We're always looking for passionate individuals who share our vision of advancing scientific innovation.",
+      cta: "View Open Positions",
+      gradient: "from-blue-600 to-purple-600"
+    },
+    {
+      title: "Scientists First Movement",
+      icon: Users,
+      description: "Volunteer to advance scientist entrepreneurship globally",
+      details: "Help build the infrastructure that scientist founders need to succeed through volunteer opportunities.",
+      cta: "Become a Volunteer",
+      gradient: "from-green-600 to-blue-600"
+    },
+    {
+      title: "Portfolio Ventures",
+      icon: Briefcase,
+      description: "Explore opportunities at our portfolio companies",
+      details: "Join innovative startups that are solving humanity's biggest challenges through scientific breakthroughs.",
+      cta: "Explore Opportunities",
+      gradient: "from-purple-600 to-pink-600"
+    }
+  ];
+
   return (
     <section className="py-20 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -372,104 +422,73 @@ export default function TeamShowcase() {
           ))}
         </div>
 
-        {/* Previous Team Members Section */}
+        {/* Alumni Network & Opportunities Section */}
         <div className="text-center mb-16">
           <Badge className="mb-4 bg-gradient-to-r from-gray-600 to-gray-800 text-white border-0 uppercase tracking-wide text-sm">
-            Alumni Network
+            Alumni Network & Opportunities
           </Badge>
           <h2 className="text-4xl font-bold text-gray-900 mb-4 uppercase tracking-wide">
-            Previous Team Members
+            Where Wilbe Alumni Go Next
           </h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Our former team members continue to make impact in the scientific entrepreneurship ecosystem. 
-            Once part of Wilbe, always part of the mission.
+            Our former team members continue to advance scientific entrepreneurship across the ecosystem. 
+            Join our mission or explore opportunities in our growing network.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
-          {previousMembers.map((member, index) => (
-            <div key={index} className="bg-gradient-to-br from-white to-gray-50 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 border border-gray-100">
-              <div className="h-48 bg-gray-200 flex items-center justify-center relative overflow-hidden">
-                <img 
-                  src={member.image} 
-                  alt={member.name} 
-                  className="w-full h-full object-cover" 
-                />
-                <div className="absolute top-3 right-3 bg-black/80 text-white px-2 py-1 rounded text-xs font-medium">
-                  {member.tenure}
-                </div>
-              </div>
-              
-              <div className="p-5">
-                <h3 className="text-lg font-bold text-gray-900 mb-1">{member.name}</h3>
-                
-                {/* Previous Role */}
-                <div className="mb-2">
-                  <p className="text-gray-500 text-xs uppercase tracking-wide mb-1">Previous Role at Wilbe</p>
-                  <p className="text-gray-700 font-medium text-sm">{member.previousRole}</p>
-                </div>
-
-                {/* Current Position */}
-                <div className="mb-3 p-3 bg-gray-50 rounded-lg border-l-4 border-gray-600">
-                  <div className="flex items-center gap-2 mb-1">
-                    <p className="text-gray-500 text-xs uppercase tracking-wide">Currently</p>
-                    <ArrowRight className="h-3 w-3 text-gray-400" />
-                  </div>
-                  <p className="font-bold text-gray-900 text-sm">{member.currentPosition}</p>
-                  <p className="text-gray-600 text-sm">{member.currentCompany}</p>
-                </div>
-
-                {/* Contribution & Current Focus */}
-                <div className="space-y-2 mb-4">
-                  <div>
-                    <p className="text-gray-500 text-xs uppercase tracking-wide">Contribution</p>
-                    <p className="text-gray-600 text-xs leading-relaxed">{member.contribution}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500 text-xs uppercase tracking-wide">Current Focus</p>
-                    <p className="text-gray-600 text-xs leading-relaxed">{member.currentFocus}</p>
-                  </div>
-                </div>
-
-                {/* Social Links */}
-                <div className="flex space-x-3">
-                  <a href={member.social.linkedin} className="text-gray-400 hover:text-blue-600 transition-colors">
-                    <Linkedin className="h-4 w-4" />
-                  </a>
-                  <a href={member.social.twitter} className="text-gray-400 hover:text-blue-400 transition-colors">
-                    <Twitter className="h-4 w-4" />
-                  </a>
-                  <a href={`mailto:${member.social.email}`} className="text-gray-400 hover:text-gray-600 transition-colors">
-                    <Mail className="h-4 w-4" />
-                  </a>
-                </div>
-              </div>
+        {/* Alumni Stats */}
+        <div className="grid md:grid-cols-4 gap-6 max-w-4xl mx-auto mb-16">
+          {alumniStats.map((stat, index) => (
+            <div key={index} className="text-center p-6 bg-white rounded-lg shadow-md">
+              <div className="text-3xl font-bold text-gray-900 mb-2">{stat.metric}</div>
+              <div className="text-gray-600 font-medium mb-2 uppercase tracking-wide text-sm">{stat.label}</div>
+              <div className="text-gray-500 text-xs leading-relaxed">{stat.description}</div>
             </div>
           ))}
         </div>
 
-        {/* Alumni Network CTA */}
-        <div className="mt-12 text-center p-8 bg-gradient-to-r from-gray-100 to-gray-200 rounded-lg">
-          <h3 className="text-2xl font-bold text-gray-900 mb-4 uppercase tracking-wide">
-            The Wilbe Alumni Network
+        {/* Opportunity Cards */}
+        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          {opportunityCards.map((opportunity, index) => {
+            const IconComponent = opportunity.icon;
+            return (
+              <div key={index} className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 border border-gray-100">
+                <div className={`h-32 bg-gradient-to-r ${opportunity.gradient} flex items-center justify-center relative`}>
+                  <IconComponent className="h-12 w-12 text-white" />
+                  <div className="absolute inset-0 bg-black/20"></div>
+                </div>
+                
+                <div className="p-6">
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">{opportunity.title}</h3>
+                  <p className="text-gray-700 font-medium mb-3">{opportunity.description}</p>
+                  <p className="text-gray-600 text-sm mb-6 leading-relaxed">{opportunity.details}</p>
+                  
+                  <button className={`w-full bg-gradient-to-r ${opportunity.gradient} text-white px-6 py-3 rounded-lg font-medium hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 group`}>
+                    {opportunity.cta}
+                    <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Call to Action */}
+        <div className="mt-16 text-center p-8 bg-gradient-to-r from-gray-900 to-black rounded-lg text-white">
+          <h3 className="text-2xl font-bold mb-4 uppercase tracking-wide">
+            Ready to Make an Impact?
           </h3>
-          <p className="text-gray-600 mb-4 max-w-2xl mx-auto">
-            Our former team members represent the impact of our mission beyond our walls. 
-            They continue to advance science entrepreneurship in leadership roles across the ecosystem.
+          <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
+            Whether you're looking to join our team, volunteer for the Scientists First movement, 
+            or explore opportunities at our portfolio companies, we'd love to hear from you.
           </p>
-          <div className="grid md:grid-cols-3 gap-4 text-center">
-            <div>
-              <div className="text-2xl font-bold text-gray-900 mb-1">15+</div>
-              <div className="text-gray-600 text-sm uppercase tracking-wide">Alumni Network</div>
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-gray-900 mb-1">8</div>
-              <div className="text-gray-600 text-sm uppercase tracking-wide">Companies Founded</div>
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-gray-900 mb-1">$50M+</div>
-              <div className="text-gray-600 text-sm uppercase tracking-wide">Capital Raised</div>
-            </div>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button className="bg-white text-gray-900 px-6 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors">
+              Contact Us
+            </button>
+            <button className="border border-white text-white px-6 py-3 rounded-lg font-medium hover:bg-white hover:text-gray-900 transition-colors">
+              Learn More
+            </button>
           </div>
         </div>
       </div>
