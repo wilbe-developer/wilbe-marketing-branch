@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -36,7 +35,7 @@ export const useRoleManagement = () => {
   const fetchUsersWithRoles = async () => {
     try {
       setIsLoading(true);
-      console.log('Fetching users with roles');
+      console.log('🔍 DEBUG: Fetching users with roles');
 
       // Get all unified profiles
       const { data: profiles, error: profilesError } = await supabase
@@ -45,6 +44,8 @@ export const useRoleManagement = () => {
       if (profilesError) {
         throw profilesError;
       }
+
+      console.log('👥 DEBUG: Total profiles fetched:', profiles?.length);
 
       // Get all user roles
       const { data: userRoles, error: rolesError } = await supabase
@@ -55,6 +56,9 @@ export const useRoleManagement = () => {
         throw rolesError;
       }
 
+      console.log('🎭 DEBUG: Raw user roles from database:', userRoles);
+      console.log('📊 DEBUG: Total role entries:', userRoles?.length);
+
       // Group roles by user
       const rolesByUser = userRoles?.reduce((acc, role) => {
         if (!acc[role.user_id]) {
@@ -64,35 +68,90 @@ export const useRoleManagement = () => {
         return acc;
       }, {} as Record<string, string[]>) || {};
 
-      // Combine profiles with their roles
-      const usersWithRoles: UserWithRoles[] = (profiles || []).map(profile => ({
-        user_id: profile.user_id,
-        first_name: profile.first_name,
-        last_name: profile.last_name,
-        email: profile.email,
-        avatar: profile.avatar,
-        created_at: profile.created_at,
-        roles: rolesByUser[profile.user_id] || ['user'] // Default to user if no roles found
-      }));
+      console.log('🗂️ DEBUG: Roles grouped by user:', rolesByUser);
 
-      // Calculate role counts
+      // Find the specific user we're debugging
+      const debugUser = userRoles?.find(role => {
+        const profile = profiles?.find(p => p.user_id === role.user_id);
+        return profile?.email === 'kart.tomberg@expressionedits.com';
+      });
+      
+      if (debugUser) {
+        console.log('🎯 DEBUG: Found Kärt Tomberg in user_roles:', debugUser);
+        console.log('🎯 DEBUG: Kärt\'s roles array will be:', rolesByUser[debugUser.user_id]);
+      }
+
+      // Combine profiles with their roles
+      const usersWithRoles: UserWithRoles[] = (profiles || []).map(profile => {
+        const userRoleArray = rolesByUser[profile.user_id] || ['user'];
+        
+        // Debug logging for Kärt specifically
+        if (profile.email === 'kart.tomberg@expressionedits.com') {
+          console.log('🎯 DEBUG: Processing Kärt Tomberg:');
+          console.log('  - Profile:', profile);
+          console.log('  - User ID:', profile.user_id);
+          console.log('  - Roles from database:', rolesByUser[profile.user_id]);
+          console.log('  - Final roles array:', userRoleArray);
+        }
+        
+        return {
+          user_id: profile.user_id,
+          first_name: profile.first_name,
+          last_name: profile.last_name,
+          email: profile.email,
+          avatar: profile.avatar,
+          created_at: profile.created_at,
+          roles: userRoleArray
+        };
+      });
+
+      console.log('👤 DEBUG: Users with roles processed:', usersWithRoles.length);
+
+      // Debug the specific user in the final array
+      const kartInFinalArray = usersWithRoles.find(user => user.email === 'kart.tomberg@expressionedits.com');
+      if (kartInFinalArray) {
+        console.log('🎯 DEBUG: Kärt in final array:', kartInFinalArray);
+      }
+
+      // Calculate role counts with detailed logging
       const counts = usersWithRoles.reduce((acc, user) => {
         acc.total++;
+        
+        // Debug logging for Kärt specifically during counting
+        if (user.email === 'kart.tomberg@expressionedits.com') {
+          console.log('🎯 DEBUG: Counting Kärt:');
+          console.log('  - Roles:', user.roles);
+          console.log('  - Has admin?', user.roles.includes('admin'));
+          console.log('  - Has member?', user.roles.includes('member'));
+        }
+        
         if (user.roles.includes('admin')) {
           acc.admins++;
+          if (user.email === 'kart.tomberg@expressionedits.com') {
+            console.log('🎯 DEBUG: Kärt counted as ADMIN');
+          }
         } else if (user.roles.includes('member')) {
           acc.members++;
+          if (user.email === 'kart.tomberg@expressionedits.com') {
+            console.log('🎯 DEBUG: Kärt counted as MEMBER');
+          }
         } else {
           acc.users++;
+          if (user.email === 'kart.tomberg@expressionedits.com') {
+            console.log('🎯 DEBUG: Kärt counted as USER');
+          }
         }
         return acc;
       }, { total: 0, admins: 0, members: 0, users: 0 });
 
+      console.log('📈 DEBUG: Final counts:', counts);
+      console.log('📈 DEBUG: Expected counts from database: 6 admins, 1012 members, 12 users');
+
       setUsers(usersWithRoles);
       setRoleCounts(counts);
-      console.log('Found users with roles:', usersWithRoles.length);
+      console.log('✅ DEBUG: Found users with roles:', usersWithRoles.length);
     } catch (error) {
-      console.error('Error fetching users with roles:', error);
+      console.error('❌ DEBUG: Error fetching users with roles:', error);
       toast({
         title: 'Error',
         description: 'Failed to load users and roles',
