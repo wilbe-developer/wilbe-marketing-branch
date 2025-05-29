@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
@@ -18,11 +17,10 @@ interface ProfileCompletionDialogProps {
 const ProfileCompletionDialog = ({ open, onOpenChange }: ProfileCompletionDialogProps) => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [institutionOption, setInstitutionOption] = useState("enter");
+  const [institutionOption, setInstitutionOption] = useState("");
   const [institutionValue, setInstitutionValue] = useState("");
-  const [linkedInOption, setLinkedInOption] = useState("enter");
+  const [linkedInOption, setLinkedInOption] = useState("");
   const [linkedInValue, setLinkedInValue] = useState("");
-  const [subscribeToUpdates, setSubscribeToUpdates] = useState(true);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   
@@ -41,10 +39,19 @@ const ProfileCompletionDialog = ({ open, onOpenChange }: ProfileCompletionDialog
       return;
     }
 
+    if (!institutionOption || !linkedInOption) {
+      toast({
+        title: "Missing Information",
+        description: "Please select an option for both institution and LinkedIn.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (institutionOption === "enter" && !institutionValue.trim()) {
       toast({
         title: "Missing Information",
-        description: "Please enter your institution/company or select that you're not at one.",
+        description: "Please enter your institution or select a different option.",
         variant: "destructive",
       });
       return;
@@ -53,7 +60,7 @@ const ProfileCompletionDialog = ({ open, onOpenChange }: ProfileCompletionDialog
     if (linkedInOption === "enter" && !linkedInValue.trim()) {
       toast({
         title: "Missing Information",
-        description: "Please enter your LinkedIn URL or select that you don't have LinkedIn.",
+        description: "Please enter your LinkedIn URL or select a different option.",
         variant: "destructive",
       });
       return;
@@ -64,7 +71,7 @@ const ProfileCompletionDialog = ({ open, onOpenChange }: ProfileCompletionDialog
     try {
       // Determine final values based on selections
       const finalInstitution = institutionOption === "enter" ? institutionValue.trim() : 
-                              institutionOption === "not_at_institution" ? "Not at an institution/university/company" : "";
+                              institutionOption === "not_applicable" ? "Not applicable" : "";
       
       const finalLinkedIn = linkedInOption === "enter" ? linkedInValue.trim() : "";
 
@@ -94,17 +101,12 @@ const ProfileCompletionDialog = ({ open, onOpenChange }: ProfileCompletionDialog
       setSubmitted(false);
       setFirstName("");
       setLastName("");
-      setInstitutionOption("enter");
+      setInstitutionOption("");
       setInstitutionValue("");
-      setLinkedInOption("enter");
+      setLinkedInOption("");
       setLinkedInValue("");
-      setSubscribeToUpdates(true);
     }
     onOpenChange(false);
-  };
-
-  const handleSubscribeChange = (checked: boolean | "indeterminate") => {
-    setSubscribeToUpdates(checked === true);
   };
 
   if (submitted) {
@@ -164,34 +166,30 @@ const ProfileCompletionDialog = ({ open, onOpenChange }: ProfileCompletionDialog
           </div>
           
           <div className="space-y-4">
-            <Label>Institution/Company *</Label>
-            <Input
-              value={institutionValue}
-              onChange={(e) => setInstitutionValue(e.target.value)}
-              placeholder="University, company, or organization"
-              disabled={institutionOption !== "enter"}
-            />
+            <Label>Institution *</Label>
             <RadioGroup value={institutionOption} onValueChange={setInstitutionOption}>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="enter" id="institution-enter" />
-                <Label htmlFor="institution-enter">Enter my institution/company</Label>
+                <Label htmlFor="institution-enter">Enter my institution</Label>
               </div>
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="not_at_institution" id="institution-na" />
-                <Label htmlFor="institution-na">I'm not at an institution/university/company</Label>
+                <RadioGroupItem value="not_applicable" id="institution-na" />
+                <Label htmlFor="institution-na">Not applicable (student/independent/etc.)</Label>
               </div>
             </RadioGroup>
+            
+            {institutionOption === "enter" && (
+              <Input
+                value={institutionValue}
+                onChange={(e) => setInstitutionValue(e.target.value)}
+                placeholder="University, company, or organization"
+                className="mt-2"
+              />
+            )}
           </div>
           
           <div className="space-y-4">
             <Label>LinkedIn Profile *</Label>
-            {linkedInOption === "enter" && (
-              <Input
-                value={linkedInValue}
-                onChange={(e) => setLinkedInValue(e.target.value)}
-                placeholder="https://linkedin.com/in/yourname"
-              />
-            )}
             <RadioGroup value={linkedInOption} onValueChange={setLinkedInOption}>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="enter" id="linkedin-enter" />
@@ -199,20 +197,18 @@ const ProfileCompletionDialog = ({ open, onOpenChange }: ProfileCompletionDialog
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="no_linkedin" id="linkedin-none" />
-                <Label htmlFor="linkedin-none">I don't have LinkedIn</Label>
+                <Label htmlFor="linkedin-none">Don't have LinkedIn</Label>
               </div>
             </RadioGroup>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="subscribe"
-              checked={subscribeToUpdates}
-              onCheckedChange={handleSubscribeChange}
-            />
-            <Label htmlFor="subscribe" className="text-sm">
-              I want to receive updates exploring alternative careers in innovation and entrepreneurship for scientists
-            </Label>
+            
+            {linkedInOption === "enter" && (
+              <Input
+                value={linkedInValue}
+                onChange={(e) => setLinkedInValue(e.target.value)}
+                placeholder="LinkedIn URL"
+                className="mt-2"
+              />
+            )}
           </div>
           
           <div className="flex gap-2 pt-4">
