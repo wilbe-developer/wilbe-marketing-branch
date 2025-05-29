@@ -9,6 +9,7 @@ import { Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import ProfileCompletionDialog from "@/components/ProfileCompletionDialog";
+import ApplicationPendingDialog from "@/components/ApplicationPendingDialog";
 
 // Component imports
 import VideoHeader from "@/components/video-player/VideoHeader";
@@ -23,8 +24,9 @@ const VideoPlayerPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const { isMember } = useAuth();
+  const { isMember, user } = useAuth();
   const [showProfileDialog, setShowProfileDialog] = useState(false);
+  const [showPendingDialog, setShowPendingDialog] = useState(false);
   
   const {
     getVideoById,
@@ -111,6 +113,14 @@ const VideoPlayerPage = () => {
     }
   };
 
+  const handleNonMemberClick = () => {
+    if (user?.applicationStatus === 'under_review') {
+      setShowPendingDialog(true);
+    } else {
+      setShowProfileDialog(true);
+    }
+  };
+
   // Show member access required if user is not a member
   if (!isMember) {
     return (
@@ -123,21 +133,34 @@ const VideoPlayerPage = () => {
               This video is part of our exclusive member content library.
             </p>
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
-              <h3 className="text-lg font-semibold text-blue-800 mb-2">Join Wilbe to Access</h3>
+              <h3 className="text-lg font-semibold text-blue-800 mb-2">
+                {user?.applicationStatus === 'under_review' ? 'Application Under Review' : 'Join Wilbe to Access'}
+              </h3>
               <p className="text-blue-700 mb-4">
-                Become a member to unlock our full video library featuring:
+                {user?.applicationStatus === 'under_review' 
+                  ? "We're reviewing your application and will notify you via email when approved."
+                  : "Become a member to unlock our full video library featuring:"
+                }
               </p>
-              <ul className="text-left text-blue-700 mb-4 space-y-1">
-                <li>• Expert insights from successful scientist entrepreneurs</li>
-                <li>• Career transition stories and advice</li>
-                <li>• Industry-specific guidance and resources</li>
-                <li>• Exclusive member-only content</li>
-              </ul>
+              {user?.applicationStatus !== 'under_review' && (
+                <ul className="text-left text-blue-700 mb-4 space-y-1">
+                  <li>• Expert insights from successful scientist entrepreneurs</li>
+                  <li>• Career transition stories and advice</li>
+                  <li>• Industry-specific guidance and resources</li>
+                  <li>• Exclusive member-only content</li>
+                </ul>
+              )}
             </div>
             <div className="flex gap-4 justify-center">
-              <Button size="lg" onClick={() => setShowProfileDialog(true)}>
-                Complete Profile to Join
-              </Button>
+              {user?.applicationStatus === 'under_review' ? (
+                <Button size="lg" onClick={() => setShowPendingDialog(true)}>
+                  View Application Status
+                </Button>
+              ) : (
+                <Button size="lg" onClick={() => setShowProfileDialog(true)}>
+                  Complete Profile to Join
+                </Button>
+              )}
               <Button variant="outline" size="lg" onClick={handleBackClick}>
                 Back to Knowledge Center
               </Button>
@@ -148,6 +171,11 @@ const VideoPlayerPage = () => {
         <ProfileCompletionDialog
           open={showProfileDialog}
           onOpenChange={setShowProfileDialog}
+        />
+        
+        <ApplicationPendingDialog
+          open={showPendingDialog}
+          onOpenChange={setShowPendingDialog}
         />
       </>
     );

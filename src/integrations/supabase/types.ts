@@ -311,6 +311,8 @@ export type Database = {
         Row: {
           about: string | null
           activity_status: string | null
+          application_status: string | null
+          application_submitted_at: string | null
           approved: boolean | null
           avatar: string | null
           bio: string | null
@@ -336,6 +338,8 @@ export type Database = {
         Insert: {
           about?: string | null
           activity_status?: string | null
+          application_status?: string | null
+          application_submitted_at?: string | null
           approved?: boolean | null
           avatar?: string | null
           bio?: string | null
@@ -361,6 +365,8 @@ export type Database = {
         Update: {
           about?: string | null
           activity_status?: string | null
+          application_status?: string | null
+          application_submitted_at?: string | null
           approved?: boolean | null
           avatar?: string | null
           bio?: string | null

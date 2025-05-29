@@ -78,7 +78,9 @@ export const useProfileActions = ({
           expertise: profileData.expertise,
           activityStatus: profileData.activity_status,
           lastLoginDate: profileData.last_login_date ? new Date(profileData.last_login_date) : undefined,
-          status: profileData.status
+          status: profileData.status,
+          applicationStatus: profileData.application_status || 'not_started',
+          applicationSubmittedAt: profileData.application_submitted_at ? new Date(profileData.application_submitted_at) : undefined
         };
         setUser(userProfile);
       }
@@ -115,6 +117,8 @@ export const useProfileActions = ({
       if (data.expertise !== undefined) dbData.expertise = data.expertise;
       if (data.activityStatus !== undefined) dbData.activity_status = data.activityStatus;
       if (data.status !== undefined) dbData.status = data.status;
+      if (data.applicationStatus !== undefined) dbData.application_status = data.applicationStatus;
+      if (data.applicationSubmittedAt !== undefined) dbData.application_submitted_at = data.applicationSubmittedAt;
       
       // Important: Remove ability to update approval or admin status via profile updates
       // These fields are now controlled by the user_roles table

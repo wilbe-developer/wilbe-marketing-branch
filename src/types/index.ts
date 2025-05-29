@@ -20,6 +20,8 @@ export interface UserProfile {
   isMember?: boolean; // New field for member status (includes admins)
   createdAt?: Date; // Add missing createdAt property
   lastLoginDate?: Date; // Add missing lastLoginDate property
+  applicationStatus?: 'not_started' | 'under_review'; // New field for application status
+  applicationSubmittedAt?: Date; // New field for submission timestamp
 }
 
 export interface Module {

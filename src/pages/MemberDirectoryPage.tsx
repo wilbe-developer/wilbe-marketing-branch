@@ -7,16 +7,18 @@ import { useMembers } from "@/hooks/useMembers";
 import { useAuth } from "@/hooks/useAuth";
 import MemberCard from "@/components/MemberCard";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Search, Lock, Users } from "lucide-react";
+import { Search, Lock, Users, Clock } from "lucide-react";
 import { PATHS } from "@/lib/constants";
 import ProfileCompletionDialog from "@/components/ProfileCompletionDialog";
+import ApplicationPendingDialog from "@/components/ApplicationPendingDialog";
 
 const MemberDirectoryPage = () => {
   const { members, loading, searchMembers } = useMembers();
-  const { isMember } = useAuth();
+  const { isMember, user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [showProfileDialog, setShowProfileDialog] = useState(false);
+  const [showPendingDialog, setShowPendingDialog] = useState(false);
   
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,6 +28,45 @@ const MemberDirectoryPage = () => {
   const filteredMembers = debouncedQuery 
     ? searchMembers(debouncedQuery)
     : members;
+
+  const handleNonMemberClick = () => {
+    if (user?.applicationStatus === 'under_review') {
+      setShowPendingDialog(true);
+    } else {
+      setShowProfileDialog(true);
+    }
+  };
+
+  const renderMembershipBanner = () => {
+    if (isMember) return null;
+
+    if (user?.applicationStatus === 'under_review') {
+      return (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8 max-w-2xl mx-auto">
+          <Clock className="h-8 w-8 mx-auto text-blue-600 mb-3" />
+          <h3 className="text-lg font-semibold text-blue-800 mb-2 text-center">Application Under Review</h3>
+          <p className="text-blue-700 mb-4 text-center">
+            We're reviewing your application and will notify you via email when you're approved as a member.
+          </p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8 max-w-2xl mx-auto">
+        <Users className="h-8 w-8 mx-auto text-blue-600 mb-3" />
+        <h3 className="text-lg font-semibold text-blue-800 mb-2 text-center">Meet Our Community</h3>
+        <p className="text-blue-700 mb-4 text-center">
+          Complete your profile to connect with our full community of scientists and entrepreneurs.
+        </p>
+        <div className="flex justify-center">
+          <Button onClick={() => setShowProfileDialog(true)}>
+            Complete Your Profile
+          </Button>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="max-w-6xl mx-auto">
@@ -71,20 +112,7 @@ const MemberDirectoryPage = () => {
         </div>
       ) : (
         <>
-          {!isMember && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8 max-w-2xl mx-auto">
-              <Users className="h-8 w-8 mx-auto text-blue-600 mb-3" />
-              <h3 className="text-lg font-semibold text-blue-800 mb-2 text-center">Meet Our Community</h3>
-              <p className="text-blue-700 mb-4 text-center">
-                Complete your profile to connect with our full community of scientists and entrepreneurs.
-              </p>
-              <div className="flex justify-center">
-                <Button onClick={() => setShowProfileDialog(true)}>
-                  Complete Your Profile
-                </Button>
-              </div>
-            </div>
-          )}
+          {renderMembershipBanner()}
           {filteredMembers.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {filteredMembers.map((member) => (
@@ -92,7 +120,7 @@ const MemberDirectoryPage = () => {
                   key={member.id} 
                   member={member} 
                   isMember={isMember}
-                  onNonMemberClick={() => setShowProfileDialog(true)}
+                  onNonMemberClick={handleNonMemberClick}
                 />
               ))}
             </div>
@@ -111,6 +139,11 @@ const MemberDirectoryPage = () => {
       <ProfileCompletionDialog
         open={showProfileDialog}
         onOpenChange={setShowProfileDialog}
+      />
+
+      <ApplicationPendingDialog
+        open={showPendingDialog}
+        onOpenChange={setShowPendingDialog}
       />
     </div>
   );
