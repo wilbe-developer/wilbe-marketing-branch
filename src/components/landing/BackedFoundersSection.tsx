@@ -87,8 +87,8 @@ function FounderCard({ founder }: FounderCardProps) {
         <h6 className="font-semibold text-gray-800 text-sm mb-1">{founder.company}</h6>
         <p className="text-gray-600 text-xs leading-relaxed mb-3 line-clamp-2">{founder.description}</p>
         
-        {/* Quote section with clean styling */}
-        <div className="mb-3 p-3 bg-gray-50 rounded-lg relative border border-gray-100">
+        {/* Quote section with completely flat styling */}
+        <div className="mb-3 p-3 bg-gray-50 rounded-lg relative">
           <Quote className="absolute top-2 left-2 h-3 w-3 text-gray-400" />
           <p className="text-xs italic text-gray-700 leading-relaxed pl-4">
             "{founder.quote}"
