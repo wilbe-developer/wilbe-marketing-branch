@@ -4,7 +4,7 @@ import { ArrowRight, TrendingUp, Users, Lightbulb } from "lucide-react"
 
 export default function CapitalHeroSection() {
   return (
-    <section className="bg-black text-white py-20 lg:py-32">
+    <section className="bg-gray-900 text-white py-20 lg:py-32">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h1 className="text-6xl font-bold text-white mb-6 uppercase tracking-wide">
