@@ -1,4 +1,5 @@
 
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Play, Calendar, Clock, Users } from "lucide-react";
@@ -160,8 +161,8 @@ export default function WilbeStreamPlayer() {
           }}
         />
         
-        {/* LIVE badge - NEW */}
-        <div className="absolute top-4 left-4 flex items-center gap-2 bg-black/75 backdrop-blur-sm px-3 py-1 rounded-full">
+        {/* LIVE badge - Removed rounded corners */}
+        <div className="absolute top-4 left-4 flex items-center gap-2 bg-black/75 backdrop-blur-sm px-3 py-1">
           <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
           <span className="text-white text-xs font-bold uppercase tracking-wide">LIVE</span>
         </div>
@@ -233,3 +234,4 @@ export default function WilbeStreamPlayer() {
     </div>
   );
 }
+
