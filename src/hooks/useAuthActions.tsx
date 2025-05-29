@@ -1,9 +1,11 @@
+
 import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { UserProfile } from "@/types";
 import { Session } from "@supabase/supabase-js";
 import { PATHS } from "@/lib/constants";
+import { applicationService } from "@/services/applicationService";
 
 interface UseAuthActionsProps {
   user: UserProfile | null;
@@ -57,6 +59,9 @@ export const useAuthActions = ({
         console.error("Member check error:", memberError);
       }
 
+      // Get application status using our new service
+      const membershipApplicationStatus = await applicationService.getApplicationStatus(userId);
+
       const userProfile: UserProfile = {
         id: userId,
         firstName: profile?.first_name || "",
@@ -76,7 +81,8 @@ export const useAuthActions = ({
         status: profile?.status || "",
         activityStatus: profile?.activity_status || "",
         isAdmin: adminCheck || false,
-        isMember: memberCheck || false, // New member check
+        isMember: memberCheck || false,
+        membershipApplicationStatus: membershipApplicationStatus
       };
 
       console.log("Setting user profile:", userProfile);
@@ -285,7 +291,8 @@ export const useAuthActions = ({
 
       if (error) throw error;
 
-      setUser({ ...user, ...data });
+      // Re-fetch user profile to get latest data
+      await fetchUserProfile(user.id);
       
       toast({
         title: "Profile updated!",
@@ -303,6 +310,43 @@ export const useAuthActions = ({
     }
   };
 
+  const submitMembershipApplication = async (applicationData: {
+    firstName: string;
+    lastName: string;
+    institution?: string;
+    linkedIn?: string;
+  }) => {
+    try {
+      setLoading(true);
+      
+      if (!user) {
+        throw new Error("Not authenticated");
+      }
+
+      await applicationService.submitMembershipApplication(user.id, applicationData);
+      
+      // Re-fetch the user profile to get updated application status
+      await fetchUserProfile(user.id);
+      
+      toast({
+        title: "Application submitted",
+        description: "Your membership application has been submitted successfully.",
+      });
+      
+      return { success: true };
+    } catch (error: any) {
+      console.error("Application submission error:", error);
+      toast({
+        title: "Submission failed",
+        description: error.message || "Unknown error occurred",
+        variant: "destructive",
+      });
+      return { success: false };
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     sendMagicLink,
     loginWithPassword,
@@ -311,6 +355,7 @@ export const useAuthActions = ({
     register,
     logout,
     updateProfile,
+    submitMembershipApplication,
     fetchUserProfile
   };
 };

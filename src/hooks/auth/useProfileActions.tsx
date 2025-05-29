@@ -1,7 +1,7 @@
 
-
 import { UserProfile } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
+import { applicationService } from "@/services/applicationService";
 
 interface UseProfileActionsProps {
   user: UserProfile | null;
@@ -54,10 +54,13 @@ export const useProfileActions = ({
       const isAdmin = isAdminData || false;
       const isMember = isMemberData || false;
       
-      console.log("Role check results:", { isAdmin, isMember });
+      // Get application status using our new service
+      const membershipApplicationStatus = await applicationService.getApplicationStatus(userId);
+      
+      console.log("Role check results:", { isAdmin, isMember, membershipApplicationStatus });
       
       if (profileData) {
-        console.log("User profile found:", profileData, "Is admin:", isAdmin, "Is member:", isMember);
+        console.log("User profile found:", profileData, "Is admin:", isAdmin, "Is member:", isMember, "Application status:", membershipApplicationStatus);
         // Transform database fields to match our UserProfile interface
         const userProfile: UserProfile = {
           id: profileData.id,
@@ -80,8 +83,7 @@ export const useProfileActions = ({
           activityStatus: profileData.activity_status,
           lastLoginDate: profileData.last_login_date ? new Date(profileData.last_login_date) : undefined,
           status: profileData.status,
-          applicationStatus: (profileData.application_status as 'not_started' | 'under_review') || 'not_started',
-          applicationSubmittedAt: profileData.application_submitted_at ? new Date(profileData.application_submitted_at) : undefined
+          membershipApplicationStatus: membershipApplicationStatus // New computed field
         };
         setUser(userProfile);
       }
@@ -118,12 +120,6 @@ export const useProfileActions = ({
       if (data.expertise !== undefined) dbData.expertise = data.expertise;
       if (data.activityStatus !== undefined) dbData.activity_status = data.activityStatus;
       if (data.status !== undefined) dbData.status = data.status;
-      if (data.applicationStatus !== undefined) dbData.application_status = data.applicationStatus;
-      if (data.applicationSubmittedAt !== undefined) dbData.application_submitted_at = data.applicationSubmittedAt;
-      
-      // Important: Remove ability to update approval or admin status via profile updates
-      // These fields are now controlled by the user_roles table
-      delete dbData.approved;
       
       // Update profile in Supabase
       const { error } = await supabase
@@ -135,16 +131,8 @@ export const useProfileActions = ({
         throw error;
       }
       
-      // Update local user state - but preserve auth status fields
-      const updatedUser = {
-        ...user,
-        ...data,
-        approved: user.approved, // Preserve existing approval status
-        isAdmin: user.isAdmin,   // Preserve existing admin status
-        isMember: user.isMember  // Preserve existing member status
-      };
-      
-      setUser(updatedUser);
+      // Re-fetch the user profile to ensure we have the latest data
+      await fetchUserProfile(user.id);
       
       toast({
         title: "Profile updated",
@@ -161,9 +149,46 @@ export const useProfileActions = ({
     }
   };
 
+  // Submit membership application
+  const submitMembershipApplication = async (applicationData: {
+    firstName: string;
+    lastName: string;
+    institution?: string;
+    linkedIn?: string;
+  }) => {
+    try {
+      setLoading(true);
+      
+      if (!user) {
+        throw new Error("Not authenticated");
+      }
+
+      await applicationService.submitMembershipApplication(user.id, applicationData);
+      
+      // Re-fetch the user profile to get updated application status
+      await fetchUserProfile(user.id);
+      
+      toast({
+        title: "Application submitted",
+        description: "Your membership application has been submitted successfully.",
+      });
+      
+      return { success: true };
+    } catch (error) {
+      toast({
+        title: "Submission failed",
+        description: error instanceof Error ? error.message : "Unknown error occurred",
+        variant: "destructive",
+      });
+      return { success: false };
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     fetchUserProfile,
-    updateProfile
+    updateProfile,
+    submitMembershipApplication
   };
 };
-

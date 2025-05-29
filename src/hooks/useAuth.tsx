@@ -21,6 +21,7 @@ interface AuthContextType {
   register: (userData: Partial<UserProfile>) => Promise<void>;
   logout: () => void;
   updateProfile: (data: Partial<UserProfile>) => Promise<void>;
+  submitMembershipApplication: (data: { firstName: string; lastName: string; institution?: string; linkedIn?: string; }) => Promise<{ success: boolean }>;
   loading: boolean;
   isRecoveryMode: boolean;
 }
@@ -50,6 +51,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     register, 
     logout, 
     updateProfile, 
+    submitMembershipApplication,
     fetchUserProfile
   } = useAuthActions({ 
     user, 
@@ -173,6 +175,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         register,
         logout,
         updateProfile,
+        submitMembershipApplication,
         loading,
         isRecoveryMode
       }}

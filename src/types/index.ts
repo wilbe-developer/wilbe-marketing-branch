@@ -1,3 +1,4 @@
+
 export interface UserProfile {
   id: string;
   firstName?: string;
@@ -17,11 +18,11 @@ export interface UserProfile {
   status?: string;
   activityStatus?: string;
   isAdmin?: boolean;
-  isMember?: boolean; // New field for member status (includes admins)
-  createdAt?: Date; // Add missing createdAt property
-  lastLoginDate?: Date; // Add missing lastLoginDate property
-  applicationStatus?: 'not_started' | 'under_review'; // New field for application status
-  applicationSubmittedAt?: Date; // New field for submission timestamp
+  isMember?: boolean;
+  createdAt?: Date;
+  lastLoginDate?: Date;
+  // New computed field for application status
+  membershipApplicationStatus?: 'not_started' | 'under_review' | null;
 }
 
 export interface Module {

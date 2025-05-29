@@ -26,7 +26,7 @@ const ProfileCompletionDialog = ({ open, onOpenChange }: ProfileCompletionDialog
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   
-  const { updateProfile } = useAuth();
+  const { user, submitMembershipApplication } = useAuth();
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -68,16 +68,16 @@ const ProfileCompletionDialog = ({ open, onOpenChange }: ProfileCompletionDialog
       
       const finalLinkedIn = linkedInOption === "enter" ? linkedInValue.trim() : "";
 
-      await updateProfile({
+      const result = await submitMembershipApplication({
         firstName: firstName.trim(),
         lastName: lastName.trim(),
         institution: finalInstitution || undefined,
         linkedIn: finalLinkedIn || undefined,
-        applicationStatus: 'under_review',
-        applicationSubmittedAt: new Date(),
       });
       
-      setSubmitted(true);
+      if (result.success) {
+        setSubmitted(true);
+      }
     } catch (error) {
       toast({
         title: "Error",
