@@ -20,6 +20,8 @@ interface RoleCounts {
   users: number;
 }
 
+type UserRole = 'admin' | 'member' | 'user';
+
 export const useRoleManagement = () => {
   const [users, setUsers] = useState<UserWithRoles[]>([]);
   const [roleCounts, setRoleCounts] = useState<RoleCounts>({
@@ -101,7 +103,7 @@ export const useRoleManagement = () => {
     }
   };
 
-  const updateUserRole = async (userId: string, newRole: string, currentRoles: string[]) => {
+  const updateUserRole = async (userId: string, newRole: UserRole, currentRoles: string[]) => {
     try {
       console.log(`Updating user ${userId} role to ${newRole}`);
 
@@ -116,7 +118,7 @@ export const useRoleManagement = () => {
       }
 
       // Add the new role (and 'user' role as base)
-      const rolesToAdd = newRole === 'user' ? ['user'] : ['user', newRole];
+      const rolesToAdd: UserRole[] = newRole === 'user' ? ['user'] : ['user', newRole];
       
       const { error: insertError } = await supabase
         .from('user_roles')
