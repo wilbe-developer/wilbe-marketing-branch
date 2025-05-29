@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -118,35 +117,188 @@ export default function WilbeStreamPlayer() {
   // Show loading state or fallback if no videos
   if (loading || videos.length === 0) {
     return (
-      <div className="w-full max-w-md space-y-4">
-        {/* Video Player Container - Loading/Fallback */}
+      <div className="w-full max-w-md">
+        <div className="grid grid-rows-[auto_auto] gap-4 h-full">
+          {/* Video Player Container - Loading/Fallback */}
+          <div className="bg-gray-900 rounded-lg overflow-hidden w-full">
+            <div className="relative aspect-video">
+              <div className="w-full h-full bg-gray-900 flex items-center justify-center">
+                <div className="text-white text-center">
+                  {loading ? "Loading videos..." : "No videos available"}
+                </div>
+              </div>
+            </div>
+            
+            {/* Now Playing Info - Fixed height */}
+            <div className="bg-gray-800 p-3 min-h-[80px] flex flex-col justify-center">
+              <p className="text-white text-sm font-medium line-clamp-2">NOW PLAYING: Loading...</p>
+              <div className="h-4"></div>
+              <div className="h-4"></div>
+            </div>
+          </div>
+
+          {/* Next Live Event - Fixed position */}
+          <div className="bg-white rounded-lg p-4 text-gray-900 w-full border border-gray-200 shadow-sm">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+              <span className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Next Live Event</span>
+            </div>
+            
+            <h3 className="text-lg font-bold text-gray-900 mb-2">{nextEvent.title}</h3>
+            <p className="text-sm text-gray-600 mb-4">{nextEvent.speaker}</p>
+            
+            {/* Event Date & Time */}
+            <div className="flex items-center gap-4 mb-4 text-sm text-gray-500">
+              <div className="flex items-center gap-1">
+                <Calendar className="h-4 w-4" />
+                <span>June 15, 2025</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Clock className="h-4 w-4" />
+                <span>6:00 PM UTC</span>
+              </div>
+            </div>
+            
+            {/* Countdown Timer - Redesigned with less green */}
+            <div className="grid grid-cols-4 gap-2 mb-4">
+              <div className="text-center">
+                <div className="bg-gray-100 border border-gray-300 text-gray-900 text-lg font-bold py-2 px-2 rounded">{timeLeft.days}</div>
+                <div className="text-xs text-gray-500 mt-1">Days</div>
+              </div>
+              <div className="text-center">
+                <div className="bg-gray-100 border border-gray-300 text-gray-900 text-lg font-bold py-2 px-2 rounded">{timeLeft.hours}</div>
+                <div className="text-xs text-gray-500 mt-1">Hours</div>
+              </div>
+              <div className="text-center">
+                <div className="bg-gray-100 border border-gray-300 text-gray-900 text-lg font-bold py-2 px-2 rounded">{timeLeft.minutes}</div>
+                <div className="text-xs text-gray-500 mt-1">Min</div>
+              </div>
+              <div className="text-center">
+                <div className="bg-gray-100 border border-gray-300 text-gray-900 text-lg font-bold py-2 px-2 rounded">{timeLeft.seconds}</div>
+                <div className="text-xs text-gray-500 mt-1">Sec</div>
+              </div>
+            </div>
+            
+            <Button className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2">
+              Remind Me
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const currentVideo = videos[currentVideoIndex];
+
+  return (
+    <div className="w-full max-w-md">
+      <div className="grid grid-rows-[auto_auto] gap-4 h-full">
+        {/* Video Player Container - Fixed Width */}
         <div className="bg-gray-900 rounded-lg overflow-hidden w-full">
-          <div className="relative aspect-video">
-            <div className="w-full h-full bg-gray-900 flex items-center justify-center">
-              <div className="text-white text-center">
-                {loading ? "Loading videos..." : "No videos available"}
+          {/* Video Player */}
+          <div className="relative aspect-video group">
+            {/* Video thumbnail */}
+            <img
+              src={currentVideo?.thumbnail_url || "/placeholder.svg"}
+              alt={currentVideo?.title || "Loading..."}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = "/placeholder.svg";
+              }}
+            />
+            
+            {/* LIVE badge */}
+            <div className="absolute top-4 left-4 flex items-center gap-2 bg-black/75 backdrop-blur-sm px-3 py-1">
+              <div className="w-2 h-2 bg-red-500 animate-pulse"></div>
+              <span className="text-white text-xs font-bold uppercase tracking-wide">LIVE</span>
+            </div>
+            
+            {/* Play button overlay */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Button 
+                size="lg" 
+                className="bg-red-500 hover:bg-red-600 text-white font-bold rounded-lg px-6 py-4 aspect-square w-20 h-20 flex items-center justify-center"
+                onClick={() => currentVideo && window.open(`/video/${currentVideo.id}`, '_blank')}
+              >
+                <Play className="h-8 w-8" />
+              </Button>
+            </div>
+
+            {/* Duration badge */}
+            {currentVideo?.duration && (
+              <div className="absolute top-4 right-4 bg-black/90 text-white text-xs px-2 py-1 rounded-sm font-medium">
+                {currentVideo.duration}
+              </div>
+            )}
+
+            {/* YouTube-style Time Bar - Bottom overlay */}
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+              <div className="flex items-center gap-2 text-white">
+                <span className="text-sm font-medium min-w-[35px] text-center">
+                  {formatTime(currentTime)}
+                </span>
+                <div className="flex-1 flex items-center group/slider">
+                  <div className="relative w-full h-1 bg-white/30 hover:h-1.5 transition-all duration-150 cursor-pointer rounded-sm overflow-hidden">
+                    {/* Progress bar background */}
+                    <div className="absolute inset-0 bg-white/30"></div>
+                    {/* Progress bar fill */}
+                    <div 
+                      className="absolute left-0 top-0 h-full bg-red-500 transition-all duration-150"
+                      style={{ width: `${(currentTime / duration) * 100}%` }}
+                    ></div>
+                    {/* Slider thumb - only visible on hover */}
+                    <div 
+                      className="absolute top-1/2 transform -translate-y-1/2 w-3 h-3 bg-red-500 rounded-full opacity-0 group-hover/slider:opacity-100 transition-opacity duration-150 shadow-lg"
+                      style={{ left: `${(currentTime / duration) * 100}%`, marginLeft: '-6px' }}
+                    ></div>
+                    {/* Invisible input for interaction */}
+                    <input
+                      type="range"
+                      min="0"
+                      max={duration}
+                      value={currentTime}
+                      onChange={(e) => setCurrentTime(Number(e.target.value))}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    />
+                  </div>
+                </div>
+                <span className="text-sm font-medium min-w-[35px] text-center">
+                  {formatTime(duration)}
+                </span>
               </div>
             </div>
           </div>
-          
-          {/* Now Playing Info */}
-          <div className="bg-gray-800 p-3">
-            <p className="text-white text-sm font-medium">NOW PLAYING: Loading...</p>
+
+          {/* Now Playing Info - Fixed height to prevent shifting */}
+          <div className="bg-gray-800 p-3 min-h-[80px] flex flex-col justify-center">
+            <p className="text-white text-sm font-medium line-clamp-2">NOW PLAYING: {currentVideo?.title || "Loading..."}</p>
+            {/* Reserve space for description even if empty */}
+            <div className="min-h-[16px] mt-1">
+              {currentVideo?.description && (
+                <p className="text-gray-300 text-xs line-clamp-1">{currentVideo.description}</p>
+              )}
+            </div>
+            {/* Reserve space for presenter even if empty */}
+            <div className="min-h-[16px] mt-1">
+              {currentVideo?.presenter && (
+                <p className="text-gray-400 text-xs">by {currentVideo.presenter}</p>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Next Live Event - Redesigned */}
-        <div className="bg-gray-800 rounded-lg p-4 text-white w-full border border-gray-700">
+        {/* Next Live Event - Fixed position and redesigned */}
+        <div className="bg-white rounded-lg p-4 text-gray-900 w-full border border-gray-200 shadow-sm">
           <div className="flex items-center gap-2 mb-3">
             <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-            <span className="text-xs font-semibold text-gray-300 uppercase tracking-wide">Next Live Event</span>
+            <span className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Next Live Event</span>
           </div>
           
-          <h3 className="text-lg font-bold text-white mb-2">{nextEvent.title}</h3>
-          <p className="text-sm text-gray-300 mb-4">{nextEvent.speaker}</p>
+          <h3 className="text-lg font-bold text-gray-900 mb-2">{nextEvent.title}</h3>
+          <p className="text-sm text-gray-600 mb-4">{nextEvent.speaker}</p>
           
           {/* Event Date & Time */}
-          <div className="flex items-center gap-4 mb-4 text-sm text-gray-400">
+          <div className="flex items-center gap-4 mb-4 text-sm text-gray-500">
             <div className="flex items-center gap-1">
               <Calendar className="h-4 w-4" />
               <span>June 15, 2025</span>
@@ -160,168 +312,27 @@ export default function WilbeStreamPlayer() {
           {/* Countdown Timer - Redesigned with less green */}
           <div className="grid grid-cols-4 gap-2 mb-4">
             <div className="text-center">
-              <div className="bg-gray-700 border border-gray-600 text-white text-lg font-bold py-2 px-2 rounded">{timeLeft.days}</div>
-              <div className="text-xs text-gray-400 mt-1">Days</div>
+              <div className="bg-gray-100 border border-gray-300 text-gray-900 text-lg font-bold py-2 px-2 rounded">{timeLeft.days}</div>
+              <div className="text-xs text-gray-500 mt-1">Days</div>
             </div>
             <div className="text-center">
-              <div className="bg-gray-700 border border-gray-600 text-white text-lg font-bold py-2 px-2 rounded">{timeLeft.hours}</div>
-              <div className="text-xs text-gray-400 mt-1">Hours</div>
+              <div className="bg-gray-100 border border-gray-300 text-gray-900 text-lg font-bold py-2 px-2 rounded">{timeLeft.hours}</div>
+              <div className="text-xs text-gray-500 mt-1">Hours</div>
             </div>
             <div className="text-center">
-              <div className="bg-gray-700 border border-gray-600 text-white text-lg font-bold py-2 px-2 rounded">{timeLeft.minutes}</div>
-              <div className="text-xs text-gray-400 mt-1">Min</div>
+              <div className="bg-gray-100 border border-gray-300 text-gray-900 text-lg font-bold py-2 px-2 rounded">{timeLeft.minutes}</div>
+              <div className="text-xs text-gray-500 mt-1">Min</div>
             </div>
             <div className="text-center">
-              <div className="bg-gray-700 border border-gray-600 text-white text-lg font-bold py-2 px-2 rounded">{timeLeft.seconds}</div>
-              <div className="text-xs text-gray-400 mt-1">Sec</div>
+              <div className="bg-gray-100 border border-gray-300 text-gray-900 text-lg font-bold py-2 px-2 rounded">{timeLeft.seconds}</div>
+              <div className="text-xs text-gray-500 mt-1">Sec</div>
             </div>
           </div>
           
-          <Button className="w-full bg-green-500 hover:bg-green-600 text-black font-bold py-2">
+          <Button className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2">
             Remind Me
           </Button>
         </div>
-      </div>
-    );
-  }
-
-  const currentVideo = videos[currentVideoIndex];
-
-  return (
-    <div className="w-full max-w-md space-y-4">
-      {/* Video Player Container - Fixed Width */}
-      <div className="bg-gray-900 rounded-lg overflow-hidden w-full">
-        {/* Video Player */}
-        <div className="relative aspect-video group">
-          {/* Video thumbnail */}
-          <img
-            src={currentVideo?.thumbnail_url || "/placeholder.svg"}
-            alt={currentVideo?.title || "Loading..."}
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = "/placeholder.svg";
-            }}
-          />
-          
-          {/* LIVE badge */}
-          <div className="absolute top-4 left-4 flex items-center gap-2 bg-black/75 backdrop-blur-sm px-3 py-1">
-            <div className="w-2 h-2 bg-red-500 animate-pulse"></div>
-            <span className="text-white text-xs font-bold uppercase tracking-wide">LIVE</span>
-          </div>
-          
-          {/* Play button overlay */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <Button 
-              size="lg" 
-              className="bg-red-500 hover:bg-red-600 text-white font-bold rounded-lg px-6 py-4 aspect-square w-20 h-20 flex items-center justify-center"
-              onClick={() => currentVideo && window.open(`/video/${currentVideo.id}`, '_blank')}
-            >
-              <Play className="h-8 w-8" />
-            </Button>
-          </div>
-
-          {/* Duration badge */}
-          {currentVideo?.duration && (
-            <div className="absolute top-4 right-4 bg-black/90 text-white text-xs px-2 py-1 rounded-sm font-medium">
-              {currentVideo.duration}
-            </div>
-          )}
-
-          {/* YouTube-style Time Bar - Bottom overlay */}
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-            <div className="flex items-center gap-2 text-white">
-              <span className="text-sm font-medium min-w-[35px] text-center">
-                {formatTime(currentTime)}
-              </span>
-              <div className="flex-1 flex items-center group/slider">
-                <div className="relative w-full h-1 bg-white/30 hover:h-1.5 transition-all duration-150 cursor-pointer rounded-sm overflow-hidden">
-                  {/* Progress bar background */}
-                  <div className="absolute inset-0 bg-white/30"></div>
-                  {/* Progress bar fill */}
-                  <div 
-                    className="absolute left-0 top-0 h-full bg-red-500 transition-all duration-150"
-                    style={{ width: `${(currentTime / duration) * 100}%` }}
-                  ></div>
-                  {/* Slider thumb - only visible on hover */}
-                  <div 
-                    className="absolute top-1/2 transform -translate-y-1/2 w-3 h-3 bg-red-500 rounded-full opacity-0 group-hover/slider:opacity-100 transition-opacity duration-150 shadow-lg"
-                    style={{ left: `${(currentTime / duration) * 100}%`, marginLeft: '-6px' }}
-                  ></div>
-                  {/* Invisible input for interaction */}
-                  <input
-                    type="range"
-                    min="0"
-                    max={duration}
-                    value={currentTime}
-                    onChange={(e) => setCurrentTime(Number(e.target.value))}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  />
-                </div>
-              </div>
-              <span className="text-sm font-medium min-w-[35px] text-center">
-                {formatTime(duration)}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Now Playing Info - Fixed background color */}
-        <div className="bg-gray-800 p-3">
-          <p className="text-white text-sm font-medium">NOW PLAYING: {currentVideo?.title || "Loading..."}</p>
-          {currentVideo?.description && (
-            <p className="text-gray-300 text-xs">{currentVideo.description}</p>
-          )}
-          {currentVideo?.presenter && (
-            <p className="text-gray-400 text-xs mt-1">by {currentVideo.presenter}</p>
-          )}
-        </div>
-      </div>
-
-      {/* Next Live Event - Redesigned with matching width */}
-      <div className="bg-gray-800 rounded-lg p-4 text-white w-full border border-gray-700">
-        <div className="flex items-center gap-2 mb-3">
-          <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-          <span className="text-xs font-semibold text-gray-300 uppercase tracking-wide">Next Live Event</span>
-        </div>
-        
-        <h3 className="text-lg font-bold text-white mb-2">{nextEvent.title}</h3>
-        <p className="text-sm text-gray-300 mb-4">{nextEvent.speaker}</p>
-        
-        {/* Event Date & Time */}
-        <div className="flex items-center gap-4 mb-4 text-sm text-gray-400">
-          <div className="flex items-center gap-1">
-            <Calendar className="h-4 w-4" />
-            <span>June 15, 2025</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Clock className="h-4 w-4" />
-            <span>6:00 PM UTC</span>
-          </div>
-        </div>
-        
-        {/* Countdown Timer - Redesigned with gray theme */}
-        <div className="grid grid-cols-4 gap-2 mb-4">
-          <div className="text-center">
-            <div className="bg-gray-700 border border-gray-600 text-white text-lg font-bold py-2 px-2 rounded">{timeLeft.days}</div>
-            <div className="text-xs text-gray-400 mt-1">Days</div>
-          </div>
-          <div className="text-center">
-            <div className="bg-gray-700 border border-gray-600 text-white text-lg font-bold py-2 px-2 rounded">{timeLeft.hours}</div>
-            <div className="text-xs text-gray-400 mt-1">Hours</div>
-          </div>
-          <div className="text-center">
-            <div className="bg-gray-700 border border-gray-600 text-white text-lg font-bold py-2 px-2 rounded">{timeLeft.minutes}</div>
-            <div className="text-xs text-gray-400 mt-1">Min</div>
-          </div>
-          <div className="text-center">
-            <div className="bg-gray-700 border border-gray-600 text-white text-lg font-bold py-2 px-2 rounded">{timeLeft.seconds}</div>
-            <div className="text-xs text-gray-400 mt-1">Sec</div>
-          </div>
-        </div>
-        
-        <Button className="w-full bg-green-500 hover:bg-green-600 text-black font-bold py-2">
-          Remind Me
-        </Button>
       </div>
     </div>
   );
