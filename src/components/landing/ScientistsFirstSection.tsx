@@ -15,7 +15,7 @@ export default function ScientistsFirstSection() {
             </h2>
           </div>
           <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed">Born in 2020 out of the frustration of venture operators seeing too many scientists unable to unlock their full potential. Determined to free all 8.8 million scientists from the politics of legacy academia, industry and government and accelerate the rate of application of science in the real world.</p>
-          <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-4xl mx-auto mt-3 md:mt-4 leading-relaxed">Scientists First is the chant of all our community work as we continue pressing universities and policy makers to improve the way that scientists can perform in the century ahead.</p>
+          <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-4xl mx-auto mt-3 md:mt-4 leading-relaxed">Scientists First is the rallying cry of all our community work as we continue pressing universities and policy makers to improve the way that scientists can perform in the century ahead.</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mb-8 md:mb-12">
