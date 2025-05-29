@@ -13,35 +13,35 @@ export default function BackedFoundersSection({
   initialCount = 4,
   loadMoreCount = 8
 }: BackedFoundersSectionProps) {
-  const visibleFounders = backedFounders.slice(0, 4);
+  const [showAll, setShowAll] = useState(false);
+  const visibleFounders = showAll ? backedFounders : backedFounders.slice(0, initialCount);
 
   return (
     <div className="mt-8 w-full">
-      {/* Header without controls */}
+      {/* Header */}
       <div className="mb-6">
         <h4 className="text-lg font-medium text-gray-500 uppercase tracking-wide">FROM POSTDOCS TO FOUNDERS WITH US: LEADING THE PACK</h4>
       </div>
       
-      {/* Gallery container aligned with content */}
-      <div className="relative overflow-hidden">
-        <div 
-          id="founders-gallery" 
-          className="flex gap-6 overflow-x-auto scrollbar-hide pb-4 mb-6" 
-          style={{
-            scrollbarWidth: 'none',
-            msOverflowStyle: 'none',
-            WebkitOverflowScrolling: 'touch'
-          }}
-        >
-          {visibleFounders.map(founder => (
-            <FounderCard key={founder.id} founder={founder} />
-          ))}
-        </div>
-        
-        {/* Gradient fade indicators */}
-        <div className="absolute left-0 top-0 bottom-4 w-8 bg-gradient-to-r from-gray-50 to-transparent pointer-events-none"></div>
-        <div className="absolute right-0 top-0 bottom-4 w-8 bg-gradient-to-l from-gray-50 to-transparent pointer-events-none"></div>
+      {/* Grid container */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-6">
+        {visibleFounders.map(founder => (
+          <FounderCard key={founder.id} founder={founder} />
+        ))}
       </div>
+
+      {/* Show More/Less button */}
+      {backedFounders.length > initialCount && (
+        <div className="text-center">
+          <Button 
+            onClick={() => setShowAll(!showAll)}
+            variant="outline" 
+            className="border-gray-300 text-gray-700 hover:bg-gray-50"
+          >
+            {showAll ? 'Show Less' : `View All ${backedFounders.length} Founders`}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
@@ -52,7 +52,7 @@ interface FounderCardProps {
 
 function FounderCard({ founder }: FounderCardProps) {
   return (
-    <div className="flex-shrink-0 w-80 bg-white hover:bg-gray-25 transition-colors duration-200 group">
+    <div className="bg-white hover:bg-gray-25 transition-colors duration-200 group border border-gray-100 hover:border-gray-200">
       {/* Image section - completely flat */}
       <div className="relative h-32 bg-gray-100">
         <img 
