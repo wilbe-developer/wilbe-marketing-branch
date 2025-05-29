@@ -197,7 +197,7 @@ export default function WilbeStreamPlayer() {
         <div className="absolute inset-0 flex items-center justify-center">
           <Button 
             size="lg" 
-            className="bg-green-500 hover:bg-green-600 text-black font-bold rounded-full p-6"
+            className="bg-red-500 hover:bg-red-600 text-white font-bold rounded-lg px-8 py-6"
             onClick={() => currentVideo && window.open(`/video/${currentVideo.id}`, '_blank')}
           >
             <Play className="h-8 w-8" />
