@@ -1,5 +1,3 @@
-
-
 import { Badge } from "@/components/ui/badge";
 import { Linkedin, Twitter, Mail, ArrowRight, Users, Building, Briefcase } from "lucide-react";
 
@@ -146,29 +144,42 @@ export default function TeamShowcase() {
       }
     },
     {
-      name: "[Strategic Advisor Name]",
-      role: "Strategic Advisor",
-      expertise: "[Strategic Area]",
-      image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=400&fit=crop",
-      bio: "[Bio description highlighting their strategic expertise, industry experience, and advisory contributions to scientist founders.]",
-      company: "[Current Role/Company]",
+      name: "Gautam Dey, PhD",
+      role: "Academic Partner",
+      expertise: "Nuclear Organization Research",
+      image: "/lovable-uploads/5fd6487e-4a15-44a1-98b5-10ab78cef686.png",
+      bio: "Academic Partner at Wilbe, Gautam leads research on nuclear organization at EMBL. He completed postdoctoral work at UCL and earned his PhD from Stanford University, focusing on human gene regulatory evolution.",
+      company: "EMBL",
       social: {
         linkedin: "#",
         twitter: "#",
-        email: "[email]@example.com"
+        email: "gautam@wilbe.com"
       }
     },
     {
-      name: "[Technical Advisor Name]",
-      role: "Technical Advisor",
-      expertise: "[Technical Domain]",
-      image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=400&h=400&fit=crop",
-      bio: "[Bio description highlighting their technical expertise, research background, and guidance for technology commercialization.]",
-      company: "[Academic/Industry Position]",
+      name: "Hakan Bagci, PhD",
+      role: "Academic Partner",
+      expertise: "Life Sciences Research",
+      image: "/lovable-uploads/5fd6487e-4a15-44a1-98b5-10ab78cef686.png",
+      bio: "Academic Partner at Wilbe, Hakan enhances the impact of life sciences research. He's a senior molecular and cellular biologist at Imperial College London and founder of the Imperial Postdocs and Fellows Enterprise Network.",
+      company: "Imperial College London",
       social: {
         linkedin: "#",
         twitter: "#",
-        email: "[email]@example.com"
+        email: "hakan@wilbe.com"
+      }
+    },
+    {
+      name: "Ruaridh Macdonald, PhD",
+      role: "Academic Partner",
+      expertise: "Nuclear Science & Engineering",
+      image: "/lovable-uploads/5fd6487e-4a15-44a1-98b5-10ab78cef686.png",
+      bio: "Academic Partner at Wilbe, Ruaridh researches nuclear science and engineering at MIT, focusing on adapting nuclear power for modern energy systems. He co-founded and exited OpenWater Power to L3 Technologies.",
+      company: "MIT",
+      social: {
+        linkedin: "#",
+        twitter: "#",
+        email: "ruaridh@wilbe.com"
       }
     }
   ];
