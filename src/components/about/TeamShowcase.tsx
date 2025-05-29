@@ -1,3 +1,4 @@
+
 import { Badge } from "@/components/ui/badge";
 import { Linkedin, Twitter, Mail, ArrowRight, Users, Building, Briefcase } from "lucide-react";
 
@@ -118,16 +119,29 @@ export default function TeamShowcase() {
 
   const venturePartnersAndAdvisors = [
     {
-      name: "[Venture Partner Name]",
+      name: "Annalisa Jenkins",
       role: "Venture Partner",
-      expertise: "[Investment Focus/Expertise]",
-      image: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?w=400&h=400&fit=crop",
-      bio: "[Bio description highlighting their investment background, portfolio companies, and how they support Wilbe's mission in advancing scientist entrepreneurship.]",
-      company: "[Current Firm/Organization]",
+      expertise: "Biopharma Leadership",
+      image: "/lovable-uploads/fab8ee11-6d90-4457-89bb-c7e70993e0b7.png",
+      bio: "Venture Partner with Wilbe, Annalisa is a Biopharma exec with over 25 years' experience from bench to bedside. Former board member @FDA, board @Compass Pathways, @Skye Bioscience, @Ori Biotech, @Genomics England and more.",
+      company: "Wilbe Venture Partner",
       social: {
         linkedin: "#",
         twitter: "#",
-        email: "[email]@example.com"
+        email: "annalisa@wilbe.com"
+      }
+    },
+    {
+      name: "Michael Jackson",
+      role: "Venture Partner",
+      expertise: "Transatlantic Investing",
+      image: "/lovable-uploads/fab8ee11-6d90-4457-89bb-c7e70993e0b7.png",
+      bio: "Venture Partner at Wilbe, Michael is a transatlantic entrepreneur turned investor living in Europe. He has 20+ years as an entrepreneur and VC.",
+      company: "Wilbe Venture Partner",
+      social: {
+        linkedin: "#",
+        twitter: "#",
+        email: "michael@wilbe.com"
       }
     },
     {
@@ -137,19 +151,6 @@ export default function TeamShowcase() {
       image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=400&fit=crop",
       bio: "[Bio description highlighting their strategic expertise, industry experience, and advisory contributions to scientist founders.]",
       company: "[Current Role/Company]",
-      social: {
-        linkedin: "#",
-        twitter: "#",
-        email: "[email]@example.com"
-      }
-    },
-    {
-      name: "[Industry Advisor Name]",
-      role: "Industry Advisor",
-      expertise: "[Industry Specialization]",
-      image: "https://images.unsplash.com/photo-1581090464777-f3220bbe1b8b?w=400&h=400&fit=crop",
-      bio: "[Bio description highlighting their industry leadership, domain expertise, and mentorship of deep tech entrepreneurs.]",
-      company: "[Current Position]",
       social: {
         linkedin: "#",
         twitter: "#",
