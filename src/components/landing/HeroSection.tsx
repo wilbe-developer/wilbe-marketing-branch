@@ -19,7 +19,7 @@ export default function HeroSection() {
       <div className="grid sm:grid-cols-3 gap-4 mb-8">
         <div className="text-center">
           <div className="text-3xl font-bold text-green-500 mb-1">1.3K+</div>
-          <p className="text-gray-400 text-sm uppercase tracking-wide">Entrepreneurial Scientists</p>
+          <p className="text-gray-400 text-sm uppercase tracking-wide">SCIENTIST COMMUNITY</p>
         </div>
         <div className="text-center">
           <div className="text-3xl font-bold text-green-500 mb-1">62%</div>
