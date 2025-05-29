@@ -9,7 +9,8 @@ import {
   BarChart2, 
   ArrowLeft, 
   TrendingUp,
-  UserCheck
+  UserCheck,
+  Shield
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -42,7 +43,7 @@ const FullScreenAdminLayout = ({ children, title = 'Admin' }: FullScreenAdminLay
     { 
       path: '/admin/roles', 
       label: 'Role Management', 
-      icon: <Settings size={20} /> 
+      icon: <Shield size={20} /> 
     },
     { 
       path: '/admin/sprint-monitor', 
