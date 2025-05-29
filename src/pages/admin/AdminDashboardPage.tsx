@@ -1,10 +1,9 @@
-
 import React, { useEffect, useState } from 'react';
 import FullScreenAdminLayout from '@/components/admin/FullScreenAdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useSprintAdminData } from '@/hooks/admin/useSprintAdminData';
 import { useSprintMonitor } from '@/hooks/admin/useSprintMonitor';
-import { BarChart, Users, FileText, Settings, Clock, Database, Activity, BarChart2, LineChart, TrendingUp, UserCheck, Shield } from 'lucide-react';
+import { BarChart, Users, FileText, Settings, Clock, Database, Activity, BarChart2, LineChart, TrendingUp, UserCheck, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import ActivityFeed from '@/components/admin/sprint-monitor/ActivityFeed';
@@ -162,7 +161,7 @@ const AdminDashboardPage = () => {
               
               <Link to="/admin/roles" className="block p-3 hover:bg-gray-50 rounded-md">
                 <div className="flex items-center">
-                  <Shield className="h-5 w-5 mr-3 text-gray-500" />
+                  <ShieldCheck className="h-5 w-5 mr-3 text-gray-500" />
                   <div>
                     <div className="font-medium">Role Management</div>
                     <div className="text-sm text-gray-500">Manage user roles and permissions</div>
