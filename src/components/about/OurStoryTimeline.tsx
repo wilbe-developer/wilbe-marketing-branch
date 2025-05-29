@@ -1,4 +1,3 @@
-
 import { Badge } from "@/components/ui/badge"
 import { Calendar, Rocket, Users, TrendingUp } from "lucide-react"
 
@@ -43,7 +42,7 @@ export default function OurStoryTimeline() {
   ]
 
   return (
-    <section className="py-20 bg-white">
+    <section id="timeline-section" className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <Badge className="mb-4 bg-black text-white border-0 uppercase tracking-wide text-sm">

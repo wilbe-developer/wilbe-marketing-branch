@@ -1,6 +1,7 @@
 
 import LandingNavigation from "@/components/landing/LandingNavigation"
 import AboutHeroSection from "@/components/about/AboutHeroSection"
+import AboutQuickNav from "@/components/about/AboutQuickNav"
 import TeamShowcase from "@/components/about/TeamShowcase"
 import OurStoryTimeline from "@/components/about/OurStoryTimeline"
 import RoadshowGallery from "@/components/about/RoadshowGallery"
@@ -18,6 +19,7 @@ export default function AboutUsPage() {
       
       <LandingNavigation />
       <AboutHeroSection />
+      <AboutQuickNav />
       <TeamShowcase />
       <OurStoryTimeline />
       <RoadshowGallery />

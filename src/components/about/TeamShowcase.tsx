@@ -436,7 +436,7 @@ export default function TeamShowcase() {
         </div>
 
         {/* Alumni Network & Opportunities Section */}
-        <div className="text-center mb-16">
+        <div id="opportunities-section" className="text-center mb-16">
           <Badge className="mb-4 bg-gradient-to-r from-gray-600 to-gray-800 text-white border-0 uppercase tracking-wide text-sm">
             Alumni Network & Opportunities
           </Badge>
