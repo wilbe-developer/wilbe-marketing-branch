@@ -69,7 +69,7 @@ function FounderCard({ founder }: FounderCardProps) {
               {founder.sector}
             </div>
             {founder.bsfClass && (
-              <div className="bg-blue-200 text-blue-800 text-xs px-3 py-1 font-medium">
+              <div className="bg-green-200 text-green-800 text-xs px-3 py-1 font-medium">
                 {founder.bsfClass}
               </div>
             )}
