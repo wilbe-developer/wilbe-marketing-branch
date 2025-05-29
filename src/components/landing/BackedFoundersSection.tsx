@@ -13,8 +13,7 @@ export default function BackedFoundersSection({
   initialCount = 4,
   loadMoreCount = 8
 }: BackedFoundersSectionProps) {
-  const [showAll, setShowAll] = useState(false);
-  const visibleFounders = showAll ? backedFounders : backedFounders.slice(0, initialCount);
+  const visibleFounders = backedFounders;
 
   return (
     <div className="mt-8 w-full">
@@ -29,19 +28,6 @@ export default function BackedFoundersSection({
           <FounderCard key={founder.id} founder={founder} />
         ))}
       </div>
-
-      {/* Show More/Less button */}
-      {backedFounders.length > initialCount && (
-        <div className="text-center">
-          <Button 
-            onClick={() => setShowAll(!showAll)}
-            variant="outline" 
-            className="border-gray-300 text-gray-700 hover:bg-gray-50"
-          >
-            {showAll ? 'Show Less' : `View All ${backedFounders.length} Founders`}
-          </Button>
-        </div>
-      )}
     </div>
   );
 }
