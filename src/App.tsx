@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -60,8 +61,6 @@ import MemberRoute from "@/components/MemberRoute";
 
 // MetaWrapper for per-page <Helmet> tags
 import MetaWrapper from "@/components/MetaWrapper";
-
-import RoleManagementPage from "./pages/admin/RoleManagementPage";
 
 const queryClient = new QueryClient();
 
@@ -143,7 +142,6 @@ const App = () => (
                   <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
                   <Route path="/admin/users" element={<AdminUsersPage />} />
                   <Route path="/admin/approvals" element={<UserApprovalsPage />} />
-                  <Route path="/admin/roles" element={<RoleManagementPage />} />
                   <Route path="/admin/sprint-monitor" element={<SprintMonitorPage />} />
                   <Route path="/admin/task-builder" element={<TaskBuilderPage />} />
                   <Route path="/admin/utm-analytics" element={<UTMAnalyticsPage />} />
