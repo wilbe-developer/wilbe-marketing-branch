@@ -16,7 +16,7 @@ const HomePage = () => {
   const [showPendingDialog, setShowPendingDialog] = useState(false);
 
   const handleNonMemberClick = () => {
-    if (user?.applicationStatus === 'under_review') {
+    if (user?.membershipApplicationStatus === 'under_review') {
       setShowPendingDialog(true);
     } else {
       setShowProfileDialog(true);
@@ -26,7 +26,7 @@ const HomePage = () => {
   const renderMembershipBanner = () => {
     if (isMember) return null;
 
-    if (user?.applicationStatus === 'under_review') {
+    if (user?.membershipApplicationStatus === 'under_review') {
       return (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
           <div className="flex items-center gap-2 mb-2">
@@ -100,7 +100,7 @@ const HomePage = () => {
             ) : (
               <Button variant="outline" onClick={handleNonMemberClick}>
                 <Lock className="h-4 w-4 mr-2" />
-                {user?.applicationStatus === 'under_review' ? 'Application Under Review' : 'Complete Profile to Access'}
+                {user?.membershipApplicationStatus === 'under_review' ? 'Application Under Review' : 'Complete Profile to Access'}
               </Button>
             )}
           </div>
@@ -119,7 +119,7 @@ const HomePage = () => {
             ) : (
               <Button variant="outline" onClick={handleNonMemberClick}>
                 <Lock className="h-4 w-4 mr-2" />
-                {user?.applicationStatus === 'under_review' ? 'Application Under Review' : 'Complete Profile to Connect'}
+                {user?.membershipApplicationStatus === 'under_review' ? 'Application Under Review' : 'Complete Profile to Connect'}
               </Button>
             )}
           </div>

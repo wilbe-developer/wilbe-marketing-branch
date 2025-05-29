@@ -30,7 +30,7 @@ const MemberDirectoryPage = () => {
     : members;
 
   const handleNonMemberClick = () => {
-    if (user?.applicationStatus === 'under_review') {
+    if (user?.membershipApplicationStatus === 'under_review') {
       setShowPendingDialog(true);
     } else {
       setShowProfileDialog(true);
@@ -40,7 +40,7 @@ const MemberDirectoryPage = () => {
   const renderMembershipBanner = () => {
     if (isMember) return null;
 
-    if (user?.applicationStatus === 'under_review') {
+    if (user?.membershipApplicationStatus === 'under_review') {
       return (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8 max-w-2xl mx-auto">
           <Clock className="h-8 w-8 mx-auto text-blue-600 mb-3" />

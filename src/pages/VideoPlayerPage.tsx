@@ -1,3 +1,4 @@
+
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useVideos } from "@/hooks/useVideos";
@@ -114,7 +115,7 @@ const VideoPlayerPage = () => {
   };
 
   const handleNonMemberClick = () => {
-    if (user?.applicationStatus === 'under_review') {
+    if (user?.membershipApplicationStatus === 'under_review') {
       setShowPendingDialog(true);
     } else {
       setShowProfileDialog(true);
@@ -134,15 +135,15 @@ const VideoPlayerPage = () => {
             </p>
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
               <h3 className="text-lg font-semibold text-blue-800 mb-2">
-                {user?.applicationStatus === 'under_review' ? 'Application Under Review' : 'Join Wilbe to Access'}
+                {user?.membershipApplicationStatus === 'under_review' ? 'Application Under Review' : 'Join Wilbe to Access'}
               </h3>
               <p className="text-blue-700 mb-4">
-                {user?.applicationStatus === 'under_review' 
+                {user?.membershipApplicationStatus === 'under_review' 
                   ? "We're reviewing your application and will notify you via email when approved."
                   : "Become a member to unlock our full video library featuring:"
                 }
               </p>
-              {user?.applicationStatus !== 'under_review' && (
+              {user?.membershipApplicationStatus !== 'under_review' && (
                 <ul className="text-left text-blue-700 mb-4 space-y-1">
                   <li>• Expert insights from successful scientist entrepreneurs</li>
                   <li>• Career transition stories and advice</li>
@@ -152,7 +153,7 @@ const VideoPlayerPage = () => {
               )}
             </div>
             <div className="flex gap-4 justify-center">
-              {user?.applicationStatus === 'under_review' ? (
+              {user?.membershipApplicationStatus === 'under_review' ? (
                 <Button size="lg" onClick={() => setShowPendingDialog(true)}>
                   View Application Status
                 </Button>
