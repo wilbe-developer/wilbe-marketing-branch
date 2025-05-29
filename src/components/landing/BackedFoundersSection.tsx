@@ -13,8 +13,11 @@ export default function BackedFoundersSection({
   initialCount = 6,
   loadMoreCount = 8
 }: BackedFoundersSectionProps) {
-  // Limit to first row only (6 founders)
-  const visibleFounders = backedFounders.slice(0, 6);
+  // Filter out Alexandre Webster and Ola Hekselman, then limit to first 6
+  const filteredFounders = backedFounders.filter(founder => 
+    founder.name !== "Alexandre Webster" && founder.name !== "Ola Hekselman"
+  );
+  const visibleFounders = filteredFounders.slice(0, 6);
 
   return (
     <div className="mt-8 w-full">
