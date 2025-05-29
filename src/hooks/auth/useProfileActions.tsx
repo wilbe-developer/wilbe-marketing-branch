@@ -94,7 +94,7 @@ export const useProfileActions = ({
     }
   };
 
-  // Update profile function
+  // Update profile function - removed updated_at column reference
   const updateProfile = async (data: Partial<UserProfile>) => {
     try {
       setLoading(true);
@@ -103,7 +103,7 @@ export const useProfileActions = ({
         throw new Error("Not authenticated");
       }
       
-      // Transform data to match database fields
+      // Transform data to match database fields (removed updated_at reference)
       const dbData: any = {};
 
       if (data.firstName !== undefined) dbData.first_name = data.firstName;
@@ -121,7 +121,7 @@ export const useProfileActions = ({
       if (data.activityStatus !== undefined) dbData.activity_status = data.activityStatus;
       if (data.status !== undefined) dbData.status = data.status;
       
-      // Update profile in Supabase
+      // Update profile in Supabase (no longer tries to set updated_at)
       const { error } = await supabase
         .from('profiles')
         .update(dbData)
@@ -139,6 +139,7 @@ export const useProfileActions = ({
         description: "Your profile has been successfully updated.",
       });
     } catch (error) {
+      console.error("Profile update error:", error);
       toast({
         title: "Update failed",
         description: error instanceof Error ? error.message : "Unknown error occurred",
@@ -163,6 +164,7 @@ export const useProfileActions = ({
         throw new Error("Not authenticated");
       }
 
+      console.log("Submitting membership application:", applicationData);
       await applicationService.submitMembershipApplication(user.id, applicationData);
       
       // Re-fetch the user profile to get updated application status
@@ -175,6 +177,7 @@ export const useProfileActions = ({
       
       return { success: true };
     } catch (error) {
+      console.error("Application submission error:", error);
       toast({
         title: "Submission failed",
         description: error instanceof Error ? error.message : "Unknown error occurred",

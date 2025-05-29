@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,8 @@ const ProfileCompletionDialog = ({ open, onOpenChange }: ProfileCompletionDialog
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    console.log("ProfileCompletionDialog: Starting form submission");
     
     if (!firstName.trim() || !lastName.trim()) {
       toast({
@@ -67,18 +70,25 @@ const ProfileCompletionDialog = ({ open, onOpenChange }: ProfileCompletionDialog
       
       const finalLinkedIn = linkedInOption === "enter" ? linkedInValue.trim() : "";
 
-      const result = await submitMembershipApplication({
+      const applicationData = {
         firstName: firstName.trim(),
         lastName: lastName.trim(),
         institution: finalInstitution || undefined,
         linkedIn: finalLinkedIn || undefined,
-      });
+      };
+
+      console.log("ProfileCompletionDialog: Submitting application data:", applicationData);
+      
+      const result = await submitMembershipApplication(applicationData);
       
       if (result.success) {
+        console.log("ProfileCompletionDialog: Application submitted successfully");
         setSubmitted(true);
+      } else {
+        console.error("ProfileCompletionDialog: Application submission failed");
       }
     } catch (error) {
-      console.error("Failed to submit application:", error);
+      console.error("ProfileCompletionDialog: Failed to submit application:", error);
       toast({
         title: "Error",
         description: "Failed to save your information. Please try again.",
