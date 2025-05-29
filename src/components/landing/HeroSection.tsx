@@ -1,7 +1,9 @@
+
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, PartyPopper } from "lucide-react";
 import { Link } from "react-router-dom";
+
 export default function HeroSection() {
   return <div className="lg:col-span-2">
       <div className="mb-6">
@@ -22,12 +24,12 @@ export default function HeroSection() {
           <p className="text-gray-400 text-sm uppercase tracking-wide">SCIENTIST COMMUNITY</p>
         </div>
         <div className="text-center">
-          <div className="text-3xl font-bold text-green-500 mb-1">62%</div>
-          <p className="text-gray-400 text-sm uppercase tracking-wide">MAU<br />Platform Growth</p>
+          <div className="text-3xl font-bold text-green-500 mb-1">30%</div>
+          <p className="text-gray-400 text-sm uppercase tracking-wide">MONTHLY USER GROWTH</p>
         </div>
         <div className="text-center">
-          <div className="text-3xl font-bold text-green-500 mb-1">1/3</div>
-          <p className="text-gray-400 text-sm uppercase tracking-wide">Funded Scientist Founders</p>
+          <div className="text-3xl font-bold text-green-500 mb-1">$680M</div>
+          <p className="text-gray-400 text-sm uppercase tracking-wide">COMBINED PORTFOLIO VALUATION</p>
         </div>
       </div>
 

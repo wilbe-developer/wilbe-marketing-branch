@@ -851,6 +851,36 @@ export type Database = {
         }
         Relationships: []
       }
+      user_applications: {
+        Row: {
+          application_type: string
+          created_at: string
+          id: string
+          status: Database["public"]["Enums"]["application_status"]
+          submitted_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          application_type?: string
+          created_at?: string
+          id?: string
+          status?: Database["public"]["Enums"]["application_status"]
+          submitted_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          application_type?: string
+          created_at?: string
+          id?: string
+          status?: Database["public"]["Enums"]["application_status"]
+          submitted_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_files: {
         Row: {
           download_url: string
@@ -1281,6 +1311,10 @@ export type Database = {
             }
         Returns: undefined
       }
+      get_application_status: {
+        Args: { p_user_id: string; p_application_type?: string }
+        Returns: Database["public"]["Enums"]["application_status"]
+      }
       has_completed_sprint_onboarding: {
         Args: { p_user_id: string }
         Returns: boolean
@@ -1301,8 +1335,19 @@ export type Database = {
         Args: { p_user_id: string; p_owner_id: string }
         Returns: boolean
       }
+      submit_membership_application: {
+        Args: {
+          p_user_id: string
+          p_first_name: string
+          p_last_name: string
+          p_institution: string
+          p_linkedin: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
+      application_status: "not_started" | "under_review"
       user_role: "admin" | "user" | "member"
     }
     CompositeTypes: {
@@ -1419,6 +1464,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      application_status: ["not_started", "under_review"],
       user_role: ["admin", "user", "member"],
     },
   },
