@@ -1,7 +1,6 @@
-
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import LatestContentFeed from "./LatestContentFeed";
+import WilbePlatformPreview from "./WilbePlatformPreview";
 import UpcomingEventsFeeder from "./UpcomingEventsFeeder";
 
 export default function PlatformsSection() {
@@ -139,13 +138,13 @@ export default function PlatformsSection() {
                   </Button>
                 )}
 
-                {/* Latest Content Feed and Upcoming Events - only show for Wilbe Sandbox */}
+                {/* Platform Preview and Upcoming Events - only show for Wilbe Sandbox */}
                 {platform.showLatestContent && (
                   <>
                     <div className="mt-8 max-w-4xl">
                       <div className="grid md:grid-cols-2 gap-6">
                         <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
-                          <LatestContentFeed />
+                          <WilbePlatformPreview />
                         </div>
                         <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
                           <UpcomingEventsFeeder />
