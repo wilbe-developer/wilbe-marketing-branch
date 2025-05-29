@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -175,7 +176,7 @@ export default function WilbeStreamPlayer() {
   return (
     <div className="space-y-4">
       {/* Video Player */}
-      <div className="relative bg-gray-900 overflow-hidden aspect-video">
+      <div className="relative bg-gray-900 overflow-hidden aspect-video group">
         {/* Video thumbnail */}
         <img
           src={currentVideo?.thumbnail_url || "/placeholder.svg"}
@@ -205,25 +206,43 @@ export default function WilbeStreamPlayer() {
 
         {/* Duration badge */}
         {currentVideo?.duration && (
-          <div className="absolute top-4 right-4 bg-black/75 text-white text-xs px-2 py-1">
+          <div className="absolute top-4 right-4 bg-black/90 text-white text-xs px-2 py-1 rounded-sm font-medium">
             {currentVideo.duration}
           </div>
         )}
 
-        {/* Time Bar - Bottom overlay */}
-        <div className="absolute bottom-0 left-0 right-0 bg-black/75 backdrop-blur-sm p-4">
-          <div className="flex items-center gap-3">
-            <span className="text-white text-xs font-mono">
+        {/* YouTube-style Time Bar - Bottom overlay */}
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          <div className="flex items-center gap-2 text-white">
+            <span className="text-sm font-medium min-w-[35px] text-center">
               {formatTime(currentTime)}
             </span>
-            <Slider
-              value={[currentTime]}
-              onValueChange={handleTimeChange}
-              max={duration}
-              step={1}
-              className="flex-1"
-            />
-            <span className="text-white text-xs font-mono">
+            <div className="flex-1 flex items-center group/slider">
+              <div className="relative w-full h-1 bg-white/30 hover:h-1.5 transition-all duration-150 cursor-pointer rounded-sm overflow-hidden">
+                {/* Progress bar background */}
+                <div className="absolute inset-0 bg-white/30"></div>
+                {/* Progress bar fill */}
+                <div 
+                  className="absolute left-0 top-0 h-full bg-red-500 transition-all duration-150"
+                  style={{ width: `${(currentTime / duration) * 100}%` }}
+                ></div>
+                {/* Slider thumb - only visible on hover */}
+                <div 
+                  className="absolute top-1/2 transform -translate-y-1/2 w-3 h-3 bg-red-500 rounded-full opacity-0 group-hover/slider:opacity-100 transition-opacity duration-150 shadow-lg"
+                  style={{ left: `${(currentTime / duration) * 100}%`, marginLeft: '-6px' }}
+                ></div>
+                {/* Invisible input for interaction */}
+                <input
+                  type="range"
+                  min="0"
+                  max={duration}
+                  value={currentTime}
+                  onChange={(e) => setCurrentTime(Number(e.target.value))}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                />
+              </div>
+            </div>
+            <span className="text-sm font-medium min-w-[35px] text-center">
               {formatTime(duration)}
             </span>
           </div>
