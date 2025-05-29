@@ -50,6 +50,7 @@ import FAQsPage from "@/pages/FAQsPage";
 import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
 import AdminUsersPage from "./pages/admin/AdminUsersPage";
 import UserApprovalsPage from "./pages/admin/UserApprovalsPage";
+import RoleManagementPage from "./pages/admin/RoleManagementPage";
 import AdminSettingsPage from "./pages/admin/AdminSettingsPage";
 import AdminDataExplorerPage from "./pages/admin/AdminDataExplorerPage";
 import AdminActivityLogPage from "./pages/admin/AdminActivityLogPage";

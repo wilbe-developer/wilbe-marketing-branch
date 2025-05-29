@@ -40,6 +40,11 @@ const FullScreenAdminLayout = ({ children, title = 'Admin' }: FullScreenAdminLay
       icon: <UserCheck size={20} /> 
     },
     { 
+      path: '/admin/roles', 
+      label: 'Role Management', 
+      icon: <Settings size={20} /> 
+    },
+    { 
       path: '/admin/sprint-monitor', 
       label: 'Sprint Monitor', 
       icon: <BarChart2 size={20} /> 
