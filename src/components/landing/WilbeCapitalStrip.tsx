@@ -1,12 +1,9 @@
-
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import BackedFoundersSection from "./BackedFoundersSection";
-
 export default function WilbeCapitalStrip() {
-  return (
-    <section className="py-20 bg-gray-900">
+  return <section className="py-20 bg-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-12">
@@ -16,9 +13,7 @@ export default function WilbeCapitalStrip() {
         </div>
 
         {/* Description */}
-        <p className="text-gray-300 text-lg leading-relaxed mb-12 max-w-4xl">
-          Wilbe Capital backs scientist-led startups solving critical challenges in health, climate, and security. Offering strategic funding and partnerships, it helps researchers transform discoveries into scalable businesses, supporting BSF graduates and Sandbox members to drive impact.
-        </p>
+        <p className="text-gray-300 text-lg leading-relaxed mb-12 max-w-4xl">Wilbe Capital partners with scientist-led companies solving the most urgent and valuable challenges in health, climate, and security - on day zero. We work alongside our founders to transform novel insights into scalable businesses, supporting BSF graduates and Sandbox members to drive impact.</p>
 
         {/* Backed Founders section */}
         <BackedFoundersSection initialCount={6} loadMoreCount={6} />
@@ -35,6 +30,5 @@ export default function WilbeCapitalStrip() {
           </Link>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 }
