@@ -17,18 +17,23 @@ const UserApprovalsTab = () => {
   useEffect(() => {
     const fetchPendingUsers = async () => {
       try {
-        const { data: profileData, error: profileError } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('approved', false);
+        // Get all unified profiles that need approval
+        const { data: unifiedData, error: unifiedError } = await supabase
+          .rpc('get_all_unified_profiles');
 
-        if (profileError) {
-          throw profileError;
+        if (unifiedError) {
+          throw unifiedError;
         }
 
-        if (profileData) {
-          const userProfiles: UserProfile[] = profileData.map(profile => ({
-            id: profile.id,
+        if (unifiedData) {
+          // Filter for users that need approval (either not approved or have sprint profile but no profile approval)
+          const pendingProfiles = unifiedData.filter(profile => 
+            !profile.approved || (profile.has_sprint_profile && !profile.has_profile)
+          );
+
+          // Transform to UserProfile format
+          const userProfiles: UserProfile[] = pendingProfiles.map(profile => ({
+            id: profile.user_id,
             firstName: profile.first_name || '',
             lastName: profile.last_name || '',
             email: profile.email || '',
@@ -41,6 +46,7 @@ const UserApprovalsTab = () => {
             createdAt: profile.created_at ? new Date(profile.created_at) : new Date(),
             avatar: profile.avatar || `https://randomuser.me/api/portraits/${Math.random() > 0.5 ? 'men' : 'women'}/${Math.floor(Math.random() * 100)}.jpg`
           }));
+          
           setPendingUsers(userProfiles);
         }
       } catch (error) {
@@ -60,11 +66,15 @@ const UserApprovalsTab = () => {
 
   const handleApprovalAction = async (userId: string, status: ApprovalStatus) => {
     try {
-      // First, update the profile's approved field for backward compatibility
+      // Update the profile's approved field
       const { error: profileError } = await supabase
         .from('profiles')
-        .update({ approved: status === 'approved' })
-        .eq('id', userId);
+        .upsert({ 
+          id: userId,
+          approved: status === 'approved' 
+        }, { 
+          onConflict: 'id' 
+        });
 
       if (profileError) {
         throw profileError;
@@ -110,7 +120,7 @@ const UserApprovalsTab = () => {
       <CardHeader>
         <CardTitle>Pending Approvals</CardTitle>
         <CardDescription>
-          Review and approve new user registrations
+          Review and approve new user registrations (includes both profile signups and sprint participants)
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -123,6 +133,7 @@ const UserApprovalsTab = () => {
                 <TableHead>User</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Institution</TableHead>
+                <TableHead>Source</TableHead>
                 <TableHead>Registered</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
@@ -140,13 +151,18 @@ const UserApprovalsTab = () => {
                       <div>
                         {user.firstName} {user.lastName}
                         <div className="text-sm text-gray-500">
-                          {user.role}
+                          {user.role || 'No role specified'}
                         </div>
                       </div>
                     </div>
                   </TableCell>
                   <TableCell>{user.email}</TableCell>
-                  <TableCell>{user.institution}</TableCell>
+                  <TableCell>{user.institution || 'Not specified'}</TableCell>
+                  <TableCell>
+                    <span className="text-sm text-gray-500">
+                      Profile Signup
+                    </span>
+                  </TableCell>
                   <TableCell>
                     {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Unknown'}
                   </TableCell>

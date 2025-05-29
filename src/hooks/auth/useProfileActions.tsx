@@ -17,20 +17,17 @@ export const useProfileActions = ({
   toast
 }: UseProfileActionsProps) => {
   
-  // Fetch user profile
+  // Fetch user profile using unified profile function
   const fetchUserProfile = async (userId: string) => {
     try {
-      console.log("Fetching user profile for:", userId);
+      console.log("Fetching unified user profile for:", userId);
       
-      // Get the profile data
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
+      // Get the unified profile data
+      const { data: unifiedData, error: unifiedError } = await supabase
+        .rpc('get_unified_profile', { p_user_id: userId });
         
-      if (profileError) {
-        console.error('Error fetching user profile:', profileError);
+      if (unifiedError) {
+        console.error('Error fetching unified user profile:', unifiedError);
         setLoading(false);
         return;
       }
@@ -54,16 +51,18 @@ export const useProfileActions = ({
       const isAdmin = isAdminData || false;
       const isMember = isMemberData || false;
       
-      // Get application status using our new service
+      // Get application status using our service
       const membershipApplicationStatus = await applicationService.getApplicationStatus(userId);
       
       console.log("Role check results:", { isAdmin, isMember, membershipApplicationStatus });
       
-      if (profileData) {
-        console.log("User profile found:", profileData, "Is admin:", isAdmin, "Is member:", isMember, "Application status:", membershipApplicationStatus);
-        // Transform database fields to match our UserProfile interface
+      if (unifiedData && unifiedData.length > 0) {
+        const profileData = unifiedData[0];
+        console.log("Unified user profile found:", profileData, "Is admin:", isAdmin, "Is member:", isMember, "Application status:", membershipApplicationStatus);
+        
+        // Transform unified profile data to match our UserProfile interface
         const userProfile: UserProfile = {
-          id: profileData.id,
+          id: profileData.user_id,
           firstName: profileData.first_name || '',
           lastName: profileData.last_name || '',
           email: profileData.email || '',
@@ -74,7 +73,7 @@ export const useProfileActions = ({
           bio: profileData.bio,
           about: profileData.about,
           approved: profileData.approved || false,
-          createdAt: new Date(profileData.created_at || new Date()),
+          createdAt: profileData.created_at ? new Date(profileData.created_at) : new Date(),
           avatar: profileData.avatar,
           isAdmin: isAdmin, // Using the role-based check
           isMember: isMember, // Using the role-based check
@@ -94,7 +93,7 @@ export const useProfileActions = ({
     }
   };
 
-  // Update profile function - removed updated_at column reference
+  // Update profile function - now handles both profiles and sprint_profiles sync
   const updateProfile = async (data: Partial<UserProfile>) => {
     try {
       setLoading(true);
@@ -103,7 +102,7 @@ export const useProfileActions = ({
         throw new Error("Not authenticated");
       }
       
-      // Transform data to match database fields (removed updated_at reference)
+      // Transform data to match database fields
       const dbData: any = {};
 
       if (data.firstName !== undefined) dbData.first_name = data.firstName;
@@ -121,17 +120,21 @@ export const useProfileActions = ({
       if (data.activityStatus !== undefined) dbData.activity_status = data.activityStatus;
       if (data.status !== undefined) dbData.status = data.status;
       
-      // Update profile in Supabase (no longer tries to set updated_at)
+      // Update profile in Supabase - this will use upsert pattern for unified handling
       const { error } = await supabase
         .from('profiles')
-        .update(dbData)
-        .eq('id', user.id);
+        .upsert({ 
+          id: user.id,
+          ...dbData 
+        }, { 
+          onConflict: 'id' 
+        });
       
       if (error) {
         throw error;
       }
       
-      // Re-fetch the user profile to ensure we have the latest data
+      // Re-fetch the user profile to ensure we have the latest unified data
       await fetchUserProfile(user.id);
       
       toast({
