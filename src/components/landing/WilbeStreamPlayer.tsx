@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -120,9 +119,9 @@ export default function WilbeStreamPlayer() {
     return (
       <div className="space-y-4">
         {/* Video Player Container - Loading/Fallback */}
-        <div className="bg-gray-800 rounded-lg overflow-hidden">
+        <div className="bg-gray-900 rounded-lg overflow-hidden">
           <div className="relative aspect-video">
-            <div className="w-full h-full bg-gray-800 flex items-center justify-center">
+            <div className="w-full h-full bg-gray-900 flex items-center justify-center">
               <div className="text-white text-center">
                 {loading ? "Loading videos..." : "No videos available"}
               </div>
@@ -178,7 +177,7 @@ export default function WilbeStreamPlayer() {
   return (
     <div className="space-y-4">
       {/* Video Player Container - Framed with NOW PLAYING */}
-      <div className="bg-gray-800 rounded-lg overflow-hidden">
+      <div className="bg-gray-900 rounded-lg overflow-hidden">
         {/* Video Player */}
         <div className="relative aspect-video group">
           {/* Video thumbnail */}
@@ -201,7 +200,7 @@ export default function WilbeStreamPlayer() {
           <div className="absolute inset-0 flex items-center justify-center">
             <Button 
               size="lg" 
-              className="bg-red-500 hover:bg-red-600 text-white font-bold rounded-lg px-8 py-6"
+              className="bg-red-500 hover:bg-red-600 text-white font-bold rounded-lg px-6 py-4 aspect-square w-20 h-20 flex items-center justify-center"
               onClick={() => currentVideo && window.open(`/video/${currentVideo.id}`, '_blank')}
             >
               <Play className="h-8 w-8" />
