@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import UpcomingEventsFeeder from "./UpcomingEventsFeeder";
@@ -145,13 +146,13 @@ export default function PlatformsSection() {
                         <img
                           src="/lovable-uploads/1ea15f19-c70d-4a23-9800-9aab1bf6614d.png"
                           alt="Wilbe Sandbox Platform Interface"
-                          className="w-full h-auto object-cover rounded-lg"
+                          className="w-full h-96 object-cover rounded-lg"
                           onError={(e) => {
                             console.error("Image failed to load:", e);
                             (e.target as HTMLImageElement).src = "/placeholder.svg";
                           }}
                         />
-                        <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+                        <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm h-96 overflow-hidden">
                           <UpcomingEventsFeeder />
                         </div>
                       </div>
