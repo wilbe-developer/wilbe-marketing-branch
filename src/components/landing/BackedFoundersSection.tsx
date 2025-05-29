@@ -52,7 +52,7 @@ interface FounderCardProps {
 
 function FounderCard({ founder }: FounderCardProps) {
   return (
-    <div className="flex-shrink-0 w-80 bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow group">
+    <div className="flex-shrink-0 w-80 bg-white border border-gray-200 rounded-lg overflow-hidden hover:border-gray-300 transition-all duration-200 group">
       <div className="relative h-32 bg-gray-100">
         <img 
           src={founder.image} 
@@ -63,7 +63,6 @@ function FounderCard({ founder }: FounderCardProps) {
             target.src = "/placeholder.svg";
           }} 
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
       </div>
       
       <div className="p-4">
@@ -73,8 +72,12 @@ function FounderCard({ founder }: FounderCardProps) {
             <p className="text-gray-600 text-xs">{founder.title}</p>
           </div>
           <div className="flex flex-col gap-1">
+            {/* Sector tag above BSF class */}
+            <span className="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded font-medium">
+              {founder.sector}
+            </span>
             {founder.bsfClass && (
-              <span className="bg-blue-100 text-blue-700 text-xs px-1 py-0.5 rounded-full font-medium">
+              <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded font-medium">
                 {founder.bsfClass}
               </span>
             )}
@@ -84,16 +87,12 @@ function FounderCard({ founder }: FounderCardProps) {
         <h6 className="font-semibold text-gray-800 text-sm mb-1">{founder.company}</h6>
         <p className="text-gray-600 text-xs leading-relaxed mb-3 line-clamp-2">{founder.description}</p>
         
-        {/* Quote section */}
-        <div className="mb-3 p-3 bg-gray-50 rounded-lg relative">
+        {/* Quote section with clean styling */}
+        <div className="mb-3 p-3 bg-gray-50 rounded-lg relative border border-gray-100">
           <Quote className="absolute top-2 left-2 h-3 w-3 text-gray-400" />
           <p className="text-xs italic text-gray-700 leading-relaxed pl-4">
             "{founder.quote}"
           </p>
-        </div>
-        
-        <div className="flex justify-between items-center">
-          <span className="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded">{founder.sector}</span>
         </div>
       </div>
     </div>
