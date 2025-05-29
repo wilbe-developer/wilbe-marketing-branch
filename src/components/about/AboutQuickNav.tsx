@@ -4,18 +4,23 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar, Briefcase, ArrowRight } from "lucide-react";
 
 export default function AboutQuickNav() {
+  console.log("AboutQuickNav component is rendering");
+  
   const scrollToSection = (sectionId: string) => {
+    console.log("Scrolling to section:", sectionId);
     const element = document.getElementById(sectionId);
     if (element) {
       element.scrollIntoView({ 
         behavior: 'smooth',
         block: 'start'
       });
+    } else {
+      console.log("Element not found:", sectionId);
     }
   };
 
   return (
-    <section className="py-12 bg-gradient-to-r from-gray-50 to-white border-b border-gray-200">
+    <section className="py-12 bg-gradient-to-r from-gray-50 to-white border-b border-gray-200" style={{ minHeight: '200px' }}>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8">
           <Badge className="mb-3 bg-gray-800 text-white border-0 uppercase tracking-wide text-sm">
