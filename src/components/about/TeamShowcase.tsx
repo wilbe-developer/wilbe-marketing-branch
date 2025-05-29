@@ -1,4 +1,5 @@
 
+
 import { Badge } from "@/components/ui/badge";
 import { Linkedin, Twitter, Mail, ArrowRight, Users, Building, Briefcase } from "lucide-react";
 
@@ -31,6 +32,18 @@ export default function TeamShowcase() {
   ];
 
   const teamMembers = [
+    {
+      name: "Fabrizio Nicola-Giordano",
+      role: "CEO at WilbeLab",
+      expertise: "Lab Operations",
+      image: "/lovable-uploads/798d9aa7-0159-46b6-8731-52abf7af74b8.png",
+      bio: "CEO at WilbeLab, Fabri supports scientist founders in setting up lab spaces. Formerly at Headspace Group, which he grew until acquisition. You can catch Fabri surfing and exploring culinary and health interests.",
+      social: {
+        linkedin: "#",
+        twitter: "#",
+        email: "fabri@wilbe.com"
+      }
+    },
     {
       name: "Ali Farzanehfar, PhD",
       role: "Founder Advocate",
@@ -65,18 +78,6 @@ export default function TeamShowcase() {
         linkedin: "#",
         twitter: "#",
         email: "jesse@wilbe.com"
-      }
-    },
-    {
-      name: "Fabrizio Nicola-Giordano",
-      role: "CEO at WilbeLab",
-      expertise: "Lab Operations",
-      image: "/lovable-uploads/798d9aa7-0159-46b6-8731-52abf7af74b8.png",
-      bio: "CEO at WilbeLab, Fabri supports scientist founders in setting up lab spaces. Formerly at Headspace Group, which he grew until acquisition. You can catch Fabri surfing and exploring culinary and health interests.",
-      social: {
-        linkedin: "#",
-        twitter: "#",
-        email: "fabri@wilbe.com"
       }
     },
     {
