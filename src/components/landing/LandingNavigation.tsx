@@ -21,9 +21,6 @@ export default function LandingNavigation() {
               />
             </Link>
             <div className="hidden md:flex space-x-8 text-sm font-medium">
-              <Link to="/about" className="text-gray-900 hover:text-gray-700 transition-colors uppercase tracking-wide">
-                About
-              </Link>
               <Link to="/media" className="text-gray-900 hover:text-gray-700 transition-colors uppercase tracking-wide">
                 Media
               </Link>
@@ -35,6 +32,9 @@ export default function LandingNavigation() {
               </Link>
               <Link to="/advocacy" className="text-gray-900 hover:text-gray-700 transition-colors uppercase tracking-wide">
                 Advocacy
+              </Link>
+              <Link to="/about" className="text-gray-900 hover:text-gray-700 transition-colors uppercase tracking-wide">
+                About
               </Link>
             </div>
           </div>
