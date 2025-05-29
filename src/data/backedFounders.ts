@@ -1,4 +1,3 @@
-
 // Import the founders data from WhySection
 const foundersFromWhySection = [
   {
@@ -7,7 +6,8 @@ const foundersFromWhySection = [
     company: "ExpressionEdits",
     description: "Redefining the status quo of protein expression",
     image: "https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/founders//kart.png",
-    sector: "Biotech"
+    sector: "Biotech",
+    bsfClass: "BSF1"
   },
   {
     name: "Francesco Sciortino",
@@ -15,7 +15,8 @@ const foundersFromWhySection = [
     company: "Proxima Fusion",
     description: "Bridging the energy of stars to Earth with fusion power plants",
     image: "https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/founders//francesco.png",
-    sector: "Energy"
+    sector: "Energy",
+    bsfClass: "BSF7"
   },
   {
     name: "Assia Kasdi",
@@ -23,7 +24,8 @@ const foundersFromWhySection = [
     company: "Milvus Advanced",
     description: "Developing affordable substitutes to rare Earth materials",
     image: "https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/founders//assia.png",
-    sector: "Materials"
+    sector: "Materials",
+    bsfClass: "BSF3"
   },
   {
     name: "Shamit Shrivastava",
@@ -31,7 +33,8 @@ const foundersFromWhySection = [
     company: "Apoha",
     description: "Building the first machine that understands sensory data",
     image: "https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/founders//shamit.png",
-    sector: "AI/ML"
+    sector: "AI/ML",
+    bsfClass: "BSF1"
   },
   {
     name: "Alexandre Webster",
@@ -148,6 +151,7 @@ export interface BackedFounder {
   description: string;
   fundingRound?: string;
   sector: string;
+  bsfClass?: string;
 }
 
 // Convert to the BackedFounder format and add funding rounds
@@ -159,5 +163,6 @@ export const backedFounders: BackedFounder[] = foundersFromWhySection.map((found
   image: founder.image,
   description: founder.description,
   fundingRound: ["Seed", "Series A", "Series B"][index % 3], // Distribute funding rounds
-  sector: founder.sector
+  sector: founder.sector,
+  bsfClass: founder.bsfClass
 }));

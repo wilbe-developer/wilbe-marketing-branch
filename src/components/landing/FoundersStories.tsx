@@ -48,7 +48,7 @@ export default function FoundersStories() {
     return (
       <div className="py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl font-bold uppercase tracking-wide text-gray-900 mb-8">Science in practice: the leaders</h2>
+          <h2 className="text-4xl font-bold uppercase tracking-wide text-gray-900 mb-8">FROM THE TRENCHES: THE LEADERS</h2>
           <div className="flex space-x-6">
             {[...Array(3)].map((_, i) => (
               <div key={i} className="flex-shrink-0 w-80 bg-gray-200 animate-pulse">
@@ -69,7 +69,7 @@ export default function FoundersStories() {
     return (
       <div className="py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl font-bold uppercase tracking-wide text-gray-900 mb-8">Science in practice: the leaders</h2>
+          <h2 className="text-4xl font-bold uppercase tracking-wide text-gray-900 mb-8">FROM THE TRENCHES: THE LEADERS</h2>
           <p className="text-gray-600">
             {error || "No videos available at the moment."}
           </p>
@@ -82,7 +82,7 @@ export default function FoundersStories() {
     <div className="py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center mb-8">
-          <h2 className="text-4xl font-bold uppercase tracking-wide text-gray-900">Science in practice: the leaders</h2>
+          <h2 className="text-4xl font-bold uppercase tracking-wide text-gray-900">FROM THE TRENCHES: THE LEADERS</h2>
           <div className="flex space-x-4">
             <button onClick={() => handleScroll(-300)} className="bg-gray-200 hover:bg-gray-300 p-2">
               <ArrowRight className="w-5 h-5 transform rotate-180" />

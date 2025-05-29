@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Building, Microscope, Users, Shield } from "lucide-react";
@@ -28,12 +27,39 @@ export default function WilbeLabsSection() {
     }
   ];
 
+  const deliveredLabs = [
+    {
+      name: "UCL's IDEALondon",
+      location: "London, UK",
+      image: "/lovable-uploads/dc5b5559-aaec-44a3-a59b-5b38bd6a9477.png",
+      description: "Modern biotech incubator in central London"
+    },
+    {
+      name: "Milvus Advanced",
+      location: "Oxford, UK", 
+      image: "/lovable-uploads/dc5b5559-aaec-44a3-a59b-5b38bd6a9477.png",
+      description: "State-of-the-art research facility"
+    },
+    {
+      name: "Origen",
+      location: "Bristol, UK",
+      image: "/lovable-uploads/dc5b5559-aaec-44a3-a59b-5b38bd6a9477.png",
+      description: "Industrial-scale laboratory complex"
+    },
+    {
+      name: "CarpeCarbon",
+      location: "Turin, Italy",
+      image: "/lovable-uploads/dc5b5559-aaec-44a3-a59b-5b38bd6a9477.png",
+      description: "Climate tech innovation hub"
+    }
+  ];
+
   return (
     <section className="py-20 bg-gradient-to-br from-yellow-400/30 via-yellow-500/30 to-yellow-600/30">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-5xl font-bold text-gray-900 mb-4 uppercase tracking-wide">
-            <span className="text-6xl">Wilbe</span> LABS
+            <span className="text-6xl">Wilbe</span> LABS: SECURE THE RIGHT LAB FOR YOUR TEAM
           </h2>
           <p className="text-xl text-gray-900 max-w-3xl mx-auto">
             Premium lab spaces designed for scientist entrepreneurs. From wet labs to dry labs, we provide the
@@ -41,7 +67,7 @@ export default function WilbeLabsSection() {
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <div className="grid lg:grid-cols-2 gap-12 items-center mb-16">
           <div className="relative">
             <img
               src="https://images.unsplash.com/photo-1582719471384-894fbb16e074?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
@@ -96,6 +122,37 @@ export default function WilbeLabsSection() {
                 Schedule Tour
               </Button>
             </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg p-8 shadow-lg">
+          <div className="text-center mb-8">
+            <h3 className="text-3xl font-bold text-gray-900 mb-4 uppercase tracking-wide">
+              Labs Delivered and Under Management
+            </h3>
+            <p className="text-lg text-gray-700 max-w-3xl mx-auto">
+              Our portfolio of successfully delivered and actively managed laboratory spaces across Europe, 
+              supporting scientist entrepreneurs at every stage of their journey.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {deliveredLabs.map((lab, index) => (
+              <div key={index} className="bg-gray-50 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                <div className="aspect-video bg-gray-200 relative">
+                  <img
+                    src={lab.image}
+                    alt={`${lab.name} laboratory facility`}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="p-4">
+                  <h4 className="font-bold text-gray-900 mb-1">{lab.name}</h4>
+                  <p className="text-sm text-gray-600 mb-2">{lab.location}</p>
+                  <p className="text-xs text-gray-500">{lab.description}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>

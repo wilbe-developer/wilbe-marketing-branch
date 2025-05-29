@@ -311,6 +311,8 @@ export type Database = {
         Row: {
           about: string | null
           activity_status: string | null
+          application_status: string | null
+          application_submitted_at: string | null
           approved: boolean | null
           avatar: string | null
           bio: string | null
@@ -336,6 +338,8 @@ export type Database = {
         Insert: {
           about?: string | null
           activity_status?: string | null
+          application_status?: string | null
+          application_submitted_at?: string | null
           approved?: boolean | null
           avatar?: string | null
           bio?: string | null
@@ -361,6 +365,8 @@ export type Database = {
         Update: {
           about?: string | null
           activity_status?: string | null
+          application_status?: string | null
+          application_submitted_at?: string | null
           approved?: boolean | null
           avatar?: string | null
           bio?: string | null
@@ -845,6 +851,36 @@ export type Database = {
         }
         Relationships: []
       }
+      user_applications: {
+        Row: {
+          application_type: string
+          created_at: string
+          id: string
+          status: Database["public"]["Enums"]["application_status"]
+          submitted_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          application_type?: string
+          created_at?: string
+          id?: string
+          status?: Database["public"]["Enums"]["application_status"]
+          submitted_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          application_type?: string
+          created_at?: string
+          id?: string
+          status?: Database["public"]["Enums"]["application_status"]
+          submitted_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_files: {
         Row: {
           download_url: string
@@ -901,6 +937,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_user_roles_profile_id"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "unified_profiles"
+            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -1152,7 +1195,31 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      unified_profiles: {
+        Row: {
+          about: string | null
+          activity_status: string | null
+          approved: boolean | null
+          avatar: string | null
+          bio: string | null
+          created_at: string | null
+          email: string | null
+          expertise: string | null
+          first_name: string | null
+          has_profile: boolean | null
+          has_sprint_profile: boolean | null
+          institution: string | null
+          last_login_date: string | null
+          last_name: string | null
+          linked_in: string | null
+          location: string | null
+          role: string | null
+          status: string | null
+          twitter_handle: string | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       create_sprint_profile: {
@@ -1275,6 +1342,60 @@ export type Database = {
             }
         Returns: undefined
       }
+      get_all_unified_profiles: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          user_id: string
+          first_name: string
+          last_name: string
+          email: string
+          linked_in: string
+          institution: string
+          location: string
+          role: string
+          bio: string
+          about: string
+          expertise: string
+          avatar: string
+          approved: boolean
+          created_at: string
+          activity_status: string
+          status: string
+          twitter_handle: string
+          last_login_date: string
+          has_sprint_profile: boolean
+          has_profile: boolean
+        }[]
+      }
+      get_application_status: {
+        Args: { p_user_id: string; p_application_type?: string }
+        Returns: Database["public"]["Enums"]["application_status"]
+      }
+      get_unified_profile: {
+        Args: { p_user_id: string }
+        Returns: {
+          user_id: string
+          first_name: string
+          last_name: string
+          email: string
+          linked_in: string
+          institution: string
+          location: string
+          role: string
+          bio: string
+          about: string
+          expertise: string
+          avatar: string
+          approved: boolean
+          created_at: string
+          activity_status: string
+          status: string
+          twitter_handle: string
+          last_login_date: string
+          has_sprint_profile: boolean
+          has_profile: boolean
+        }[]
+      }
       has_completed_sprint_onboarding: {
         Args: { p_user_id: string }
         Returns: boolean
@@ -1287,7 +1408,7 @@ export type Database = {
         Args: { user_id: string }
         Returns: boolean
       }
-      is_approved: {
+      is_member: {
         Args: { user_id: string }
         Returns: boolean
       }
@@ -1295,8 +1416,19 @@ export type Database = {
         Args: { p_user_id: string; p_owner_id: string }
         Returns: boolean
       }
+      submit_membership_application: {
+        Args: {
+          p_user_id: string
+          p_first_name: string
+          p_last_name: string
+          p_institution: string
+          p_linkedin: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
+      application_status: "not_started" | "under_review"
       user_role: "admin" | "user" | "member"
     }
     CompositeTypes: {
@@ -1413,6 +1545,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      application_status: ["not_started", "under_review"],
       user_role: ["admin", "user", "member"],
     },
   },

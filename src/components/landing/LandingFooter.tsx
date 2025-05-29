@@ -20,33 +20,28 @@ export default function LandingFooter() {
             <h4 className="font-bold text-lg mb-4">Quick Links</h4>
             <ul className="space-y-2">
               <li>
-                <Link to="#" className="text-gray-400 hover:text-white transition-colors text-sm">
+                <Link to="/about" className="text-gray-400 hover:text-white transition-colors text-sm">
+                  About
+                </Link>
+              </li>
+              <li>
+                <Link to="/media" className="text-gray-400 hover:text-white transition-colors text-sm">
                   Media
                 </Link>
               </li>
               <li>
-                <Link to="#" className="text-gray-400 hover:text-white transition-colors text-sm">
-                  Terminal
+                <Link to="/platform" className="text-gray-400 hover:text-white transition-colors text-sm">
+                  Platform
                 </Link>
               </li>
               <li>
-                <Link to="#" className="text-gray-400 hover:text-white transition-colors text-sm">
+                <Link to="/capital" className="text-gray-400 hover:text-white transition-colors text-sm">
                   Capital
                 </Link>
               </li>
               <li>
-                <Link to="#" className="text-gray-400 hover:text-white transition-colors text-sm">
-                  Labs
-                </Link>
-              </li>
-              <li>
-                <Link to="#" className="text-gray-400 hover:text-white transition-colors text-sm">
+                <Link to="/advocacy" className="text-gray-400 hover:text-white transition-colors text-sm">
                   Advocacy
-                </Link>
-              </li>
-              <li>
-                <Link to="#" className="text-gray-400 hover:text-white transition-colors text-sm">
-                  Merch
                 </Link>
               </li>
             </ul>
