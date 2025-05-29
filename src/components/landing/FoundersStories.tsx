@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Play, Clock } from "lucide-react";
-import { useScrollHandler } from "@/hooks/useScrollHandler";
+import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import { fetchVideos } from "@/services/videoService";
 import { formatDistanceToNow } from "date-fns";
 
@@ -18,7 +18,6 @@ interface Video {
 }
 
 export default function FoundersStories() {
-  const { scrollRef, handleScroll, handleMouseWheel } = useScrollHandler();
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -84,61 +83,62 @@ export default function FoundersStories() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-4xl font-bold uppercase tracking-wide text-gray-900">THE LEADERS</h2>
-          <div className="flex space-x-4">
-            <button onClick={() => handleScroll(-300)} className="bg-gray-200 hover:bg-gray-300 p-2">
-              <ArrowRight className="w-5 h-5 transform rotate-180" />
-            </button>
-            <button onClick={() => handleScroll(300)} className="bg-gray-200 hover:bg-gray-300 p-2">
-              <ArrowRight className="w-5 h-5" />
-            </button>
-          </div>
         </div>
 
-        <div className="relative overflow-hidden">
-          <div className="flex space-x-6" ref={scrollRef} onWheel={handleMouseWheel}>
+        <Carousel
+          opts={{
+            align: "start",
+            loop: false,
+          }}
+          className="w-full"
+        >
+          <CarouselContent className="-ml-2 md:-ml-4">
             {videos.map((video) => (
-              <div
-                key={video.id}
-                className="flex-shrink-0 w-80 bg-gray-50 overflow-hidden shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
-                onClick={() => window.open(`/video/${video.id}`, '_blank')}
-              >
-                <div className="relative aspect-video bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg overflow-hidden">
-                  <img
-                    src={video.thumbnail_url || "/placeholder.svg"}
-                    alt={video.title}
-                    className="absolute inset-0 w-full h-full object-cover"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = "/placeholder.svg";
-                    }}
-                  />
-                  <div className="absolute inset-0 bg-black/40" />
-                  {video.duration && (
-                    <div className="absolute top-4 left-4">
-                      <Badge className="bg-gray-900 text-white text-xs flex items-center">
-                        <Clock className="h-3 w-3 mr-1" />
-                        {video.duration}
-                      </Badge>
-                    </div>
-                  )}
-                </div>
-                <div className="p-4">
-                  <h4 className="font-bold text-gray-900 text-sm mb-2">{video.title}</h4>
-                  {video.description && (
-                    <p className="text-gray-600 text-xs leading-relaxed mb-3 line-clamp-3">{video.description}</p>
-                  )}
-                  <div className="flex items-center justify-between">
-                    {video.presenter && (
-                      <span className="text-gray-500 text-xs">by {video.presenter}</span>
+              <CarouselItem key={video.id} className="pl-2 md:pl-4 basis-80 md:basis-80">
+                <div
+                  className="bg-gray-50 overflow-hidden shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+                  onClick={() => window.open(`/video/${video.id}`, '_blank')}
+                >
+                  <div className="relative aspect-video bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg overflow-hidden">
+                    <img
+                      src={video.thumbnail_url || "/placeholder.svg"}
+                      alt={video.title}
+                      className="absolute inset-0 w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = "/placeholder.svg";
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-black/40" />
+                    {video.duration && (
+                      <div className="absolute top-4 left-4">
+                        <Badge className="bg-gray-900 text-white text-xs flex items-center">
+                          <Clock className="h-3 w-3 mr-1" />
+                          {video.duration}
+                        </Badge>
+                      </div>
                     )}
-                    <span className="text-gray-500 text-xs">
-                      {formatDistanceToNow(new Date(video.created_at), { addSuffix: true })}
-                    </span>
+                  </div>
+                  <div className="p-4">
+                    <h4 className="font-bold text-gray-900 text-sm mb-2">{video.title}</h4>
+                    {video.description && (
+                      <p className="text-gray-600 text-xs leading-relaxed mb-3 line-clamp-3">{video.description}</p>
+                    )}
+                    <div className="flex items-center justify-between">
+                      {video.presenter && (
+                        <span className="text-gray-500 text-xs">by {video.presenter}</span>
+                      )}
+                      <span className="text-gray-500 text-xs">
+                        {formatDistanceToNow(new Date(video.created_at), { addSuffix: true })}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </CarouselItem>
             ))}
-          </div>
-        </div>
+          </CarouselContent>
+          <CarouselPrevious className="hidden md:flex" />
+          <CarouselNext className="hidden md:flex" />
+        </Carousel>
       </div>
 
       <div className="text-center mt-12">
