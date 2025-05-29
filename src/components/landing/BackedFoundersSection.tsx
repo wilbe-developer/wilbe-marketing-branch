@@ -52,7 +52,7 @@ interface FounderCardProps {
 
 function FounderCard({ founder }: FounderCardProps) {
   return (
-    <div className="flex-shrink-0 w-80 bg-white border border-gray-200 rounded-lg overflow-hidden hover:border-gray-300 transition-all duration-200 group">
+    <div className="flex-shrink-0 w-80 bg-white rounded-lg overflow-hidden hover:bg-gray-50 transition-all duration-200 group">
       <div className="relative h-32 bg-gray-100">
         <img 
           src={founder.image} 
@@ -87,7 +87,7 @@ function FounderCard({ founder }: FounderCardProps) {
         <h6 className="font-semibold text-gray-800 text-sm mb-1">{founder.company}</h6>
         <p className="text-gray-600 text-xs leading-relaxed mb-3 line-clamp-2">{founder.description}</p>
         
-        {/* Quote section with completely flat styling */}
+        {/* Quote section with completely flat styling - no borders or shadows */}
         <div className="mb-3 p-3 bg-gray-50 rounded-lg relative">
           <Quote className="absolute top-2 left-2 h-3 w-3 text-gray-400" />
           <p className="text-xs italic text-gray-700 leading-relaxed pl-4">
