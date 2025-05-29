@@ -73,8 +73,8 @@ const LoginPage = () => {
           </form>
           <div className="mt-4 text-center text-sm">
             Don't have an account?{" "}
-            <Link to={PATHS.REGISTER} className="text-brand-pink hover:underline">
-              Sign up
+            <Link to={PATHS.LOGIN} className="text-brand-pink hover:underline">
+              Sign up with email above
             </Link>
           </div>
           <div className="mt-2 p-4 bg-gray-50 rounded-md text-sm text-gray-600">

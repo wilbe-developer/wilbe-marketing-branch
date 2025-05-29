@@ -1,4 +1,3 @@
-
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -49,7 +48,7 @@ const AppHeader = () => {
             <Link to={PATHS.LOGIN}>Log In</Link>
           </Button>
           <Button asChild>
-            <Link to={PATHS.REGISTER}>Sign Up</Link>
+            <Link to={PATHS.LOGIN}>Sign Up</Link>
           </Button>
         </div>
       </header>
