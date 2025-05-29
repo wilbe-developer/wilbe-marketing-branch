@@ -1,4 +1,3 @@
-
 import { Badge } from "@/components/ui/badge";
 import { Linkedin, Twitter, Mail, ArrowRight } from "lucide-react";
 
@@ -77,6 +76,42 @@ export default function TeamShowcase() {
         linkedin: "#",
         twitter: "#",
         email: "fabri@wilbe.com"
+      }
+    },
+    {
+      name: "[Team Member Name]",
+      role: "[Role Title]",
+      expertise: "[Area of Expertise]",
+      image: "/placeholder.svg",
+      bio: "[Bio description to be added - highlighting their background, experience, and contribution to Wilbe's mission.]",
+      social: {
+        linkedin: "#",
+        twitter: "#",
+        email: "[email]@wilbe.com"
+      }
+    },
+    {
+      name: "[Team Member Name]",
+      role: "[Role Title]",
+      expertise: "[Area of Expertise]",
+      image: "/placeholder.svg",
+      bio: "[Bio description to be added - highlighting their background, experience, and contribution to Wilbe's mission.]",
+      social: {
+        linkedin: "#",
+        twitter: "#",
+        email: "[email]@wilbe.com"
+      }
+    },
+    {
+      name: "[Team Member Name]",
+      role: "[Role Title]",
+      expertise: "[Area of Expertise]",
+      image: "/placeholder.svg",
+      bio: "[Bio description to be added - highlighting their background, experience, and contribution to Wilbe's mission.]",
+      social: {
+        linkedin: "#",
+        twitter: "#",
+        email: "[email]@wilbe.com"
       }
     }
   ];
@@ -196,7 +231,7 @@ export default function TeamShowcase() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-6 max-w-5xl mx-auto mb-20">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto mb-20">
           {teamMembers.map((member, index) => (
             <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
               <div className="h-56 bg-gray-200 flex items-center justify-center relative overflow-hidden">
