@@ -1,5 +1,3 @@
-
-
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import UpcomingEventsFeeder from "./UpcomingEventsFeeder";
@@ -145,7 +143,7 @@ export default function PlatformsSection() {
                     <div className="mt-8 max-w-4xl">
                       <div className="grid md:grid-cols-2 gap-6">
                         <img
-                          src="/lovable-uploads/cd752268-3fad-4c39-8e72-77356c41a3ae.png"
+                          src="/lovable-uploads/1ea15f19-c70d-4a23-9800-9aab1bf6614d.png"
                           alt="Wilbe Sandbox Platform Interface"
                           className="w-full h-auto object-cover rounded-lg"
                           onError={(e) => {
@@ -178,4 +176,3 @@ export default function PlatformsSection() {
     </section>
   );
 }
-
