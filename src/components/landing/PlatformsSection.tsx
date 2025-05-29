@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import WilbePlatformPreview from "./WilbePlatformPreview";
 import UpcomingEventsFeeder from "./UpcomingEventsFeeder";
 
 export default function PlatformsSection() {
@@ -138,14 +137,16 @@ export default function PlatformsSection() {
                   </Button>
                 )}
 
-                {/* Platform Preview and Upcoming Events - only show for Wilbe Sandbox */}
+                {/* Raw Image and Upcoming Events - only show for Wilbe Sandbox */}
                 {platform.showLatestContent && (
                   <>
                     <div className="mt-8 max-w-4xl">
                       <div className="grid md:grid-cols-2 gap-6">
-                        <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
-                          <WilbePlatformPreview />
-                        </div>
+                        <img
+                          src="/lovable-uploads/3b1bf326-aa8e-4f3c-a924-fa782043068d.png"
+                          alt="Wilbe Sandbox Platform Interface"
+                          className="w-full h-auto object-cover rounded-lg"
+                        />
                         <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
                           <UpcomingEventsFeeder />
                         </div>
