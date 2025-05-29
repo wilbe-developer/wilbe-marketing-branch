@@ -38,7 +38,7 @@ const foundersFromWhySection = [
     image: "https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/founders//shamit.png",
     sector: "AI/ML",
     bsfClass: "BSF1",
-    quote: "Wilbe has always backed our biggest ambitions. And we get advice that is geared towards 'how can you be just completely true to yourself and to the reason you built the company'"
+    quote: "Wilbe has always backed our biggest ambitions. And we get advice that is geared towards: how can you be just completely true to yourself and to the reason you built the company"
   },
   {
     name: "Alexandre Webster",
