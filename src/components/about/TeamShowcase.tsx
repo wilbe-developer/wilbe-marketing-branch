@@ -116,6 +116,61 @@ export default function TeamShowcase() {
     }
   ];
 
+  const venturePartnersAndAdvisors = [
+    {
+      name: "[Venture Partner Name]",
+      role: "Venture Partner",
+      expertise: "[Investment Focus/Expertise]",
+      image: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?w=400&h=400&fit=crop",
+      bio: "[Bio description highlighting their investment background, portfolio companies, and how they support Wilbe's mission in advancing scientist entrepreneurship.]",
+      company: "[Current Firm/Organization]",
+      social: {
+        linkedin: "#",
+        twitter: "#",
+        email: "[email]@example.com"
+      }
+    },
+    {
+      name: "[Strategic Advisor Name]",
+      role: "Strategic Advisor",
+      expertise: "[Strategic Area]",
+      image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=400&fit=crop",
+      bio: "[Bio description highlighting their strategic expertise, industry experience, and advisory contributions to scientist founders.]",
+      company: "[Current Role/Company]",
+      social: {
+        linkedin: "#",
+        twitter: "#",
+        email: "[email]@example.com"
+      }
+    },
+    {
+      name: "[Industry Advisor Name]",
+      role: "Industry Advisor",
+      expertise: "[Industry Specialization]",
+      image: "https://images.unsplash.com/photo-1581090464777-f3220bbe1b8b?w=400&h=400&fit=crop",
+      bio: "[Bio description highlighting their industry leadership, domain expertise, and mentorship of deep tech entrepreneurs.]",
+      company: "[Current Position]",
+      social: {
+        linkedin: "#",
+        twitter: "#",
+        email: "[email]@example.com"
+      }
+    },
+    {
+      name: "[Technical Advisor Name]",
+      role: "Technical Advisor",
+      expertise: "[Technical Domain]",
+      image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=400&h=400&fit=crop",
+      bio: "[Bio description highlighting their technical expertise, research background, and guidance for technology commercialization.]",
+      company: "[Academic/Industry Position]",
+      social: {
+        linkedin: "#",
+        twitter: "#",
+        email: "[email]@example.com"
+      }
+    }
+  ];
+
   const previousMembers = [
     {
       name: "Dr. Sarah Chen",
@@ -259,6 +314,56 @@ export default function TeamShowcase() {
                     <Twitter className="h-4 w-4" />
                   </a>
                   <a href={`mailto:${member.social.email}`} className="text-gray-400 hover:text-gray-600 transition-colors">
+                    <Mail className="h-4 w-4" />
+                  </a>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Venture Partners and Advisors Section */}
+        <div className="text-center mb-16">
+          <Badge className="mb-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 uppercase tracking-wide text-sm">
+            Venture Partners & Advisors
+          </Badge>
+          <h2 className="text-4xl font-bold text-gray-900 mb-4 uppercase tracking-wide">
+            Strategic Partners & Industry Leaders
+          </h2>
+          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+            Our venture partners and advisors bring decades of experience in deep tech investing, 
+            industry expertise, and strategic guidance to support our scientist founders.
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto mb-20">
+          {venturePartnersAndAdvisors.map((advisor, index) => (
+            <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow border border-gray-100">
+              <div className="h-48 bg-gray-200 flex items-center justify-center relative overflow-hidden">
+                <img 
+                  src={advisor.image} 
+                  alt={advisor.name} 
+                  className="w-full h-full object-cover" 
+                />
+                <div className="absolute top-3 right-3 bg-white/90 text-gray-700 px-2 py-1 rounded text-xs font-medium">
+                  {advisor.role}
+                </div>
+              </div>
+              <div className="p-4">
+                <h3 className="text-lg font-bold text-gray-900 mb-1">{advisor.name}</h3>
+                <p className="text-blue-600 font-medium mb-1 text-sm">{advisor.company}</p>
+                <Badge className="mb-3 bg-blue-50 text-blue-700 border-blue-200 text-xs">
+                  {advisor.expertise}
+                </Badge>
+                <p className="text-gray-600 text-sm mb-4 leading-relaxed line-clamp-4">{advisor.bio}</p>
+                <div className="flex space-x-3">
+                  <a href={advisor.social.linkedin} className="text-gray-400 hover:text-blue-600 transition-colors">
+                    <Linkedin className="h-4 w-4" />
+                  </a>
+                  <a href={advisor.social.twitter} className="text-gray-400 hover:text-blue-400 transition-colors">
+                    <Twitter className="h-4 w-4" />
+                  </a>
+                  <a href={`mailto:${advisor.social.email}`} className="text-gray-400 hover:text-gray-600 transition-colors">
                     <Mail className="h-4 w-4" />
                   </a>
                 </div>
