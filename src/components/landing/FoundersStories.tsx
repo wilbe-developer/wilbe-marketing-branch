@@ -96,10 +96,10 @@ export default function FoundersStories() {
             {videos.map((video) => (
               <CarouselItem key={video.id} className="pl-2 md:pl-4 basis-80 md:basis-80">
                 <div
-                  className="bg-gray-50 overflow-hidden shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+                  className="bg-gray-50 overflow-hidden shadow-lg hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col"
                   onClick={() => window.open(`/video/${video.id}`, '_blank')}
                 >
-                  <div className="relative aspect-video bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg overflow-hidden">
+                  <div className="relative aspect-video bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg overflow-hidden flex-shrink-0">
                     <img
                       src={video.thumbnail_url || "/placeholder.svg"}
                       alt={video.title}
@@ -118,16 +118,16 @@ export default function FoundersStories() {
                       </div>
                     )}
                   </div>
-                  <div className="p-4">
-                    <h4 className="font-bold text-gray-900 text-sm mb-2">{video.title}</h4>
+                  <div className="p-4 flex-1 flex flex-col h-32">
+                    <h4 className="font-bold text-gray-900 text-sm mb-2 line-clamp-2 flex-shrink-0">{video.title}</h4>
                     {video.description && (
-                      <p className="text-gray-600 text-xs leading-relaxed mb-3 line-clamp-3">{video.description}</p>
+                      <p className="text-gray-600 text-xs leading-relaxed mb-3 line-clamp-2 flex-1">{video.description}</p>
                     )}
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between mt-auto flex-shrink-0">
                       {video.presenter && (
-                        <span className="text-gray-500 text-xs">by {video.presenter}</span>
+                        <span className="text-gray-500 text-xs truncate mr-2">{video.presenter}</span>
                       )}
-                      <span className="text-gray-500 text-xs">
+                      <span className="text-gray-500 text-xs flex-shrink-0">
                         {formatDistanceToNow(new Date(video.created_at), { addSuffix: true })}
                       </span>
                     </div>
