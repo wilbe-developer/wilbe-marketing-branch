@@ -5,17 +5,17 @@ import BackedFoundersSection from "./BackedFoundersSection";
 
 export default function WilbeCapitalStrip() {
   return (
-    <section className="py-20 bg-gray-50">
+    <section className="py-20 bg-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-12">
-          <h2 className="text-4xl font-bold text-gray-900 tracking-wide mb-6">
+          <h2 className="text-4xl font-bold text-white tracking-wide mb-6">
             WILBE CAPITAL: INVESTING IN SCIENTIST-LED COMPANIES
           </h2>
         </div>
 
         {/* Description */}
-        <p className="text-gray-700 text-lg leading-relaxed mb-12 max-w-4xl">
+        <p className="text-gray-300 text-lg leading-relaxed mb-12 max-w-4xl">
           Wilbe Capital backs scientist-led startups solving critical challenges in health, climate, and security. Offering strategic funding and partnerships, it helps researchers transform discoveries into scalable businesses, supporting BSF graduates and Sandbox members to drive impact.
         </p>
 
@@ -24,7 +24,7 @@ export default function WilbeCapitalStrip() {
         
         {/* View All button */}
         <div className="text-center mt-12">
-          <Button className="bg-gray-900 hover:bg-gray-800 text-white font-medium px-8 py-3 rounded-none">
+          <Button className="bg-white hover:bg-gray-100 text-gray-900 font-medium px-8 py-3 rounded-none">
             <a href="https://www.wilbe.capital/" className="flex items-center">
               VIEW ALL PORTFOLIO
               <ArrowRight className="ml-2 h-4 w-4" />
