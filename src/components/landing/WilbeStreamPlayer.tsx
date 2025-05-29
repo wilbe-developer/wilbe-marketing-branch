@@ -1,68 +1,22 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Play, Calendar, Clock, Users } from "lucide-react";
+import { fetchVideos } from "@/services/videoService";
 
-// Featured videos data (same as in LatestContentFeed)
-const featuredVideos = [
-  {
-    id: "26d42e3b-7484-49a4-88bc-a6bdf2f509a8",
-    title: "Two Ways of Doing Ventures",
-    description: "There are two distinct ways of doing ventures, and we think you'll like one most.",
-    thumbnail_url: "https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/thumbnails//2ways.webp",
-    duration: "9:06",
-    presenter: null,
-    created_at: "2024-05-15T15:00:39+00:00"
-  },
-  {
-    id: "featured-comparing-startups",
-    title: "Comparing Startups and Large Companies",
-    description: "Understanding the key differences between startup and corporate environments.",
-    thumbnail_url: "/placeholder.svg",
-    duration: "8:30",
-    presenter: "Ale",
-    created_at: "2024-03-01T12:00:00+00:00"
-  },
-  {
-    id: "featured-one-liner",
-    title: "Writing your one-liner",
-    description: "Craft a compelling one-line description of your business that captures attention.",
-    thumbnail_url: "/placeholder.svg",
-    duration: "6:45",
-    presenter: "Ale",
-    created_at: "2024-03-02T12:00:00+00:00"
-  },
-  {
-    id: "featured-customer-identification",
-    title: "Buyers, Users and Titles: Identifying your customer",
-    description: "Learn to distinguish between different customer types and how to reach them.",
-    thumbnail_url: "/placeholder.svg",
-    duration: "12:20",
-    presenter: "Josh McKenty",
-    created_at: "2024-03-03T12:00:00+00:00"
-  },
-  {
-    id: "6b8d3ca3-9159-4f8a-acf9-3ecae38e2caf",
-    title: "About the TTO",
-    description: "Before you can start your company you will likely need to negotiate a licensing deal with your institution.",
-    thumbnail_url: "https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/thumbnails//_Wilbe%20BSF10%202023%20%20Kickoff%20(9).webp",
-    duration: "6:25",
-    presenter: "Lita Nelsen",
-    created_at: "2024-03-06T12:00:00+00:00"
-  },
-  {
-    id: "1d20ab92-9c3b-4635-921c-c874ccc5304f",
-    title: "The Basics of Shares",
-    description: "Before we talk about getting the team together, you need to know some basics around how shares work.",
-    thumbnail_url: "https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/thumbnails//basicsofshares.webp",
-    duration: "6:23",
-    presenter: "Ale",
-    created_at: "2024-03-04T12:11:03+00:00"
-  }
-];
+interface Video {
+  id: string;
+  title: string;
+  description?: string;
+  thumbnail_url?: string;
+  duration?: string;
+  presenter?: string;
+  created_at: string;
+}
 
 export default function WilbeStreamPlayer() {
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
+  const [videos, setVideos] = useState<Video[]>([]);
+  const [loading, setLoading] = useState(true);
   const [timeLeft, setTimeLeft] = useState({
     days: 17,
     hours: 6,
@@ -78,14 +32,40 @@ export default function WilbeStreamPlayer() {
     description: "Join leading scientists discussing the latest breakthroughs in AI-powered drug discovery"
   }
 
-  // Cycle through videos every 5 seconds
+  // Load videos from the same source as FoundersStories
   useEffect(() => {
+    const loadVideos = async () => {
+      try {
+        setLoading(true);
+        const videosData = await fetchVideos();
+        
+        // Sort by created_at and take all published videos
+        const sortedVideos = videosData
+          .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+        
+        setVideos(sortedVideos);
+      } catch (err) {
+        console.error("Error fetching videos:", err);
+        // Fallback to empty array if fetch fails
+        setVideos([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadVideos();
+  }, []);
+
+  // Cycle through videos every 20 seconds
+  useEffect(() => {
+    if (videos.length === 0) return;
+    
     const videoTimer = setInterval(() => {
-      setCurrentVideoIndex(prev => (prev + 1) % featuredVideos.length);
-    }, 5000);
+      setCurrentVideoIndex(prev => (prev + 1) % videos.length);
+    }, 20000); // Changed to 20 seconds
 
     return () => clearInterval(videoTimer);
-  }, []);
+  }, [videos.length]);
 
   // Countdown timer
   useEffect(() => {
@@ -107,7 +87,58 @@ export default function WilbeStreamPlayer() {
     return () => clearInterval(timer);
   }, []);
 
-  const currentVideo = featuredVideos[currentVideoIndex];
+  // Show loading state or fallback if no videos
+  if (loading || videos.length === 0) {
+    return (
+      <div className="space-y-4">
+        {/* Video Player - Loading/Fallback */}
+        <div className="relative bg-gray-900 rounded-lg overflow-hidden aspect-video">
+          <div className="w-full h-full bg-gray-800 flex items-center justify-center">
+            <div className="text-white text-center">
+              {loading ? "Loading videos..." : "No videos available"}
+            </div>
+          </div>
+        </div>
+
+        {/* Next Live Event - Compact Design */}
+        <div className="bg-gray-800 rounded-lg p-4 text-white max-w-md">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+            <span className="text-xs font-bold text-gray-300 uppercase tracking-wide">Next Live Event</span>
+          </div>
+          
+          <h3 className="text-base font-bold text-white mb-1">{nextEvent.title}</h3>
+          <p className="text-sm text-gray-300 mb-4">{nextEvent.speaker}</p>
+          
+          {/* Countdown Timer */}
+          <div className="grid grid-cols-4 gap-2 mb-4">
+            <div className="text-center">
+              <div className="bg-green-500 text-black text-lg font-bold py-1 px-2 rounded">{timeLeft.days}</div>
+              <div className="text-xs text-gray-400 mt-1">D</div>
+            </div>
+            <div className="text-center">
+              <div className="bg-green-500 text-black text-lg font-bold py-1 px-2 rounded">{timeLeft.hours}</div>
+              <div className="text-xs text-gray-400 mt-1">H</div>
+            </div>
+            <div className="text-center">
+              <div className="bg-green-500 text-black text-lg font-bold py-1 px-2 rounded">{timeLeft.minutes}</div>
+              <div className="text-xs text-gray-400 mt-1">M</div>
+            </div>
+            <div className="text-center">
+              <div className="bg-green-500 text-black text-lg font-bold py-1 px-2 rounded">{timeLeft.seconds}</div>
+              <div className="text-xs text-gray-400 mt-1">S</div>
+            </div>
+          </div>
+          
+          <Button className="w-full bg-green-500 hover:bg-green-600 text-black font-bold text-sm py-2">
+            Remind Me
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  const currentVideo = videos[currentVideoIndex];
 
   return (
     <div className="space-y-4">
@@ -115,7 +146,7 @@ export default function WilbeStreamPlayer() {
       <div className="relative bg-gray-900 rounded-lg overflow-hidden aspect-video">
         {/* Video thumbnail */}
         <img
-          src={currentVideo.thumbnail_url}
+          src={currentVideo.thumbnail_url || "/placeholder.svg"}
           alt={currentVideo.title}
           className="w-full h-full object-cover"
           onError={(e) => {
@@ -138,7 +169,9 @@ export default function WilbeStreamPlayer() {
         <div className="absolute bottom-4 left-4 right-4">
           <div className="bg-black/80 backdrop-blur-sm rounded p-3">
             <p className="text-white text-sm font-medium">🔴 NOW PLAYING: {currentVideo.title}</p>
-            <p className="text-gray-300 text-xs">{currentVideo.description}</p>
+            {currentVideo.description && (
+              <p className="text-gray-300 text-xs">{currentVideo.description}</p>
+            )}
             {currentVideo.presenter && (
               <p className="text-gray-400 text-xs mt-1">by {currentVideo.presenter}</p>
             )}
