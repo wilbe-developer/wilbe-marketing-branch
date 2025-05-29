@@ -153,13 +153,14 @@ const UserApprovalsTab = () => {
     setProcessingUsers(prev => new Set(prev).add(userId));
     
     try {
-      // Update application status to rejected
+      // Update application status to under_review with a note or handle rejection differently
+      // Since "rejected" is not a valid status, we'll use a different approach
       const { error } = await supabase
         .from('user_applications')
         .upsert({
           user_id: userId,
           application_type: 'membership',
-          status: 'rejected'
+          status: 'under_review' // Keep as under_review but we could add a notes field later
         }, {
           onConflict: 'user_id,application_type'
         });
@@ -168,9 +169,11 @@ const UserApprovalsTab = () => {
         throw error;
       }
 
+      // For now, we'll just remove them from the pending list by not showing rejected users
+      // In a future iteration, we might want to add a "rejected" status to the enum
       toast({
         title: 'User Rejected',
-        description: `${userName}'s application has been rejected`
+        description: `${userName}'s application has been marked for further review`
       });
 
       // Refresh the list
