@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -79,6 +78,7 @@ const ProfileCompletionDialog = ({ open, onOpenChange }: ProfileCompletionDialog
         setSubmitted(true);
       }
     } catch (error) {
+      console.error("Failed to submit application:", error);
       toast({
         title: "Error",
         description: "Failed to save your information. Please try again.",
