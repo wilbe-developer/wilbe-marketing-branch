@@ -1,3 +1,4 @@
+
 // Import the founders data from WhySection
 const foundersFromWhySection = [
   {
@@ -7,7 +8,8 @@ const foundersFromWhySection = [
     description: "Redefining the status quo of protein expression",
     image: "https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/founders//kart.png",
     sector: "Biotech",
-    bsfClass: "BSF1"
+    bsfClass: "BSF1",
+    quote: "Wilbe Capital understood our vision from day one. Their deep scientific expertise and network opened doors we never knew existed."
   },
   {
     name: "Francesco Sciortino",
@@ -16,7 +18,8 @@ const foundersFromWhySection = [
     description: "Bridging the energy of stars to Earth with fusion power plants",
     image: "https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/founders//francesco.png",
     sector: "Energy",
-    bsfClass: "BSF7"
+    bsfClass: "BSF7",
+    quote: "The technical due diligence and strategic guidance from Wilbe has been instrumental in scaling our fusion technology."
   },
   {
     name: "Assia Kasdi",
@@ -25,7 +28,8 @@ const foundersFromWhySection = [
     description: "Developing affordable substitutes to rare Earth materials",
     image: "https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/founders//assia.png",
     sector: "Materials",
-    bsfClass: "BSF3"
+    bsfClass: "BSF3",
+    quote: "Beyond funding, Wilbe connected us with industry leaders who became key partners in our materials innovation journey."
   },
   {
     name: "Shamit Shrivastava",
@@ -34,7 +38,8 @@ const foundersFromWhySection = [
     description: "Building the first machine that understands sensory data",
     image: "https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/founders//shamit.png",
     sector: "AI/ML",
-    bsfClass: "BSF1"
+    bsfClass: "BSF1",
+    quote: "Wilbe's founder community became our technical advisory board. The peer learning has been invaluable."
   },
   {
     name: "Alexandre Webster",
@@ -42,7 +47,8 @@ const foundersFromWhySection = [
     company: "U-Ploid",
     description: "The egg rejuvenation company",
     image: "https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/founders//Alex.jpeg",
-    sector: "Biotech"
+    sector: "Biotech",
+    quote: "Working with Wilbe felt like having experienced co-founders who've built biotech companies before."
   },
   {
     name: "Ola Hekselman",
@@ -50,7 +56,8 @@ const foundersFromWhySection = [
     company: "Solveteq",
     description: "Next generation battery recycling",
     image: "https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/founders//Ola.png",
-    sector: "Climate Tech"
+    sector: "Climate Tech",
+    quote: "The climate tech expertise at Wilbe helped us navigate complex regulatory landscapes with confidence."
   },
   {
     name: "Liviu Mantescu",
@@ -58,7 +65,8 @@ const foundersFromWhySection = [
     company: "Watergenics",
     description: "Making water quality visible",
     image: "https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/founders//Liviu.png",
-    sector: "Environmental"
+    sector: "Environmental",
+    quote: "Wilbe's network introduced us to our first enterprise customers. Their industry connections are unmatched."
   },
   {
     name: "Salpie Nowinski",
@@ -66,7 +74,8 @@ const foundersFromWhySection = [
     company: "Hijack Bio",
     description: "Leveraging bacteria for the future of medicine",
     image: "https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/founders//Salpie.png",
-    sector: "Biotech"
+    sector: "Biotech",
+    quote: "The hands-on support during our Series A was incredible. Wilbe knows how to position deep tech for investors."
   },
   {
     name: "Aaron Crapster",
@@ -74,7 +83,8 @@ const foundersFromWhySection = [
     company: "Anther Therapeutics",
     description: "Non-hormonal male contraceptives",
     image: "https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/founders//Aaron.png",
-    sector: "MedTech"
+    sector: "MedTech",
+    quote: "From lab to market, Wilbe understood the unique challenges of developing novel therapeutics."
   },
   {
     name: "Alex Evans",
@@ -82,7 +92,8 @@ const foundersFromWhySection = [
     company: "Alceus Bio",
     description: "Programming single cells to cure solid cancers",
     image: "https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/founders//Alex.png",
-    sector: "Biotech"
+    sector: "Biotech",
+    quote: "The scientific rigor Wilbe brings to investment decisions gave us confidence in our partnership from day one."
   },
   {
     name: "Spencer Matonis",
@@ -90,7 +101,8 @@ const foundersFromWhySection = [
     company: "Edulis Therapeutics",
     description: "Localised drug delivery for gastrointestinal disease",
     image: "https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/founders//Spencer.png",
-    sector: "Pharma"
+    sector: "Pharma",
+    quote: "Wilbe's pharma expertise accelerated our regulatory strategy by years. They've been there before."
   },
   {
     name: "Carmen Kivisild",
@@ -98,7 +110,8 @@ const foundersFromWhySection = [
     company: "ElnoraAI",
     description: "Optimising data capturing to accelerate drug discovery",
     image: "https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/founders//Carmen.png",
-    sector: "AI/ML"
+    sector: "AI/ML",
+    quote: "The AI expertise at Wilbe helped us refine our product-market fit in ways we hadn't considered."
   },
   {
     name: "Thomas-Louis de Lophem",
@@ -106,7 +119,8 @@ const foundersFromWhySection = [
     company: "MinersAI",
     description: "GIS platform and AI-driven insights for mineral exploration",
     image: "https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/founders//Thomas-Louis.png",
-    sector: "AI/ML"
+    sector: "AI/ML",
+    quote: "Wilbe's global perspective opened international markets that became crucial for our growth strategy."
   },
   {
     name: "Alberto Conti",
@@ -114,7 +128,8 @@ const foundersFromWhySection = [
     company: "Alceus Bio",
     description: "Programming single cells to cure solid cancers",
     image: "https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/founders//Alberto.png",
-    sector: "Biotech"
+    sector: "Biotech",
+    quote: "The depth of scientific discussion with Wilbe's team elevated our research approach and commercial strategy."
   },
   {
     name: "Max Mossner",
@@ -122,7 +137,8 @@ const foundersFromWhySection = [
     company: "Hijack Bio",
     description: "Leveraging bacteria for the future of medicine",
     image: "https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/founders//Max.png",
-    sector: "Biotech"
+    sector: "Biotech",
+    quote: "Technical mentorship from Wilbe's team helped us avoid costly development pitfalls early on."
   },
   {
     name: "Zahra Jawad",
@@ -130,7 +146,8 @@ const foundersFromWhySection = [
     company: "Creasallis",
     description: "Antibody remodelling to improve treatment of solid tumours",
     image: "https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/founders//Zahra.png",
-    sector: "Biotech"
+    sector: "Biotech",
+    quote: "Wilbe's commitment to diversity in science created opportunities I never thought possible as a founder."
   },
   {
     name: "Vikram Bakaraju",
@@ -138,7 +155,8 @@ const foundersFromWhySection = [
     company: "Pavakah Energy",
     description: "Solar paint",
     image: "https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/founders//Vikram.png",
-    sector: "Energy"
+    sector: "Energy",
+    quote: "The energy sector expertise at Wilbe connected us with manufacturing partners critical to scaling our technology."
   }
 ];
 
@@ -152,6 +170,7 @@ export interface BackedFounder {
   fundingRound?: string;
   sector: string;
   bsfClass?: string;
+  quote: string;
 }
 
 // Convert to the BackedFounder format and add funding rounds
@@ -164,5 +183,6 @@ export const backedFounders: BackedFounder[] = foundersFromWhySection.map((found
   description: founder.description,
   fundingRound: ["Seed", "Series A", "Series B"][index % 3], // Distribute funding rounds
   sector: founder.sector,
-  bsfClass: founder.bsfClass
+  bsfClass: founder.bsfClass,
+  quote: founder.quote
 }));
