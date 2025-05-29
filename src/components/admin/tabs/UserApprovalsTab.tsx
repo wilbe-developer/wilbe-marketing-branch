@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { applicationService } from '@/services/applicationService';
@@ -30,6 +29,24 @@ const UserApprovalsTab = () => {
   const [loading, setLoading] = useState(true);
   const [processingUsers, setProcessingUsers] = useState<Set<string>>(new Set());
   const { toast } = useToast();
+
+  // Helper function to ensure LinkedIn URLs have proper protocol
+  const fixLinkedInUrl = (url: string | null): string | null => {
+    if (!url) return null;
+    
+    // If URL already has protocol, return as is
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+    
+    // If URL starts with linkedin.com or www.linkedin.com, prepend https://
+    if (url.startsWith('linkedin.com') || url.startsWith('www.linkedin.com')) {
+      return `https://${url}`;
+    }
+    
+    // For any other case, assume it needs https://
+    return `https://${url}`;
+  };
 
   const fetchPendingUsers = async () => {
     try {
@@ -289,7 +306,7 @@ const UserApprovalsTab = () => {
                         <div className="flex items-center gap-1">
                           <ExternalLink className="h-4 w-4" />
                           <a 
-                            href={user.linked_in} 
+                            href={fixLinkedInUrl(user.linked_in)} 
                             target="_blank" 
                             rel="noopener noreferrer"
                             className="text-blue-600 hover:text-blue-800 hover:underline"
