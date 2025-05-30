@@ -111,7 +111,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
     }
 
-    // Send additional Slack notification to sandbox approval channel
+    // Send additional Slack notification to sandbox approval channel.
     if (process.env.SLACK_WEBHOOK_SANDBOX_APPROVAL) {
       await fetch(process.env.SLACK_WEBHOOK_SANDBOX_APPROVAL, {
         method: 'POST',
