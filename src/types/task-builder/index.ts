@@ -28,6 +28,7 @@ export interface FormField {
   conditions?: Condition[]; // For conditional visibility within a form
   text?: string;    // For content fields to display text
   content?: string; // For content fields to display HTML content
+  description?: string; // For field descriptions
 }
 
 export interface ConditionSource {
@@ -52,6 +53,7 @@ export interface StepNode {
   onAnswer?: Record<string, StepNode[]>;
   children?: StepNode[];
   description?: string;
+  description_markdown?: string; // New field for markdown descriptions
   
   // New fields for enhanced functionality
   fields?: FormField[]; // For multiple inputs in a single step

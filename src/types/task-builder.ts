@@ -35,6 +35,7 @@ export interface StepNode {
   type: StepType;
   text: string;
   description?: string;
+  description_markdown?: string; // New field for markdown descriptions
   
   // Fields for different step types
   inputType?: InputType;
@@ -111,6 +112,7 @@ export interface FormField {
   conditions?: Condition[]; // For conditional visibility within a form
   text?: string;    // For content fields to display text
   content?: string; // For content fields to display HTML content
+  description?: string; // For field descriptions
 }
 
 export interface UploadConfig {
