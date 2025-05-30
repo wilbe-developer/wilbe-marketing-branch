@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { StaticPanel, Condition } from "@/types/task-builder";
 import { 
@@ -129,7 +128,7 @@ const StaticPanels: React.FC<StaticPanelsProps> = ({
                             </CollapsibleTrigger>
                             <CollapsibleContent className="mt-2 pl-4 border-l-2 border-gray-200">
                               <div 
-                                className="prose max-w-none text-sm text-gray-600"
+                                className="text-sm text-gray-600 [&>p]:mb-4 [&>p:last-child]:mb-0"
                                 dangerouslySetInnerHTML={{ __html: item.expandedContent }}
                               />
                             </CollapsibleContent>
