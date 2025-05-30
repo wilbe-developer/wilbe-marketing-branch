@@ -3,7 +3,6 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Play, Clock, ArrowRight } from "lucide-react"
-import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel"
 import { fetchVideos } from "@/services/videoService"
 import { formatDistanceToNow } from "date-fns"
 
@@ -42,13 +41,13 @@ export default function FeaturedVideoSection() {
 
   if (loading) {
     return (
-      <section id="videos" className="py-16 bg-white">
+      <section className="py-12 bg-gray-50 border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl font-bold uppercase tracking-wide text-gray-900 mb-8">FEATURED VIDEOS</h2>
-          <div className="flex space-x-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-8 pb-2 border-b-2 border-black">VIDEO</h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="flex-shrink-0 w-80 bg-gray-200 animate-pulse">
-                <div className="aspect-video bg-gray-300"></div>
+              <div key={i} className="bg-white border border-gray-200">
+                <div className="aspect-video bg-gray-300 animate-pulse"></div>
                 <div className="p-4 space-y-3">
                   <div className="h-4 bg-gray-300 rounded w-3/4"></div>
                   <div className="h-3 bg-gray-300 rounded w-1/2"></div>
@@ -62,78 +61,57 @@ export default function FeaturedVideoSection() {
   }
 
   return (
-    <section id="videos" className="py-16 bg-white">
+    <section id="videos" className="py-12 bg-gray-50 border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center mb-8">
-          <h2 className="text-4xl font-bold uppercase tracking-wide text-gray-900">FEATURED VIDEOS</h2>
-          <Button variant="outline" className="hidden md:flex">
-            View All Videos
+          <h2 className="text-2xl font-bold text-gray-900 pb-2 border-b-2 border-black">VIDEO</h2>
+          <Button variant="ghost" className="text-gray-900 hover:bg-gray-100 text-sm font-medium">
+            MORE VIDEOS
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </div>
 
-        <Carousel
-          opts={{
-            align: "start",
-            loop: false,
-            dragFree: true,
-          }}
-          className="w-full"
-        >
-          <CarouselContent className="-ml-2 md:-ml-4">
-            {videos.map((video) => (
-              <CarouselItem key={video.id} className="pl-2 md:pl-4 basis-80 md:basis-80">
-                <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col">
-                  <div className="relative aspect-video bg-gradient-to-br from-gray-800 to-gray-900 flex-shrink-0">
-                    <img
-                      src={video.thumbnail_url || "/placeholder.svg"}
-                      alt={video.title}
-                      className="absolute inset-0 w-full h-full object-cover"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = "/placeholder.svg";
-                      }}
-                    />
-                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                      <Button size="lg" className="bg-white/20 hover:bg-white/30 text-white border-2 border-white rounded-full p-3">
-                        <Play className="h-6 w-6" />
-                      </Button>
-                    </div>
-                    {video.duration && (
-                      <div className="absolute top-4 left-4">
-                        <Badge className="bg-gray-900 text-white text-xs flex items-center">
-                          <Clock className="h-3 w-3 mr-1" />
-                          {video.duration}
-                        </Badge>
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-4 flex-1 flex flex-col">
-                    <h4 className="font-bold text-gray-900 text-sm mb-2 line-clamp-2 flex-shrink-0">{video.title}</h4>
-                    {video.description && (
-                      <p className="text-gray-600 text-xs leading-relaxed mb-3 line-clamp-2 flex-1">{video.description}</p>
-                    )}
-                    <div className="flex items-center justify-between mt-auto flex-shrink-0">
-                      {video.presenter && (
-                        <span className="text-gray-500 text-xs truncate mr-2">{video.presenter}</span>
-                      )}
-                      <span className="text-gray-500 text-xs flex-shrink-0">
-                        {formatDistanceToNow(new Date(video.created_at), { addSuffix: true })}
-                      </span>
-                    </div>
-                  </div>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {videos.map((video) => (
+            <article key={video.id} className="bg-white border border-gray-200 hover:shadow-md transition-shadow">
+              <div className="relative aspect-video bg-gray-900">
+                <img
+                  src={video.thumbnail_url || "/placeholder.svg"}
+                  alt={video.title}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = "/placeholder.svg";
+                  }}
+                />
+                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                  <Button size="lg" className="bg-white/20 hover:bg-white/30 text-white border-2 border-white rounded-full p-3">
+                    <Play className="h-6 w-6" />
+                  </Button>
                 </div>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-          <CarouselPrevious className="hidden md:flex" />
-          <CarouselNext className="hidden md:flex" />
-        </Carousel>
-
-        <div className="text-center mt-8 md:hidden">
-          <Button variant="outline">
-            View All Videos
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
+                {video.duration && (
+                  <div className="absolute bottom-2 right-2">
+                    <Badge className="bg-black/80 text-white text-xs">
+                      {video.duration}
+                    </Badge>
+                  </div>
+                )}
+              </div>
+              <div className="p-4">
+                <h3 className="font-bold text-gray-900 text-base mb-2 leading-tight line-clamp-2">{video.title}</h3>
+                {video.description && (
+                  <p className="text-gray-600 text-sm leading-relaxed mb-3 line-clamp-2">{video.description}</p>
+                )}
+                <div className="flex items-center justify-between text-xs text-gray-500">
+                  {video.presenter && (
+                    <span className="font-medium">{video.presenter}</span>
+                  )}
+                  <span>
+                    {formatDistanceToNow(new Date(video.created_at), { addSuffix: true }).toUpperCase()}
+                  </span>
+                </div>
+              </div>
+            </article>
+          ))}
         </div>
       </div>
     </section>

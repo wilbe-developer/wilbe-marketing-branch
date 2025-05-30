@@ -6,100 +6,94 @@ import { ArrowRight, ExternalLink } from "lucide-react"
 const thirdPartyContent = [
   {
     id: 1,
-    title: "Nature: Breakthrough in Gene Therapy Delivery",
+    title: "Nature: Breakthrough in Gene Therapy Delivery Shows 10x Improvement",
     source: "Nature Biotechnology",
-    summary: "New lipid nanoparticle design shows 10x improvement in targeting specific cell types.",
+    summary: "New lipid nanoparticle design demonstrates unprecedented targeting efficiency for specific cell types, opening new therapeutic possibilities.",
     url: "#",
     category: "Research",
     date: "2024-01-15",
-    image: "https://images.unsplash.com/photo-1582719471384-894fbb16e074?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+    readTime: "8 min read"
   },
   {
     id: 2,
-    title: "TechCrunch: $500M Climate Tech Fund Launched",
+    title: "Andreessen Horowitz Launches $500M Climate Tech Fund",
     source: "TechCrunch",
-    summary: "New fund specifically targets early-stage climate technologies with strong scientific foundations.",
+    summary: "New fund specifically targets early-stage climate technologies with strong scientific foundations and commercial potential.",
     url: "#",
     category: "Funding",
     date: "2024-01-14",
-    image: "https://images.unsplash.com/photo-1466611653911-95081537e5b7?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+    readTime: "5 min read"
   },
   {
     id: 3,
-    title: "Science: AI Accelerates Drug Discovery Timeline",
+    title: "AI Reduces Drug Discovery Timeline from Years to Months",
     source: "Science Magazine",
-    summary: "Machine learning models reduce drug discovery timeline from years to months.",
+    summary: "Machine learning models demonstrate ability to predict molecular behavior and optimize drug candidates.",
     url: "#",
     category: "Research",
     date: "2024-01-13",
-    image: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+    readTime: "12 min read"
   },
   {
     id: 4,
-    title: "Forbes: The Rise of Science-Based Startups",
+    title: "The Rise of Science-Based Startups: Why Investors Are Betting Big",
     source: "Forbes",
-    summary: "Why investors are increasingly betting on companies founded by scientists and engineers.",
+    summary: "Analysis of why investors are increasingly drawn to companies founded by scientists and engineers.",
     url: "#",
     category: "Industry",
     date: "2024-01-12",
-    image: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+    readTime: "6 min read"
   }
 ];
 
 export default function ThirdPartyContentSection() {
   return (
-    <section id="news" className="py-16 bg-white">
+    <section id="news" className="py-12 bg-white border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center mb-8">
-          <h2 className="text-4xl font-bold uppercase tracking-wide text-gray-900">INDUSTRY NEWS</h2>
-          <Button variant="outline" className="hidden md:flex">
-            More News
+          <h2 className="text-2xl font-bold text-gray-900 pb-2 border-b-2 border-black">INDUSTRY NEWS</h2>
+          <Button variant="ghost" className="text-gray-900 hover:bg-gray-100 text-sm font-medium">
+            MORE NEWS
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6">
-          {thirdPartyContent.map((article) => (
-            <div key={article.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
-              <div className="md:flex">
-                <div className="md:w-1/3">
-                  <img
-                    src={article.image}
-                    alt={article.title}
-                    className="w-full h-48 md:h-full object-cover"
-                  />
-                </div>
-                <div className="p-4 md:w-2/3">
-                  <div className="flex items-center justify-between mb-2">
-                    <Badge variant="secondary" className="text-xs">
+        <div className="grid md:grid-cols-2 gap-8">
+          {thirdPartyContent.map((article, index) => (
+            <article key={article.id} className={`${index === 0 ? 'md:col-span-2' : ''} border-b border-gray-200 pb-6`}>
+              <div className={`${index === 0 ? 'md:flex md:gap-6' : ''}`}>
+                <div className={`${index === 0 ? 'md:w-2/3' : ''}`}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Badge variant="secondary" className="text-xs font-medium">
                       {article.category}
                     </Badge>
-                    <ExternalLink className="h-4 w-4 text-gray-400" />
+                    <span className="text-xs text-gray-500 font-medium">{article.source.toUpperCase()}</span>
+                    <ExternalLink className="h-3 w-3 text-gray-400" />
                   </div>
-                  <h4 className="font-bold text-gray-900 text-sm mb-2 line-clamp-2">{article.title}</h4>
-                  <p className="text-gray-600 text-xs leading-relaxed mb-3 line-clamp-2">{article.summary}</p>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="text-gray-500 text-xs font-medium">{article.source}</div>
-                      <div className="text-gray-400 text-xs">
-                        {new Date(article.date).toLocaleDateString()}
-                      </div>
-                    </div>
-                    <Button size="sm" variant="ghost" className="text-xs">
-                      Read More
-                    </Button>
+                  <h3 className={`font-bold text-gray-900 mb-3 leading-tight ${index === 0 ? 'text-2xl' : 'text-lg'}`}>
+                    {article.title}
+                  </h3>
+                  <p className={`text-gray-600 leading-relaxed mb-3 ${index === 0 ? 'text-base' : 'text-sm'}`}>
+                    {article.summary}
+                  </p>
+                  <div className="flex items-center gap-4 text-xs text-gray-500">
+                    <span>{new Date(article.date).toLocaleDateString().toUpperCase()}</span>
+                    <span>•</span>
+                    <span>{article.readTime.toUpperCase()}</span>
                   </div>
                 </div>
+                {index === 0 && (
+                  <div className="md:w-1/3 mt-4 md:mt-0">
+                    <img
+                      src="https://images.unsplash.com/photo-1582719471384-894fbb16e074?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                      alt={article.title}
+                      className="w-full h-48 object-cover"
+                    />
+                  </div>
+                )}
               </div>
-            </div>
+            </article>
           ))}
-        </div>
-
-        <div className="text-center mt-8 md:hidden">
-          <Button variant="outline">
-            More News
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
         </div>
       </div>
     </section>

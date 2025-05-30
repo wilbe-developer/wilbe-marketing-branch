@@ -10,10 +10,9 @@ export default function MediaNavigation() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-8">
-            <Menu className="h-6 w-6 md:hidden" />
             <Link to="/landing-page" className="flex items-center">
               <WilbeLogo
-                className="h-6 w-auto"
+                className="h-8 w-auto"
                 style={{
                   '--sails-color': 'black',
                   '--text-color': 'black',
@@ -21,31 +20,29 @@ export default function MediaNavigation() {
               />
             </Link>
             <div className="hidden md:flex space-x-8 text-sm font-medium">
-              <Link to="/media#videos" className="text-gray-900 hover:text-gray-700 transition-colors uppercase tracking-wide">
-                Videos
+              <Link to="/media#videos" className="text-gray-900 hover:text-red-600 transition-colors">
+                Video
               </Link>
-              <Link to="/media#podcasts" className="text-gray-900 hover:text-gray-700 transition-colors uppercase tracking-wide">
+              <Link to="/media#podcasts" className="text-gray-900 hover:text-red-600 transition-colors">
                 Podcasts
               </Link>
-              <Link to="/media#social" className="text-gray-900 hover:text-gray-700 transition-colors uppercase tracking-wide">
-                Social
-              </Link>
-              <Link to="/media#gallery" className="text-gray-900 hover:text-gray-700 transition-colors uppercase tracking-wide">
-                Gallery
-              </Link>
-              <Link to="/media#news" className="text-gray-900 hover:text-gray-700 transition-colors uppercase tracking-wide">
+              <Link to="/media#news" className="text-gray-900 hover:text-red-600 transition-colors">
                 Industry News
+              </Link>
+              <Link to="/media#social" className="text-gray-900 hover:text-red-600 transition-colors">
+                Social
               </Link>
             </div>
           </div>
           <div className="flex items-center space-x-4">
+            <Search className="h-5 w-5 text-gray-600 hover:text-gray-900 cursor-pointer" />
             <Button
               variant="outline"
-              className="border-2 border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white text-sm font-bold uppercase tracking-wide px-6 py-2"
+              className="border border-gray-300 text-gray-900 hover:bg-gray-50 text-sm font-medium px-4 py-2"
             >
               Subscribe
             </Button>
-            <Search className="h-5 w-5 text-gray-900" />
+            <Menu className="h-6 w-6 md:hidden text-gray-600" />
           </div>
         </div>
       </div>
