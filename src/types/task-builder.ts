@@ -1,3 +1,4 @@
+
 export * from './task-builder/index';
 
 export interface SprintTaskDefinition {
@@ -134,6 +135,8 @@ export type ProfileQuestionType = 'boolean' | 'text' | 'select' | 'multiselect';
 export interface StaticPanelItem {
   text: string;
   order?: number;
+  isExpandable?: boolean; // Flag to indicate if item should be a dropdown
+  expandedContent?: string; // HTML content shown when expanded
 }
 
 export interface StaticPanel {
