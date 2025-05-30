@@ -126,10 +126,6 @@ export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
 
   return (
     <div className="space-y-6">
-      {step.description && (
-        <p className="text-gray-600 mb-4">{step.description}</p>
-      )}
-      
       <div className="space-y-4">
         {step.fields.map((fieldData: FormField) => {
           const field = normalizeFieldType(fieldData);
@@ -287,4 +283,3 @@ export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
     </div>
   );
 };
-
