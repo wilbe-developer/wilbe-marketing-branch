@@ -8,6 +8,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { SprintContextProvider } from "@/hooks/useSprintContext";
 import { PATHS } from "@/lib/constants";
 import MerchPage from "@/pages/MerchPage";
+import MediaLandingPage from "@/pages/MediaLandingPage";
 
 // Layout
 import Layout from "@/components/Layout";
@@ -89,6 +90,9 @@ const App = () => (
 
                 {/* Public merch chooser route */}
                 <Route path="/merch" element={<MerchPage />} />
+
+                {/* Media landing page route */}
+                <Route path="/media" element={<MediaLandingPage />} />
 
                 {/* Auth routes */}
                 <Route path={PATHS.LOGIN} element={<LoginPage />} />
