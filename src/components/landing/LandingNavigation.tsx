@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button"
 import { Menu, Search } from "lucide-react"
 import { Link } from "react-router-dom"
@@ -41,7 +40,7 @@ export default function LandingNavigation() {
                 variant="outline"
                 className="border-2 border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white text-sm font-bold uppercase tracking-wide px-6 py-2"
               >
-                Scientists Log In
+                Scientist Log In
               </Button>
             </a>
             <Search className="h-5 w-5 text-gray-900" />
