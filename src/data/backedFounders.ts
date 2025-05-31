@@ -28,7 +28,7 @@ const foundersFromWhySection = [
     image: "https://iatercfyoclqxmohyyke.supabase.co/storage/v1/object/public/founders//assia.png",
     sector: "Materials",
     bsfClass: "BSF3",
-    quote: "Ale and Dee have followed me throughout my whole entrepreneurial journey with the same constant and relentless support. They are the people whom I trust the most in the entrepreneurial world and definitely the most human."
+    quote: "With the same constant and relentless support, they are the people whom I trust the most in the entrepreneurial world and definitely the most human."
   },
   {
     name: "Shamit Shrivastava",
