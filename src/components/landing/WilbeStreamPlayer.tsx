@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -27,11 +28,11 @@ export default function WilbeStreamPlayer() {
     seconds: 23
   });
 
-  // Next live event
+  // Next live event - Updated with new content
   const nextEvent = {
-    title: "AI in Drug Discovery Panel",
-    speaker: "Dr. Sarah Chen, Prof. Michael Rodriguez",
-    date: "2025-06-15T18:00:00Z",
+    title: "Ep 6: From PhD War Models to an AI x Defense Exit",
+    speaker: "With Sean Gourley",
+    date: "2025-06-10T16:00:00Z", // 12:00 ET = 16:00 UTC
     description: "Join leading scientists discussing the latest breakthroughs in AI-powered drug discovery"
   }
 
@@ -147,15 +148,15 @@ export default function WilbeStreamPlayer() {
             <h3 className="text-lg font-bold text-gray-900 mb-2">{nextEvent.title}</h3>
             <p className="text-sm text-gray-600 mb-4">{nextEvent.speaker}</p>
             
-            {/* Event Date & Time */}
+            {/* Event Date & Time - Updated */}
             <div className="flex items-center gap-4 mb-4 text-sm text-gray-500">
               <div className="flex items-center gap-1">
                 <Calendar className="h-4 w-4" />
-                <span>June 15, 2025</span>
+                <span>June 10, 2025</span>
               </div>
               <div className="flex items-center gap-1">
                 <Clock className="h-4 w-4" />
-                <span>6:00 PM UTC</span>
+                <span>12:00 PM ET</span>
               </div>
             </div>
             
@@ -297,15 +298,15 @@ export default function WilbeStreamPlayer() {
           <h3 className="text-lg font-bold text-gray-900 mb-2">{nextEvent.title}</h3>
           <p className="text-sm text-gray-600 mb-4">{nextEvent.speaker}</p>
           
-          {/* Event Date & Time */}
+          {/* Event Date & Time - Updated */}
           <div className="flex items-center gap-4 mb-4 text-sm text-gray-500">
             <div className="flex items-center gap-1">
               <Calendar className="h-4 w-4" />
-              <span>June 15, 2025</span>
+              <span>June 10, 2025</span>
             </div>
             <div className="flex items-center gap-1">
               <Clock className="h-4 w-4" />
-              <span>6:00 PM UTC</span>
+              <span>12:00 PM ET</span>
             </div>
           </div>
           
