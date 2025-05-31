@@ -6,7 +6,7 @@ import nodemailer from 'nodemailer';
 const transporter = nodemailer.createTransporter({
   service: 'gmail',
   auth: {
-    user: process.env.GMAIL_USER,
+    user: process.env.GMAIL_USER || 'jesse@wilbe.com',
     pass: process.env.GMAIL_PASS,
   },
 });
@@ -24,16 +24,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const mailOptions = {
-      from: `"Wilbe Science" <${process.env.GMAIL_USER}>`,
+      from: `"Team Wilbe" <${process.env.GMAIL_USER}>`,
       to: email,
-      subject: '🎉 Welcome to Wilbe Science - Your Membership Has Been Approved!',
+      subject: '🎉 Welcome to Wilbe - Your Membership Has Been Approved!',
       html: `
         <!DOCTYPE html>
         <html>
         <head>
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Welcome to Wilbe Science</title>
+          <title>Welcome to Wilbe</title>
           <style>
             body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
             .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px 20px; text-align: center; border-radius: 8px 8px 0 0; }
@@ -47,14 +47,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         </head>
         <body>
           <div class="header">
-            <h1>🎉 Welcome to Wilbe Science!</h1>
+            <h1>🎉 Welcome to Wilbe!</h1>
             <p>Your membership application has been approved</p>
           </div>
           
           <div class="content">
             <h2>Hi ${name},</h2>
             
-            <p>Congratulations! We're excited to let you know that your membership application to Wilbe Science has been <strong>approved</strong>.</p>
+            <p>Congratulations! We're excited to let you know that your membership application to Wilbe has been <strong>approved</strong>.</p>
             
             <p>You now have full access to our platform where you can connect with fellow scientist entrepreneurs, access exclusive resources, and accelerate your biotech journey.</p>
             
@@ -66,19 +66,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             
             <div class="features">
               <h3>What you can do now:</h3>
-              <div class="feature-item">Join sprint programs to accelerate your startup</div>
+              <div class="feature-item">Join BSF to accelerate your startup</div>
               <div class="feature-item">Connect with other scientist entrepreneurs</div>
               <div class="feature-item">Access our knowledge center and video library</div>
-              <div class="feature-item">Participate in community discussions</div>
-              <div class="feature-item">Get expert feedback on your biotech venture</div>
+              <div class="feature-item">Connect with the community</div>
+              <div class="feature-item">Get expert feedback on your science venture</div>
             </div>
             
             <h3>Next Steps:</h3>
             <ol>
               <li><strong>Log in to your account</strong> using the same email address you applied with</li>
               <li><strong>Complete your profile</strong> to help other members connect with you</li>
-              <li><strong>Explore sprint programs</strong> that match your venture stage</li>
-              <li><strong>Join the community</strong> discussions and introduce yourself</li>
+              <li><strong>Explore content </strong> that match your venture stage</li>
+              <li><strong>Join the community</strong> and introduce yourself</li>
             </ol>
             
             <p>If you have any questions or need help getting started, don't hesitate to reach out to our team. We're here to support your success!</p>
@@ -86,12 +86,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             <p>Welcome to the community!</p>
             
             <p>Best regards,<br>
-            <strong>The Wilbe Science Team</strong></p>
+            <strong>The Wilbe Team</strong></p>
           </div>
           
           <div class="footer">
-            <p>Wilbe Science - Accelerating Biotech Innovation</p>
-            <p>If you have any questions, reply to this email or contact us at support@wilbe.com</p>
+            <p>Scientists First</p>
+            <p>If you have any questions, reply to this email or contact us at members@wilbe.com</p>
           </div>
         </body>
         </html>
