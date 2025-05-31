@@ -1,6 +1,8 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { applicationService } from '@/services/applicationService';
+import { sendApprovalConfirmationEmail } from '@/services/emailService';
 import { useToast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -155,9 +157,30 @@ const UserApprovalsTab = () => {
         console.warn('Warning updating profile approval status:', profileError);
       }
 
+      // Get user email for sending approval confirmation
+      const approvedUser = pendingUsers.find(user => user.user_id === userId);
+      if (approvedUser && approvedUser.email) {
+        // Send approval confirmation email
+        const emailSent = await sendApprovalConfirmationEmail(
+          approvedUser.email, 
+          userName
+        );
+        
+        if (emailSent) {
+          console.log('Approval confirmation email sent successfully');
+        } else {
+          console.warn('Failed to send approval confirmation email');
+          toast({
+            title: 'Approval Complete',
+            description: `${userName} has been approved, but email notification failed`,
+            variant: 'default'
+          });
+        }
+      }
+
       toast({
         title: 'User Approved',
-        description: `${userName} has been approved as a member`
+        description: `${userName} has been approved as a member and notified via email`
       });
 
       // Refresh the list
