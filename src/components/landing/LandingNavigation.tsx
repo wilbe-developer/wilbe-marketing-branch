@@ -36,12 +36,14 @@ export default function LandingNavigation() {
             </div>
           </div>
           <div className="flex items-center space-x-4">
-            <Button
-              variant="outline"
-              className="border-2 border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white text-sm font-bold uppercase tracking-wide px-6 py-2"
-            >
-              Scientists Log In
-            </Button>
+            <a href="https://app.wilbe.com" target="_blank" rel="noopener noreferrer">
+              <Button
+                variant="outline"
+                className="border-2 border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white text-sm font-bold uppercase tracking-wide px-6 py-2"
+              >
+                Scientists Log In
+              </Button>
+            </a>
             <Search className="h-5 w-5 text-gray-900" />
           </div>
         </div>
