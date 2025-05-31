@@ -1,4 +1,5 @@
 
+
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import UpcomingEventsFeeder from "./UpcomingEventsFeeder";
@@ -23,7 +24,7 @@ export default function PlatformsSection() {
     title: "Wilbe Labs: securing the best lab space for your team",
     description: "Wilbe Labs creates fully operational science labs and innovation hubs for ventures and property owners. By managing fit-outs, compliance, and operations, it delivers vibrant workspaces that attract talent and investors, supporting pre-seed to Series B science ventures.",
     buttonText: "Discover Wilbe Labs",
-    buttonLink: "/labs",
+    buttonLink: "https://wilbelab.com",
     showLabGallery: true
   }];
 
