@@ -79,11 +79,11 @@ function FounderCard({ founder }: FounderCardProps) {
         <h6 className="font-semibold text-gray-800 text-sm mb-2">{founder.company}</h6>
         <p className="text-gray-600 text-xs leading-relaxed mb-4 line-clamp-2">{founder.description}</p>
         
-        {/* Quote section - completely flat geometric design */}
-        <div className="bg-gray-100 p-4 relative">
-          <div className="flex items-start gap-2">
-            <Quote className="h-3 w-3 text-gray-500 mt-0.5 flex-shrink-0" />
-            <p className="text-xs text-gray-700 leading-relaxed font-medium">
+        {/* Enhanced quote section - more prominent and noticeable */}
+        <div className="bg-gray-900 p-5 relative border-l-4 border-red-600">
+          <div className="flex items-start gap-3">
+            <Quote className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" />
+            <p className="text-sm text-white leading-relaxed font-medium">
               {founder.quote}
             </p>
           </div>

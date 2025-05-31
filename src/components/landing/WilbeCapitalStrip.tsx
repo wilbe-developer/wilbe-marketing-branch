@@ -1,7 +1,6 @@
 
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom";
 import BackedFoundersSection from "./BackedFoundersSection";
 
 export default function WilbeCapitalStrip() {
@@ -20,16 +19,16 @@ export default function WilbeCapitalStrip() {
         {/* Backed Founders section */}
         <BackedFoundersSection initialCount={6} loadMoreCount={6} />
         
-        {/* View All button */}
+        {/* View All button - now links to external wilbe.capital */}
         <div className="text-center mt-12">
-          <Link to="/capital">
+          <a href="https://wilbe.capital" target="_blank" rel="noopener noreferrer">
             <Button className="bg-gray-900 hover:bg-gray-800 text-white font-medium px-8 py-3 rounded-none">
               <span className="flex items-center">
                 VIEW ALL PORTFOLIO
                 <ArrowRight className="ml-2 h-4 w-4" />
               </span>
             </Button>
-          </Link>
+          </a>
         </div>
       </div>
     </section>;
