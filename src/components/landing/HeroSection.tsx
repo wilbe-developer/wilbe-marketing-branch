@@ -34,9 +34,11 @@ export default function HeroSection() {
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4">
-        <Button size="lg" className="bg-green-500 hover:bg-green-600 text-black font-bold uppercase tracking-wide px-8">
-          Getting Started
-          <ArrowRight className="ml-2 h-5 w-5" />
+        <Button size="lg" asChild className="bg-green-500 hover:bg-green-600 text-black font-bold uppercase tracking-wide px-8">
+          <a href="#tools-section">
+            Getting Started
+            <ArrowRight className="ml-2 h-5 w-5" />
+          </a>
         </Button>
         <Link to="/quiz" target="_blank" rel="noopener noreferrer">
           <Button size="lg" className="relative bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 hover:from-purple-600 hover:via-pink-600 hover:to-orange-600 text-white font-bold uppercase tracking-wide px-8 border-0 transition-all duration-300 shadow-lg hover:shadow-2xl hover:shadow-purple-500/25 overflow-hidden before:absolute before:top-0 before:left-[-100%] before:w-full before:h-full before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:animate-[shimmer_2.5s_ease-in-out_infinite] before:skew-x-12 rounded-lg">
