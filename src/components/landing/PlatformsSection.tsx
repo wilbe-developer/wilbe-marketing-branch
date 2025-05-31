@@ -132,7 +132,7 @@ export default function PlatformsSection() {
                 {/* Button - show for platforms that don't have content feeds */}
                 {!platform.showLatestContent && (
                   <Button asChild className="bg-green-500 hover:bg-green-600 text-white font-medium px-6 py-2 mb-6">
-                    <a href={platform.buttonLink}>
+                    <a href={platform.buttonLink} target="_blank" rel="noopener noreferrer">
                       {platform.buttonText}
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </a>
