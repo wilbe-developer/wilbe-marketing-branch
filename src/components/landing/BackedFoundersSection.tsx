@@ -79,14 +79,23 @@ function FounderCard({ founder }: FounderCardProps) {
         <h6 className="font-semibold text-gray-800 text-sm mb-2">{founder.company}</h6>
         <p className="text-gray-600 text-xs leading-relaxed mb-4 line-clamp-2">{founder.description}</p>
         
-        {/* Enhanced quote section - more prominent and noticeable */}
-        <div className="bg-gray-900 p-5 relative border-l-4 border-red-600">
-          <div className="flex items-start gap-3">
-            <Quote className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" />
-            <p className="text-sm text-white leading-relaxed font-medium">
+        {/* Stylized Typography Quote - Creative Agency Style */}
+        <div className="relative py-4">
+          {/* Large decorative opening quote */}
+          <div className="absolute -top-1 left-0 text-6xl font-serif text-gray-200 leading-none select-none">"</div>
+          
+          {/* Quote text with elegant typography */}
+          <div className="pl-8 pr-4">
+            <p className="text-sm text-gray-800 leading-relaxed font-light italic tracking-wide">
               {founder.quote}
             </p>
           </div>
+          
+          {/* Large decorative closing quote */}
+          <div className="absolute -bottom-4 right-0 text-6xl font-serif text-gray-200 leading-none select-none rotate-180">"</div>
+          
+          {/* Subtle accent line */}
+          <div className="absolute bottom-0 left-8 right-4 h-px bg-gradient-to-r from-red-500 to-transparent"></div>
         </div>
       </div>
     </div>
