@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import UpcomingEventsFeeder from "./UpcomingEventsFeeder";
@@ -31,22 +30,22 @@ export default function PlatformsSection() {
     {
       name: "UCL's IDEALondon",
       location: "London, UK",
-      image: "https://images.unsplash.com/photo-1487958449943-2429e8be8625?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+      image: "/lovable-uploads/bedb45e3-c04e-46ae-80fb-d5e90ab2cfaa.png"
     },
     {
       name: "Milvus Advanced", 
       location: "Oxford, UK",
-      image: "https://images.unsplash.com/photo-1496307653780-42ee777d4833?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+      image: "/lovable-uploads/dabb2926-37df-4faa-a83d-8ebfb7db6e9c.png"
     },
     {
       name: "Origen",
       location: "Bristol, UK", 
-      image: "https://images.unsplash.com/photo-1431576901776-e539bd916ba2?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+      image: "/lovable-uploads/cad82760-686a-4c37-9e96-c9f6705dcc92.png"
     },
     {
       name: "CarpeCarbon",
       location: "Turin, Italy",
-      image: "https://images.unsplash.com/photo-1449157291145-7efd050a4d0e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+      image: "/lovable-uploads/c97a82b5-f37b-49a4-accd-5ef983857a24.png"
     }
   ];
 
