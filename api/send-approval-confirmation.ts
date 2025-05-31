@@ -17,7 +17,7 @@ const createApprovalEmailHtml = (name: string) => `
 <html>
 <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
   <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-    <h2 style="color: #1a365d;">Welcome to BSF! Your Application Has Been Approved</h2>
+    <h2 style="color: #1a365d;">Welcome to Wilbe! Your Application Has Been Approved</h2>
     <p>Hi ${name},</p>
     <p>Great news! Your Wilbe membership has been approved. You now have full access to the Wilbe platform.</p>
     
