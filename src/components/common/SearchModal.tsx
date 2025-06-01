@@ -87,7 +87,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
           title: video.title,
           type: 'video' as const,
           description: video.description || "Video content",
-          url: `/video-player/${video.id}`,
+          url: `${PATHS.VIDEO}/${video.id}`,
           icon: Video
         }));
 
