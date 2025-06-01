@@ -112,7 +112,7 @@ export default function LandingFooter() {
 
           <div className="mt-12 border-t border-gray-800 pt-6">
             <p className="text-gray-500 text-center text-sm">
-              © 2024 Wilbe. All rights reserved. |{" "}
+              © 2025 Wilbe. All rights reserved. |{" "}
               <Link to="#" className="hover:text-white transition-colors">
                 Terms of Service
               </Link>{" "}

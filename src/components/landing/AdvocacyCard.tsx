@@ -69,6 +69,11 @@ export default function AdvocacyCard({ card }: AdvocacyCardProps) {
               ? "border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white w-full"
               : "bg-gray-900 hover:bg-black text-white w-full"
             }
+            onClick={() => {
+              if (card.buttonUrl) {
+                window.open(card.buttonUrl, '_blank');
+              }
+            }}
           >
             {card.buttonText}
           </Button>

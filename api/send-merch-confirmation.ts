@@ -10,7 +10,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// HTML email template.
+// HTML email template
 const createEmailHtml = (name: string, product: string, size: string, address: string) => `
 <!DOCTYPE html>
 <html>

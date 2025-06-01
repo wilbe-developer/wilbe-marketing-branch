@@ -1,4 +1,5 @@
 
+
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import LumaEventsEmbed from "./LumaEventsEmbed";
@@ -53,8 +54,8 @@ export default function PlatformsSection() {
   return (
     <section id="tools-section" className="py-12 sm:py-16 lg:py-20 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12 sm:mb-16">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 px-4">
+        <div className="text-left mb-12 sm:mb-16">
+          <h2 className="text-4xl font-bold text-gray-900 mb-4 px-4">
             All the tools to explore, build, and scale science companies
           </h2>
         </div>

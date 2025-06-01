@@ -77,7 +77,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     setTimeout(() => {
       const searchLower = searchQuery.toLowerCase();
       
-      // Search videos - using correct video path format
+      // Search videos
       const videoResults: SearchResult[] = videos
         .filter(video => 
           video.title.toLowerCase().includes(searchLower) ||
