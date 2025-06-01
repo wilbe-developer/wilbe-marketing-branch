@@ -9,6 +9,14 @@ import SearchModal from "@/components/common/SearchModal"
 export default function LandingNavigation() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
+  const handleAboutClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const scientistsSection = document.getElementById('scientists-first');
+    if (scientistsSection) {
+      scientistsSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <>
       <nav className="border-b border-gray-200 bg-white sticky top-0 z-50">
@@ -35,9 +43,12 @@ export default function LandingNavigation() {
                 <Link to="/capital" className="text-gray-900 hover:text-gray-700 transition-colors uppercase tracking-wide">
                   Capital
                 </Link>
-                <Link to="/landing-page#scientists-first" className="text-gray-900 hover:text-gray-700 transition-colors uppercase tracking-wide">
+                <button 
+                  onClick={handleAboutClick}
+                  className="text-gray-900 hover:text-gray-700 transition-colors uppercase tracking-wide cursor-pointer"
+                >
                   About
-                </Link>
+                </button>
               </div>
             </div>
             <div className="flex items-center space-x-4">
