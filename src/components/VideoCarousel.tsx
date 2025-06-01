@@ -1,7 +1,7 @@
-
 import { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useVideos } from "@/hooks/useVideos";
+import { useAuth } from "@/hooks/useAuth";
 import { PATHS } from "@/lib/constants";
 import { Video } from "@/types";
 import { CalendarDays, Clock, Play, ChevronLeft, ChevronRight } from "lucide-react";
@@ -12,8 +12,13 @@ import Autoplay from 'embla-carousel-autoplay';
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-const VideoCarousel = () => {
+interface VideoCarouselProps {
+  onNonMemberClick?: () => void;
+}
+
+const VideoCarousel = ({ onNonMemberClick }: VideoCarouselProps) => {
   const { videos, loading } = useVideos();
+  const { isMember } = useAuth();
   const [featuredVideos, setFeaturedVideos] = useState<Video[]>([]);
   const isMobile = useIsMobile();
   const autoplayOptions = { delay: 5000, stopOnInteraction: false };
@@ -77,6 +82,13 @@ const VideoCarousel = () => {
     }
   }, [emblaApi]);
 
+  const handleVideoClick = (e: React.MouseEvent, video: Video) => {
+    if (!isMember && onNonMemberClick) {
+      e.preventDefault();
+      onNonMemberClick();
+    }
+  };
+
   if (loading || featuredVideos.length === 0) {
     return (
       <div className="relative w-full h-[400px] bg-gray-900 rounded-xl overflow-hidden flex items-center justify-center">
@@ -112,59 +124,118 @@ const VideoCarousel = () => {
           {featuredVideos.map((video) => (
             <div key={video.id} className="embla__slide">
               <div className="carousel-card">
-                <Link to={`${PATHS.VIDEO}/${video.id}`} className="block h-full">
-                  <div className={`absolute inset-0 ${
-                    isMobile 
-                      ? 'bg-gradient-to-t from-black/30 to-transparent'
-                      : 'bg-gradient-to-t from-black/80 via-black/40 to-transparent'
-                  } z-10`} />
-                  
-                  <AspectRatio ratio={16 / 9} className="h-full">
-                    <img 
-                      src={video.thumbnailUrl || "/placeholder.svg"}
-                      alt={video.title}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = "/placeholder.svg";
-                      }}
-                    />
-                  </AspectRatio>
-                  
-                  <div className="absolute bottom-0 left-0 right-0 p-6 z-20">
-                    {isMobile ? (
-                      <div className="inline-flex items-center bg-black/60 px-2 py-1 rounded text-white/90 text-sm">
-                        <Clock className="w-4 h-4 mr-1" />
-                        {video.duration || "30:00"}
-                      </div>
-                    ) : (
-                      <>
-                        <div className="flex items-center gap-2 text-white/80 text-sm mb-2">
-                          <div className="flex items-center">
-                            <Clock className="w-4 h-4 mr-1" />
-                            {video.duration || "30:00"}
-                          </div>
-                          <div className="w-1 h-1 rounded-full bg-white/60" />
-                          <div className="flex items-center">
-                            <CalendarDays className="w-4 h-4 mr-1" />
-                            {video.created_at 
-                              ? formatDistanceToNow(new Date(video.created_at), { addSuffix: true })
-                              : "Recently added"}
-                          </div>
+                {isMember ? (
+                  <Link to={`${PATHS.VIDEO}/${video.id}`} className="block h-full">
+                    <div className={`absolute inset-0 ${
+                      isMobile 
+                        ? 'bg-gradient-to-t from-black/30 to-transparent'
+                        : 'bg-gradient-to-t from-black/80 via-black/40 to-transparent'
+                    } z-10`} />
+                    
+                    <AspectRatio ratio={16 / 9} className="h-full">
+                      <img 
+                        src={video.thumbnailUrl || "/placeholder.svg"}
+                        alt={video.title}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = "/placeholder.svg";
+                        }}
+                      />
+                    </AspectRatio>
+                    
+                    <div className="absolute bottom-0 left-0 right-0 p-6 z-20">
+                      {isMobile ? (
+                        <div className="inline-flex items-center bg-black/60 px-2 py-1 rounded text-white/90 text-sm">
+                          <Clock className="w-4 h-4 mr-1" />
+                          {video.duration || "30:00"}
                         </div>
-                        <h2 className="text-2xl font-bold text-white mb-2">
-                          {video.title}
-                        </h2>
-                        <p className="text-white/80 mb-4 line-clamp-2 text-sm md:text-base">
-                          {video.description}
-                        </p>
-                        <Button className="gap-2" size="sm">
-                          <Play className="w-4 h-4" />
-                          Watch Now
-                        </Button>
-                      </>
-                    )}
+                      ) : (
+                        <>
+                          <div className="flex items-center gap-2 text-white/80 text-sm mb-2">
+                            <div className="flex items-center">
+                              <Clock className="w-4 h-4 mr-1" />
+                              {video.duration || "30:00"}
+                            </div>
+                            <div className="w-1 h-1 rounded-full bg-white/60" />
+                            <div className="flex items-center">
+                              <CalendarDays className="w-4 h-4 mr-1" />
+                              {video.created_at 
+                                ? formatDistanceToNow(new Date(video.created_at), { addSuffix: true })
+                                : "Recently added"}
+                            </div>
+                          </div>
+                          <h2 className="text-2xl font-bold text-white mb-2">
+                            {video.title}
+                          </h2>
+                          <p className="text-white/80 mb-4 line-clamp-2 text-sm md:text-base">
+                            {video.description}
+                          </p>
+                          <Button className="gap-2" size="sm">
+                            <Play className="w-4 h-4" />
+                            Watch Now
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </Link>
+                ) : (
+                  <div 
+                    className="block h-full cursor-pointer"
+                    onClick={(e) => handleVideoClick(e, video)}
+                  >
+                    <div className={`absolute inset-0 ${
+                      isMobile 
+                        ? 'bg-gradient-to-t from-black/30 to-transparent'
+                        : 'bg-gradient-to-t from-black/80 via-black/40 to-transparent'
+                    } z-10`} />
+                    
+                    <AspectRatio ratio={16 / 9} className="h-full">
+                      <img 
+                        src={video.thumbnailUrl || "/placeholder.svg"}
+                        alt={video.title}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = "/placeholder.svg";
+                        }}
+                      />
+                    </AspectRatio>
+                    
+                    <div className="absolute bottom-0 left-0 right-0 p-6 z-20">
+                      {isMobile ? (
+                        <div className="inline-flex items-center bg-black/60 px-2 py-1 rounded text-white/90 text-sm">
+                          <Clock className="w-4 h-4 mr-1" />
+                          {video.duration || "30:00"}
+                        </div>
+                      ) : (
+                        <>
+                          <div className="flex items-center gap-2 text-white/80 text-sm mb-2">
+                            <div className="flex items-center">
+                              <Clock className="w-4 h-4 mr-1" />
+                              {video.duration || "30:00"}
+                            </div>
+                            <div className="w-1 h-1 rounded-full bg-white/60" />
+                            <div className="flex items-center">
+                              <CalendarDays className="w-4 h-4 mr-1" />
+                              {video.created_at 
+                                ? formatDistanceToNow(new Date(video.created_at), { addSuffix: true })
+                                : "Recently added"}
+                            </div>
+                          </div>
+                          <h2 className="text-2xl font-bold text-white mb-2">
+                            {video.title}
+                          </h2>
+                          <p className="text-white/80 mb-4 line-clamp-2 text-sm md:text-base">
+                            {video.description}
+                          </p>
+                          <Button className="gap-2" size="sm">
+                            <Play className="w-4 h-4" />
+                            Complete Profile to Watch
+                          </Button>
+                        </>
+                      )}
+                    </div>
                   </div>
-                </Link>
+                )}
               </div>
             </div>
           ))}

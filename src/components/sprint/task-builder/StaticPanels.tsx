@@ -1,5 +1,4 @@
-
-import React from "react";
+import React, { useState } from "react";
 import { StaticPanel, Condition } from "@/types/task-builder";
 import { 
   Card, 
@@ -8,6 +7,8 @@ import {
   CardHeader,
   CardDescription
 } from "@/components/ui/card";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 interface StaticPanelsProps {
   panels: StaticPanel[];
@@ -20,6 +21,22 @@ const StaticPanels: React.FC<StaticPanelsProps> = ({
   profileAnswers,
   stepAnswers,
 }) => {
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
+
+  // Toggle expanded state for dropdown items
+  const toggleExpanded = (panelId: string, itemIndex: number) => {
+    const itemKey = `${panelId}-${itemIndex}`;
+    setExpandedItems(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(itemKey)) {
+        newSet.delete(itemKey);
+      } else {
+        newSet.add(itemKey);
+      }
+      return newSet;
+    });
+  };
+
   // Evaluate a condition based on provided answers
   const evaluateCondition = (condition: Condition): boolean => {
     let sourceValue: any;
@@ -90,9 +107,40 @@ const StaticPanels: React.FC<StaticPanelsProps> = ({
               <ul className="list-disc pl-5 space-y-2">
                 {panel.items
                   .sort((a, b) => (a.order || 0) - (b.order || 0))
-                  .map((item, itemIndex) => (
-                    <li key={itemIndex}>{item.text}</li>
-                  ))}
+                  .map((item, itemIndex) => {
+                    const itemKey = `${panel.id}-${itemIndex}`;
+                    const isExpanded = expandedItems.has(itemKey);
+                    
+                    if (item.isExpandable && item.expandedContent) {
+                      return (
+                        <li key={itemIndex} className="list-none">
+                          <Collapsible>
+                            <CollapsibleTrigger
+                              className="flex items-center justify-between w-full text-left hover:bg-gray-50 p-2 rounded cursor-pointer"
+                              onClick={() => toggleExpanded(panel.id, itemIndex)}
+                            >
+                              <span>{item.text}</span>
+                              {isExpanded ? (
+                                <ChevronUp className="h-4 w-4 ml-2 flex-shrink-0" />
+                              ) : (
+                                <ChevronDown className="h-4 w-4 ml-2 flex-shrink-0" />
+                              )}
+                            </CollapsibleTrigger>
+                            <CollapsibleContent className="mt-2 pl-4 border-l-2 border-gray-200">
+                              <div 
+                                className="text-sm text-gray-600 [&>p]:mb-4 [&>p:last-child]:mb-0"
+                                dangerouslySetInnerHTML={{ __html: item.expandedContent }}
+                              />
+                            </CollapsibleContent>
+                          </Collapsible>
+                        </li>
+                      );
+                    } else {
+                      return (
+                        <li key={itemIndex}>{item.text}</li>
+                      );
+                    }
+                  })}
               </ul>
             )}
           </CardContent>

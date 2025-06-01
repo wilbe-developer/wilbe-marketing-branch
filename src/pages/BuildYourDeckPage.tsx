@@ -26,7 +26,7 @@ const BuildYourDeckPage = () => {
     );
   }
 
-  // Get deck builder modules.
+  // Get deck builder modules
   const deckBuilderModules = modules.filter(m => m.isDeckBuilderModule)
     .sort((a, b) => {
       // Use the orderIndex property for sorting if available

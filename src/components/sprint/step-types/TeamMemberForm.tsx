@@ -29,22 +29,22 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
       switch(field) {
         case "relationship_description":
           return {
-            label: "How do you know them?",
+            label: "Your origin story: How did you meet? How long have you known each other? Have you been through a “stress project” with each other?",
             placeholder: "Describe your relationship and how long you've known each other"
           };
         case "employment_status":
           return {
-            label: "What job do they or will they have in the company?",
+            label: "What will this co-founder be responsible for?",
             placeholder: "Describe their role in the company"
           };
         case "profile_description":
           return {
-            label: "Why are they the best person for this job?",
+            label: "Why are they the best person for this job? Who would be better if you could pick?",
             placeholder: "Describe their personal and professional strengths that make them the best fit"
           };
         case "trigger_points":
           return {
-            label: "If they are not full-time, what will trigger them being full-time and why?",
+            label: "If they are not full-time, what will trigger them to be full-time and why? Be specific and detailed. If it’s money, make the case as to why a certain amount would be enough. If it’s something else, please explain in detail.",
             placeholder: "E.g., Securing funding, reaching X paying customers, etc."
           };
         default:
@@ -56,25 +56,25 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
     } else {
       // Default labels for team members
       switch(field) {
-        case "profile_description":
+        case "relationship_description":
           return {
-            label: "Profile",
-            placeholder: `Why is this ${memberType} essential to your venture? Describe their personal and professional strengths.`
+            label: "Describe this team member: How did you meet? How long have you known each other?",
+            placeholder: "Describe your relationship and how long you've known each other"
           };
         case "employment_status":
           return {
-            label: "Employment Status",
-            placeholder: "Full-time/Part-time status"
+            label: "What will this team member be responsible for?",
+            placeholder: "Describe their role in the company"
           };
         case "trigger_points":
           return {
-            label: "Trigger Points",
+            label: "If they are not full-time, what will trigger them to be full-time and why? Be specific and detailed. If it’s money, make the case as to why a certain amount would be enough. If it’s something else, please explain in detail.",
             placeholder: "Trigger points for going full-time"
           };
-        case "relationship_description":
+        case "profile_description":
           return {
-            label: "Working Relationship",
-            placeholder: "Describe how you work together"
+            label: "Why are they the best person for this job? Who would be better if you could pick?",
+            placeholder: "Describe their personal and professional strengths that make them the best fit"
           };
         default:
           return {

@@ -4,7 +4,6 @@ import { StepNode } from "@/types/task-builder";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
@@ -75,16 +74,21 @@ export const MainQuestionRenderer: React.FC<MainQuestionRendererProps> = ({
     
     case 'boolean':
       return (
-        <div className="flex items-center space-x-3">
-          <Switch
-            checked={!!mainValue}
-            onCheckedChange={(checked) => onChange(normalizeBoolean(checked))}
-            id={`${step.id}-toggle`}
-          />
-          <Label htmlFor={`${step.id}-toggle`}>
-            {mainValue ? 'Yes' : 'No'}
-          </Label>
-        </div>
+        <RadioGroup
+          value={String(mainValue) || ''}
+          onValueChange={(stringValue) => onChange(normalizeBoolean(stringValue))}
+        >
+          <div className="space-y-2">
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="true" id={`${step.id}-true`} />
+              <Label htmlFor={`${step.id}-true`}>Yes</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="false" id={`${step.id}-false`} />
+              <Label htmlFor={`${step.id}-false`}>No</Label>
+            </div>
+          </div>
+        </RadioGroup>
       );
     
     case 'text':

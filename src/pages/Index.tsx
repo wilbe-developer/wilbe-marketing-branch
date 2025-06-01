@@ -1,15 +1,17 @@
 
 import { useAuth } from "@/hooks/useAuth";
-import { useUserType } from "@/hooks/useUserType";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { PATHS } from "@/lib/constants";
+import HomePage from "./HomePage";
+import ProfileCompletionDialog from "@/components/ProfileCompletionDialog";
+import { applicationService } from "@/services/applicationService";
 
-// This component only handles initial routing when users land on app.wilbe.com.
+// This is just a wrapper to redirect to the appropriate page based on auth status
 const Index = () => {
-  const { isAuthenticated, loading: authLoading, isRecoveryMode } = useAuth();
-  const { isSprintUser, isSandboxUser, loading: userTypeLoading } = useUserType();
+  const { isAuthenticated, user, loading, isRecoveryMode } = useAuth();
   const navigate = useNavigate();
+  const [showProfileDialog, setShowProfileDialog] = useState(false);
   
   useEffect(() => {
     // Don't redirect if in recovery mode (let the password reset page handle it)
@@ -17,31 +19,21 @@ const Index = () => {
       return;
     }
     
-    // Wait for both auth and user type to load
-    if (authLoading || userTypeLoading) {
-      return;
-    }
-    
-    if (!isAuthenticated) {
+    if (!loading && !isAuthenticated) {
       // Redirect to login if not authenticated
       navigate(PATHS.LOGIN);
-      return;
     }
+  }, [isAuthenticated, loading, navigate, isRecoveryMode]);
 
-    // ONLY redirect sprint users to dashboard when they land on the index page
-    // This determines their "home" page, but they can still navigate to sandbox
-    if (isSprintUser) {
-      console.log("Sprint user landing on index, redirecting to dashboard");
-      navigate(PATHS.SPRINT_DASHBOARD);
-      return;
+  // Check if user needs to complete profile for membership application
+  useEffect(() => {
+    if (user && isAuthenticated && !loading) {
+      const needsCompletion = applicationService.needsProfileCompletion(user);
+      setShowProfileDialog(needsCompletion);
     }
-
-    // Sandbox users get redirected to home page
-    console.log("Sandbox user landing on index, redirecting to home");
-    navigate(PATHS.HOME);
-  }, [isAuthenticated, authLoading, userTypeLoading, navigate, isSprintUser, isSandboxUser, isRecoveryMode]);
+  }, [user, isAuthenticated, loading]);
   
-  if (authLoading || userTypeLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -52,8 +44,15 @@ const Index = () => {
     );
   }
   
-  // This should never render since we redirect in useEffect
-  return null;
+  return (
+    <>
+      <HomePage />
+      <ProfileCompletionDialog 
+        open={showProfileDialog} 
+        onOpenChange={setShowProfileDialog}
+      />
+    </>
+  );
 };
 
 export default Index;

@@ -11,7 +11,7 @@ import { useToast } from "@/components/ui/use-toast";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
-  const { loginOrSignup, loading, isAuthenticated } = useAuth();
+  const { sendMagicLink, loading, isAuthenticated } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -37,7 +37,7 @@ const LoginPage = () => {
       return;
     }
     
-    await loginOrSignup(email);
+    await sendMagicLink(email);
   };
 
   return (
@@ -49,7 +49,7 @@ const LoginPage = () => {
           </div>
           <CardTitle className="text-2xl">Log In</CardTitle>
           <CardDescription>
-            Enter your email to get started
+            Enter your email to receive a magic link
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -68,17 +68,17 @@ const LoginPage = () => {
               />
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Processing..." : "Continue"}
+              {loading ? "Sending magic link..." : "Send Magic Link"}
             </Button>
           </form>
           <div className="mt-4 text-center text-sm">
             Don't have an account?{" "}
-            <Link to={PATHS.REGISTER} className="text-brand-pink hover:underline">
-              Sign up
+            <Link to={PATHS.LOGIN} className="text-brand-pink hover:underline">
+              Sign up with email above
             </Link>
           </div>
           <div className="mt-2 p-4 bg-gray-50 rounded-md text-sm text-gray-600">
-            <p>New users will be logged in instantly. Returning users will receive a magic link via email.</p>
+            <p>You'll receive an email with a login link. No password needed!</p>
           </div>
           
           <div className="mt-4 text-center text-xs text-gray-400">

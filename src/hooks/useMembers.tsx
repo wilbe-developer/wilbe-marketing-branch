@@ -14,23 +14,21 @@ export const useMembers = () => {
   const fetchMembers = useCallback(async () => {
     try {
       setLoading(true);
-      console.log("Fetching members, authenticated:", isAuthenticated);
+      console.log("Fetching unified members, authenticated:", isAuthenticated);
       
       if (isAuthenticated) {
-        // Fetch real profiles from Supabase if authenticated
+        // Fetch unified profiles from the new database function
         const { data, error: fetchError } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('approved', true);
+          .rpc('get_all_unified_profiles');
           
         if (fetchError) {
           throw fetchError;
         }
         
         if (data) {
-          // Transform database fields to match our UserProfile interface
+          // Transform unified profile data to match our UserProfile interface
           const transformedMembers: UserProfile[] = data.map(profile => ({
-            id: profile.id,
+            id: profile.user_id,
             firstName: profile.first_name || '',
             lastName: profile.last_name || '',
             email: profile.email || '',
@@ -40,10 +38,10 @@ export const useMembers = () => {
             role: profile.role,
             bio: profile.bio,
             about: profile.about,
-            approved: profile.approved || false,
-            createdAt: new Date(profile.created_at || new Date()),
+            approved: profile.approved || profile.has_sprint_profile, // Sprint users are considered "approved" for member directory
+            createdAt: profile.created_at ? new Date(profile.created_at) : new Date(),
             avatar: profile.avatar,
-            isAdmin: profile.role === 'admin',
+            isAdmin: false, // Will be determined by role checks elsewhere
             twitterHandle: profile.twitter_handle,
             expertise: profile.expertise,
             activityStatus: profile.activity_status,
@@ -51,66 +49,23 @@ export const useMembers = () => {
             status: profile.status
           }));
           
-          // Sort the members according to the specified criteria
-          const sortedMembers = sortMembersByProfileCompleteness(transformedMembers);
-          
-          setMembers(sortedMembers);
-          console.log("Fetched real member profiles:", transformedMembers.length);
+          setMembers(transformedMembers);
+          console.log("Fetched unified member profiles:", transformedMembers.length);
         }
       } else {
         // Use sample data if not authenticated
         console.log("Not authenticated, using sample user data");
         await new Promise(resolve => setTimeout(resolve, 800)); // Simulate API delay
         const approvedMembers = SAMPLE_USERS.filter(user => user.approved);
-        const sortedMembers = sortMembersByProfileCompleteness(approvedMembers);
-        setMembers(sortedMembers);
+        setMembers(approvedMembers);
       }
     } catch (err) {
-      console.error("Error fetching members:", err);
+      console.error("Error fetching unified members:", err);
       setError("Failed to load members. Please try again later.");
     } finally {
       setLoading(false);
     }
   }, [isAuthenticated]);
-
-  // Function to calculate profile completeness score
-  const calculateProfileCompleteness = (member: UserProfile): number => {
-    let score = 0;
-    
-    // Check existence of each field that indicates profile completeness
-    if (member.firstName) score += 1;
-    if (member.lastName) score += 1;
-    if (member.email) score += 1;
-    if (member.linkedIn) score += 1;
-    if (member.institution) score += 1;
-    if (member.location) score += 1;
-    if (member.role) score += 1;
-    if (member.bio || member.about) score += 1;
-    if (member.twitterHandle) score += 1;
-    if (member.expertise) score += 1;
-    
-    return score;
-  };
-
-  // Function to sort members by the specified criteria
-  const sortMembersByProfileCompleteness = (memberList: UserProfile[]): UserProfile[] => {
-    return [...memberList].sort((a, b) => {
-      // First, prioritize members with avatars
-      if (a.avatar && !b.avatar) return -1;
-      if (!a.avatar && b.avatar) return 1;
-      
-      // Within groups (with avatar or without), sort by profile completeness
-      const aCompletenessScore = calculateProfileCompleteness(a);
-      const bCompletenessScore = calculateProfileCompleteness(b);
-      
-      if (aCompletenessScore !== bCompletenessScore) {
-        return bCompletenessScore - aCompletenessScore; // Higher score first
-      }
-      
-      // If completeness score is the same, sort by creation date (newest first)
-      return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-    });
-  };
 
   useEffect(() => {
     fetchMembers();

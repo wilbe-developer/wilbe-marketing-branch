@@ -1,5 +1,4 @@
-
-import { NextApiRequest, NextApiResponse } from 'next';
+import { VercelRequest, VercelResponse } from '@vercel/node';
 import nodemailer from 'nodemailer';
 
 // Email transporter setup
@@ -38,7 +37,7 @@ const createSlackMessage = (name: string, product: string, size: string, address
   text: `🎉 New merch order from ${name} for a ${product} (${size}). Shipping to: ${address}`,
 });
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Only allow POST requests
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });

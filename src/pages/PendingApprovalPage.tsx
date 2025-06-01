@@ -7,7 +7,7 @@ import { PATHS } from "@/lib/constants";
 import { supabase } from "@/integrations/supabase/client";
 
 const PendingApprovalPage = () => {
-  const { isAuthenticated, user, loading, isApproved } = useAuth();
+  const { isAuthenticated, user, loading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || PATHS.HOME;
@@ -36,17 +36,13 @@ const PendingApprovalPage = () => {
     }
   }, []);
   
-  // Redirect approved users to home
+  // Redirect authenticated users to home (no approval check needed)
   useEffect(() => {
     if (!loading && isAuthenticated) {
-      if (isApproved) {
-        console.log("User is approved, redirecting to:", from);
-        navigate(from);
-      } else {
-        console.log("User is authenticated but not approved, showing pending screen");
-      }
+      console.log("User is authenticated, redirecting to:", from);
+      navigate(from);
     }
-  }, [isAuthenticated, isApproved, navigate, loading, from]);
+  }, [isAuthenticated, navigate, loading, from]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">

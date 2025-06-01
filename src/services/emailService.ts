@@ -64,3 +64,30 @@ export const sendSprintWaitingEmail = async (email: string, name: string, linked
     return false;
   }
 };
+
+export const sendApprovalConfirmationEmail = async (email: string, name: string): Promise<boolean> => {
+  try {
+    console.log(`Sending approval confirmation to ${email} (${name})`);
+    
+    const response = await fetch('/api/send-approval-confirmation', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email,
+        name
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`API call failed with status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.status === 'sent';
+  } catch (error) {
+    console.error('Error sending approval confirmation email:', error);
+    return false;
+  }
+};

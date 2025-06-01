@@ -13,8 +13,7 @@ interface AuthContextType {
   user: UserProfile | null;
   isAuthenticated: boolean;
   isAdmin: boolean;
-  isApproved: boolean;
-  loginOrSignup: (email: string) => Promise<{ success: boolean }>;
+  isMember: boolean;
   sendMagicLink: (email: string, redirectTo?: string) => Promise<{ success: boolean }>;
   loginWithPassword: (email: string, password: string) => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
@@ -22,6 +21,7 @@ interface AuthContextType {
   register: (userData: Partial<UserProfile>) => Promise<void>;
   logout: () => void;
   updateProfile: (data: Partial<UserProfile>) => Promise<void>;
+  submitMembershipApplication: (data: { firstName: string; lastName: string; institution?: string; linkedIn?: string; }) => Promise<{ success: boolean }>;
   loading: boolean;
   isRecoveryMode: boolean;
 }
@@ -44,7 +44,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { toast } = useToast();
   
   const { 
-    loginOrSignup,
     sendMagicLink: sendMagicLinkAction, 
     loginWithPassword,
     resetPassword,
@@ -52,6 +51,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     register, 
     logout, 
     updateProfile, 
+    submitMembershipApplication,
     fetchUserProfile
   } = useAuthActions({ 
     user, 
@@ -156,10 +156,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Using the roles from the user_roles table now
   const isAdmin = !!user?.isAdmin;
-  const isApproved = !!user?.approved;
+  const isMember = !!user?.isMember; // This will include admins since database function checks both 'member' and 'admin'
   const isAuthenticated = !!user;
 
-  console.log("Auth provider state:", { isAuthenticated, isAdmin, isApproved, loading, isRecoveryMode });
+  console.log("Auth provider state:", { isAuthenticated, isAdmin, isMember, loading, isRecoveryMode });
 
   return (
     <AuthContext.Provider
@@ -167,8 +167,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         user,
         isAuthenticated,
         isAdmin,
-        isApproved,
-        loginOrSignup,
+        isMember,
         sendMagicLink,
         loginWithPassword,
         resetPassword,
@@ -176,6 +175,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         register,
         logout,
         updateProfile,
+        submitMembershipApplication,
         loading,
         isRecoveryMode
       }}

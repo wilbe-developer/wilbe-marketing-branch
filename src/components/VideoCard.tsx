@@ -1,23 +1,32 @@
-
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { PATHS } from "@/lib/constants";
 import { Video } from "@/types";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, Lock } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import ProfileCompletionDialog from "@/components/ProfileCompletionDialog";
+import ApplicationPendingDialog from "@/components/ApplicationPendingDialog";
 
 interface VideoCardProps {
   video: Video;
   showModule?: boolean;
   moduleTitle?: string;
   isDeckBuilderView?: boolean;
+  onNonMemberClick?: () => void;
 }
 
 const VideoCard = ({ 
   video, 
   showModule = false, 
   moduleTitle,
-  isDeckBuilderView = false
+  isDeckBuilderView = false,
+  onNonMemberClick
 }: VideoCardProps) => {
+  const { isMember, user } = useAuth();
+  const [showProfileDialog, setShowProfileDialog] = useState(false);
+  const [showPendingDialog, setShowPendingDialog] = useState(false);
+  
   // Construct the URL with the appropriate query parameters
   const videoUrl = `${PATHS.VIDEO}/${video.id}${
     video.isDeckBuilderVideo ? `?deckBuilder=true${
@@ -50,12 +59,10 @@ const VideoCard = ({
       const module = document.querySelector(`[data-module-id="${video.moduleId}"]`);
       const moduleName = module?.getAttribute('data-module-title');
       
-      // If we have a module element, return its title
       if (moduleName) {
         return moduleName;
       }
       
-      // Try to extract module name from the video object or fall back to a default
       if (video.moduleId.includes('proposition') || video.moduleId.includes('prop')) {
         return 'Proposition';
       } else if (video.moduleId.includes('market')) {
@@ -68,16 +75,35 @@ const VideoCard = ({
         return 'MVD Introduction';
       }
       
-      // Final fallback
       return "Member Stories";
     } else {
       return "Member Stories";
     }
   };
-  
-  return (
-    <Card className="overflow-hidden group hover:shadow-md transition-shadow h-full flex flex-col">
-      <Link to={videoUrl} className="flex flex-col h-full">
+
+  const handleVideoClick = (e: React.MouseEvent) => {
+    if (!isMember) {
+      e.preventDefault();
+      if (onNonMemberClick) {
+        onNonMemberClick();
+      } else {
+        // Fallback behavior if no onNonMemberClick provided
+        if (user?.membershipApplicationStatus === 'under_review') {
+          setShowPendingDialog(true);
+        } else {
+          setShowProfileDialog(true);
+        }
+      }
+    }
+  };
+
+  const handleShowPendingDialog = () => {
+    setShowPendingDialog(true);
+  };
+
+  const cardContent = (
+    <Card className={`overflow-hidden group hover:shadow-md transition-shadow h-full flex flex-col ${!isMember ? 'opacity-75' : ''}`}>
+      <div className="flex flex-col h-full">
         <div className="relative">
           <img 
             src={video.thumbnailUrl || "/placeholder.svg"} 
@@ -88,12 +114,22 @@ const VideoCard = ({
               (e.target as HTMLImageElement).src = "/placeholder.svg";
             }}
           />
+          {!isMember && (
+            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+              <div className="text-center text-white">
+                <Lock className="h-8 w-8 mx-auto mb-2" />
+                <span className="text-sm font-medium">
+                  {user?.membershipApplicationStatus === 'under_review' ? 'Application Under Review' : 'Complete Profile'}
+                </span>
+              </div>
+            </div>
+          )}
           {video.duration && (
             <div className="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-sm px-2 py-0.5 rounded">
               {video.duration}
             </div>
           )}
-          {video.completed && (
+          {video.completed && isMember && (
             <div className="absolute top-2 right-2">
               <CheckCircle className="h-5 w-5 text-green-500 bg-white rounded-full" />
             </div>
@@ -116,10 +152,40 @@ const VideoCard = ({
           <p className="text-sm text-gray-700 line-clamp-2 mb-2 flex-grow">
             {video.description || "No description available"}
           </p>
-          <div className="text-sm text-brand-pink">View Class</div>
+          <div className={`text-sm ${isMember ? 'text-brand-pink' : 'text-gray-500'} flex items-center gap-1`}>
+            {!isMember && <Lock className="h-3 w-3" />}
+            {isMember ? 'View Class' : (
+              user?.membershipApplicationStatus === 'under_review' ? 'Application Under Review' : 'Complete Profile'
+            )}
+          </div>
         </CardContent>
-      </Link>
+      </div>
     </Card>
+  );
+
+  return (
+    <>
+      {isMember ? (
+        <Link to={videoUrl} className="block h-full">
+          {cardContent}
+        </Link>
+      ) : (
+        <div onClick={handleVideoClick} className="cursor-pointer h-full">
+          {cardContent}
+        </div>
+      )}
+
+      <ProfileCompletionDialog
+        open={showProfileDialog}
+        onOpenChange={setShowProfileDialog}
+        onShowPendingDialog={handleShowPendingDialog}
+      />
+
+      <ApplicationPendingDialog
+        open={showPendingDialog}
+        onOpenChange={setShowPendingDialog}
+      />
+    </>
   );
 };
 

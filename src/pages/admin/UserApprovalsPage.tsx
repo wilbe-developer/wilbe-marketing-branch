@@ -9,7 +9,7 @@ const UserApprovalsPage = () => {
     <FullScreenAdminLayout title="User Approvals">
       <div className="mb-6">
         <h1 className="text-3xl font-bold">User Approvals</h1>
-        <p className="text-gray-500 mt-2">Review and approve new user registrations</p>
+        <p className="text-gray-500 mt-2">Review and approve user membership applications and sprint signups</p>
       </div>
       
       <Card>

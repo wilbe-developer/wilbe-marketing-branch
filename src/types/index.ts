@@ -1,24 +1,28 @@
 
 export interface UserProfile {
   id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
   linkedIn?: string;
   institution?: string;
-  location?: string;
   role?: string;
-  bio?: string;
-  about?: string;
-  approved: boolean;
-  createdAt: Date;
+  location?: string;
+  approved?: boolean;
   avatar?: string;
-  isAdmin?: boolean;
-  twitterHandle?: string;
+  about?: string;
   expertise?: string;
-  activityStatus?: string;
-  lastLoginDate?: Date;
+  bio?: string;
+  coverPhoto?: string;
+  twitterHandle?: string;
   status?: string;
+  activityStatus?: string;
+  isAdmin?: boolean;
+  isMember?: boolean;
+  createdAt?: Date;
+  lastLoginDate?: Date;
+  // New computed field for application status
+  membershipApplicationStatus?: 'not_started' | 'under_review' | null;
 }
 
 export interface Module {
@@ -50,7 +54,7 @@ export interface Video {
   deckBuilderModuleId?: string; // To store the deck builder specific module
 }
 
-// Updated to include the new member role
-export type UserRole = 'user' | 'member' | 'admin';
+// Updated to match what's actually used in the database
+export type UserRole = 'user' | 'admin';
 
 export type ApprovalStatus = 'pending' | 'approved' | 'rejected';

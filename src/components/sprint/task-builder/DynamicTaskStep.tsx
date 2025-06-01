@@ -11,6 +11,7 @@ import { FormStepRenderer } from "@/components/sprint/dynamic-task/FormStepRende
 import { ConditionalQuestionRenderer } from "@/components/sprint/dynamic-task/ConditionalQuestionRenderer";
 import { normalizeStepType } from "@/utils/taskStepUtils";
 import { TeamMemberStepRenderer } from "@/components/sprint/dynamic-task/StepRenderers";
+import { parseMarkdown } from "@/utils/markdownUtils";
 
 interface DynamicTaskStepProps {
   step: StepNode;
@@ -31,6 +32,21 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
   const normalizedType = normalizeStepType(step.type);
   console.log("Normalized step type:", normalizedType);
 
+  // Render description with markdown support
+  const renderDescription = () => {
+    if (step.description_markdown) {
+      return (
+        <div 
+          className="text-gray-600 prose prose-sm max-w-none"
+          dangerouslySetInnerHTML={{ __html: parseMarkdown(step.description_markdown) }}
+        />
+      );
+    } else if (step.description) {
+      return <p className="text-gray-600">{step.description}</p>;
+    }
+    return null;
+  };
+
   // Handle form step type
   if (step.type === 'form') {
     return (
@@ -38,9 +54,7 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
         <CardContent className="pt-6">
           <div className="space-y-4">
             <h3 className="text-lg font-medium">{step.text}</h3>
-            {step.description && (
-              <p className="text-gray-600">{step.description}</p>
-            )}
+            {renderDescription()}
             <FormStepRenderer
               step={step}
               answer={answer}
@@ -59,9 +73,7 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
         <CardContent className="pt-6">
           <div className="space-y-4">
             <h3 className="text-lg font-medium">{step.text}</h3>
-            {step.description && (
-              <p className="text-gray-600">{step.description}</p>
-            )}
+            {renderDescription()}
             <ConditionalQuestionRenderer
               step={step}
               answer={answer}
@@ -81,9 +93,7 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
         <CardContent className="pt-6">
           <div className="space-y-4">
             <h3 className="text-lg font-medium">{step.text || step.description}</h3>
-            {step.description && (
-              <p className="text-gray-600">{step.description}</p>
-            )}
+            {renderDescription()}
             <CollaborationStepRenderer step={step} answer={answer} handleAnswer={onAnswer} />
           </div>
         </CardContent>
@@ -98,9 +108,7 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
         <CardContent className="pt-6">
           <div className="space-y-4">
             <h3 className="text-lg font-medium">{step.text}</h3>
-            {step.description && (
-              <p className="text-gray-600">{step.description}</p>
-            )}
+            {renderDescription()}
             <TeamMemberStepRenderer 
               step={step} 
               answer={answer} 
@@ -120,6 +128,7 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
           <CardContent className="pt-6">
             <div className="space-y-4">
               <h3 className="text-lg font-medium">{step.text}</h3>
+              {renderDescription()}
               <QuestionStepRenderer
                 step={step}
                 answer={answer}
@@ -139,6 +148,7 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
           <CardContent className="pt-6">
             <div className="space-y-4">
               <h3 className="text-lg font-medium">{step.text}</h3>
+              {renderDescription()}
               <UploadStepRenderer
                 step={step}
                 answer={answer}
@@ -156,9 +166,7 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
           <CardContent className="pt-6">
             <div className="space-y-4">
               <h3 className="text-lg font-medium">{step.text}</h3>
-              {step.description && (
-                <p className="text-gray-600 mb-4">{step.description}</p>
-              )}
+              {renderDescription()}
               <ExerciseStepRenderer
                 step={step}
                 answer={answer}
