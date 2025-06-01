@@ -98,8 +98,6 @@ const App = () => (
                 }
                 path="/media"
               />
-              {/* “/video/:id” existed in both; keep the main import */}
-              <Route path="/video/:id" element={<VideoPlayerPage />} />
 
               {/* ────────────── UPSTREAM “MAIN” ROUTES ────────────── */}
               {/* Public merch chooser route */}
