@@ -1,9 +1,10 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Play, Calendar, Clock, Users } from "lucide-react";
 import { fetchVideos } from "@/services/videoService";
+import CalendarSelector from "./CalendarSelector";
+import { CalendarEvent } from "@/utils/calendarUtils";
 
 interface Video {
   id: string;
@@ -35,6 +36,15 @@ export default function WilbeStreamPlayer() {
     date: "2025-06-10T16:00:00Z", // 12:00 ET = 16:00 UTC
     description: "Join leading scientists discussing the latest breakthroughs in AI-powered drug discovery"
   }
+
+  // Calendar event data for the next live event
+  const nextEventCalendarData: CalendarEvent = {
+    title: "Ep 6: From PhD War Models to an AI x Defense Exit",
+    description: "Join Sean Gourley discussing breakthrough insights in AI-powered defense applications and his entrepreneurial journey from PhD research to successful exit. Learn from leading scientists about the latest developments in the intersection of AI and defense technology.",
+    startDate: new Date('2025-06-10T16:00:00Z'), // 12:00 PM ET = 16:00 UTC
+    endDate: new Date('2025-06-10T17:00:00Z'), // 1 hour duration
+    location: "Wilbe Live Stream - https://wilbe.com"
+  };
 
   // Load videos from the same source as FoundersStories
   useEffect(() => {
@@ -180,9 +190,7 @@ export default function WilbeStreamPlayer() {
               </div>
             </div>
             
-            <Button className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2">
-              Remind Me
-            </Button>
+            <CalendarSelector event={nextEventCalendarData} />
           </div>
         </div>
       </div>
@@ -330,9 +338,7 @@ export default function WilbeStreamPlayer() {
             </div>
           </div>
           
-          <Button className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2">
-            Remind Me
-          </Button>
+          <CalendarSelector event={nextEventCalendarData} />
         </div>
       </div>
     </div>
