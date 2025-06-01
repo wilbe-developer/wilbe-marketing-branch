@@ -148,6 +148,83 @@ export type Database = {
         }
         Relationships: []
       }
+      issue_report_attachments: {
+        Row: {
+          content_type: string | null
+          created_at: string
+          file_name: string
+          file_path: string
+          file_size: number | null
+          id: string
+          report_id: string
+        }
+        Insert: {
+          content_type?: string | null
+          created_at?: string
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          id?: string
+          report_id: string
+        }
+        Update: {
+          content_type?: string | null
+          created_at?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          id?: string
+          report_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "issue_report_attachments_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "issue_reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      issue_reports: {
+        Row: {
+          admin_notes: string | null
+          category: string | null
+          contact_email: string
+          created_at: string
+          id: string
+          issue_description: string
+          priority: string | null
+          status: string
+          submitted_by_user_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          category?: string | null
+          contact_email: string
+          created_at?: string
+          id?: string
+          issue_description: string
+          priority?: string | null
+          status?: string
+          submitted_by_user_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          category?: string | null
+          contact_email?: string
+          created_at?: string
+          id?: string
+          issue_description?: string
+          priority?: string | null
+          status?: string
+          submitted_by_user_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       merch_orders: {
         Row: {
           address: string

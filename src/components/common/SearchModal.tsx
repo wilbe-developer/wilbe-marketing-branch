@@ -1,0 +1,194 @@
+
+import { useState, useEffect } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Search, Video, FileText } from "lucide-react";
+import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+
+interface SearchModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+interface SearchResult {
+  id: string;
+  title: string;
+  type: 'video' | 'page';
+  description: string;
+  url: string;
+  icon: React.ComponentType<any>;
+}
+
+export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<SearchResult[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [videos, setVideos] = useState<any[]>([]);
+
+  // Static pages that can be searched
+  const staticPages: SearchResult[] = [
+    {
+      id: "bsf-page",
+      title: "Breakthrough to Scientist Founder",
+      type: "page",
+      description: "Our flagship program for scientist entrepreneurs - join the waitlist",
+      url: "/waitlist",
+      icon: FileText
+    }
+  ];
+
+  // Fetch videos from Supabase when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      fetchVideos();
+    }
+  }, [isOpen]);
+
+  const fetchVideos = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("videos")
+        .select("id, title, description, youtube_id")
+        .eq("status", "published");
+      
+      if (error) {
+        console.error("Error fetching videos:", error);
+        return;
+      }
+      
+      setVideos(data || []);
+    } catch (error) {
+      console.error("Error fetching videos:", error);
+    }
+  };
+
+  const handleSearch = (searchQuery: string) => {
+    setQuery(searchQuery);
+    if (!searchQuery.trim()) {
+      setResults([]);
+      return;
+    }
+
+    setIsSearching(true);
+    
+    // Simulate API call delay for better UX
+    setTimeout(() => {
+      const searchLower = searchQuery.toLowerCase();
+      
+      // Search videos
+      const videoResults: SearchResult[] = videos
+        .filter(video => 
+          video.title.toLowerCase().includes(searchLower) ||
+          (video.description && video.description.toLowerCase().includes(searchLower))
+        )
+        .map(video => ({
+          id: video.id,
+          title: video.title,
+          type: 'video' as const,
+          description: video.description || "Video content",
+          url: `/video-player/${video.id}`,
+          icon: Video
+        }));
+
+      // Search static pages
+      const pageResults = staticPages.filter(page =>
+        page.title.toLowerCase().includes(searchLower) ||
+        page.description.toLowerCase().includes(searchLower)
+      );
+
+      setResults([...videoResults, ...pageResults]);
+      setIsSearching(false);
+    }, 300);
+  };
+
+  const handleResultClick = () => {
+    onClose();
+    setQuery("");
+    setResults([]);
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Search className="h-5 w-5" />
+            Search Wilbe
+          </DialogTitle>
+        </DialogHeader>
+        
+        <div className="space-y-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              placeholder="Search for videos, pages, and more..."
+              value={query}
+              onChange={(e) => handleSearch(e.target.value)}
+              className="pl-10"
+              autoFocus
+            />
+          </div>
+
+          {isSearching && (
+            <div className="text-center py-8 text-gray-500">
+              Searching...
+            </div>
+          )}
+
+          {!isSearching && query && results.length === 0 && (
+            <div className="text-center py-8 text-gray-500">
+              No results found for "{query}"
+            </div>
+          )}
+
+          {!isSearching && results.length > 0 && (
+            <div className="space-y-2 max-h-96 overflow-y-auto">
+              {results.map((result) => (
+                <Link
+                  key={result.id}
+                  to={result.url}
+                  onClick={handleResultClick}
+                  className="block p-3 rounded-lg hover:bg-gray-50 transition-colors border"
+                >
+                  <div className="flex items-start gap-3">
+                    <result.icon className="h-5 w-5 text-gray-600 mt-0.5 flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium text-gray-900 truncate">
+                        {result.title}
+                      </h3>
+                      <p className="text-sm text-gray-600 line-clamp-2">
+                        {result.description}
+                      </p>
+                      <span className="inline-block px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded mt-1 capitalize">
+                        {result.type}
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+
+          {!query && (
+            <div className="space-y-4">
+              <h3 className="font-medium text-gray-900">Quick Links</h3>
+              <div className="grid grid-cols-1 gap-2">
+                <Link
+                  to="/waitlist"
+                  onClick={handleResultClick}
+                  className="p-3 rounded-lg hover:bg-gray-50 transition-colors border text-left"
+                >
+                  <div className="flex items-center gap-3">
+                    <FileText className="h-4 w-4 text-gray-600" />
+                    <span className="text-sm font-medium">BSF Program</span>
+                  </div>
+                </Link>
+              </div>
+            </div>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}

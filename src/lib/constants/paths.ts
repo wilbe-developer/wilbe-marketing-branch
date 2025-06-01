@@ -14,7 +14,7 @@ export const PATHS = {
   PROFILE: '/profile',
   ASK: '/ask',
   BUILD_YOUR_DECK: '/build-your-deck',
-  LANDING_PAGE: '/landing',
+  LANDING_PAGE: '/landing-page',
   BSF_PAGE: '/bsf',
   SPRINT: '/sprint',
   SPRINT_DASHBOARD: '/sprint/dashboard',
