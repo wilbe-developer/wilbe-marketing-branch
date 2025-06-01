@@ -1,7 +1,42 @@
+
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+
 export default function LandingFooter() {
-  return <footer className="bg-gray-900 text-white py-12">
+  const handleAboutClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const scientistsSection = document.getElementById('scientists-first');
+    if (scientistsSection) {
+      scientistsSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const handleCapitalClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const capitalSection = document.getElementById('wilbe-capital');
+    if (capitalSection) {
+      capitalSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const handleToolsClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const toolsSection = document.getElementById('tools-section');
+    if (toolsSection) {
+      toolsSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const handleMediaClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    toast.info("🎬 Media hub coming soon! We're cooking up something special for you...", {
+      duration: 4000,
+    });
+  };
+
+  return (
+    <footer className="bg-gray-900 text-white py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div>
@@ -17,29 +52,36 @@ export default function LandingFooter() {
             <h4 className="font-bold text-lg mb-4">Quick Links</h4>
             <ul className="space-y-2">
               <li>
-                <Link to="/about" className="text-gray-400 hover:text-white transition-colors text-sm">
-                  About
-                </Link>
-              </li>
-              <li>
-                <Link to="/media" className="text-gray-400 hover:text-white transition-colors text-sm">
+                <button 
+                  onClick={handleMediaClick}
+                  className="text-gray-400 hover:text-white transition-colors text-sm text-left"
+                >
                   Media
-                </Link>
+                </button>
               </li>
               <li>
-                <Link to="/platform" className="text-gray-400 hover:text-white transition-colors text-sm">
-                  Platform
-                </Link>
+                <button 
+                  onClick={handleToolsClick}
+                  className="text-gray-400 hover:text-white transition-colors text-sm text-left"
+                >
+                  Tools
+                </button>
               </li>
               <li>
-                <Link to="/capital" className="text-gray-400 hover:text-white transition-colors text-sm">
+                <button 
+                  onClick={handleCapitalClick}
+                  className="text-gray-400 hover:text-white transition-colors text-sm text-left"
+                >
                   Capital
-                </Link>
+                </button>
               </li>
               <li>
-                <Link to="/advocacy" className="text-gray-400 hover:text-white transition-colors text-sm">
-                  Advocacy
-                </Link>
+                <button 
+                  onClick={handleAboutClick}
+                  className="text-gray-400 hover:text-white transition-colors text-sm text-left"
+                >
+                  About
+                </button>
               </li>
             </ul>
           </div>
@@ -80,5 +122,6 @@ export default function LandingFooter() {
           </p>
         </div>
       </div>
-    </footer>;
+    </footer>
+  );
 }

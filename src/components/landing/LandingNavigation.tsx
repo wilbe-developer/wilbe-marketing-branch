@@ -6,6 +6,7 @@ import { Link } from "react-router-dom"
 import WilbeLogo from "@/assets/WilbeLogo"
 import SearchModal from "@/components/common/SearchModal"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { toast } from "sonner"
 
 export default function LandingNavigation() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -38,6 +39,14 @@ export default function LandingNavigation() {
     setIsMobileMenuOpen(false);
   };
 
+  const handleMediaClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    toast.info("🎬 Media hub coming soon! We're cooking up something special for you...", {
+      duration: 4000,
+    });
+    setIsMobileMenuOpen(false);
+  };
+
   return (
     <>
       <nav className="border-b border-gray-200 bg-white sticky top-0 z-50">
@@ -67,13 +76,12 @@ export default function LandingNavigation() {
                     </div>
                     <nav className="flex-1 p-6">
                       <div className="space-y-4">
-                        <Link 
-                          to="/media" 
-                          onClick={() => setIsMobileMenuOpen(false)}
-                          className="block py-3 px-4 text-lg font-medium text-gray-900 hover:bg-gray-100 rounded-lg transition-colors min-h-[44px] flex items-center"
+                        <button 
+                          onClick={handleMediaClick}
+                          className="block w-full text-left py-3 px-4 text-lg font-medium text-gray-900 hover:bg-gray-100 rounded-lg transition-colors min-h-[44px]"
                         >
                           Media
-                        </Link>
+                        </button>
                         <button 
                           onClick={handleToolsClick}
                           className="block w-full text-left py-3 px-4 text-lg font-medium text-gray-900 hover:bg-gray-100 rounded-lg transition-colors min-h-[44px]"
@@ -119,9 +127,12 @@ export default function LandingNavigation() {
                 />
               </Link>
               <div className="hidden md:flex space-x-8 text-sm font-medium">
-                <Link to="/media" className="text-gray-900 hover:text-gray-700 transition-colors uppercase tracking-wide">
+                <button 
+                  onClick={handleMediaClick}
+                  className="text-gray-900 hover:text-gray-700 transition-colors uppercase tracking-wide cursor-pointer"
+                >
                   Media
-                </Link>
+                </button>
                 <button 
                   onClick={handleToolsClick}
                   className="text-gray-900 hover:text-gray-700 transition-colors uppercase tracking-wide cursor-pointer"
