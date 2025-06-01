@@ -1,10 +1,10 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Search, FileText, Video, Users, Calendar } from "lucide-react";
+import { Search, Video, FileText } from "lucide-react";
 import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -14,7 +14,7 @@ interface SearchModalProps {
 interface SearchResult {
   id: string;
   title: string;
-  type: 'video' | 'member' | 'event' | 'content';
+  type: 'video' | 'page';
   description: string;
   url: string;
   icon: React.ComponentType<any>;
@@ -24,42 +24,44 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [videos, setVideos] = useState<any[]>([]);
 
-  // Mock search data - in a real app, this would come from your backend
-  const mockData: SearchResult[] = [
+  // Static pages that can be searched
+  const staticPages: SearchResult[] = [
     {
-      id: "1",
-      title: "Building Your Pitch Deck",
-      type: "video",
-      description: "Learn how to create compelling pitch decks for investors",
-      url: "/video-player?id=1",
-      icon: Video
-    },
-    {
-      id: "2", 
-      title: "Dr. Sarah Chen",
-      type: "member",
-      description: "Biotech entrepreneur and researcher",
-      url: "/member-directory",
-      icon: Users
-    },
-    {
-      id: "3",
+      id: "bsf-page",
       title: "Breakthrough to Scientist Founder",
-      type: "content",
-      description: "Our flagship program for scientist entrepreneurs",
-      url: "/landing-page#tools-section",
+      type: "page",
+      description: "Our flagship program for scientist entrepreneurs - join the waitlist",
+      url: "/bsf",
       icon: FileText
-    },
-    {
-      id: "4",
-      title: "Virtual Networking Event",
-      type: "event", 
-      description: "Connect with fellow scientist entrepreneurs",
-      url: "/events",
-      icon: Calendar
     }
   ];
+
+  // Fetch videos from Supabase when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      fetchVideos();
+    }
+  }, [isOpen]);
+
+  const fetchVideos = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("videos")
+        .select("id, title, description, youtube_id")
+        .eq("status", "published");
+      
+      if (error) {
+        console.error("Error fetching videos:", error);
+        return;
+      }
+      
+      setVideos(data || []);
+    } catch (error) {
+      console.error("Error fetching videos:", error);
+    }
+  };
 
   const handleSearch = (searchQuery: string) => {
     setQuery(searchQuery);
@@ -70,13 +72,32 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
     setIsSearching(true);
     
-    // Simulate API call delay
+    // Simulate API call delay for better UX
     setTimeout(() => {
-      const filtered = mockData.filter(item =>
-        item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.description.toLowerCase().includes(searchQuery.toLowerCase())
+      const searchLower = searchQuery.toLowerCase();
+      
+      // Search videos
+      const videoResults: SearchResult[] = videos
+        .filter(video => 
+          video.title.toLowerCase().includes(searchLower) ||
+          (video.description && video.description.toLowerCase().includes(searchLower))
+        )
+        .map(video => ({
+          id: video.id,
+          title: video.title,
+          type: 'video' as const,
+          description: video.description || "Video content",
+          url: `/video-player/${video.id}`,
+          icon: Video
+        }));
+
+      // Search static pages
+      const pageResults = staticPages.filter(page =>
+        page.title.toLowerCase().includes(searchLower) ||
+        page.description.toLowerCase().includes(searchLower)
       );
-      setResults(filtered);
+
+      setResults([...videoResults, ...pageResults]);
       setIsSearching(false);
     }, 300);
   };
@@ -101,7 +122,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
-              placeholder="Search for videos, members, events, and more..."
+              placeholder="Search for videos, pages, and more..."
               value={query}
               onChange={(e) => handleSearch(e.target.value)}
               className="pl-10"
@@ -154,6 +175,16 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
               <h3 className="font-medium text-gray-900">Quick Links</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 <Link
+                  to="/bsf"
+                  onClick={handleResultClick}
+                  className="p-3 rounded-lg hover:bg-gray-50 transition-colors border text-left"
+                >
+                  <div className="flex items-center gap-3">
+                    <FileText className="h-4 w-4 text-gray-600" />
+                    <span className="text-sm font-medium">BSF Program</span>
+                  </div>
+                </Link>
+                <Link
                   to="/landing-page#tools-section"
                   onClick={handleResultClick}
                   className="p-3 rounded-lg hover:bg-gray-50 transition-colors border text-left"
@@ -161,16 +192,6 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                   <div className="flex items-center gap-3">
                     <FileText className="h-4 w-4 text-gray-600" />
                     <span className="text-sm font-medium">Our Tools</span>
-                  </div>
-                </Link>
-                <Link
-                  to="/media"
-                  onClick={handleResultClick}
-                  className="p-3 rounded-lg hover:bg-gray-50 transition-colors border text-left"
-                >
-                  <div className="flex items-center gap-3">
-                    <Video className="h-4 w-4 text-gray-600" />
-                    <span className="text-sm font-medium">Media Hub</span>
                   </div>
                 </Link>
               </div>
