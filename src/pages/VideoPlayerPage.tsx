@@ -21,9 +21,9 @@ import VideoMobileTabs from "@/components/video-player/VideoMobileTabs";
 import { ArrowLeft } from "lucide-react"; // added from marketing
 
 export default function VideoPlayerPage() {
-  // ── Marketing’s simple “redirect if no id” logic ──
-  const { id } = useParams<{ id: string }>();
-  if (!id) {
+  // ── Use "videoId" to match App routing (/video/:videoId) ──
+  const { videoId } = useParams<{ videoId: string }>();
+  if (!videoId) {
     return <Navigate to="/" replace />;
   }
 
@@ -35,13 +35,16 @@ export default function VideoPlayerPage() {
   const [showProfileDialog, setShowProfileDialog] = useState(false);
   const [showPendingDialog, setShowPendingDialog] = useState(false);
 
+  // ── Core video-fetching hooks from main ──
   const { getVideoById, getModule, markVideoAsCompleted, loading, modules, videos } = useVideos();
 
-  const [video, setVideo] = useState(id ? getVideoById(id) : null);
+  // ── Use videoId when fetching the video ──
+  const [video, setVideo] = useState(getVideoById(videoId));
   const [module, setModule] = useState(video ? getModule(video.moduleId) : null);
   const [isCompleted, setIsCompleted] = useState(video?.completed || false);
   const [relatedVideos, setRelatedVideos] = useState<any[]>([]);
 
+  // ── Determine if this is a deck-builder video ──
   const isDeckBuilderVideo =
     location.search.includes("deckBuilder=true") || video?.isDeckBuilderVideo;
   const deckBuilderSlide =
@@ -121,7 +124,7 @@ export default function VideoPlayerPage() {
     );
   }
 
-  // ── Marketing’s simple “loading” logic replaced by main’s loading state ──
+  // ── Loading state from main ──
   if (loading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
@@ -130,7 +133,7 @@ export default function VideoPlayerPage() {
     );
   }
 
-  // ── Main’s version: look up the video by ID ──
+  // ── Video-not-found if getVideoById(videoId) returned null ──
   if (!video) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
@@ -145,7 +148,32 @@ export default function VideoPlayerPage() {
     );
   }
 
-  // ── Main’s “deck builder” / module logic ──
+  // ── Update video, module, isCompleted when videoId changes ──
+  useEffect(() => {
+    const v = getVideoById(videoId);
+    setVideo(v);
+    if (v) {
+      setModule(getModule(v.moduleId));
+      setIsCompleted(v.completed || false);
+    }
+  }, [videoId, getVideoById, getModule]);
+
+  // ── Mark as completed if user watches, & set related videos ──
+  useEffect(() => {
+    if (video && !isCompleted) {
+      markVideoAsCompleted(video.id);
+      setIsCompleted(true);
+    }
+    // Filter related videos (same module, excluding current)
+    if (module && videos) {
+      const filtered = videos.filter(
+        (vid) => vid.moduleId === module.id && vid.id !== video.id
+      );
+      setRelatedVideos(filtered);
+    }
+  }, [video, module, videos, markVideoAsCompleted, isCompleted]);
+
+  // ── Compute embedId, moduleTitle, deckBuilderUrl ──
   const youtubeEmbedId = video.youtubeId
     ? getYoutubeEmbedId(video.youtubeId)
     : null;
@@ -154,8 +182,8 @@ export default function VideoPlayerPage() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      {/* ── Marketing’s “back” button with ArrowLeft ── */}
       <div className="container mx-auto px-4 py-8">
+        {/* ── Marketing’s “back” button with ArrowLeft ── */}
         <Button
           variant="ghost"
           className="mb-6 text-white hover:text-gray-300"
@@ -193,15 +221,9 @@ export default function VideoPlayerPage() {
 
         {/* ── Main’s “related videos” and mobile tabs ── */}
         {isMobile ? (
-          <VideoMobileTabs
-            relatedVideos={relatedVideos}
-            loading={loading}
-          />
+          <VideoMobileTabs relatedVideos={relatedVideos} loading={loading} />
         ) : (
-          <VideoRelatedList
-            relatedVideos={relatedVideos}
-            loading={loading}
-          />
+          <VideoRelatedList relatedVideos={relatedVideos} loading={loading} />
         )}
       </div>
     </div>
