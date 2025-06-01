@@ -9,7 +9,7 @@ interface Video {
   duration?: string;
   presenter?: string;
   created_at: string;
-  youtubeId?: string;
+  youtube_id?: string; // Use youtube_id to match database field
 }
 
 export const useVideoPlaylist = (videos: Video[]) => {

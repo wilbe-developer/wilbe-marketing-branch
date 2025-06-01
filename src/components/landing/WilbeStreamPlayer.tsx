@@ -14,7 +14,7 @@ interface Video {
   duration?: string;
   presenter?: string;
   created_at: string;
-  youtubeId?: string; // Fixed to match interface
+  youtube_id?: string; // Use youtube_id to match database field
 }
 
 export default function WilbeStreamPlayer() {
@@ -33,7 +33,7 @@ export default function WilbeStreamPlayer() {
         
         // Sort by created_at and take all published videos
         const sortedVideos = videosData
-          .filter(video => video.youtubeId) // Only include videos with YouTube IDs
+          .filter(video => video.youtube_id) // Only include videos with YouTube IDs
           .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
         
         console.log("Loaded videos for stream player:", sortedVideos);

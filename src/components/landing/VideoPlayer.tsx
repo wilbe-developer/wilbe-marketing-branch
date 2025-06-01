@@ -9,7 +9,7 @@ interface Video {
   duration?: string;
   presenter?: string;
   created_at: string;
-  youtubeId?: string; // Fixed to match interface
+  youtube_id?: string; // Use youtube_id to match database field
 }
 
 interface VideoPlayerProps {
@@ -18,8 +18,8 @@ interface VideoPlayerProps {
 }
 
 export default function VideoPlayer({ video, onVideoEnd }: VideoPlayerProps) {
-  // Get YouTube embed ID from the video data - use youtubeId instead of youtube_id
-  const youtubeEmbedId = video?.youtubeId ? getYoutubeEmbedId(video.youtubeId) : null;
+  // Get YouTube embed ID from the video data - use youtube_id from database
+  const youtubeEmbedId = video?.youtube_id ? getYoutubeEmbedId(video.youtube_id) : null;
 
   if (!video) {
     return (
