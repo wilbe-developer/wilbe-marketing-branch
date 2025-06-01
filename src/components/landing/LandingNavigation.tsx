@@ -17,6 +17,14 @@ export default function LandingNavigation() {
     }
   };
 
+  const handleCapitalClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const capitalSection = document.getElementById('wilbe-capital');
+    if (capitalSection) {
+      capitalSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <>
       <nav className="border-b border-gray-200 bg-white sticky top-0 z-50">
@@ -40,9 +48,12 @@ export default function LandingNavigation() {
                 <Link to="/tools" className="text-gray-900 hover:text-gray-700 transition-colors uppercase tracking-wide">
                   Tools
                 </Link>
-                <Link to="/capital" className="text-gray-900 hover:text-gray-700 transition-colors uppercase tracking-wide">
+                <button 
+                  onClick={handleCapitalClick}
+                  className="text-gray-900 hover:text-gray-700 transition-colors uppercase tracking-wide cursor-pointer"
+                >
                   Capital
-                </Link>
+                </button>
                 <button 
                   onClick={handleAboutClick}
                   className="text-gray-900 hover:text-gray-700 transition-colors uppercase tracking-wide cursor-pointer"
