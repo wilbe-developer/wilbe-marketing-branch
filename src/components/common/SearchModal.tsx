@@ -33,7 +33,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
       title: "Breakthrough to Scientist Founder",
       type: "page",
       description: "Our flagship program for scientist entrepreneurs - join the waitlist",
-      url: "/bsf",
+      url: "/waitlist",
       icon: FileText
     }
   ];
@@ -173,25 +173,15 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
           {!query && (
             <div className="space-y-4">
               <h3 className="font-medium text-gray-900">Quick Links</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 gap-2">
                 <Link
-                  to="/bsf"
+                  to="/waitlist"
                   onClick={handleResultClick}
                   className="p-3 rounded-lg hover:bg-gray-50 transition-colors border text-left"
                 >
                   <div className="flex items-center gap-3">
                     <FileText className="h-4 w-4 text-gray-600" />
                     <span className="text-sm font-medium">BSF Program</span>
-                  </div>
-                </Link>
-                <Link
-                  to="/landing-page#tools-section"
-                  onClick={handleResultClick}
-                  className="p-3 rounded-lg hover:bg-gray-50 transition-colors border text-left"
-                >
-                  <div className="flex items-center gap-3">
-                    <FileText className="h-4 w-4 text-gray-600" />
-                    <span className="text-sm font-medium">Our Tools</span>
                   </div>
                 </Link>
               </div>
