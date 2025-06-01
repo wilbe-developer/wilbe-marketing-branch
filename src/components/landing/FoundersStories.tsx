@@ -148,15 +148,6 @@ export default function FoundersStories() {
           <CarouselNext className="hidden md:flex" />
         </Carousel>
       </div>
-
-      <div className="text-center mt-12">
-        <a href="https://wilbe.com/media">
-          <Button size="lg" className="bg-gray-900 hover:bg-black text-white font-bold uppercase tracking-wide px-8">
-            VIEW ALL MEDIA
-            <ArrowRight className="ml-2 h-5 w-5" />
-          </Button>
-        </a>
-      </div>
     </div>
   );
 }
