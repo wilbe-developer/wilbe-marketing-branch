@@ -14,6 +14,7 @@ interface Video {
   duration?: string;
   presenter?: string;
   created_at: string;
+  youtube_id?: string;
 }
 
 export default function WilbeStreamPlayer() {
@@ -34,6 +35,7 @@ export default function WilbeStreamPlayer() {
         const sortedVideos = videosData
           .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
         
+        console.log("Loaded videos for stream player:", sortedVideos);
         setVideos(sortedVideos);
       } catch (err) {
         console.error("Error fetching videos:", err);
