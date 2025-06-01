@@ -23,8 +23,6 @@ export const generateCalendarUrls = (event: CalendarEvent) => {
     google: `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodedTitle}&dates=${startDateStr}/${endDateStr}&details=${encodedDescription}&location=${encodedLocation}`,
     
     outlook: `https://outlook.live.com/calendar/0/deeplink/compose?subject=${encodedTitle}&startdt=${startDateStr}&enddt=${endDateStr}&body=${encodedDescription}&location=${encodedLocation}`,
-    
-    yahoo: `https://calendar.yahoo.com/?v=60&view=d&type=20&title=${encodedTitle}&st=${startDateStr}&et=${endDateStr}&desc=${encodedDescription}&in_loc=${encodedLocation}`,
   };
 };
 

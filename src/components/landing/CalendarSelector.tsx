@@ -14,7 +14,7 @@ interface CalendarSelectorProps {
 export default function CalendarSelector({ event, buttonText = "Remind Me", className }: CalendarSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
   
-  const handleCalendarClick = (type: 'google' | 'outlook' | 'yahoo' | 'apple') => {
+  const handleCalendarClick = (type: 'google' | 'outlook' | 'apple') => {
     if (type === 'apple') {
       downloadIcsFile(event);
     } else {
@@ -58,14 +58,6 @@ export default function CalendarSelector({ event, buttonText = "Remind Me", clas
           >
             <div className="w-4 h-4 mr-2 bg-gray-800 rounded-sm flex items-center justify-center text-white text-xs font-bold">📅</div>
             Apple Calendar (.ics)
-          </Button>
-          <Button
-            variant="ghost"
-            className="w-full justify-start text-left"
-            onClick={() => handleCalendarClick('yahoo')}
-          >
-            <div className="w-4 h-4 mr-2 bg-purple-600 rounded-sm flex items-center justify-center text-white text-xs font-bold">Y</div>
-            Yahoo Calendar
           </Button>
         </div>
       </PopoverContent>
