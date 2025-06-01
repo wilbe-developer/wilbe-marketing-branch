@@ -72,7 +72,7 @@ export default function WilbeLabsSection() {
             <img
               src="https://images.unsplash.com/photo-1582719471384-894fbb16e074?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
               alt="Modern biotech laboratory"
-              className="w-full h-96 object-cover shadow-2xl"
+              className="w-full h-96 object-cover shadow-lg"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
             <div className="absolute bottom-6 left-6 right-6">
@@ -138,7 +138,7 @@ export default function WilbeLabsSection() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {deliveredLabs.map((lab, index) => (
-              <div key={index} className="bg-gray-50 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+              <div key={index} className="bg-gray-50 rounded-lg overflow-hidden shadow-lg hover:shadow-lg transition-shadow">
                 <div className="aspect-video bg-gray-200 relative">
                   <img
                     src={lab.image}
