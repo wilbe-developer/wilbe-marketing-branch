@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { FileText, AlertTriangle, Users } from "lucide-react";
 import { AdvocacyCard as AdvocacyCardType } from "@/data/advocacyCards";
+import IssueReportForm from "@/components/forms/IssueReportForm";
 
 interface AdvocacyCardProps {
   card: AdvocacyCardType;
@@ -42,9 +43,11 @@ export default function AdvocacyCard({ card }: AdvocacyCardProps) {
         {card.id === 2 && (
           <div className="flex items-center justify-between">
             <span className="text-gray-900 font-bold text-sm">247 REPORTS FILED</span>
-            <Button size="sm" className="bg-gray-900 hover:bg-black text-white">
-              {card.buttonText}
-            </Button>
+            <IssueReportForm>
+              <Button size="sm" className="bg-gray-900 hover:bg-black text-white">
+                {card.buttonText}
+              </Button>
+            </IssueReportForm>
           </div>
         )}
 
