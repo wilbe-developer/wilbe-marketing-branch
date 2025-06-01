@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertTriangle, Upload, X, File } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface IssueReportFormProps {
   children: React.ReactNode;
@@ -33,6 +34,45 @@ export default function IssueReportForm({ children }: IssueReportFormProps) {
     setAttachments(prev => prev.filter((_, i) => i !== index));
   };
 
+  const uploadAttachment = async (file: File, reportId: string) => {
+    try {
+      // Generate unique file path
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${reportId}/${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      
+      // Upload file to Supabase storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('issue-reports')
+        .upload(fileName, file);
+
+      if (uploadError) {
+        console.error('File upload error:', uploadError);
+        throw uploadError;
+      }
+
+      // Save attachment metadata to database
+      const { error: attachmentError } = await supabase
+        .from('issue_report_attachments')
+        .insert({
+          report_id: reportId,
+          file_name: file.name,
+          file_path: uploadData.path,
+          file_size: file.size,
+          content_type: file.type
+        });
+
+      if (attachmentError) {
+        console.error('Attachment metadata error:', attachmentError);
+        throw attachmentError;
+      }
+
+      return uploadData.path;
+    } catch (error) {
+      console.error('Error uploading attachment:', error);
+      throw error;
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -44,12 +84,41 @@ export default function IssueReportForm({ children }: IssueReportFormProps) {
     setIsSubmitting(true);
     
     try {
-      // For now, we'll just show a success message
-      // In a real implementation, this would send the data to your backend
-      console.log("Issue report submitted:", {
-        ...formData,
-        attachments: attachments.map(f => f.name),
-      });
+      // Get current user (if logged in)
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      // Create the issue report
+      const { data: reportData, error: reportError } = await supabase
+        .from('issue_reports')
+        .insert({
+          contact_email: formData.contactEmail,
+          issue_description: formData.issueDescription,
+          submitted_by_user_id: user?.id || null,
+          status: 'pending',
+          priority: 'medium'
+        })
+        .select()
+        .single();
+
+      if (reportError) {
+        console.error('Report creation error:', reportError);
+        throw reportError;
+      }
+
+      // Upload attachments if any
+      if (attachments.length > 0) {
+        const uploadPromises = attachments.map(file => 
+          uploadAttachment(file, reportData.id)
+        );
+        
+        try {
+          await Promise.all(uploadPromises);
+        } catch (uploadError) {
+          console.error('Some attachments failed to upload:', uploadError);
+          // Still show success since the report was created
+          toast.warning("Report submitted but some attachments failed to upload. You can try submitting them again.");
+        }
+      }
       
       toast.success("Your report has been submitted successfully. We'll review it and get back to you.");
       
@@ -57,7 +126,9 @@ export default function IssueReportForm({ children }: IssueReportFormProps) {
       setFormData({ contactEmail: "", issueDescription: "" });
       setAttachments([]);
       setIsOpen(false);
+      
     } catch (error) {
+      console.error('Error submitting report:', error);
       toast.error("Failed to submit report. Please try again.");
     } finally {
       setIsSubmitting(false);
@@ -130,6 +201,7 @@ export default function IssueReportForm({ children }: IssueReportFormProps) {
                   variant="outline"
                   size="sm"
                   onClick={() => document.getElementById('file-upload')?.click()}
+                  disabled={isSubmitting}
                 >
                   Choose Files
                 </Button>
@@ -153,6 +225,7 @@ export default function IssueReportForm({ children }: IssueReportFormProps) {
                       variant="ghost"
                       size="sm"
                       onClick={() => removeAttachment(index)}
+                      disabled={isSubmitting}
                     >
                       <X className="h-4 w-4" />
                     </Button>
