@@ -1,11 +1,15 @@
+
 import { Button } from "@/components/ui/button";
 import { Shield } from "lucide-react";
 import { useAdvocacyImage } from "@/hooks/useAdvocacyImage";
 import { advocacyCards } from "@/data/advocacyCards";
 import AdvocacyCard from "./AdvocacyCard";
+
 export default function ScientistsFirstSection() {
   const advocacyImageUrl = useAdvocacyImage();
-  return <section className="py-12 md:py-20 bg-white">
+
+  return (
+    <section id="scientists-first" className="py-12 md:py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12 md:mb-16">
           <div className="flex flex-col sm:flex-row items-center justify-center mb-4 md:mb-6">
@@ -47,5 +51,6 @@ export default function ScientistsFirstSection() {
           </div>
         </div>
       </div>
-    </section>;
+    </section>
+  );
 }

@@ -35,7 +35,7 @@ export default function LandingNavigation() {
                 <Link to="/capital" className="text-gray-900 hover:text-gray-700 transition-colors uppercase tracking-wide">
                   Capital
                 </Link>
-                <Link to="/about" className="text-gray-900 hover:text-gray-700 transition-colors uppercase tracking-wide">
+                <Link to="/landing-page#scientists-first" className="text-gray-900 hover:text-gray-700 transition-colors uppercase tracking-wide">
                   About
                 </Link>
               </div>
