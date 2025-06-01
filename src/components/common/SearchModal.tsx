@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Search, Video, FileText } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { PATHS } from "@/lib/constants";
 
 interface SearchModalProps {
   isOpen: boolean;
