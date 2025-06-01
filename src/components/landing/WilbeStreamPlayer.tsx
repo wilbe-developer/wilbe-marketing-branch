@@ -17,13 +17,13 @@ interface Video {
   youtube_id?: string; // Use youtube_id to match database field
 }
 
-// Only allow videos from these 5 specific presenters
+// Only allow videos from these 5 specific presenters - CORRECTED IDs
 const ALLOWED_VIDEO_IDS = [
-  "ce26f525-f39f-2bf4-2d49-65a47d48700c", // Prachee Avasthi
-  "ce26f529-0967-e764-0841-dab85692cbcd", // Nimish
-  "ce26f531-2cb4-300a-a44d-44a68819391", // Sandy
-  "ce26f553-d88b-ab8d-e945-bc9d54a666b5", // Albert
-  "ce26f574-1f45-09d4-3646-31af35474aab"  // Chris
+  "c3992a10-b683-4df5-be13-4519197152bf", // Prachee Avasthi - "Building the Future of Science: The Arcadia Way"
+  "8703142d-8645-4905-bf1a-c596d7e86f1c", // Nimish - "Career Paths in Biotech: Nimish's Insider Story"
+  "0d78c22e-3107-4aec-835b-1ce860a45213", // Sandy Kory - "Storytelling, Talent & Investing in Science Startups"
+  "fde1035c-ee81-4329-9d5f-656647096992", // Albert Wenger - "Conversations at the Crossroads"
+  "cf19a0eb-c28b-4d04-8436-816746df70e6"  // Chris O'Neill - "The Entrepreneurial Mindset: An Insider's Guide"
 ];
 
 export default function WilbeStreamPlayer() {
@@ -40,12 +40,24 @@ export default function WilbeStreamPlayer() {
         setLoading(true);
         const videosData = await fetchVideos();
         
+        console.log("Total videos fetched:", videosData.length);
+        console.log("Looking for video IDs:", ALLOWED_VIDEO_IDS);
+        
         // Filter to only include videos from the 5 specific presenters
         const allowedVideos = videosData
-          .filter(video => ALLOWED_VIDEO_IDS.includes(video.id) && video.youtube_id)
+          .filter(video => {
+            const isAllowed = ALLOWED_VIDEO_IDS.includes(video.id);
+            const hasYouTubeId = !!video.youtube_id;
+            
+            if (isAllowed) {
+              console.log(`Found allowed video: ${video.title} (ID: ${video.id}) - YouTube ID: ${video.youtube_id}`);
+            }
+            
+            return isAllowed && hasYouTubeId;
+          })
           .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
         
-        console.log("Loaded filtered videos for stream player:", allowedVideos);
+        console.log("Filtered videos for stream player:", allowedVideos.length, allowedVideos);
         setVideos(allowedVideos);
       } catch (err) {
         console.error("Error fetching videos:", err);
@@ -73,7 +85,7 @@ export default function WilbeStreamPlayer() {
               <div className="w-full h-full bg-gray-900 flex items-center justify-center">
                 <div className="text-white text-center p-4">
                   <div className="text-sm sm:text-base">
-                    {loading ? "Loading videos..." : "No videos available"}
+                    {loading ? "Loading videos..." : `No videos available (${videos.length} found)`}
                   </div>
                 </div>
               </div>
@@ -102,7 +114,7 @@ export default function WilbeStreamPlayer() {
             <div className="relative aspect-video">
               <div className="w-full h-full bg-gray-900 flex items-center justify-center">
                 <div className="text-white text-center p-4">
-                  <div className="text-sm sm:text-base">No videos available</div>
+                  <div className="text-sm sm:text-base">No current video selected</div>
                 </div>
               </div>
             </div>
