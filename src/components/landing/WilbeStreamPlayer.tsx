@@ -17,6 +17,15 @@ interface Video {
   youtube_id?: string; // Use youtube_id to match database field
 }
 
+// Only allow videos from these 5 specific presenters
+const ALLOWED_VIDEO_IDS = [
+  "ce26f525-f39f-2bf4-2d49-65a47d48700c", // Prachee Avasthi
+  "ce26f529-0967-e764-0841-dab85692cbcd", // Nimish
+  "ce26f531-2cb4-300a-a44d-44a68819391", // Sandy
+  "ce26f553-d88b-ab8d-e945-bc9d54a666b5", // Albert
+  "ce26f574-1f45-09d4-3646-31af35474aab"  // Chris
+];
+
 export default function WilbeStreamPlayer() {
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
@@ -24,20 +33,20 @@ export default function WilbeStreamPlayer() {
   // Use the countdown timer hook for June 10, 2025 at 12:00 PM ET
   const timeLeft = useCountdownTimer('2025-06-10T16:00:00Z');
 
-  // Load videos from the same source as FoundersStories
+  // Load videos from the same source as FoundersStories but filter to specific IDs
   useEffect(() => {
     const loadVideos = async () => {
       try {
         setLoading(true);
         const videosData = await fetchVideos();
         
-        // Sort by created_at and take all published videos
-        const sortedVideos = videosData
-          .filter(video => video.youtube_id) // Only include videos with YouTube IDs
+        // Filter to only include videos from the 5 specific presenters
+        const allowedVideos = videosData
+          .filter(video => ALLOWED_VIDEO_IDS.includes(video.id) && video.youtube_id)
           .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
         
-        console.log("Loaded videos for stream player:", sortedVideos);
-        setVideos(sortedVideos);
+        console.log("Loaded filtered videos for stream player:", allowedVideos);
+        setVideos(allowedVideos);
       } catch (err) {
         console.error("Error fetching videos:", err);
         // Fallback to empty array if fetch fails
