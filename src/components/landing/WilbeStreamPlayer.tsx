@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -23,10 +24,10 @@ export default function WilbeStreamPlayer() {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(100); // Mock duration for demo
   const [timeLeft, setTimeLeft] = useState({
-    days: 17,
-    hours: 6,
-    minutes: 33,
-    seconds: 23
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0
   });
 
   // Next live event - Updated with new content
@@ -44,6 +45,24 @@ export default function WilbeStreamPlayer() {
     startDate: new Date('2025-06-10T16:00:00Z'), // 12:00 PM ET = 16:00 UTC
     endDate: new Date('2025-06-10T17:00:00Z'), // 1 hour duration
     location: "Wilbe Live Stream - https://wilbe.com"
+  };
+
+  // Calculate countdown to event date
+  const calculateTimeLeft = () => {
+    const eventDate = new Date('2025-06-10T16:00:00Z').getTime();
+    const now = new Date().getTime();
+    const difference = eventDate - now;
+
+    if (difference > 0) {
+      return {
+        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+        minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
+        seconds: Math.floor((difference % (1000 * 60)) / 1000)
+      };
+    } else {
+      return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+    }
   };
 
   // Load videos from the same source as FoundersStories
@@ -81,21 +100,13 @@ export default function WilbeStreamPlayer() {
     return () => clearInterval(videoTimer);
   }, [videos.length]);
 
-  // Countdown timer
+  // Dynamic countdown timer
   useEffect(() => {
+    // Initialize the countdown
+    setTimeLeft(calculateTimeLeft());
+
     const timer = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev.seconds > 0) {
-          return { ...prev, seconds: prev.seconds - 1 };
-        } else if (prev.minutes > 0) {
-          return { ...prev, minutes: prev.minutes - 1, seconds: 59 };
-        } else if (prev.hours > 0) {
-          return { ...prev, hours: prev.hours - 1, minutes: 59, seconds: 59 };
-        } else if (prev.days > 0) {
-          return { ...prev, days: prev.days - 1, hours: 23, minutes: 59, seconds: 59 };
-        }
-        return prev;
-      });
+      setTimeLeft(calculateTimeLeft());
     }, 1000);
 
     return () => clearInterval(timer);
@@ -343,4 +354,16 @@ export default function WilbeStreamPlayer() {
       </div>
     </div>
   );
+
+  // Format time for display
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  // Handle scrubber change
+  const handleTimeChange = (value: number[]) => {
+    setCurrentTime(value[0]);
+  };
 }
