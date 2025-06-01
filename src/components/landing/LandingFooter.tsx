@@ -1,10 +1,7 @@
-
-import { Link } from "react-router-dom"
-import { Button } from "@/components/ui/button"
-
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 export default function LandingFooter() {
-  return (
-    <footer className="bg-gray-900 text-white py-12">
+  return <footer className="bg-gray-900 text-white py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div>
@@ -49,10 +46,11 @@ export default function LandingFooter() {
 
           <div>
             <h4 className="font-bold text-lg mb-4">Contact Us</h4>
-            <p className="text-gray-400 text-sm">123 Science Street</p>
-            <p className="text-gray-400 text-sm">Science City, CA 91234</p>
-            <p className="text-gray-400 text-sm">Email: info@wilbe.com</p>
-            <p className="text-gray-400 text-sm">Phone: (123) 456-7890</p>
+            <p className="text-gray-400 text-sm">69 Wilson Street</p>
+            <p className="text-gray-400 text-sm">London, EC2A 2BB</p>
+            <p className="text-gray-400 text-sm">Email: hello@wilbe.com</p>
+            <p className="text-gray-400 text-sm">
+          </p>
           </div>
 
           <div>
@@ -61,11 +59,7 @@ export default function LandingFooter() {
               Stay up to date with the latest news, insights, and opportunities for scientist entrepreneurs.
             </p>
             <div className="flex">
-              <input
-                type="email"
-                placeholder="Your email address"
-                className="bg-gray-800 border border-gray-700 py-2 px-4 text-white focus:outline-none focus:border-green-500 text-sm"
-              />
+              <input type="email" placeholder="Your email address" className="bg-gray-800 border border-gray-700 py-2 px-4 text-white focus:outline-none focus:border-green-500 text-sm" />
               <Button className="bg-green-500 hover:bg-green-600 text-black text-sm font-bold uppercase tracking-wide">
                 Subscribe
               </Button>
@@ -86,6 +80,5 @@ export default function LandingFooter() {
           </p>
         </div>
       </div>
-    </footer>
-  )
+    </footer>;
 }
