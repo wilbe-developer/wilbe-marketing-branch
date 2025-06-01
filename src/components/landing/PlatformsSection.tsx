@@ -1,8 +1,7 @@
 
-
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import UpcomingEventsFeeder from "./UpcomingEventsFeeder";
+import LumaEventsEmbed from "./LumaEventsEmbed";
 
 export default function PlatformsSection() {
   const platforms = [{
@@ -146,7 +145,7 @@ export default function PlatformsSection() {
                   </Button>
                 )}
 
-                {/* Raw Image and Upcoming Events - only show for Wilbe Sandbox */}
+                {/* Live Luma Events and Image - only show for Wilbe Sandbox */}
                 {platform.showLatestContent && (
                   <>
                     <div className="mt-6 sm:mt-8 max-w-4xl">
@@ -161,9 +160,10 @@ export default function PlatformsSection() {
                             (e.target as HTMLImageElement).src = "/placeholder.svg";
                           }}
                         />
-                        <div className="bg-white rounded-lg p-4 sm:p-6 border border-gray-200 shadow-sm h-64 sm:h-96 overflow-hidden">
-                          <UpcomingEventsFeeder />
-                        </div>
+                        <LumaEventsEmbed 
+                          height="16rem" 
+                          className="sm:h-96" 
+                        />
                       </div>
                     </div>
                     
