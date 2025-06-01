@@ -41,7 +41,17 @@ export default function NextLiveEvent({ timeLeft }: NextLiveEventProps) {
       </div>
       
       <h3 className="text-lg font-bold text-gray-900 mb-2">{nextEvent.title}</h3>
-      <p className="text-sm text-gray-600 mb-4">{nextEvent.speaker}</p>
+      <p className="text-sm text-gray-600 mb-4">
+        With{" "}
+        <a 
+          href="https://x.com/sgourley" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="text-blue-600 hover:text-blue-800 hover:underline transition-colors"
+        >
+          Sean Gourley
+        </a>
+      </p>
       
       {/* Event Date & Time - Updated */}
       <div className="flex items-center gap-4 mb-4 text-sm text-gray-500">
