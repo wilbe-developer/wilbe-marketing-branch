@@ -38,8 +38,8 @@ export default function VideoPlayerPage() {
     );
   }
 
-  // Fix field name mismatch - use youtube_id instead of youtubeId
-  const youtubeEmbedId = video.youtube_id ? getYoutubeEmbedId(video.youtube_id) : null;
+  // Fix field name - use youtubeId instead of youtube_id to match Video interface
+  const youtubeEmbedId = video.youtubeId ? getYoutubeEmbedId(video.youtubeId) : null;
 
   return (
     <div className="min-h-screen bg-black text-white">
