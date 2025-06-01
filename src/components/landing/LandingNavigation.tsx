@@ -25,6 +25,14 @@ export default function LandingNavigation() {
     }
   };
 
+  const handleToolsClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const toolsSection = document.getElementById('tools-section');
+    if (toolsSection) {
+      toolsSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <>
       <nav className="border-b border-gray-200 bg-white sticky top-0 z-50">
@@ -45,9 +53,12 @@ export default function LandingNavigation() {
                 <Link to="/media" className="text-gray-900 hover:text-gray-700 transition-colors uppercase tracking-wide">
                   Media
                 </Link>
-                <Link to="/tools" className="text-gray-900 hover:text-gray-700 transition-colors uppercase tracking-wide">
+                <button 
+                  onClick={handleToolsClick}
+                  className="text-gray-900 hover:text-gray-700 transition-colors uppercase tracking-wide cursor-pointer"
+                >
                   Tools
-                </Link>
+                </button>
                 <button 
                   onClick={handleCapitalClick}
                   className="text-gray-900 hover:text-gray-700 transition-colors uppercase tracking-wide cursor-pointer"
