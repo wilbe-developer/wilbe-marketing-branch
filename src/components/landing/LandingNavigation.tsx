@@ -5,12 +5,13 @@ import { Menu, Search, X } from "lucide-react"
 import { Link } from "react-router-dom"
 import WilbeLogo from "@/assets/WilbeLogo"
 import SearchModal from "@/components/common/SearchModal"
+import MediaComingSoonDialog from "@/components/common/MediaComingSoonDialog"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { toast } from "sonner"
 
 export default function LandingNavigation() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMediaDialogOpen, setIsMediaDialogOpen] = useState(false);
 
   const handleAboutClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -41,9 +42,7 @@ export default function LandingNavigation() {
 
   const handleMediaClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    toast.info("🎬 Media hub coming soon! We're cooking up something special for you...", {
-      duration: 4000,
-    });
+    setIsMediaDialogOpen(true);
     setIsMobileMenuOpen(false);
   };
 
@@ -177,6 +176,11 @@ export default function LandingNavigation() {
       <SearchModal 
         isOpen={isSearchOpen} 
         onClose={() => setIsSearchOpen(false)} 
+      />
+      
+      <MediaComingSoonDialog
+        isOpen={isMediaDialogOpen}
+        onClose={() => setIsMediaDialogOpen(false)}
       />
     </>
   )
