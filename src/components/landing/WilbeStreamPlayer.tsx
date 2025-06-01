@@ -4,7 +4,7 @@ import { fetchVideos } from "@/services/videoService";
 import VideoPlayer from "./VideoPlayer";
 import NextLiveEvent from "./NextLiveEvent";
 import { useCountdownTimer } from "@/hooks/useCountdownTimer";
-import { useVideoRotation } from "@/hooks/useVideoRotation";
+import { useVideoPlaylist } from "@/hooks/useVideoPlaylist";
 
 interface Video {
   id: string;
@@ -14,7 +14,7 @@ interface Video {
   duration?: string;
   presenter?: string;
   created_at: string;
-  youtube_id?: string;
+  youtubeId?: string; // Fixed to match interface
 }
 
 export default function WilbeStreamPlayer() {
@@ -33,6 +33,7 @@ export default function WilbeStreamPlayer() {
         
         // Sort by created_at and take all published videos
         const sortedVideos = videosData
+          .filter(video => video.youtubeId) // Only include videos with YouTube IDs
           .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
         
         console.log("Loaded videos for stream player:", sortedVideos);
@@ -49,8 +50,8 @@ export default function WilbeStreamPlayer() {
     loadVideos();
   }, []);
 
-  // Use the video rotation hook
-  const { currentVideo } = useVideoRotation(videos, 20000);
+  // Use the video playlist hook instead of rotation
+  const { currentVideo, handleVideoEnd } = useVideoPlaylist(videos);
 
   // Show loading state or fallback if no videos
   if (loading || videos.length === 0) {
@@ -109,7 +110,7 @@ export default function WilbeStreamPlayer() {
   return (
     <div className="w-full max-w-md mx-auto">
       <div className="grid grid-rows-[auto_auto] gap-3 sm:gap-4 h-full">
-        <VideoPlayer video={currentVideo} />
+        <VideoPlayer video={currentVideo} onVideoEnd={handleVideoEnd} />
         <NextLiveEvent timeLeft={timeLeft} />
       </div>
     </div>

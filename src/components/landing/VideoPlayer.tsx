@@ -9,16 +9,17 @@ interface Video {
   duration?: string;
   presenter?: string;
   created_at: string;
-  youtube_id?: string;
+  youtubeId?: string; // Fixed to match interface
 }
 
 interface VideoPlayerProps {
   video: Video;
+  onVideoEnd?: () => void; // Add callback for when video ends
 }
 
-export default function VideoPlayer({ video }: VideoPlayerProps) {
-  // Get YouTube embed ID from the video data
-  const youtubeEmbedId = video?.youtube_id ? getYoutubeEmbedId(video.youtube_id) : null;
+export default function VideoPlayer({ video, onVideoEnd }: VideoPlayerProps) {
+  // Get YouTube embed ID from the video data - use youtubeId instead of youtube_id
+  const youtubeEmbedId = video?.youtubeId ? getYoutubeEmbedId(video.youtubeId) : null;
 
   if (!video) {
     return (
@@ -49,11 +50,12 @@ export default function VideoPlayer({ video }: VideoPlayerProps) {
               <span className="text-white text-xs font-bold uppercase tracking-wide">LIVE</span>
             </div>
 
-            {/* YouTube Embed */}
+            {/* YouTube Embed with Autoplay */}
             <iframe
+              key={video.id} // Force re-render when video changes
               width="100%"
               height="100%"
-              src={`https://www.youtube.com/embed/${youtubeEmbedId}?autoplay=0&controls=1&modestbranding=1&rel=0`}
+              src={`https://www.youtube.com/embed/${youtubeEmbedId}?autoplay=1&mute=1&controls=1&modestbranding=1&rel=0&enablejsapi=1`}
               title={video.title}
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
