@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import UpcomingEventsFeeder from "./UpcomingEventsFeeder";
@@ -8,7 +9,7 @@ export default function PlatformsSection() {
     title: "Wilbe Sandbox: framing your journey and connecting with peers",
     description: "Sandbox is a global community platform uniting scientists to explore entrepreneurial paths and test ideas. It provides startup basics videos, pitch deck guidance, funding opportunities, and exclusive job listings, empowering PhD students, postdocs, and industry scientists to move from academia to real world impact.",
     buttonText: "Scientists Access",
-    buttonLink: "/login",
+    buttonLink: "https://app.wilbe.com/",
     showLatestContent: true
   }, {
     number: 2,
@@ -160,7 +161,7 @@ export default function PlatformsSection() {
                     {/* Button for Wilbe Sandbox - show after the content feeds */}
                     <div className="mt-6">
                       <Button asChild className="bg-green-500 hover:bg-green-600 text-white font-medium px-6 py-2">
-                        <a href={platform.buttonLink}>
+                        <a href={platform.buttonLink} target="_blank" rel="noopener noreferrer">
                           {platform.buttonText}
                           <ArrowRight className="ml-2 h-4 w-4" />
                         </a>
