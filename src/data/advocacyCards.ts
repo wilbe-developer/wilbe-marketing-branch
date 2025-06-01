@@ -18,9 +18,9 @@ export const advocacyCards: AdvocacyCard[] = [
     icon: "FileText",
     badge: "TTO NEGOTIATION",
     stats: [
-      { label: "Stanford Reform", value: "15% → 5% equity" },
+      { label: "Stanford Reform", value: "25% → 2.5% equity" },
       { label: "MIT Policy Change", value: "$50K → $10K fees" },
-      { label: "UC System Update", value: "2-year → 6-month terms" },
+      { label: "UC System Update", value: "2-year → 5-month terms" },
     ],
     buttonText: "Learn More",
   },
