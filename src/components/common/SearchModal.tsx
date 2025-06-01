@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Search, Video, FileText } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { PATHS } from "@/lib/constants";
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -76,7 +77,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     setTimeout(() => {
       const searchLower = searchQuery.toLowerCase();
       
-      // Search videos
+      // Search videos - using correct video path format
       const videoResults: SearchResult[] = videos
         .filter(video => 
           video.title.toLowerCase().includes(searchLower) ||
@@ -87,7 +88,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
           title: video.title,
           type: 'video' as const,
           description: video.description || "Video content",
-          url: `/video-player/${video.id}`,
+          url: `${PATHS.VIDEO}/${video.id}`,
           icon: Video
         }));
 
