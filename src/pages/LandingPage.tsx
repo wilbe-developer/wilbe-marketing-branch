@@ -32,6 +32,19 @@ export default function LandingPage() {
         html, body {
           font-family: Helvetica, Arial, sans-serif;
         }
+        
+        /* Touch optimization */
+        .touch-manipulation {
+          touch-action: manipulation;
+        }
+        
+        /* Improve scrolling on mobile */
+        @media (max-width: 768px) {
+          body {
+            -webkit-overflow-scrolling: touch;
+            overflow-scrolling: touch;
+          }
+        }
       `}</style>
       
       {/* Navigation */}
@@ -44,11 +57,13 @@ export default function LandingPage() {
       <LiveNewsStrip />
 
       {/* Main Hero Section with Video Player */}
-      <section className="bg-black text-white py-20 lg:py-32">
+      <section className="bg-black text-white py-12 sm:py-16 lg:py-20 xl:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-3 gap-12 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 sm:gap-10 lg:gap-12 items-start">
             <HeroSection />
-            <WilbeStreamPlayer />
+            <div className="lg:col-span-1 flex justify-center">
+              <WilbeStreamPlayer />
+            </div>
           </div>
         </div>
       </section>

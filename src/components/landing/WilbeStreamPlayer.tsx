@@ -53,14 +53,16 @@ export default function WilbeStreamPlayer() {
   // Show loading state or fallback if no videos
   if (loading || videos.length === 0) {
     return (
-      <div className="w-full max-w-md">
-        <div className="grid grid-rows-[auto_auto] gap-4 h-full">
+      <div className="w-full max-w-md mx-auto">
+        <div className="grid grid-rows-[auto_auto] gap-3 sm:gap-4 h-full">
           {/* Video Player Container - Loading/Fallback */}
           <div className="bg-gray-900 rounded-lg overflow-hidden w-full">
             <div className="relative aspect-video">
               <div className="w-full h-full bg-gray-900 flex items-center justify-center">
-                <div className="text-white text-center">
-                  {loading ? "Loading videos..." : "No videos available"}
+                <div className="text-white text-center p-4">
+                  <div className="text-sm sm:text-base">
+                    {loading ? "Loading videos..." : "No videos available"}
+                  </div>
                 </div>
               </div>
             </div>
@@ -82,12 +84,14 @@ export default function WilbeStreamPlayer() {
 
   if (!currentVideo) {
     return (
-      <div className="w-full max-w-md">
-        <div className="grid grid-rows-[auto_auto] gap-4 h-full">
+      <div className="w-full max-w-md mx-auto">
+        <div className="grid grid-rows-[auto_auto] gap-3 sm:gap-4 h-full">
           <div className="bg-gray-900 rounded-lg overflow-hidden w-full">
             <div className="relative aspect-video">
               <div className="w-full h-full bg-gray-900 flex items-center justify-center">
-                <div className="text-white text-center">No videos available</div>
+                <div className="text-white text-center p-4">
+                  <div className="text-sm sm:text-base">No videos available</div>
+                </div>
               </div>
             </div>
             <div className="bg-gray-800 p-3 min-h-[80px] flex flex-col justify-center">
@@ -101,8 +105,8 @@ export default function WilbeStreamPlayer() {
   }
 
   return (
-    <div className="w-full max-w-md">
-      <div className="grid grid-rows-[auto_auto] gap-4 h-full">
+    <div className="w-full max-w-md mx-auto">
+      <div className="grid grid-rows-[auto_auto] gap-3 sm:gap-4 h-full">
         <VideoPlayer video={currentVideo} />
         <NextLiveEvent timeLeft={timeLeft} />
       </div>

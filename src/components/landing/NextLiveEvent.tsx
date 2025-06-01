@@ -40,21 +40,21 @@ export default function NextLiveEvent({ timeLeft }: NextLiveEventProps) {
         <span className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Next Live Event</span>
       </div>
       
-      <h3 className="text-lg font-bold text-gray-900 mb-2">{nextEvent.title}</h3>
-      <p className="text-sm text-gray-600 mb-4">
+      <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 leading-tight">{nextEvent.title}</h3>
+      <p className="text-sm text-gray-600 mb-3 sm:mb-4">
         With{" "}
         <a 
           href="https://x.com/sgourley" 
           target="_blank" 
           rel="noopener noreferrer"
-          className="text-blue-600 hover:text-blue-800 hover:underline transition-colors"
+          className="text-blue-600 hover:text-blue-800 hover:underline transition-colors min-h-[44px] inline-flex items-center"
         >
           Sean Gourley
         </a>
       </p>
       
       {/* Event Date & Time - Updated */}
-      <div className="flex items-center gap-4 mb-4 text-sm text-gray-500">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-3 sm:mb-4 text-sm text-gray-500">
         <div className="flex items-center gap-1">
           <Calendar className="h-4 w-4" />
           <span>June 10, 2025</span>
