@@ -8,6 +8,7 @@ export interface AdvocacyCard {
   stats?: { label: string; value: string }[];
   buttonText: string;
   buttonVariant?: 'default' | 'outline';
+  buttonUrl?: string;
 }
 
 export const advocacyCards: AdvocacyCard[] = [
@@ -23,6 +24,7 @@ export const advocacyCards: AdvocacyCard[] = [
       { label: "UC System Update", value: "2-year → 5-month terms" },
     ],
     buttonText: "Learn More",
+    buttonUrl: "https://www.wilbe.com/post/spinout-terms",
   },
   {
     id: 2,
@@ -40,5 +42,6 @@ export const advocacyCards: AdvocacyCard[] = [
     badge: "COMMUNITY",
     buttonText: "Join Team",
     buttonVariant: "outline" as const,
+    buttonUrl: "mailto:hello@wilbe.com",
   },
 ];
