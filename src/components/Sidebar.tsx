@@ -1,30 +1,58 @@
+
 import { NavLink } from "react-router-dom";
-import { NAV_ITEMS } from "@/lib/constants";
+import { NAV_ITEMS, PATHS } from "@/lib/constants";
 import Logo from "./Logo";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Zap } from "lucide-react";
+
 const Sidebar = () => {
-  const {
-    isAuthenticated,
-    user
-  } = useAuth();
+  const { isAuthenticated, user, hasSprintProfile } = useAuth();
   const isMobile = useIsMobile();
+  
   if (!isAuthenticated || isMobile) return null;
-  return <div className="w-[214px] min-h-screen bg-brand-darkBlue flex flex-col fixed left-0 top-0 text-white">
+  
+  return (
+    <div className="w-[214px] min-h-screen bg-brand-darkBlue flex flex-col fixed left-0 top-0 text-white">
       <div className="p-6">
         <Logo className="text-white" />
       </div>
 
       <nav className="flex-1">
         <ul className="space-y-1 px-2">
-          {NAV_ITEMS.map(item => <li key={item.path}>
-              <NavLink to={item.path} className={({
-            isActive
-          }) => cn("block py-2 px-4 rounded-md hover:bg-brand-navy/50 transition-colors", isActive ? "bg-brand-navy font-medium" : "")}>
+          {NAV_ITEMS.map(item => (
+            <li key={item.path}>
+              <NavLink 
+                to={item.path} 
+                className={({ isActive }) => 
+                  cn(
+                    "block py-2 px-4 rounded-md hover:bg-brand-navy/50 transition-colors", 
+                    isActive ? "bg-brand-navy font-medium" : ""
+                  )
+                }
+              >
                 {item.name}
               </NavLink>
-            </li>)}
+            </li>
+          ))}
+          
+          {hasSprintProfile && (
+            <li>
+              <NavLink 
+                to={PATHS.SPRINT_DASHBOARD} 
+                className={({ isActive }) => 
+                  cn(
+                    "flex items-center gap-2 py-2 px-4 rounded-md hover:bg-brand-navy/50 transition-colors", 
+                    isActive ? "bg-brand-navy font-medium" : ""
+                  )
+                }
+              >
+                <Zap size={16} />
+                Sprint Dashboard
+              </NavLink>
+            </li>
+          )}
         </ul>
       </nav>
 
@@ -54,6 +82,8 @@ const Sidebar = () => {
           #ScientistsFirst
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default Sidebar;

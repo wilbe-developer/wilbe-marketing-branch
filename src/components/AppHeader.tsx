@@ -1,3 +1,4 @@
+
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,11 +11,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
-import { Bell } from "lucide-react";
+import { Bell, Zap } from "lucide-react";
 import { PATHS } from "@/lib/constants";
 
 const AppHeader = () => {
-  const { isAuthenticated, user, logout } = useAuth();
+  const { isAuthenticated, user, hasSprintProfile, logout } = useAuth();
   const location = useLocation();
   const showBeta = true;
 
@@ -62,6 +63,15 @@ const AppHeader = () => {
       </h1>
       
       <div className="flex items-center gap-2 md:gap-4 pr-2">
+        {hasSprintProfile && (
+          <Button variant="outline" size="sm" asChild className="hidden md:flex">
+            <Link to={PATHS.SPRINT_DASHBOARD} className="flex items-center gap-1">
+              <Zap className="h-4 w-4" />
+              Sprint Dashboard
+            </Link>
+          </Button>
+        )}
+        
         {showBeta && (
           <span className="hidden md:block px-3 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-full">
             Beta
@@ -92,6 +102,11 @@ const AppHeader = () => {
             <DropdownMenuItem asChild>
               <Link to={PATHS.PROFILE}>Profile Settings</Link>
             </DropdownMenuItem>
+            {hasSprintProfile && (
+              <DropdownMenuItem asChild>
+                <Link to={PATHS.SPRINT_DASHBOARD}>Sprint Dashboard</Link>
+              </DropdownMenuItem>
+            )}
             {user?.isAdmin && (
               <DropdownMenuItem asChild>
                 <Link to={PATHS.ADMIN}>Admin Dashboard</Link>

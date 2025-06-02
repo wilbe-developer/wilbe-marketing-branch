@@ -4,14 +4,17 @@ import { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { NAV_ITEMS } from "@/lib/constants";
+import { NAV_ITEMS, PATHS } from "@/lib/constants";
 import Logo from "./Logo";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useAuth } from "@/hooks/useAuth";
+import { Zap } from "lucide-react";
 
 const MobileSidebar = () => {
   const [open, setOpen] = useState(false);
   const isMobile = useIsMobile();
+  const { hasSprintProfile } = useAuth();
 
   // Close sidebar when transitioning from mobile to desktop
   useEffect(() => {
@@ -55,6 +58,24 @@ const MobileSidebar = () => {
                   </NavLink>
                 </li>
               ))}
+              
+              {hasSprintProfile && (
+                <li>
+                  <NavLink
+                    to={PATHS.SPRINT_DASHBOARD}
+                    onClick={() => setOpen(false)}
+                    className={({ isActive }) =>
+                      cn(
+                        "flex items-center gap-2 py-2 px-4 rounded-md hover:bg-brand-navy/50 transition-colors",
+                        isActive ? "bg-brand-navy font-medium" : ""
+                      )
+                    }
+                  >
+                    <Zap size={16} />
+                    Sprint Dashboard
+                  </NavLink>
+                </li>
+              )}
             </ul>
           </nav>
 

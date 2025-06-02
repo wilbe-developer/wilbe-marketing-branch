@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,6 +11,7 @@ interface UseAuthActionsProps {
   setUser: (user: UserProfile | null) => void;
   setSession: (session: Session | null) => void;
   setLoading: (loading: boolean) => void;
+  setHasSprintProfile: (hasProfile: boolean) => void;
   navigate: ReturnType<typeof useNavigate>;
   toast: any;
 }
@@ -21,6 +21,7 @@ export const useAuthActions = ({
   setUser,
   setSession,
   setLoading,
+  setHasSprintProfile,
   navigate,
   toast
 }: UseAuthActionsProps) => {
@@ -42,6 +43,20 @@ export const useAuthActions = ({
           throw profileError;
         }
       }
+
+      // Check if user has sprint profile
+      const { data: sprintProfile, error: sprintError } = await supabase
+        .from("sprint_profiles")
+        .select("id")
+        .eq("user_id", userId)
+        .single();
+
+      if (sprintError && sprintError.code !== 'PGRST116') {
+        console.error("Sprint profile check error:", sprintError);
+      }
+
+      // Update sprint profile state
+      setHasSprintProfile(!!sprintProfile);
 
       // Check if user is admin
       const { data: adminCheck, error: adminError } = await supabase
@@ -92,7 +107,7 @@ export const useAuthActions = ({
       console.error("Error fetching user profile:", error);
       setLoading(false);
     }
-  }, [setUser, setLoading]);
+  }, [setUser, setLoading, setHasSprintProfile]);
 
   const sendMagicLink = async (email: string, redirectTo?: string) => {
     try {
@@ -257,6 +272,7 @@ export const useAuthActions = ({
     supabase.auth.signOut();
     setUser(null);
     setSession(null);
+    setHasSprintProfile(false);
     navigate(PATHS.LOGIN);
     toast({
       title: "Signed out",
