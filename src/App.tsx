@@ -27,22 +27,22 @@ const App = () => (
           <MetaWrapper>
             <Routes>
               {/* Marketing Routes */}
-              <MarketingRoutes />
+              {MarketingRoutes()}
               
               {/* Public Routes */}
-              <PublicRoutes />
+              {PublicRoutes()}
 
               {/* Protected User Routes */}
-              <ProtectedUserRoutes />
+              {ProtectedUserRoutes()}
 
               {/* Sprint Routes */}
-              <SprintRoutes />
+              {SprintRoutes()}
 
               {/* Admin Routes */}
-              <AdminRoutes />
+              {AdminRoutes()}
 
               {/* Miscellaneous Routes */}
-              <MiscRoutes />
+              {MiscRoutes()}
             </Routes>
           </MetaWrapper>
         </SprintContextProvider>
