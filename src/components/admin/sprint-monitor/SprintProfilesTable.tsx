@@ -39,6 +39,10 @@ const SprintProfilesTable: React.FC<SprintProfilesTableProps> = ({
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentProfiles = profiles.slice(indexOfFirstItem, indexOfLastItem);
 
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
   const handleDashboardAccessToggle = async (profileId: string, currentAccess: boolean) => {
     setUpdatingAccess(profileId);
     try {

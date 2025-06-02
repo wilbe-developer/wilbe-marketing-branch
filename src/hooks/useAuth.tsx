@@ -83,7 +83,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           .eq('key', 'dashboard_active')
           .single();
         
-        setIsDashboardActive(data?.value?.enabled === true);
+        // Type guard to ensure data.value is an object with enabled property
+        if (data?.value && typeof data.value === 'object' && 'enabled' in data.value) {
+          setIsDashboardActive((data.value as { enabled: boolean }).enabled === true);
+        } else {
+          setIsDashboardActive(false);
+        }
       } catch (error) {
         console.error('Error fetching app settings:', error);
         setIsDashboardActive(false);
