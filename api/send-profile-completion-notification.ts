@@ -10,7 +10,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// HTML email template for profile completion confirmation
+// HTML email template for profile completion confirmation.
 const createEmailHtml = (name: string) => `
 <!DOCTYPE html>
 <html>
