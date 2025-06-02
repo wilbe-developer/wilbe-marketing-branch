@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { SprintSignupAnswers } from "@/types/sprint-signup";
 import { useSprintAnswers } from "./useSprintAnswers";
@@ -111,9 +112,6 @@ export const useSprintSignup = () => {
             lab_space_needed: profile.lab_space_needed ? 'yes' : 'no',
             lab_space_secured: profile.lab_space_secured ? 'yes' : 'no',
             lab_space_details: profile.lab_space_details || '',
-            
-            // Window 14 - New minimal success version field
-            minimal_success_version: profile.minimal_success_version || '',
             
             // Other
             founder_profile: profile.cv_url || null,

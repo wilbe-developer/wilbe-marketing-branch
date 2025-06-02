@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Linkedin, Mail } from 'lucide-react';
 
@@ -44,7 +43,6 @@ export interface SprintProfile {
   linkedin_url?: string;
   current_job?: string;
   customer_engagement?: string;
-  minimal_success_version?: string;
   [key: string]: any; // For any other properties in the profile
 }
 
@@ -107,15 +105,6 @@ const ProfileDetailCard: React.FC<ProfileDetailCardProps> = ({ title, profile, f
     // Format date values
     if (key === 'created_at' && value) {
       return new Date(value).toLocaleString();
-    }
-    
-    // Format long text fields (like minimal_success_version) with proper line breaks
-    if (key === 'minimal_success_version' && value && typeof value === 'string' && value.length > 100) {
-      return (
-        <div className="whitespace-pre-wrap text-sm leading-relaxed">
-          {value}
-        </div>
-      );
     }
     
     // Return string value
