@@ -1,8 +1,7 @@
-
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Menu, Search, X } from "lucide-react"
-import { Link } from "react-router-dom"
+import { Link, useLocation, useNavigate } from "react-router-dom"
 import WilbeLogo from "@/assets/WilbeLogo"
 import SearchModal from "@/components/common/SearchModal"
 import MediaComingSoonDialog from "@/components/common/MediaComingSoonDialog"
@@ -12,30 +11,46 @@ export default function LandingNavigation() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMediaDialogOpen, setIsMediaDialogOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const isOnLandingPage = location.pathname === '/landing-page' || location.pathname === '/';
 
   const handleAboutClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    const scientistsSection = document.getElementById('scientists-first');
-    if (scientistsSection) {
-      scientistsSection.scrollIntoView({ behavior: 'smooth' });
+    if (isOnLandingPage) {
+      const scientistsSection = document.getElementById('scientists-first');
+      if (scientistsSection) {
+        scientistsSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      navigate('/landing-page#scientists-first');
     }
     setIsMobileMenuOpen(false);
   };
 
   const handleCapitalClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    const capitalSection = document.getElementById('wilbe-capital');
-    if (capitalSection) {
-      capitalSection.scrollIntoView({ behavior: 'smooth' });
+    if (isOnLandingPage) {
+      const capitalSection = document.getElementById('wilbe-capital');
+      if (capitalSection) {
+        capitalSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      navigate('/landing-page#wilbe-capital');
     }
     setIsMobileMenuOpen(false);
   };
 
   const handleToolsClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    const toolsSection = document.getElementById('tools-section');
-    if (toolsSection) {
-      toolsSection.scrollIntoView({ behavior: 'smooth' });
+    if (isOnLandingPage) {
+      const toolsSection = document.getElementById('tools-section');
+      if (toolsSection) {
+        toolsSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      navigate('/landing-page#tools-section');
     }
     setIsMobileMenuOpen(false);
   };
