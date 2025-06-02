@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -16,8 +15,8 @@ interface UtmParams {
 }
 
 const SprintSignupPage = () => {
-  const { isAuthenticated, loading, user } = useAuth();
-  const { isDashboardActive, isLoading: isLoadingSettings } = useAppSettings();
+  const { isAuthenticated, loading, user, hasDashboardAccess } = useAuth();
+  const { isLoading: isLoadingSettings } = useAppSettings();
   const navigate = useNavigate();
   const location = useLocation();
   const [utmParams, setUtmParams] = useState<UtmParams>({});
@@ -60,8 +59,8 @@ const SprintSignupPage = () => {
           }
 
           if (hasProfile) {
-            // User already has a profile, redirect based on the feature flag
-            if (isDashboardActive) {
+            // User already has a profile, redirect based on access logic
+            if (hasDashboardAccess) {
               navigate(PATHS.SPRINT_DASHBOARD);
             } else {
               navigate(PATHS.SPRINT_WAITING);
@@ -74,7 +73,7 @@ const SprintSignupPage = () => {
     };
 
     checkExistingProfile();
-  }, [isAuthenticated, loading, user, navigate, isDashboardActive, isLoadingSettings]);
+  }, [isAuthenticated, loading, user, navigate, hasDashboardAccess, isLoadingSettings]);
 
   return (
     <div className="min-h-screen bg-slate-50 py-10">
