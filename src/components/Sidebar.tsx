@@ -49,7 +49,7 @@ const Sidebar = () => {
                 }
               >
                 <Zap size={16} />
-                Sprint Dashboard
+                BSF Dashboard
               </NavLink>
             </li>
           )}

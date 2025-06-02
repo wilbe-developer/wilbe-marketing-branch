@@ -67,7 +67,7 @@ const AppHeader = () => {
           <Button variant="outline" size="sm" asChild className="hidden md:flex">
             <Link to={PATHS.SPRINT_DASHBOARD} className="flex items-center gap-1">
               <Zap className="h-4 w-4" />
-              Sprint Dashboard
+              BSF Dashboard
             </Link>
           </Button>
         )}
@@ -104,7 +104,7 @@ const AppHeader = () => {
             </DropdownMenuItem>
             {hasSprintProfile && (
               <DropdownMenuItem asChild>
-                <Link to={PATHS.SPRINT_DASHBOARD}>Sprint Dashboard</Link>
+                <Link to={PATHS.SPRINT_DASHBOARD}>BSF Dashboard</Link>
               </DropdownMenuItem>
             )}
             {user?.isAdmin && (
