@@ -1,6 +1,5 @@
-
 import { supabase } from '@/integrations/supabase/client';
-import { WaitlistSignup, SprintProfile } from './types';
+import { WaitlistSignup, SprintProfile, UserProfile, UserApplication, UserRole } from './types';
 import { toast } from 'sonner';
 
 export const fetchWaitlistSignups = async (): Promise<WaitlistSignup[]> => {
@@ -157,6 +156,63 @@ export const fetchTaskProgressWithUserInfo = async () => {
   } catch (err: any) {
     console.error('Error fetching task progress with user info:', err);
     toast.error('Failed to load task progress with user info');
+    return [];
+  }
+};
+
+export const fetchUserProfiles = async (): Promise<UserProfile[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .order('created_at', { ascending: false });
+      
+    if (error) {
+      throw error;
+    }
+    
+    return data || [];
+  } catch (err: any) {
+    console.error('Error fetching user profiles:', err);
+    toast.error('Failed to load user profiles');
+    return [];
+  }
+};
+
+export const fetchUserApplications = async (): Promise<UserApplication[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('user_applications')
+      .select('*')
+      .order('created_at', { ascending: false });
+      
+    if (error) {
+      throw error;
+    }
+    
+    return data || [];
+  } catch (err: any) {
+    console.error('Error fetching user applications:', err);
+    toast.error('Failed to load user applications');
+    return [];
+  }
+};
+
+export const fetchUserRoles = async (): Promise<UserRole[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('user_roles')
+      .select('*')
+      .order('created_at', { ascending: false });
+      
+    if (error) {
+      throw error;
+    }
+    
+    return data || [];
+  } catch (err: any) {
+    console.error('Error fetching user roles:', err);
+    toast.error('Failed to load user roles');
     return [];
   }
 };

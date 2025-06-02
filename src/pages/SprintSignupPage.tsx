@@ -1,11 +1,9 @@
-
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { PATHS } from "@/lib/constants";
 import SprintSignupForm from "@/components/sprint/SprintSignupForm";
-import { useAppSettings } from "@/hooks/useAppSettings";
 
 interface UtmParams {
   utm_source?: string | null;
@@ -16,8 +14,7 @@ interface UtmParams {
 }
 
 const SprintSignupPage = () => {
-  const { isAuthenticated, loading, user } = useAuth();
-  const { isDashboardActive, isLoading: isLoadingSettings } = useAppSettings();
+  const { isAuthenticated, loading, user, hasDashboardAccess } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [utmParams, setUtmParams] = useState<UtmParams>({});
@@ -47,7 +44,7 @@ const SprintSignupPage = () => {
   useEffect(() => {
     // Check if authenticated user already has a sprint profile, if so redirect to appropriate page
     const checkExistingProfile = async () => {
-      if (!loading && !isLoadingSettings && isAuthenticated && user) {
+      if (!loading && isAuthenticated && user) {
         try {
           const { data: hasProfile, error } = await supabase
             .rpc('has_completed_sprint_onboarding', {
@@ -60,8 +57,8 @@ const SprintSignupPage = () => {
           }
 
           if (hasProfile) {
-            // User already has a profile, redirect based on the feature flag
-            if (isDashboardActive) {
+            // User already has a profile, redirect based on dashboard access
+            if (hasDashboardAccess) {
               navigate(PATHS.SPRINT_DASHBOARD);
             } else {
               navigate(PATHS.SPRINT_WAITING);
@@ -74,7 +71,7 @@ const SprintSignupPage = () => {
     };
 
     checkExistingProfile();
-  }, [isAuthenticated, loading, user, navigate, isDashboardActive, isLoadingSettings]);
+  }, [isAuthenticated, loading, user, navigate, hasDashboardAccess]);
 
   return (
     <div className="min-h-screen bg-slate-50 py-10">

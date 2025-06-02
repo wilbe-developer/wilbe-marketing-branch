@@ -1,6 +1,8 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { fetchUserProfiles, fetchUserApplications, fetchUserRoles } from './fetchAdminData';
 
 export interface UserProgress {
   userId: string;
@@ -23,7 +25,7 @@ export interface ActivityEvent {
   id: string;
   userId: string;
   userName: string;
-  eventType: 'signup' | 'task_started' | 'task_completed' | 'file_uploaded' | 'profile_updated';
+  eventType: 'signup' | 'task_started' | 'task_completed' | 'file_uploaded' | 'profile_updated' | 'member_signup' | 'profile_submission' | 'member_approved';
   taskId?: string;
   taskName?: string;
   timestamp: string;
@@ -96,6 +98,11 @@ export const useSprintMonitor = () => {
         .select('*');
         
       if (taskDefinitionsError) throw taskDefinitionsError;
+
+      // Fetch new data sources for enhanced activity feed
+      const userProfiles = await fetchUserProfiles();
+      const userApplications = await fetchUserApplications();
+      const userRoles = await fetchUserRoles();
       
       // Create a task title mapping
       const taskTitleMap = new Map<string, string>();
@@ -149,8 +156,57 @@ export const useSprintMonitor = () => {
       
       setUserProgressData(processedUserProgress);
       
-      // Generate activity feed (in a real app, you would have a dedicated activity log table)
+      // Generate enhanced activity feed
       const activityFeedEvents: ActivityEvent[] = [];
+      
+      // Add member signup events (new account creations)
+      userProfiles.forEach(profile => {
+        const userName = `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Unknown User';
+        activityFeedEvents.push({
+          id: `member_signup-${profile.id}`,
+          userId: profile.id,
+          userName: userName,
+          eventType: 'member_signup',
+          timestamp: profile.created_at,
+          details: 'New member account created'
+        });
+      });
+
+      // Add profile submission events
+      userApplications
+        .filter(app => app.submitted_at)
+        .forEach(application => {
+          const profile = userProfiles.find(p => p.id === application.user_id);
+          const userName = profile ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Unknown User' : 'Unknown User';
+          
+          activityFeedEvents.push({
+            id: `profile_submission-${application.id}`,
+            userId: application.user_id,
+            userName: userName,
+            eventType: 'profile_submission',
+            timestamp: application.submitted_at!,
+            details: `Submitted ${application.application_type} application`
+          });
+        });
+
+      // Add member approval events
+      userRoles
+        .filter(role => role.role === 'member' || role.role === 'admin')
+        .forEach(role => {
+          const profile = userProfiles.find(p => p.id === role.user_id);
+          const userName = profile ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Unknown User' : 'Unknown User';
+          
+          activityFeedEvents.push({
+            id: `member_approved-${role.id}`,
+            userId: role.user_id,
+            userName: userName,
+            eventType: 'member_approved',
+            timestamp: role.created_at,
+            details: `Approved as ${role.role}`
+          });
+        });
+      
+      // Add existing sprint-related events
       if (profilesData && progressData) {
         // Add signup events
         profilesData.forEach(profile => {
@@ -206,7 +262,7 @@ export const useSprintMonitor = () => {
       
       setActivityFeed(activityFeedEvents);
       
-      // Process task performance data
+      // Process task performance data (existing logic)
       if (taskDefinitionsData && progressData) {
         const taskBreakdown = taskDefinitionsData.map(task => {
           const taskAttempts = progressData.filter(p => p.task_id === task.id);

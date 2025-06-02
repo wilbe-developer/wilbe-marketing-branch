@@ -3,22 +3,40 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 
 interface SignupMetricsCardsProps {
-  totalCount: number;
+  profileCount: number;
+  applicationCount: number;
   waitlistCount: number;
   sprintCount: number;
+  totalCount: number;
 }
 
 const SignupMetricsCards: React.FC<SignupMetricsCardsProps> = ({ 
-  totalCount, 
+  profileCount,
+  applicationCount,
   waitlistCount, 
-  sprintCount 
+  sprintCount,
+  totalCount
 }) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
       <Card>
         <CardContent className="p-4">
-          <div className="text-sm text-gray-500">Total Signups</div>
+          <div className="text-sm text-gray-500">Total Activity</div>
           <div className="text-2xl font-bold">{totalCount}</div>
+        </CardContent>
+      </Card>
+      
+      <Card>
+        <CardContent className="p-4">
+          <div className="text-sm text-gray-500">Profile Creations</div>
+          <div className="text-2xl font-bold">{profileCount}</div>
+        </CardContent>
+      </Card>
+      
+      <Card>
+        <CardContent className="p-4">
+          <div className="text-sm text-gray-500">Applications</div>
+          <div className="text-2xl font-bold">{applicationCount}</div>
         </CardContent>
       </Card>
       

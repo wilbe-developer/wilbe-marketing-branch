@@ -1,4 +1,3 @@
-
 export interface WaitlistSignup {
   id: string;
   name: string;
@@ -78,4 +77,42 @@ export interface UnifiedStats {
   conversionRate: number;
   utmSources: UTMSource[];
   utmMediums: UTMMedium[];
+}
+
+export interface UserProfile {
+  id: string;
+  first_name: string | null;
+  last_name: string | null;
+  email: string | null;
+  linked_in: string | null;
+  institution: string | null;
+  location: string | null;
+  role: string | null;
+  bio: string | null;
+  about: string | null;
+  expertise: string | null;
+  avatar: string | null;
+  approved: boolean | null;
+  created_at: string;
+  activity_status: string | null;
+  status: string | null;
+  twitter_handle: string | null;
+  last_login_date: string | null;
+}
+
+export interface UserApplication {
+  id: string;
+  user_id: string;
+  application_type: string;
+  status: string;
+  submitted_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface UserRole {
+  id: string;
+  user_id: string;
+  role: string;
+  created_at: string;
 }

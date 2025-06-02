@@ -14,19 +14,19 @@ export const useMembers = () => {
   const fetchMembers = useCallback(async () => {
     try {
       setLoading(true);
-      console.log("Fetching unified members, authenticated:", isAuthenticated);
+      console.log("Fetching member directory profiles, authenticated:", isAuthenticated);
       
       if (isAuthenticated) {
-        // Fetch unified profiles from the new database function
+        // Fetch only users with member or admin roles from the new database function
         const { data, error: fetchError } = await supabase
-          .rpc('get_all_unified_profiles');
+          .rpc('get_member_directory_profiles');
           
         if (fetchError) {
           throw fetchError;
         }
         
         if (data) {
-          // Transform unified profile data to match our UserProfile interface
+          // Transform member directory data to match our UserProfile interface
           const transformedMembers: UserProfile[] = data.map(profile => ({
             id: profile.user_id,
             firstName: profile.first_name || '',
@@ -38,7 +38,7 @@ export const useMembers = () => {
             role: profile.role,
             bio: profile.bio,
             about: profile.about,
-            approved: profile.approved || profile.has_sprint_profile, // Sprint users are considered "approved" for member directory
+            approved: profile.approved || false,
             createdAt: profile.created_at ? new Date(profile.created_at) : new Date(),
             avatar: profile.avatar,
             isAdmin: false, // Will be determined by role checks elsewhere
@@ -50,7 +50,7 @@ export const useMembers = () => {
           }));
           
           setMembers(transformedMembers);
-          console.log("Fetched unified member profiles:", transformedMembers.length);
+          console.log("Fetched member directory profiles:", transformedMembers.length);
         }
       } else {
         // Use sample data if not authenticated
@@ -60,7 +60,7 @@ export const useMembers = () => {
         setMembers(approvedMembers);
       }
     } catch (err) {
-      console.error("Error fetching unified members:", err);
+      console.error("Error fetching member directory profiles:", err);
       setError("Failed to load members. Please try again later.");
     } finally {
       setLoading(false);

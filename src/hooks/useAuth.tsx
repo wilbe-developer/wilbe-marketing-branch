@@ -14,6 +14,8 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isAdmin: boolean;
   isMember: boolean;
+  hasSprintProfile: boolean;
+  hasDashboardAccess: boolean;
   sendMagicLink: (email: string, redirectTo?: string) => Promise<{ success: boolean }>;
   loginWithPassword: (email: string, password: string) => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
@@ -39,6 +41,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   } = useAuthState();
   
   const [isRecoveryMode, setIsRecoveryMode] = useState(false);
+  const [hasSprintProfile, setHasSprintProfile] = useState(false);
   
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -59,7 +62,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setSession, 
     setLoading, 
     navigate, 
-    toast 
+    toast,
+    setHasSprintProfile
   });
 
   // Modified sendMagicLink function to accept custom redirect path
@@ -122,6 +126,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }, 0);
         } else {
           setUser(null);
+          setHasSprintProfile(false);
           setLoading(false);
         }
       }
@@ -158,8 +163,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const isAdmin = !!user?.isAdmin;
   const isMember = !!user?.isMember; // This will include admins since database function checks both 'member' and 'admin'
   const isAuthenticated = !!user;
+  
+  // Compute dashboard access: has sprint profile AND (global flag OR individual access OR is admin)
+  const hasDashboardAccess = hasSprintProfile && (
+    user?.isDashboardActive || 
+    user?.dashboardAccessEnabled || 
+    isAdmin
+  );
 
-  console.log("Auth provider state:", { isAuthenticated, isAdmin, isMember, loading, isRecoveryMode });
+  console.log("Auth provider state:", { isAuthenticated, isAdmin, isMember, hasSprintProfile, hasDashboardAccess, loading, isRecoveryMode });
 
   return (
     <AuthContext.Provider
@@ -168,6 +180,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isAuthenticated,
         isAdmin,
         isMember,
+        hasSprintProfile,
+        hasDashboardAccess,
         sendMagicLink,
         loginWithPassword,
         resetPassword,

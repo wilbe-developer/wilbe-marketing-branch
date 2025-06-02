@@ -1,13 +1,13 @@
 
 import React from 'react';
-import { Activity, CheckCircle, Upload, UserPlus, Clock, FileText, Edit, Calendar } from 'lucide-react';
+import { Activity, CheckCircle, Upload, UserPlus, Clock, FileText, Edit, Calendar, Shield, UserCheck } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 interface ActivityEvent {
   id: string;
   userId: string;
   userName: string;
-  eventType: 'signup' | 'task_started' | 'task_completed' | 'file_uploaded' | 'profile_updated';
+  eventType: 'signup' | 'task_started' | 'task_completed' | 'file_uploaded' | 'profile_updated' | 'member_signup' | 'profile_submission' | 'member_approved';
   taskId?: string;
   taskName?: string;
   timestamp: string;
@@ -31,6 +31,12 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({ activityFeed }) => {
     switch (eventType) {
       case 'signup':
         return <UserPlus className="h-5 w-5 text-green-500" />;
+      case 'member_signup':
+        return <UserPlus className="h-5 w-5 text-blue-500" />;
+      case 'profile_submission':
+        return <FileText className="h-5 w-5 text-orange-500" />;
+      case 'member_approved':
+        return <Shield className="h-5 w-5 text-green-600" />;
       case 'task_completed':
         return <CheckCircle className="h-5 w-5 text-blue-500" />;
       case 'file_uploaded':
@@ -47,7 +53,13 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({ activityFeed }) => {
   const getEventBadge = (eventType: string) => {
     switch (eventType) {
       case 'signup':
-        return <Badge variant="success">Signup</Badge>;
+        return <Badge variant="success">Sprint Signup</Badge>;
+      case 'member_signup':
+        return <Badge variant="info">New Account</Badge>;
+      case 'profile_submission':
+        return <Badge variant="warning">Profile Submitted</Badge>;
+      case 'member_approved':
+        return <Badge variant="success">Member Approved</Badge>;
       case 'task_completed':
         return <Badge variant="info">Task Completed</Badge>;
       case 'file_uploaded':
@@ -119,6 +131,15 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({ activityFeed }) => {
                   )}
                   {event.eventType === 'signup' && (
                     <>User signed up for sprint</>
+                  )}
+                  {event.eventType === 'member_signup' && (
+                    <>Created new member account</>
+                  )}
+                  {event.eventType === 'profile_submission' && (
+                    <>Submitted membership application</>
+                  )}
+                  {event.eventType === 'member_approved' && (
+                    <>Approved as member</>
                   )}
                   {event.eventType === 'profile_updated' && (
                     <>Updated their sprint profile</>

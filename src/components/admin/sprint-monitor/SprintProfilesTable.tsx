@@ -1,11 +1,13 @@
-
 import React, { useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 import { Eye } from 'lucide-react';
 import { SprintProfile } from './ProfileDetailCard';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 import {
   Pagination,
   PaginationContent,
@@ -27,6 +29,7 @@ const SprintProfilesTable: React.FC<SprintProfilesTableProps> = ({
   adminUserIds = []
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
+  const [updatingAccess, setUpdatingAccess] = useState<string | null>(null);
   const itemsPerPage = 10;
   const totalPages = Math.ceil(profiles.length / itemsPerPage);
   
@@ -57,6 +60,28 @@ const SprintProfilesTable: React.FC<SprintProfilesTableProps> = ({
   // Get non-admin profile count
   const nonAdminProfilesCount = profiles.filter(profile => !adminUserIds.includes(profile.user_id)).length;
 
+  const handleDashboardAccessToggle = async (profileId: string, currentAccess: boolean) => {
+    setUpdatingAccess(profileId);
+    try {
+      const { error } = await supabase
+        .from('sprint_profiles')
+        .update({ dashboard_access_enabled: !currentAccess })
+        .eq('id', profileId);
+
+      if (error) throw error;
+
+      toast.success(`Dashboard access ${!currentAccess ? 'enabled' : 'disabled'} successfully`);
+      
+      // Trigger a refresh of the profiles data
+      window.location.reload();
+    } catch (error) {
+      console.error('Error updating dashboard access:', error);
+      toast.error('Failed to update dashboard access');
+    } finally {
+      setUpdatingAccess(null);
+    }
+  };
+
   return (
     <Card>
       <CardContent className="p-6">
@@ -78,6 +103,7 @@ const SprintProfilesTable: React.FC<SprintProfilesTableProps> = ({
                 <TableHead>Incorporated</TableHead>
                 <TableHead>Funding</TableHead>
                 <TableHead>Scientist/Engineer</TableHead>
+                <TableHead>Dashboard Access</TableHead>
                 <TableHead>Source</TableHead>
               </TableRow>
             </TableHeader>
@@ -119,6 +145,13 @@ const SprintProfilesTable: React.FC<SprintProfilesTableProps> = ({
                     <Badge variant={profile.is_scientist_engineer ? "success" : "secondary"}>
                       {profile.is_scientist_engineer ? 'Yes' : 'No'}
                     </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Switch
+                      checked={profile.dashboard_access_enabled || false}
+                      onCheckedChange={() => handleDashboardAccessToggle(profile.id, profile.dashboard_access_enabled || false)}
+                      disabled={updatingAccess === profile.id}
+                    />
                   </TableCell>
                   <TableCell>
                     {profile.utm_source ? (

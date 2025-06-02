@@ -12,6 +12,7 @@ interface UseAuthActionsProps {
   setUser: (user: UserProfile | null) => void;
   setSession: (session: Session | null) => void;
   setLoading: (loading: boolean) => void;
+  setHasSprintProfile: (hasProfile: boolean) => void;
   navigate: ReturnType<typeof useNavigate>;
   toast: any;
 }
@@ -21,6 +22,7 @@ export const useAuthActions = ({
   setUser,
   setSession,
   setLoading,
+  setHasSprintProfile,
   navigate,
   toast
 }: UseAuthActionsProps) => {
@@ -43,6 +45,37 @@ export const useAuthActions = ({
         }
       }
 
+      // Check if user has sprint profile and get individual dashboard access
+      const { data: sprintProfile, error: sprintError } = await supabase
+        .from("sprint_profiles")
+        .select("id, dashboard_access_enabled")
+        .eq("user_id", userId)
+        .single();
+
+      if (sprintError && sprintError.code !== 'PGRST116') {
+        console.error("Sprint profile check error:", sprintError);
+      }
+
+      // Update sprint profile state
+      setHasSprintProfile(!!sprintProfile);
+
+      // Fetch global dashboard setting
+      const { data: dashboardSetting, error: dashboardError } = await supabase
+        .from("app_settings")
+        .select("value")
+        .eq("key", "dashboardActive")
+        .single();
+
+      if (dashboardError && dashboardError.code !== 'PGRST116') {
+        console.error("Dashboard setting fetch error:", dashboardError);
+      }
+
+      // Extract dashboard active flag from the JSON value
+      const isDashboardActive = dashboardSetting?.value && 
+        typeof dashboardSetting.value === 'object' && 
+        'enabled' in dashboardSetting.value ? 
+        dashboardSetting.value.enabled === true : false;
+
       // Check if user is admin
       const { data: adminCheck, error: adminError } = await supabase
         .rpc('is_admin', { user_id: userId });
@@ -59,7 +92,7 @@ export const useAuthActions = ({
         console.error("Member check error:", memberError);
       }
 
-      // Get application status using our new service
+      // Get application status using our service
       const membershipApplicationStatus = await applicationService.getApplicationStatus(userId);
 
       const userProfile: UserProfile = {
@@ -82,7 +115,10 @@ export const useAuthActions = ({
         activityStatus: profile?.activity_status || "",
         isAdmin: adminCheck || false,
         isMember: memberCheck || false,
-        membershipApplicationStatus: membershipApplicationStatus
+        membershipApplicationStatus: membershipApplicationStatus,
+        // Dashboard access flags
+        isDashboardActive: isDashboardActive,
+        dashboardAccessEnabled: sprintProfile?.dashboard_access_enabled || false,
       };
 
       console.log("Setting user profile:", userProfile);
@@ -92,7 +128,7 @@ export const useAuthActions = ({
       console.error("Error fetching user profile:", error);
       setLoading(false);
     }
-  }, [setUser, setLoading]);
+  }, [setUser, setLoading, setHasSprintProfile]);
 
   const sendMagicLink = async (email: string, redirectTo?: string) => {
     try {
@@ -257,6 +293,7 @@ export const useAuthActions = ({
     supabase.auth.signOut();
     setUser(null);
     setSession(null);
+    setHasSprintProfile(false);
     navigate(PATHS.LOGIN);
     toast({
       title: "Signed out",
