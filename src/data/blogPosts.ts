@@ -1,4 +1,3 @@
-
 export interface BlogPost {
   id: string;
   title: string;
@@ -14,6 +13,19 @@ export interface BlogPost {
 }
 
 export const blogPosts: BlogPost[] = [
+  {
+    id: "9",
+    title: "Two playbooks for research commercialization (we spearheaded the second one)",
+    excerpt: "Exploring why traditional university research commercialization has failed and introducing an alternative playbook that leverages scientist-founders' capacity to create defensible technology based on real-world market needs.",
+    content: "As non-scientist venture investors adamant about seeing more solutions being developed to tackle some of the most imperative challenges of this century, we started by questioning why we were not seeing more university research being commercialized and quickly realized that the problem lies in the mindset of universities and the legacy operators around them: the entire focus has been on the value of the IP and not the capacity of the creators behind it. Imagine limiting yourself to a single Leonardo's drawing (IP) as opposed to his potential ability to create, iterate, test, and refine products. Historically, universities have framed the role of researchers as producers of papers in an academic world that prioritizes publishing, citations, and public grants as a form of track record.\n\nThe legacy playbook of universities has been based mainly on framing an entire company around the value of an individual piece of IP, regardless of how well this was tested in the real world. Any invention that occurs in academia is valued for its novelty instead of its ability to drive impact, so science commercialization has inevitably focused on finding a market that fits the IP produced as opposed to building IP for markets that desperately need that level of innovation. And instead of leveraging the talent of the inventor, the legacy playbook focused on recruiting professional management, typically former executives, MBAs, or consultants, who perhaps held great experience at running businesses but very limited instinct and understanding for starting one. The lack of a fit for the technology and appropriateness of the leadership meant that, inevitably, most companies see a high churn of business strategies, people, and broken cap tables.\n\nWe believed in an alternative playbook. As operators (and lawyers), we interpreted IP as an asset merely demonstrating that the inventor was capable of producing defensible technology. Instead of putting the inventor in a corner and forcing IP onto a market, we believed we could leverage the inventor's capacity to develop further and better IP based on their understanding of the real world and the needs of the market. When provided with the support, we have been able to demonstrate that some make much more relevant leaders to start the company compared to external managers, capable of inspiring world-class talent to join them in the mission, holding commercial conversations with early customers, and attracting aligned investors. The best-performing ventures in our Fund I portfolio started without IP, focusing on understanding the problem to be solved, the market opportunity, and defining a strategy before leveraging their know-how to generate defensible technology.\n\nThere are 8.8 million scientists in the world. Perhaps not every one of them can or wishes to lead a company, but any company led by a scientist can become an industry's challenger, for as long as the scientist holds both the technical know-how and an appreciation for real-world dynamics. Through the Wilbe platform, we empower scientists with that appreciation and identify those who are able to convert into the leaders of this century. This is not unlike the Elons and the Zucks in traditional software during the early aughties: a whole generation of engineers who did not need MBAs to start tech empires. How many scientist leaders do you know? Very soon, you will. Our playbook is fast at work.",
+    author: "Alessandro Philip Maiano",
+    date: "2024-03-28",
+    category: "Commercialization",
+    featuredImage: "/lovable-uploads/277728d8-a0cd-4fc4-8dff-ee24672b1abb.png",
+    slug: "two-playbooks-research-commercialization",
+    readTime: 3,
+    tags: ["commercialization", "science entrepreneurship", "science founder", "spinouts"]
+  },
   {
     id: "1",
     title: "The Future of Science Entrepreneurship: Trends and Opportunities",
