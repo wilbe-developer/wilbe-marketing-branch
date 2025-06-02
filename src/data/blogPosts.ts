@@ -21,7 +21,7 @@ export const blogPosts: BlogPost[] = [
     author: "Alessandro Philip Maiano",
     date: "2024-03-28",
     category: "Commercialization",
-    featuredImage: "/lovable-uploads/277728d8-a0cd-4fc4-8dff-ee24672b1abb.png",
+    featuredImage: "/lovable-uploads/afaf19f2-febd-43bf-ac24-d67454580b3f.png",
     slug: "two-playbooks-research-commercialization",
     readTime: 3,
     tags: ["commercialization", "science entrepreneurship", "science founder", "spinouts"]
