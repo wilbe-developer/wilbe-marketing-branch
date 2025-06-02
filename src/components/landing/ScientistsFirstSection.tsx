@@ -57,12 +57,7 @@ export default function ScientistsFirstSection() {
                   >
                     I'm With You ✊
                   </Button>
-                  <Button 
-                    size="lg" 
-                    variant="outline" 
-                    className="border-white text-white hover:bg-white hover:text-gray-900 font-bold text-sm sm:text-base"
-                    onClick={handleShareClick}
-                  >
+                  <Button size="lg" variant="outline" onClick={handleShareClick} className="border-white hover:bg-white font-bold text-sm sm:text-base text-gray-900">
                     Tell a Friend ✍️
                   </Button>
                 </div>
