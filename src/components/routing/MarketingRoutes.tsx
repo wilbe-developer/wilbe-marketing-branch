@@ -5,6 +5,7 @@ import LandingPageMarketing from "@/pages/LandingPage";
 import MediaPage from "@/pages/MediaPage";
 import AboutUsPage from "@/pages/AboutUsPage";
 import BlogPage from "@/pages/BlogPage";
+import BlogPostPage from "@/pages/BlogPostPage";
 import ErrorPage from "@/pages/ErrorPage";
 
 export default function MarketingRoutes() {
@@ -41,6 +42,14 @@ export default function MarketingRoutes() {
           </ErrorBoundary>
         }
         path="/blog"
+      />
+      <Route
+        element={
+          <ErrorBoundary fallback={<ErrorPage />}>
+            <BlogPostPage />
+          </ErrorBoundary>
+        }
+        path="/blog/:slug"
       />
     </>
   );
