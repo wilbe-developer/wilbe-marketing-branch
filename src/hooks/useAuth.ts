@@ -12,6 +12,7 @@ export interface AuthUser {
   email?: string;
   avatar?: string;
   isAdmin?: boolean;
+  membershipApplicationStatus?: string;
 }
 
 export const useAuth = () => {
@@ -27,6 +28,9 @@ export const useAuth = () => {
   // Check if user has access to BSF Dashboard
   // Access granted if: hasSprintProfile AND (isDashboardActive OR userDashboardAccessEnabled)
   const hasDashboardAccess = hasSprintProfile && (isDashboardActive || userDashboardAccessEnabled);
+
+  // Check if user is a member (for backward compatibility)
+  const isMember = user?.membershipApplicationStatus === 'approved';
 
   // Fetch app settings (including dashboard active flag)
   const fetchAppSettings = async () => {
@@ -67,6 +71,66 @@ export const useAuth = () => {
     }
   };
 
+  // Fetch user profile and membership status
+  const fetchUserProfile = async (userId: string) => {
+    try {
+      // Fetch user profile
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .maybeSingle();
+
+      if (profileError && profileError.code !== 'PGRST116') {
+        console.error("Error fetching profile:", profileError);
+      }
+
+      // Check if user is admin
+      const { data: roles, error: rolesError } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId);
+
+      if (rolesError) {
+        console.error("Error fetching roles:", rolesError);
+      }
+
+      const isAdmin = roles?.some(role => role.role === 'admin') || false;
+
+      // Get membership application status
+      const { data: application, error: appError } = await supabase
+        .from('user_applications')
+        .select('status')
+        .eq('user_id', userId)
+        .eq('application_type', 'membership')
+        .maybeSingle();
+
+      if (appError && appError.code !== 'PGRST116') {
+        console.error("Error fetching application:", appError);
+      }
+
+      const membershipApplicationStatus = application?.status || 'not_started';
+
+      // Set user data
+      setUser({
+        id: userId,
+        firstName: profile?.first_name || '',
+        lastName: profile?.last_name || '',
+        email: profile?.email || '',
+        avatar: profile?.avatar || '',
+        isAdmin,
+        membershipApplicationStatus
+      });
+
+      // Fetch sprint profile and dashboard access
+      await fetchSprintProfile(userId);
+
+    } catch (error) {
+      console.error("Error loading user data:", error);
+      setUser(null);
+    }
+  };
+
   useEffect(() => {
     // Get initial session
     const getInitialSession = async () => {
@@ -81,7 +145,7 @@ export const useAuth = () => {
         setSession(session);
         
         if (session?.user) {
-          await loadUserData(session.user);
+          await fetchUserProfile(session.user.id);
         }
       } catch (error) {
         console.error("Session error:", error);
@@ -108,7 +172,7 @@ export const useAuth = () => {
         }
         
         if (session?.user) {
-          await loadUserData(session.user);
+          await fetchUserProfile(session.user.id);
         } else {
           setUser(null);
           setHasSprintProfile(false);
@@ -121,50 +185,6 @@ export const useAuth = () => {
 
     return () => subscription.unsubscribe();
   }, []);
-
-  const loadUserData = async (authUser: User) => {
-    try {
-      // Fetch user profile
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', authUser.id)
-        .maybeSingle();
-
-      if (profileError) {
-        console.error("Error fetching profile:", profileError);
-      }
-
-      // Check if user is admin
-      const { data: roles, error: rolesError } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', authUser.id);
-
-      if (rolesError) {
-        console.error("Error fetching roles:", rolesError);
-      }
-
-      const isAdmin = roles?.some(role => role.role === 'admin') || false;
-
-      // Set user data
-      setUser({
-        id: authUser.id,
-        firstName: profile?.first_name || authUser.user_metadata?.firstName,
-        lastName: profile?.last_name || authUser.user_metadata?.lastName,
-        email: authUser.email,
-        avatar: profile?.avatar || authUser.user_metadata?.avatar,
-        isAdmin
-      });
-
-      // Fetch sprint profile and dashboard access
-      await fetchSprintProfile(authUser.id);
-
-    } catch (error) {
-      console.error("Error loading user data:", error);
-      setUser(null);
-    }
-  };
 
   const login = async (email: string, password: string) => {
     try {
@@ -185,6 +205,10 @@ export const useAuth = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const loginWithPassword = async (email: string, password: string) => {
+    return login(email, password);
   };
 
   const signup = async (email: string, password: string, metadata?: any, redirectTo?: string) => {
@@ -227,6 +251,10 @@ export const useAuth = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const register = async (userData: any) => {
+    return signup(userData.email, "temp-password", userData);
   };
 
   const sendMagicLink = async (email: string, redirectTo?: string) => {
@@ -287,6 +315,98 @@ export const useAuth = () => {
     }
   };
 
+  const updateProfile = async (data: any) => {
+    if (!user) return;
+
+    try {
+      setLoading(true);
+      
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          first_name: data.firstName,
+          last_name: data.lastName,
+          linked_in: data.linkedIn,
+          institution: data.institution,
+          role: data.role,
+          location: data.location,
+          about: data.about,
+          expertise: data.expertise,
+          bio: data.bio,
+          cover_photo: data.coverPhoto,
+          twitter_handle: data.twitterHandle,
+          status: data.status,
+          activity_status: data.activityStatus,
+        })
+        .eq("id", user.id);
+
+      if (error) throw error;
+
+      // Re-fetch user profile to get latest data
+      await fetchUserProfile(user.id);
+      
+      toast.success("Profile updated successfully!");
+    } catch (error: any) {
+      console.error("Profile update error:", error);
+      toast.error(error.message || "Failed to update profile");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const submitMembershipApplication = async (applicationData: {
+    firstName: string;
+    lastName: string;
+    institution?: string;
+    linkedIn?: string;
+  }) => {
+    try {
+      setLoading(true);
+      
+      if (!user) {
+        throw new Error("Not authenticated");
+      }
+
+      // Update profile first
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .update({
+          first_name: applicationData.firstName,
+          last_name: applicationData.lastName,
+          institution: applicationData.institution,
+          linked_in: applicationData.linkedIn,
+        })
+        .eq("id", user.id);
+
+      if (profileError) throw profileError;
+
+      // Create or update application
+      const { error: appError } = await supabase
+        .from("user_applications")
+        .upsert({
+          user_id: user.id,
+          application_type: 'membership',
+          status: 'under_review',
+          submitted_at: new Date().toISOString()
+        });
+
+      if (appError) throw appError;
+      
+      // Re-fetch the user profile to get updated application status
+      await fetchUserProfile(user.id);
+      
+      toast.success("Application submitted successfully!");
+      
+      return { success: true };
+    } catch (error: any) {
+      console.error("Application submission error:", error);
+      toast.error(error.message || "Failed to submit application");
+      return { success: false };
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const logout = async () => {
     try {
       const { error } = await supabase.auth.signOut();
@@ -317,17 +437,25 @@ export const useAuth = () => {
     loading,
     isAuthenticated: !!session && !!user,
     isAdmin: user?.isAdmin || false,
+    isMember,
     isRecoveryMode,
     hasSprintProfile,
     isDashboardActive,
     userDashboardAccessEnabled,
     hasDashboardAccess,
     login,
+    loginWithPassword,
     signup,
+    register,
     sendMagicLink,
     resetPassword,
     updatePassword,
+    updateProfile,
+    submitMembershipApplication,
     logout,
     refreshSprintProfile
   };
 };
+
+// Export AuthProvider from the existing useAuth.tsx file
+export { AuthProvider } from './useAuth';
