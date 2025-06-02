@@ -10,7 +10,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// HTML email template for sprint waiting confirmation
+// HTML email template for sprint waiting confirmation.
 const createEmailHtml = (name: string) => `
 <!DOCTYPE html>
 <html>
