@@ -1,4 +1,4 @@
-
+import { useEffect } from "react"
 import LandingNavigation from "@/components/landing/LandingNavigation"
 import TickerStrips from "@/components/landing/TickerStrips"
 import LiveNewsStrip from "@/components/landing/LiveNewsStrip"
@@ -8,9 +8,23 @@ import FoundersStories from "@/components/landing/FoundersStories"
 import PlatformsSection from "@/components/landing/PlatformsSection"
 import WilbeCapitalStrip from "@/components/landing/WilbeCapitalStrip"
 import ScientistsFirstSection from "@/components/landing/ScientistsFirstSection"
+import BlogReel from "@/components/landing/BlogReel"
 import LandingFooter from "@/components/landing/LandingFooter"
 
 export default function LandingPage() {
+  useEffect(() => {
+    // Handle scrolling to sections when arriving with hash fragments
+    const hash = window.location.hash.replace('#', '');
+    if (hash) {
+      setTimeout(() => {
+        const element = document.getElementById(hash);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-white text-gray-900">
       <style>{`
@@ -72,6 +86,7 @@ export default function LandingPage() {
       <PlatformsSection />
       <WilbeCapitalStrip />
       <ScientistsFirstSection />
+      <BlogReel />
       <LandingFooter />
     </div>
   )
