@@ -107,6 +107,19 @@ const ProfileDetailDialog: React.FC<ProfileDetailDialogProps> = ({
               />
             )}
             
+            {/* Minimal Success Vision - Full width for better readability */}
+            {profile.minimal_success_version && (
+              <div className="md:col-span-2">
+                <ProfileDetailCard 
+                  title="Minimal Success Vision" 
+                  profile={profile} 
+                  fields={[
+                    {key: 'minimal_success_version', label: 'Minimal Success Version'}
+                  ]} 
+                />
+              </div>
+            )}
+            
             {/* Accelerator Experience */}
             {(profile.prior_accelerators !== undefined || 
               profile.planned_accelerators !== undefined) && (

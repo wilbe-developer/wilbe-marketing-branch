@@ -7,67 +7,61 @@ export const windows: Window[] = [
     title: "Contact Information",
     questions: [
       {
-        id: 'name',
-        question: 'What is your name?',
-        type: 'text'
+        id: "name",
+        question: "What is your name?",
+        type: "text"
       },
       {
-        id: 'email',
-        question: 'What is your email address?',
-        type: 'email'
+        id: "email",
+        question: "What is your email address?",
+        type: "email"
       },
       {
-        id: 'linkedin',
-        question: 'What is your LinkedIn URL?',
-        description: 'This helps us understand your background and experience.',
-        type: 'text'
+        id: "linkedin",
+        question: "What is your LinkedIn profile URL?",
+        type: "text"
       },
       {
-        id: 'cv',
-        question: 'Please upload your CV',
-        description: 'If all information is on LinkedIn, you can skip this step.',
-        type: 'file'
+        id: "job",
+        question: "What is your current job title/position?",
+        type: "text"
       }
     ]
   },
   {
     id: "window2",
-    title: "Your Background",
+    title: "Background",
     questions: [
       {
-        id: 'is_scientist_engineer',
-        question: 'Are you a scientist / Engineer?',
-        type: 'select',
+        id: "is_scientist_engineer",
+        question: "Are you a scientist or engineer?",
+        type: "select",
         options: [
-          { value: 'yes', label: 'Yes' },
-          { value: 'no', label: 'No' }
+          { value: "yes", label: "Yes" },
+          { value: "no", label: "No" }
         ]
       },
       {
-        id: 'job',
-        question: 'Where do you currently work?',
-        type: 'textarea'
-      },
-      {
-        id: 'job_type',
-        question: 'What do you do there?',
-        type: 'select',
+        id: "job_type",
+        question: "Which best describes your current employment status?",
+        type: "select",
         options: [
-          { value: 'scientist', label: 'Scientist / Researcher / Postdoc' },
-          { value: 'pi', label: 'Principal Investigator / Group leader' },
-          { value: 'student', label: 'Student (incl. PhDs)' },
-          { value: 'other', label: 'Other' }
+          { value: "faculty", label: "Faculty" },
+          { value: "postdoc", label: "Postdoc" },
+          { value: "phd_student", label: "PhD Student" },
+          { value: "industry", label: "Industry Professional" },
+          { value: "entrepreneur", label: "Entrepreneur" },
+          { value: "other", label: "Other" }
         ]
       },
       {
-        id: 'team',
-        question: 'Is this a solo project or do you have a team?',
-        type: 'select',
+        id: "team",
+        question: "Do you have a team or are you a solo founder?",
+        type: "select",
         options: [
-          { value: 'solo', label: 'I\'m solo and I plan to continue this way' },
-          { value: 'looking', label: 'I\'m solo and looking for co-founders' },
-          { value: 'cofounders', label: 'I have co-founders' },
-          { value: 'employees', label: 'I have a team but they\'re employees' }
+          { value: "solo", label: "Solo founder" },
+          { value: "team", label: "I have a team" },
+          { value: "looking", label: "Looking for co-founders" }
         ]
       }
     ]
@@ -77,124 +71,141 @@ export const windows: Window[] = [
     title: "Company Status",
     questions: [
       {
-        id: 'incorporated',
-        question: 'Is your company already formed / incorporated?',
-        type: 'select',
+        id: "incorporated",
+        question: "Have you incorporated your company?",
+        type: "select",
         options: [
-          { value: 'yes', label: 'Yes' },
-          { value: 'no', label: 'No' }
+          { value: "yes", label: "Yes" },
+          { value: "no", label: "No" },
+          { value: "planning", label: "Planning to incorporate soon" }
         ]
       }
     ]
   },
   {
     id: "window4",
-    title: "Intellectual Property",
+    title: "Invention & IP",
     questions: [
       {
-        id: 'invention',
-        question: 'Is your company reliant on something you\'ve invented / created at a university?',
-        type: 'select',
+        id: "invention",
+        question: "Are you commercializing a specific invention or technology?",
+        type: "select",
         options: [
-          { value: 'yes', label: 'Yes' },
-          { value: 'no', label: 'No' }
+          { value: "yes", label: "Yes" },
+          { value: "no", label: "No" }
         ]
       },
       {
-        id: 'ip_concerns',
-        question: 'Do you have concerns regarding IP and conversations with your employer / university?',
-        type: 'select',
+        id: "ip",
+        question: "Who owns the intellectual property?",
+        type: "select",
         options: [
-          { value: 'yes', label: 'Yes' },
-          { value: 'no', label: 'No' }
+          { value: "own", label: "I own it" },
+          { value: "tto_yes", label: "University owns it (TTO engaged)" },
+          { value: "tto_no", label: "University owns it (TTO not engaged)" }
+        ]
+      },
+      {
+        id: "ip_concerns",
+        question: "Do you have any concerns about IP ownership or licensing?",
+        type: "select",
+        options: [
+          { value: "yes", label: "Yes" },
+          { value: "no", label: "No" }
         ]
       }
     ]
   },
   {
     id: "window5",
-    title: "Target Audience",
+    title: "Problem & Beneficiaries",
     questions: [
       {
-        id: 'potential_beneficiaries',
-        question: 'Do you have a group of people in mind that would benefit from the solution you\'re creating?',
-        type: 'select',
+        id: "potential_beneficiaries",
+        question: "Can you clearly identify who would benefit from your solution?",
+        type: "select",
         options: [
-          { value: 'yes', label: 'Yes' },
-          { value: 'no', label: 'No' }
+          { value: "yes", label: "Yes" },
+          { value: "no", label: "No" }
         ]
       }
     ]
   },
   {
     id: "window6",
-    title: "Customer Research",
+    title: "Customer Engagement",
     questions: [
       {
-        id: 'customers',
-        question: 'Have you spoken with potential customers / key decision makers yet?',
-        type: 'select',
+        id: "customers",
+        question: "How would you describe your current customer engagement?",
+        type: "select",
         options: [
-          { value: 'yes', label: 'Yes' },
-          { value: 'no', label: 'No' },
-          { value: 'unknown', label: 'Do not know who they are / not applicable' }
+          { value: "none", label: "No customer engagement yet" },
+          { value: "some", label: "Some informal conversations" },
+          { value: "active", label: "Actively engaging with potential customers" },
+          { value: "paying", label: "Have paying customers or pilots" }
         ]
       },
       {
-        id: 'specific_customers',
-        question: 'Can you name specific people / institutions that have the problem you are trying to solve?',
-        type: 'select',
+        id: "specific_customers",
+        question: "Do you have specific customers or partners in mind?",
+        type: "select",
         options: [
-          { value: 'yes', label: 'Yes' },
-          { value: 'no', label: 'No' }
+          { value: "yes", label: "Yes" },
+          { value: "no", label: "No" }
         ]
       },
       {
-        id: 'customer_evidence',
-        question: 'Do you have evidence that these people / institutions will pay you to solve this problem?',
-        type: 'select',
+        id: "customer_evidence",
+        question: "Do you have evidence that customers want your solution?",
+        type: "select",
         options: [
-          { value: 'yes', label: 'Yes' },
-          { value: 'no', label: 'No' }
+          { value: "yes", label: "Yes" },
+          { value: "no", label: "No" }
         ]
       }
     ]
   },
   {
     id: "window7",
-    title: "Market Research",
+    title: "Market Understanding",
     questions: [
       {
-        id: 'market_known',
-        question: 'In its ultimate form, do you know what market you expect to capture?',
-        type: 'select',
+        id: "market_known",
+        question: "Do you know your target market well?",
+        type: "select",
         options: [
-          { value: 'yes', label: 'Yes' },
-          { value: 'no', label: 'No' }
+          { value: "yes", label: "Yes" },
+          { value: "no", label: "No" }
         ]
       },
       {
-        id: 'competition_research',
-        question: 'Have you looked at who else is trying to solve this problem in the market?',
-        type: 'select',
+        id: "competition_research",
+        question: "Have you researched your competition?",
+        type: "select",
         options: [
-          { value: 'yes', label: 'Yes' },
-          { value: 'no', label: 'No' }
+          { value: "yes", label: "Yes" },
+          { value: "no", label: "No" }
         ]
+      },
+      {
+        id: "market_gap_reason",
+        question: "Why do you think there's a gap in the market for your solution?",
+        type: "textarea"
       }
     ]
   },
   {
     id: "window8",
-    title: "Testing & Experimentation",
+    title: "Validation",
     questions: [
       {
-        id: 'experiment',
-        question: 'Have you recently tested out the idea of this venture in some way?',
-        type: 'select',
+        id: "experiment",
+        question: "Have you validated your solution through experiments or tests?",
+        type: "select",
         options: [
-          { value: 'yes', label: 'Yes' },
-          { value: 'no', label: 'No' }
+          { value: "yes", label: "Yes" },
+          { value: "no", label: "No" }
         ]
       }
     ]
@@ -204,88 +215,76 @@ export const windows: Window[] = [
     title: "Vision & Impact",
     questions: [
       {
-        id: 'success_vision_1yr',
-        question: 'Do you have a clear idea of what explosive success looks like 1 year from now?',
-        type: 'select',
+        id: "success_vision_1yr",
+        question: "Do you have a clear vision of what success looks like in 1 year?",
+        type: "select",
         options: [
-          { value: 'yes', label: 'Yes' },
-          { value: 'no', label: 'No' }
+          { value: "yes", label: "Yes" },
+          { value: "no", label: "No" }
         ]
       },
       {
-        id: 'success_vision_10yr',
-        question: 'What about 10 years from now?',
-        type: 'select',
+        id: "success_vision_10yr",
+        question: "Do you have a clear vision of what success looks like in 10 years?",
+        type: "select",
         options: [
-          { value: 'yes', label: 'Yes' },
-          { value: 'no', label: 'No' }
+          { value: "yes", label: "Yes" },
+          { value: "no", label: "No" }
         ]
       },
       {
-        id: 'impact_scale',
-        question: 'If your company\'s ultimate form is wildly successful what is the scale of impact?',
-        description: 'Select all that apply',
-        type: 'checkbox',
+        id: "impact_scale",
+        question: "What scale of impact are you aiming for?",
+        type: "checkbox",
         options: [
-          { value: 'money', label: 'We end up making money' },
-          { value: 'sector_change', label: 'A sector changes in a small way' },
-          { value: 'industry_improve', label: 'The industry improves in a big way' },
-          { value: 'world_change', label: 'The world changes fundamentally' }
+          { value: "local", label: "Local/Regional" },
+          { value: "national", label: "National" },
+          { value: "global", label: "Global" },
+          { value: "industry", label: "Industry-changing" }
+        ]
+      },
+      {
+        id: "vision",
+        question: "Do you believe your solution could change an entire industry?",
+        type: "select",
+        options: [
+          { value: "yes", label: "Yes" },
+          { value: "no", label: "No" }
         ]
       }
     ]
   },
   {
     id: "window10",
-    title: "Accelerator Programs",
+    title: "Accelerator Experience",
     questions: [
       {
-        id: 'prior_accelerators',
-        question: 'Have you been part of any other accelerator / program before?',
-        type: 'select',
+        id: "prior_accelerators",
+        question: "Have you participated in accelerators or incubators before?",
+        type: "select",
         options: [
-          { value: 'yes', label: 'Yes' },
-          { value: 'no', label: 'No' }
+          { value: "yes", label: "Yes" },
+          { value: "no", label: "No" }
         ]
       },
       {
-        id: 'prior_accelerators_details',
-        question: 'List them and their dates',
-        type: 'conditional',
-        conditional: [
-          {
-            field: 'prior_accelerators',
-            value: 'yes',
-            componentType: 'textarea',
-            componentProps: {
-              placeholder: "Please list the accelerators/programs and dates."
-            }
-          }
-        ]
+        id: "prior_accelerators_details",
+        question: "If yes, please provide details about your accelerator experience:",
+        type: "textarea"
       },
       {
-        id: 'planned_accelerators',
-        question: 'Are you planning to be part of any other programs in the next 12 months?',
-        type: 'select',
+        id: "planned_accelerators",
+        question: "Are you planning to apply to other accelerators?",
+        type: "select",
         options: [
-          { value: 'yes', label: 'Yes' },
-          { value: 'no', label: 'No' }
+          { value: "yes", label: "Yes" },
+          { value: "no", label: "No" }
         ]
       },
       {
-        id: 'planned_accelerators_details',
-        question: 'List them',
-        type: 'conditional',
-        conditional: [
-          {
-            field: 'planned_accelerators',
-            value: 'yes',
-            componentType: 'textarea',
-            componentProps: {
-              placeholder: "Please list the planned programs and dates."
-            }
-          }
-        ]
+        id: "planned_accelerators_details",
+        question: "If yes, which accelerators are you considering?",
+        type: "textarea"
       }
     ]
   },
@@ -294,88 +293,121 @@ export const windows: Window[] = [
     title: "Funding",
     questions: [
       {
-        id: 'funding_received',
-        question: 'Have you received funding previously for your company/project?',
-        type: 'select',
+        id: "funding_received",
+        question: "Have you received any funding?",
+        type: "select",
         options: [
-          { value: 'yes', label: 'Yes' },
-          { value: 'no', label: 'No' }
+          { value: "yes", label: "Yes" },
+          { value: "no", label: "No" }
         ]
       },
+      {
+        id: "funding_details",
+        question: "If yes, please provide details about your funding:",
+        type: "textarea"
+      },
+      {
+        id: "funding_amount_text",
+        question: "What is the approximate amount of funding you've received?",
+        type: "text"
+      },
+      {
+        id: "funding_plan",
+        question: "Do you have a financial plan for your business?",
+        type: "select",
+        options: [
+          { value: "yes", label: "Yes" },
+          { value: "no", label: "No" }
+        ]
+      },
+      {
+        id: "funding_sources",
+        question: "What funding sources are you considering?",
+        type: "checkbox",
+        options: [
+          { value: "bootstrapping", label: "Bootstrapping" },
+          { value: "friends_family", label: "Friends & Family" },
+          { value: "angel", label: "Angel Investors" },
+          { value: "vc", label: "Venture Capital" },
+          { value: "grants", label: "Grants" },
+          { value: "crowdfunding", label: "Crowdfunding" }
+        ]
+      }
     ]
   },
   {
     id: "window12",
-    title: "Presentation",
+    title: "Pitch Deck",
     questions: [
       {
-        id: 'deck',
-        question: 'Do you have a slide deck for your planned venture?',
-        type: 'select',
+        id: "deck",
+        question: "Do you have a pitch deck?",
+        type: "select",
         options: [
-          { value: 'yes', label: 'Yes' },
-          { value: 'no', label: 'No' }
+          { value: "yes", label: "Yes" },
+          { value: "no", label: "No" }
         ]
       },
       {
-        id: 'deck_feedback',
-        question: 'Have you received feedback on this deck before?',
-        type: 'conditional',
-        conditional: [
-          {
-            field: 'deck',
-            value: 'yes',
-            componentType: 'select',
-            componentProps: {
-              options: '[{"value":"yes","label":"Yes"},{"value":"no","label":"No"}]'
-            }
-          }
+        id: "deck_feedback",
+        question: "Have you received feedback on your pitch deck?",
+        type: "select",
+        options: [
+          { value: "yes", label: "Yes" },
+          { value: "no", label: "No" }
         ]
       }
     ]
   },
   {
     id: "window13",
-    title: "Lab Space",
+    title: "Lab Space & Resources",
     questions: [
       {
-        id: 'lab_space_needed',
-        question: 'Do you need lab space?',
-        type: 'select',
+        id: "lab_space_needed",
+        question: "Do you need lab space or specialized equipment?",
+        type: "select",
         options: [
-          { value: 'yes', label: 'Yes' },
-          { value: 'no', label: 'No' }
+          { value: "yes", label: "Yes" },
+          { value: "no", label: "No" }
         ]
       },
       {
-        id: 'lab_space_secured',
-        question: 'Have you secured it?',
-        type: 'conditional',
-        conditional: [
-          {
-            field: 'lab_space_needed',
-            value: 'yes',
-            componentType: 'select',
-            componentProps: {
-              options: '[{"value":"yes","label":"Yes"},{"value":"no","label":"No"}]'
-            }
-          }
+        id: "lab_space_secured",
+        question: "Have you secured lab space or equipment access?",
+        type: "select",
+        options: [
+          { value: "yes", label: "Yes" },
+          { value: "no", label: "No" }
         ]
       },
       {
-        id: 'lab_space_details',
-        question: 'Provide details about your lab space needs',
-        type: 'conditional',
-        conditional: [
-          {
-            field: 'lab_space_secured',
-            value: 'no',
-            componentType: 'textarea',
-            componentProps: {
-              placeholder: "Please describe what kind of lab space you need and your plans to secure it."
-            }
-          }
-        ]
+        id: "lab_space_details",
+        question: "Please provide details about your lab space needs or current setup:",
+        type: "textarea"
+      }
+    ]
+  },
+  {
+    id: "window14",
+    title: "Minimal Success Vision",
+    questions: [
+      {
+        id: "minimal_success_version",
+        question: "What is the most minimal version of the company that you would consider successful? Describe in your own words.",
+        type: "textarea"
+      }
+    ]
+  },
+  {
+    id: "window15",
+    title: "Upload Your Profile",
+    questions: [
+      {
+        id: "founder_profile",
+        question: "Upload your CV/Resume or Founder Profile",
+        description: "Please upload your CV, resume, or a brief founder profile document",
+        type: "file"
       }
     ]
   }
