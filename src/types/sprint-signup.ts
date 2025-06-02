@@ -70,6 +70,9 @@ export interface SprintProfile {
   deck_feedback?: boolean;
   minimal_success_version?: string;
   
+  // Dashboard access control
+  dashboard_access_enabled?: boolean;
+  
   // UTM parameters
   utm_source?: string;
   utm_medium?: string;

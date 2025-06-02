@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import ProfileDetailCard from './ProfileDetailCard';
@@ -41,6 +42,15 @@ const ProfileDetailDialog: React.FC<ProfileDetailDialogProps> = ({
                 ]} 
               />
             </div>
+            
+            {/* Access Control */}
+            <ProfileDetailCard 
+              title="Access Control" 
+              profile={profile} 
+              fields={[
+                {key: 'dashboard_access_enabled', label: 'Dashboard Access Enabled'}
+              ]} 
+            />
             
             {/* Team & Company Status */}
             <ProfileDetailCard 
