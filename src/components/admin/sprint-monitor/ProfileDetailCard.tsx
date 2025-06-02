@@ -23,7 +23,6 @@ export interface SprintProfile {
   utm_source: string;
   utm_medium: string;
   utm_campaign: string;
-  dashboard_access_enabled?: boolean;
   // Extended fields
   ip_concerns?: boolean;
   potential_beneficiaries?: boolean;

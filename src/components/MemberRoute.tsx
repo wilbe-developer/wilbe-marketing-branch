@@ -4,10 +4,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { PATHS } from "@/lib/constants";
 
 const MemberRoute = () => {
-  const { isAuthenticated, loading, isRecoveryMode, hasDashboardAccess } = useAuth();
+  const { isAuthenticated, loading, isRecoveryMode } = useAuth();
   const location = useLocation();
 
-  console.log("MemberRoute - Auth state:", { isAuthenticated, loading, isRecoveryMode, hasDashboardAccess });
+  console.log("MemberRoute - Auth state:", { isAuthenticated, loading, isRecoveryMode });
 
   // Show loading states
   if (loading) {
@@ -32,16 +32,8 @@ const MemberRoute = () => {
     return <Navigate to={PATHS.LOGIN} state={{ from: location }} replace />;
   }
 
-  // Check if this is a sprint-related route that requires dashboard access
-  const isSprintRoute = location.pathname.startsWith('/sprint');
-  
-  if (isSprintRoute && !hasDashboardAccess) {
-    console.log("User doesn't have dashboard access, redirecting to sprint waiting");
-    return <Navigate to="/sprint-waiting" replace />;
-  }
-
-  // Render the protected outlet
-  console.log("User authenticated and has access, rendering protected content");
+  // Render the protected outlet - no approval check needed
+  console.log("User authenticated, rendering protected content");
   return <Outlet />;
 };
 
