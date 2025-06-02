@@ -21,7 +21,7 @@ export const blogPosts: BlogPost[] = [
     author: "Alessandro Philip Maiano",
     date: "2024-03-16",
     category: "Investment",
-    featuredImage: "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=800&h=400&fit=crop",
+    featuredImage: "/lovable-uploads/960bb0ac-d3cd-40a0-845c-cc897c06b599.png",
     slug: "science-most-valuable-luxury-investing",
     readTime: 4,
     tags: ["investment", "science entrepreneurship", "venture capital", "deep tech", "fusion", "biotech"]
