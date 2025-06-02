@@ -8,7 +8,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { Zap } from "lucide-react";
 
 const Sidebar = () => {
-  const { isAuthenticated, user, hasSprintProfile } = useAuth();
+  const { isAuthenticated, user, hasDashboardAccess } = useAuth();
   const isMobile = useIsMobile();
   
   if (!isAuthenticated || isMobile) return null;
@@ -37,7 +37,7 @@ const Sidebar = () => {
             </li>
           ))}
           
-          {hasSprintProfile && (
+          {hasDashboardAccess && (
             <li>
               <NavLink 
                 to={PATHS.SPRINT_DASHBOARD} 

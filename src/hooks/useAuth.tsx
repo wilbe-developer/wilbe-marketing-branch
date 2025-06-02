@@ -15,6 +15,7 @@ interface AuthContextType {
   isAdmin: boolean;
   isMember: boolean;
   hasSprintProfile: boolean;
+  hasDashboardAccess: boolean; // New property for hybrid access control
   sendMagicLink: (email: string, redirectTo?: string) => Promise<{ success: boolean }>;
   loginWithPassword: (email: string, password: string) => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
@@ -41,6 +42,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   
   const [isRecoveryMode, setIsRecoveryMode] = useState(false);
   const [hasSprintProfile, setHasSprintProfile] = useState(false);
+  const [isDashboardActive, setIsDashboardActive] = useState(false);
+  const [userDashboardAccessEnabled, setUserDashboardAccessEnabled] = useState(false);
   
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -68,6 +71,49 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Modified sendMagicLink function to accept custom redirect path
   const sendMagicLink = async (email: string, redirectTo?: string) => {
     return sendMagicLinkAction(email, redirectTo);
+  };
+
+  // Fetch app settings for dashboard flag
+  useEffect(() => {
+    const fetchAppSettings = async () => {
+      try {
+        const { data } = await supabase
+          .from('app_settings')
+          .select('value')
+          .eq('key', 'dashboard_active')
+          .single();
+        
+        setIsDashboardActive(data?.value?.enabled === true);
+      } catch (error) {
+        console.error('Error fetching app settings:', error);
+        setIsDashboardActive(false);
+      }
+    };
+
+    fetchAppSettings();
+  }, []);
+
+  // Enhanced sprint profile fetching to include dashboard access
+  const fetchSprintProfile = async (userId: string) => {
+    try {
+      const { data } = await supabase
+        .from('sprint_profiles')
+        .select('dashboard_access_enabled')
+        .eq('user_id', userId)
+        .single();
+      
+      if (data) {
+        setHasSprintProfile(true);
+        setUserDashboardAccessEnabled(data.dashboard_access_enabled || false);
+      } else {
+        setHasSprintProfile(false);
+        setUserDashboardAccessEnabled(false);
+      }
+    } catch (error) {
+      console.error('Error fetching sprint profile:', error);
+      setHasSprintProfile(false);
+      setUserDashboardAccessEnabled(false);
+    }
   };
 
   // Check for recovery mode
@@ -122,10 +168,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           // Use setTimeout to avoid potential Supabase client deadlock
           setTimeout(() => {
             fetchUserProfile(newSession.user.id);
+            fetchSprintProfile(newSession.user.id);
           }, 0);
         } else {
           setUser(null);
           setHasSprintProfile(false);
+          setUserDashboardAccessEnabled(false);
           setLoading(false);
         }
       }
@@ -142,6 +190,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setSession(existingSession);
           console.log("Found existing session, fetching profile for:", existingSession.user.id);
           await fetchUserProfile(existingSession.user.id);
+          await fetchSprintProfile(existingSession.user.id);
         } else {
           setLoading(false);
         }
@@ -163,7 +212,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const isMember = !!user?.isMember; // This will include admins since database function checks both 'member' and 'admin'
   const isAuthenticated = !!user;
 
-  console.log("Auth provider state:", { isAuthenticated, isAdmin, isMember, hasSprintProfile, loading, isRecoveryMode });
+  // Hybrid dashboard access logic: requires sprint profile AND (global flag OR individual access)
+  const hasDashboardAccess = hasSprintProfile && (isDashboardActive || userDashboardAccessEnabled);
+
+  console.log("Auth provider state:", { 
+    isAuthenticated, 
+    isAdmin, 
+    isMember, 
+    hasSprintProfile, 
+    hasDashboardAccess,
+    isDashboardActive,
+    userDashboardAccessEnabled,
+    loading, 
+    isRecoveryMode 
+  });
 
   return (
     <AuthContext.Provider
@@ -173,6 +235,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isAdmin,
         isMember,
         hasSprintProfile,
+        hasDashboardAccess,
         sendMagicLink,
         loginWithPassword,
         resetPassword,

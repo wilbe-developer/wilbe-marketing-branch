@@ -15,7 +15,7 @@ import { Bell, Zap } from "lucide-react";
 import { PATHS } from "@/lib/constants";
 
 const AppHeader = () => {
-  const { isAuthenticated, user, hasSprintProfile, logout } = useAuth();
+  const { isAuthenticated, user, hasDashboardAccess, logout } = useAuth();
   const location = useLocation();
   const showBeta = true;
 
@@ -63,7 +63,7 @@ const AppHeader = () => {
       </h1>
       
       <div className="flex items-center gap-2 md:gap-4 pr-2">
-        {hasSprintProfile && (
+        {hasDashboardAccess && (
           <Button variant="outline" size="sm" asChild className="hidden md:flex">
             <Link to={PATHS.SPRINT_DASHBOARD} className="flex items-center gap-1">
               <Zap className="h-4 w-4" />
@@ -102,7 +102,7 @@ const AppHeader = () => {
             <DropdownMenuItem asChild>
               <Link to={PATHS.PROFILE}>Profile Settings</Link>
             </DropdownMenuItem>
-            {hasSprintProfile && (
+            {hasDashboardAccess && (
               <DropdownMenuItem asChild>
                 <Link to={PATHS.SPRINT_DASHBOARD}>BSF Dashboard</Link>
               </DropdownMenuItem>
