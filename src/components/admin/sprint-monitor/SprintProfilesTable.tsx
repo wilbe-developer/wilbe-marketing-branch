@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -56,26 +57,6 @@ const SprintProfilesTable: React.FC<SprintProfilesTableProps> = ({
   // Get non-admin profile count
   const nonAdminProfilesCount = profiles.filter(profile => !adminUserIds.includes(profile.user_id)).length;
 
-  // Function to toggle dashboard access for a user
-  const toggleDashboardAccess = async (profileId: string, currentAccess: boolean) => {
-    try {
-      const { error } = await supabase
-        .from('sprint_profiles')
-        .update({ dashboard_access_enabled: !currentAccess })
-        .eq('id', profileId);
-
-      if (error) {
-        console.error('Error updating dashboard access:', error);
-        return;
-      }
-
-      // Trigger a refetch of the data
-      window.location.reload();
-    } catch (error) {
-      console.error('Error toggling dashboard access:', error);
-    }
-  };
-
   return (
     <Card>
       <CardContent className="p-6">
@@ -97,7 +78,6 @@ const SprintProfilesTable: React.FC<SprintProfilesTableProps> = ({
                 <TableHead>Incorporated</TableHead>
                 <TableHead>Funding</TableHead>
                 <TableHead>Scientist/Engineer</TableHead>
-                <TableHead>Dashboard Access</TableHead>
                 <TableHead>Source</TableHead>
               </TableRow>
             </TableHeader>
@@ -139,16 +119,6 @@ const SprintProfilesTable: React.FC<SprintProfilesTableProps> = ({
                     <Badge variant={profile.is_scientist_engineer ? "success" : "secondary"}>
                       {profile.is_scientist_engineer ? 'Yes' : 'No'}
                     </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      variant={profile.dashboard_access_enabled ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => toggleDashboardAccess(profile.id, profile.dashboard_access_enabled || false)}
-                      className="text-xs"
-                    >
-                      {profile.dashboard_access_enabled ? 'Enabled' : 'Disabled'}
-                    </Button>
                   </TableCell>
                   <TableCell>
                     {profile.utm_source ? (

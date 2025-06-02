@@ -1,3 +1,4 @@
+
 export interface UserProfile {
   id: string;
   firstName?: string;
@@ -5,20 +6,55 @@ export interface UserProfile {
   email?: string;
   linkedIn?: string;
   institution?: string;
-  location?: string;
   role?: string;
-  bio?: string;
+  location?: string;
+  approved?: boolean;
+  avatar?: string;
   about?: string;
   expertise?: string;
-  avatar?: string;
-  approved?: boolean;
-  createdAt?: string;
-  activityStatus?: string;
-  status?: string;
+  bio?: string;
+  coverPhoto?: string;
   twitterHandle?: string;
-  lastLoginDate?: string;
+  status?: string;
+  activityStatus?: string;
   isAdmin?: boolean;
   isMember?: boolean;
-  isDashboardActive?: boolean;
-  dashboardAccessEnabled?: boolean;
+  createdAt?: Date;
+  lastLoginDate?: Date;
+  // New computed field for application status
+  membershipApplicationStatus?: 'not_started' | 'under_review' | null;
 }
+
+export interface Module {
+  id: string;
+  title: string;
+  slug: string;
+  description: string;
+  videos: Video[];
+  isDeckBuilderModule?: boolean;
+  deckBuilderSlide?: string;
+  orderIndex?: number;
+}
+
+export interface Video {
+  id: string;
+  moduleId: string;
+  title: string;
+  description?: string;
+  youtubeId?: string;
+  duration?: string;
+  order?: number;
+  presenter?: string;
+  thumbnailUrl?: string;
+  completed?: boolean;
+  created_at?: string;
+  // Deck builder specific properties
+  isDeckBuilderVideo?: boolean;
+  deckBuilderSlide?: string;
+  deckBuilderModuleId?: string; // To store the deck builder specific module
+}
+
+// Updated to match what's actually used in the database
+export type UserRole = 'user' | 'admin';
+
+export type ApprovalStatus = 'pending' | 'approved' | 'rejected';
