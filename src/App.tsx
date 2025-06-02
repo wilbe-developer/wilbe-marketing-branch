@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import LandingPageMarketing from "./pages/LandingPage";
 import MediaPage from "./pages/MediaPage";
+import AboutUsPage from "./pages/AboutUsPage";
 import ErrorPage from "./pages/ErrorPage";
 import { ErrorBoundary } from "react-error-boundary";
 
@@ -74,14 +75,14 @@ const App = () => (
     {/* ⚠️ Keep Toaster from marketing so toast notifications still render */}
     <Toaster />
 
-    {/* ⚠️ React Query “Sonner” or Tooltip providers were in main (if needed) */}
+    {/* ⚠️ React Query "Sonner" or Tooltip providers were in main (if needed) */}
     <BrowserRouter>
       <AuthProvider>
         <SprintContextProvider>
           <MetaWrapper>
             <Routes>
-              {/* ────────────── NEW “MARKETING” ROUTES ────────────── */}
-              {/* Wrap these in an ErrorBoundary so we don’t break the main routing */}
+              {/* ────────────── NEW "MARKETING" ROUTES ────────────── */}
+              {/* Wrap these in an ErrorBoundary so we don't break the main routing */}
               <Route
                 element={
                   <ErrorBoundary fallback={<ErrorPage />}>
@@ -98,8 +99,16 @@ const App = () => (
                 }
                 path="/media"
               />
+              <Route
+                element={
+                  <ErrorBoundary fallback={<ErrorPage />}>
+                    <AboutUsPage />
+                  </ErrorBoundary>
+                }
+                path="/about"
+              />
 
-              {/* ────────────── UPSTREAM “MAIN” ROUTES ────────────── */}
+              {/* ────────────── UPSTREAM "MAIN" ROUTES ────────────── */}
               {/* Public merch chooser route */}
               <Route path="/merch" element={<MerchPage />} />
 

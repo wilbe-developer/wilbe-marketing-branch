@@ -1448,6 +1448,31 @@ export type Database = {
         Args: { p_user_id: string; p_application_type?: string }
         Returns: Database["public"]["Enums"]["application_status"]
       }
+      get_member_directory_profiles: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          user_id: string
+          first_name: string
+          last_name: string
+          email: string
+          linked_in: string
+          institution: string
+          location: string
+          role: string
+          bio: string
+          about: string
+          expertise: string
+          avatar: string
+          approved: boolean
+          created_at: string
+          activity_status: string
+          status: string
+          twitter_handle: string
+          last_login_date: string
+          has_sprint_profile: boolean
+          has_profile: boolean
+        }[]
+      }
       get_unified_profile: {
         Args: { p_user_id: string }
         Returns: {

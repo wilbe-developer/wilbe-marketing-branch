@@ -16,6 +16,7 @@ export const PATHS = {
   BUILD_YOUR_DECK: '/build-your-deck',
   LANDING_PAGE: '/landing-page',
   BSF_PAGE: '/bsf',
+  ABOUT: '/about',
   SPRINT: '/sprint',
   SPRINT_DASHBOARD: '/sprint/dashboard',
   SPRINT_TASK: '/sprint/task',
