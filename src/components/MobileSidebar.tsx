@@ -14,7 +14,7 @@ import { Zap } from "lucide-react";
 const MobileSidebar = () => {
   const [open, setOpen] = useState(false);
   const isMobile = useIsMobile();
-  const { hasDashboardAccess } = useAuth();
+  const { hasSprintProfile } = useAuth();
 
   // Close sidebar when transitioning from mobile to desktop
   useEffect(() => {
@@ -59,7 +59,7 @@ const MobileSidebar = () => {
                 </li>
               ))}
               
-              {hasDashboardAccess && (
+              {hasSprintProfile && (
                 <li>
                   <NavLink
                     to={PATHS.SPRINT_DASHBOARD}
