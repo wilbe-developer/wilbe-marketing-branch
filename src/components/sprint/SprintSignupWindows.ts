@@ -1,4 +1,3 @@
-
 import { Window } from "@/types/sprint-signup";
 
 export const windows: Window[] = [
@@ -376,6 +375,17 @@ export const windows: Window[] = [
             }
           }
         ]
+      }
+    ]
+  },
+  {
+    id: "window14",
+    title: "Minimal Success Vision",
+    questions: [
+      {
+        id: 'minimal_success_version',
+        question: 'What is the most minimal version of the company look like that you would consider successful? Describe in your own words.',
+        type: 'textarea'
       }
     ]
   }
