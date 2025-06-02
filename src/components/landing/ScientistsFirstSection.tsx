@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Shield } from "lucide-react";
@@ -6,24 +5,19 @@ import { useAdvocacyImage } from "@/hooks/useAdvocacyImage";
 import { advocacyCards } from "@/data/advocacyCards";
 import AdvocacyCard from "./AdvocacyCard";
 import AdvocacyComingSoonDialog from "@/components/common/AdvocacyComingSoonDialog";
-
 export default function ScientistsFirstSection() {
   const advocacyImageUrl = useAdvocacyImage();
   const [isAdvocacyDialogOpen, setIsAdvocacyDialogOpen] = useState(false);
   const [advocacyDialogType, setAdvocacyDialogType] = useState<'support' | 'share'>('support');
-
   const handleSupportClick = () => {
     setAdvocacyDialogType('support');
     setIsAdvocacyDialogOpen(true);
   };
-
   const handleShareClick = () => {
     setAdvocacyDialogType('share');
     setIsAdvocacyDialogOpen(true);
   };
-
-  return (
-    <>
+  return <>
       <section id="scientists-first" className="py-12 md:py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12 md:mb-16">
@@ -50,19 +44,10 @@ export default function ScientistsFirstSection() {
                   proceeds go on to fund the work of our advocacy.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
-                  <Button 
-                    size="lg" 
-                    className="bg-white text-gray-900 hover:bg-gray-100 font-bold text-sm sm:text-base"
-                    onClick={handleSupportClick}
-                  >
+                  <Button size="lg" className="bg-white text-gray-900 hover:bg-gray-100 font-bold text-sm sm:text-base" onClick={handleSupportClick}>
                     I'm With You ✊
                   </Button>
-                  <Button 
-                    size="lg" 
-                    variant="outline" 
-                    className="border-white text-white hover:bg-white hover:text-gray-900 font-bold text-sm sm:text-base"
-                    onClick={handleShareClick}
-                  >
+                  <Button size="lg" variant="outline" onClick={handleShareClick} className="border-white hover:bg-white font-bold text-sm sm:text-base text-black">
                     Tell a Friend ✍️
                   </Button>
                 </div>
@@ -77,11 +62,6 @@ export default function ScientistsFirstSection() {
         </div>
       </section>
 
-      <AdvocacyComingSoonDialog
-        isOpen={isAdvocacyDialogOpen}
-        onClose={() => setIsAdvocacyDialogOpen(false)}
-        type={advocacyDialogType}
-      />
-    </>
-  );
+      <AdvocacyComingSoonDialog isOpen={isAdvocacyDialogOpen} onClose={() => setIsAdvocacyDialogOpen(false)} type={advocacyDialogType} />
+    </>;
 }
