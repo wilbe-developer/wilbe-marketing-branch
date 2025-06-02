@@ -22,10 +22,11 @@ const UnifiedAnalytics: React.FC<UnifiedAnalyticsProps> = ({ timeRange }) => {
   const [utmMediumData, setUtmMediumData] = useState<any[]>([]);
   const [utmType, setUtmType] = useState<'source' | 'medium'>('source');
   const [conversionMetrics, setConversionMetrics] = useState({
+    profileCount: 0,
+    applicationCount: 0,
     waitlistCount: 0,
     sprintCount: 0,
-    totalCount: 0,
-    conversionRate: 0
+    totalCount: 0
   });
   
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82ca9d', '#ffc658', '#8dd1e1'];
@@ -65,9 +66,11 @@ const UnifiedAnalytics: React.FC<UnifiedAnalyticsProps> = ({ timeRange }) => {
   return (
     <div className="space-y-6">
       <SignupMetricsCards 
-        totalCount={conversionMetrics.totalCount}
+        profileCount={conversionMetrics.profileCount}
+        applicationCount={conversionMetrics.applicationCount}
         waitlistCount={conversionMetrics.waitlistCount}
         sprintCount={conversionMetrics.sprintCount}
+        totalCount={conversionMetrics.totalCount}
       />
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -93,7 +96,7 @@ const UnifiedAnalytics: React.FC<UnifiedAnalyticsProps> = ({ timeRange }) => {
         {/* Daily Signups Chart */}
         <Card>
           <CardContent className="pt-6">
-            <h3 className="text-lg font-medium mb-4">Daily Signups (Last 14 Days)</h3>
+            <h3 className="text-lg font-medium mb-4">Daily Activity (Last 14 Days)</h3>
             <DailySignupsChart data={dailySignups} />
           </CardContent>
         </Card>
@@ -101,7 +104,7 @@ const UnifiedAnalytics: React.FC<UnifiedAnalyticsProps> = ({ timeRange }) => {
       
       <Card>
         <CardContent className="pt-6">
-          <h3 className="text-lg font-medium mb-4">Recent Signups</h3>
+          <h3 className="text-lg font-medium mb-4">Recent Activity</h3>
           <RecentSignupsTable data={signupData} limit={10} />
         </CardContent>
       </Card>

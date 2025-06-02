@@ -5,6 +5,8 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 interface DailySignupsChartProps {
   data: Array<{
     date: string;
+    profiles: number;
+    applications: number;
     waitlist: number;
     sprint: number;
     total: number;
@@ -24,8 +26,10 @@ const DailySignupsChart: React.FC<DailySignupsChartProps> = ({ data }) => {
           <YAxis />
           <Tooltip />
           <Legend />
-          <Line type="monotone" dataKey="waitlist" stroke="#8884d8" name="Waitlist" />
-          <Line type="monotone" dataKey="sprint" stroke="#82ca9d" name="Sprint" />
+          <Line type="monotone" dataKey="profiles" stroke="#8884d8" name="Profiles" />
+          <Line type="monotone" dataKey="applications" stroke="#82ca9d" name="Applications" />
+          <Line type="monotone" dataKey="waitlist" stroke="#ffc658" name="Waitlist" />
+          <Line type="monotone" dataKey="sprint" stroke="#ff7300" name="Sprint" />
         </LineChart>
       </ResponsiveContainer>
     </div>
