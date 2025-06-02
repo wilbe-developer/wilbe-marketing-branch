@@ -1,3 +1,4 @@
+
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
@@ -6,6 +7,7 @@ import { Toaster } from "@/components/ui/toaster";
 import LandingPageMarketing from "./pages/LandingPage";
 import MediaPage from "./pages/MediaPage";
 import AboutUsPage from "./pages/AboutUsPage";
+import BlogPage from "./pages/BlogPage";
 import ErrorPage from "./pages/ErrorPage";
 import { ErrorBoundary } from "react-error-boundary";
 
@@ -106,6 +108,14 @@ const App = () => (
                   </ErrorBoundary>
                 }
                 path="/about"
+              />
+              <Route
+                element={
+                  <ErrorBoundary fallback={<ErrorPage />}>
+                    <BlogPage />
+                  </ErrorBoundary>
+                }
+                path="/blog"
               />
 
               {/* ────────────── UPSTREAM "MAIN" ROUTES ────────────── */}
