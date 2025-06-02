@@ -21,8 +21,11 @@ export interface UserProfile {
   isMember?: boolean;
   createdAt?: Date;
   lastLoginDate?: Date;
-  // New computed field for application status
+  // Application status field
   membershipApplicationStatus?: 'not_started' | 'under_review' | null;
+  // New dashboard access fields
+  isDashboardActive?: boolean;
+  dashboardAccessEnabled?: boolean;
 }
 
 export interface Module {

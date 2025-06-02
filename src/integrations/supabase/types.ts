@@ -538,6 +538,7 @@ export type Database = {
           customer_engagement: string | null
           customer_evidence: boolean | null
           cv_url: string | null
+          dashboard_access_enabled: boolean | null
           deck_feedback: boolean | null
           email: string | null
           experiment_validated: boolean | null
@@ -590,6 +591,7 @@ export type Database = {
           customer_engagement?: string | null
           customer_evidence?: boolean | null
           cv_url?: string | null
+          dashboard_access_enabled?: boolean | null
           deck_feedback?: boolean | null
           email?: string | null
           experiment_validated?: boolean | null
@@ -642,6 +644,7 @@ export type Database = {
           customer_engagement?: string | null
           customer_evidence?: boolean | null
           cv_url?: string | null
+          dashboard_access_enabled?: boolean | null
           deck_feedback?: boolean | null
           email?: string | null
           experiment_validated?: boolean | null
@@ -1468,6 +1471,56 @@ export type Database = {
               p_utm_term: string
               p_utm_content: string
               p_minimal_success_version: string
+            }
+          | {
+              p_user_id: string
+              p_name: string
+              p_email: string
+              p_linkedin_url: string
+              p_cv_url: string
+              p_current_job: string
+              p_company_incorporated: boolean
+              p_received_funding: boolean
+              p_funding_details: string
+              p_has_deck: boolean
+              p_team_status: string
+              p_commercializing_invention: boolean
+              p_university_ip: boolean
+              p_tto_engaged: boolean
+              p_problem_defined: boolean
+              p_customer_engagement: string
+              p_market_known: boolean
+              p_market_gap_reason: string
+              p_funding_amount: string
+              p_has_financial_plan: boolean
+              p_funding_sources: string[]
+              p_experiment_validated: boolean
+              p_industry_changing_vision: boolean
+              p_is_scientist_engineer: boolean
+              p_job_type: string
+              p_ip_concerns: boolean
+              p_potential_beneficiaries: boolean
+              p_specific_customers: boolean
+              p_customer_evidence: boolean
+              p_competition_research: boolean
+              p_success_vision_1yr: boolean
+              p_success_vision_10yr: boolean
+              p_impact_scale: string[]
+              p_prior_accelerators: boolean
+              p_prior_accelerators_details: string
+              p_planned_accelerators: boolean
+              p_planned_accelerators_details: string
+              p_lab_space_needed: boolean
+              p_lab_space_secured: boolean
+              p_lab_space_details: string
+              p_deck_feedback: boolean
+              p_utm_source: string
+              p_utm_medium: string
+              p_utm_campaign: string
+              p_utm_term: string
+              p_utm_content: string
+              p_minimal_success_version: string
+              p_dashboard_access_enabled?: boolean
             }
         Returns: undefined
       }

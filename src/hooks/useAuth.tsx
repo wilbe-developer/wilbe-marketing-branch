@@ -15,6 +15,7 @@ interface AuthContextType {
   isAdmin: boolean;
   isMember: boolean;
   hasSprintProfile: boolean;
+  hasDashboardAccess: boolean;
   sendMagicLink: (email: string, redirectTo?: string) => Promise<{ success: boolean }>;
   loginWithPassword: (email: string, password: string) => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
@@ -162,8 +163,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const isAdmin = !!user?.isAdmin;
   const isMember = !!user?.isMember; // This will include admins since database function checks both 'member' and 'admin'
   const isAuthenticated = !!user;
+  
+  // Compute dashboard access: has sprint profile AND (global flag OR individual access OR is admin)
+  const hasDashboardAccess = hasSprintProfile && (
+    user?.isDashboardActive || 
+    user?.dashboardAccessEnabled || 
+    isAdmin
+  );
 
-  console.log("Auth provider state:", { isAuthenticated, isAdmin, isMember, hasSprintProfile, loading, isRecoveryMode });
+  console.log("Auth provider state:", { isAuthenticated, isAdmin, isMember, hasSprintProfile, hasDashboardAccess, loading, isRecoveryMode });
 
   return (
     <AuthContext.Provider
@@ -173,6 +181,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isAdmin,
         isMember,
         hasSprintProfile,
+        hasDashboardAccess,
         sendMagicLink,
         loginWithPassword,
         resetPassword,

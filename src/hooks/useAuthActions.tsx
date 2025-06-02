@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -44,10 +45,10 @@ export const useAuthActions = ({
         }
       }
 
-      // Check if user has sprint profile
+      // Check if user has sprint profile and get individual dashboard access
       const { data: sprintProfile, error: sprintError } = await supabase
         .from("sprint_profiles")
-        .select("id")
+        .select("id, dashboard_access_enabled")
         .eq("user_id", userId)
         .single();
 
@@ -57,6 +58,23 @@ export const useAuthActions = ({
 
       // Update sprint profile state
       setHasSprintProfile(!!sprintProfile);
+
+      // Fetch global dashboard setting
+      const { data: dashboardSetting, error: dashboardError } = await supabase
+        .from("app_settings")
+        .select("value")
+        .eq("key", "dashboardActive")
+        .single();
+
+      if (dashboardError && dashboardError.code !== 'PGRST116') {
+        console.error("Dashboard setting fetch error:", dashboardError);
+      }
+
+      // Extract dashboard active flag from the JSON value
+      const isDashboardActive = dashboardSetting?.value && 
+        typeof dashboardSetting.value === 'object' && 
+        'enabled' in dashboardSetting.value ? 
+        dashboardSetting.value.enabled === true : false;
 
       // Check if user is admin
       const { data: adminCheck, error: adminError } = await supabase
@@ -74,7 +92,7 @@ export const useAuthActions = ({
         console.error("Member check error:", memberError);
       }
 
-      // Get application status using our new service
+      // Get application status using our service
       const membershipApplicationStatus = await applicationService.getApplicationStatus(userId);
 
       const userProfile: UserProfile = {
@@ -97,7 +115,10 @@ export const useAuthActions = ({
         activityStatus: profile?.activity_status || "",
         isAdmin: adminCheck || false,
         isMember: memberCheck || false,
-        membershipApplicationStatus: membershipApplicationStatus
+        membershipApplicationStatus: membershipApplicationStatus,
+        // Dashboard access flags
+        isDashboardActive: isDashboardActive,
+        dashboardAccessEnabled: sprintProfile?.dashboard_access_enabled || false,
       };
 
       console.log("Setting user profile:", userProfile);

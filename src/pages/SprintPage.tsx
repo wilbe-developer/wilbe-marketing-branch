@@ -1,21 +1,18 @@
-
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { PATHS } from "@/lib/constants";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { useAppSettings } from "@/hooks/useAppSettings";
 
 const SprintPage = () => {
-  const { isAuthenticated, loading, user } = useAuth();
-  const { isDashboardActive, isLoading: isLoadingSettings } = useAppSettings();
+  const { isAuthenticated, loading, user, hasDashboardAccess } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     const checkSprintOnboarding = async () => {
       // Wait until auth state is loaded
-      if (loading || isLoadingSettings) return;
+      if (loading) return;
 
       // If not authenticated, redirect to signup (without storing redirect location)
       if (!isAuthenticated) {
@@ -45,12 +42,12 @@ const SprintPage = () => {
             return;
           }
 
-          // Redirect based on the feature flag
-          if (isDashboardActive) {
-            console.log("User has sprint profile, redirecting to dashboard");
+          // Redirect based on dashboard access
+          if (hasDashboardAccess) {
+            console.log("User has dashboard access, redirecting to dashboard");
             navigate(PATHS.SPRINT_DASHBOARD);
           } else {
-            console.log("User has sprint profile, redirecting to waiting page");
+            console.log("User has sprint profile but no dashboard access, redirecting to waiting page");
             navigate(PATHS.SPRINT_WAITING);
           }
         } catch (error) {
@@ -61,10 +58,10 @@ const SprintPage = () => {
     };
 
     checkSprintOnboarding();
-  }, [isAuthenticated, loading, navigate, user, isDashboardActive, isLoadingSettings]);
+  }, [isAuthenticated, loading, navigate, user, hasDashboardAccess]);
 
   // Show loading spinner while checking
-  if (loading || isLoadingSettings || isAuthenticated) {
+  if (loading || isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
