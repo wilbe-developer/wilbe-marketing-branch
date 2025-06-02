@@ -28,7 +28,7 @@ export const CommunitySidebar = ({
     setCollapsed(!collapsed);
   };
   
-  // Group challenges by category
+  // Group challenges by category.
   const categorizedChallenges = challenges.reduce((acc, challenge) => {
     const category = challenge.category || 'Uncategorized';
     if (!acc[category]) {
