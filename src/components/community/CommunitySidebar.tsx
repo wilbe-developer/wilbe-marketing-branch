@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Challenge } from '@/types/community';
 import { Button } from '@/components/ui/button';
@@ -104,7 +103,7 @@ export const CommunitySidebar = ({
           onClick={() => onSelectTopic('challenges')}
         >
           <BookOpen size={18} className="mr-2" />
-          {!collapsed && "Sprint Challenges"}
+          {!collapsed && "BSF Challenges"}
         </Button>
         
         {!collapsed && Object.entries(categorizedChallenges).map(([category, items]) => (

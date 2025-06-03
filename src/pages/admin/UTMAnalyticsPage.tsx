@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import FullScreenAdminLayout from '@/components/admin/FullScreenAdminLayout';
 import UTMAnalytics from '@/components/admin/sprint-activity/UTMAnalytics';
@@ -56,7 +55,7 @@ const UTMAnalyticsPage = () => {
         <TabsList className="mb-4">
           <TabsTrigger value="unified">Unified Analytics</TabsTrigger>
           <TabsTrigger value="waitlist">Waitlist Analytics</TabsTrigger>
-          <TabsTrigger value="sprint">Sprint Analytics</TabsTrigger>
+          <TabsTrigger value="bsf">BSF Analytics</TabsTrigger>
           <TabsTrigger value="conversion">Conversion Metrics</TabsTrigger>
           <TabsTrigger value="quiz">Quiz Analytics</TabsTrigger>
         </TabsList>
@@ -83,10 +82,10 @@ const UTMAnalyticsPage = () => {
           </Card>
         </TabsContent>
         
-        <TabsContent value="sprint">
+        <TabsContent value="bsf">
           <Card>
             <CardHeader>
-              <CardTitle>Sprint Signup Analytics</CardTitle>
+              <CardTitle>BSF Signup Analytics</CardTitle>
             </CardHeader>
             <CardContent>
               <SprintEngagementStats timeRange={timeRange} />

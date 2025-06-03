@@ -19,9 +19,9 @@ export const SprintFeatureFlags = () => {
   return (
     <Card className="mb-6">
       <CardHeader>
-        <CardTitle>Sprint Feature Flags</CardTitle>
+        <CardTitle>BSF Feature Flags</CardTitle>
         <CardDescription>
-          Control feature availability in the Sprint section
+          Control feature availability in the BSF section
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -40,7 +40,7 @@ export const SprintFeatureFlags = () => {
             />
             <div className="grid gap-1.5">
               <Label htmlFor="dashboard-active">
-                {isDashboardActive ? "Sprint Dashboard Active" : "Sprint Dashboard Inactive"}
+                {isDashboardActive ? "BSF Dashboard Active" : "BSF Dashboard Inactive"}
               </Label>
               <p className="text-sm text-muted-foreground">
                 {isDashboardActive

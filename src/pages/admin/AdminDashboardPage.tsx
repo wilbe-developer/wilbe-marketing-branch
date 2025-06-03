@@ -173,8 +173,8 @@ const AdminDashboardPage = () => {
                 <div className="flex items-center">
                   <BarChart2 className="h-5 w-5 mr-3 text-gray-500" />
                   <div>
-                    <div className="font-medium">Sprint Monitor</div>
-                    <div className="text-sm text-gray-500">View sprint progress and analytics</div>
+                    <div className="font-medium">BSF Monitor</div>
+                    <div className="text-sm text-gray-500">View BSF progress and analytics</div>
                   </div>
                 </div>
               </Link>

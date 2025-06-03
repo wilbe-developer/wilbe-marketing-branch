@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Activity, CheckCircle, Upload, UserPlus, Clock, FileText, Edit, Calendar, Shield, UserCheck } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -53,7 +52,7 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({ activityFeed }) => {
   const getEventBadge = (eventType: string) => {
     switch (eventType) {
       case 'signup':
-        return <Badge variant="success">Sprint Signup</Badge>;
+        return <Badge variant="success">BSF Signup</Badge>;
       case 'member_signup':
         return <Badge variant="info">New Account</Badge>;
       case 'profile_submission':
@@ -130,7 +129,7 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({ activityFeed }) => {
                     <>Uploaded a file for: <span className="font-medium">{event.taskName}</span></>
                   )}
                   {event.eventType === 'signup' && (
-                    <>User signed up for sprint</>
+                    <>User signed up for BSF</>
                   )}
                   {event.eventType === 'member_signup' && (
                     <>Created new member account</>
@@ -142,7 +141,7 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({ activityFeed }) => {
                     <>Approved as member</>
                   )}
                   {event.eventType === 'profile_updated' && (
-                    <>Updated their sprint profile</>
+                    <>Updated their BSF profile</>
                   )}
                   {event.eventType === 'task_started' && event.taskName && (
                     <>Started task: <span className="font-medium">{event.taskName}</span></>
