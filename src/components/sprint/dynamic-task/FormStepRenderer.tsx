@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { StepNode, FormField } from '@/types/task-builder';
 import { Input } from '@/components/ui/input';
@@ -94,7 +95,7 @@ export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
         {field.text && <p className="text-sm text-blue-700 mb-4">{field.text}</p>}
         {!field.text && (
           <p className="text-sm text-blue-700 mb-4">
-            Invite your team members to collaborate on this sprint. They will be able to view and contribute to tasks.
+            Invite your team members to collaborate on this BSF. They will be able to view and contribute to tasks.
           </p>
         )}
         
@@ -111,7 +112,7 @@ export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
             <DialogHeader>
               <DialogTitle>Manage Team Collaborators</DialogTitle>
               <DialogDescription>
-                Add or remove team members who can collaborate on your sprint.
+                Add or remove team members who can collaborate on your BSF.
               </DialogDescription>
             </DialogHeader>
             
