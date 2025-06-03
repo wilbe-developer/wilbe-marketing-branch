@@ -27,7 +27,7 @@ const CollaborationStep: React.FC<CollaborationStepProps> = ({
     <div className="mt-4 p-6 bg-blue-50 rounded-md border border-blue-100">
       <h3 className="text-lg font-medium text-blue-800 mb-4">Team Collaboration</h3>
       <p className="text-gray-700 mb-6">
-        {description || "Invite your team members to collaborate on this sprint. They will be able to view and contribute to tasks."}
+        {description || "Invite your team members to collaborate on this BSF. They will be able to view and contribute to tasks."}
       </p>
       
       <div className="flex flex-col space-y-4">
@@ -53,7 +53,7 @@ const CollaborationStep: React.FC<CollaborationStepProps> = ({
           <DialogHeader>
             <DialogTitle>Manage Team Collaborators</DialogTitle>
             <DialogDescription>
-              Add or remove team members who can collaborate on your sprint.
+              Add or remove team members who can collaborate on your BSF.
             </DialogDescription>
           </DialogHeader>
           
