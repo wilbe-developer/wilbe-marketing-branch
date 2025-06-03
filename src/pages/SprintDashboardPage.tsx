@@ -8,6 +8,7 @@ import { AssessmentButton } from "@/components/sprint/AssessmentButton";
 import { RequestCallButton } from "@/components/sprint/RequestCallButton";
 import { ImStuckButton } from "@/components/sprint/ImStuckButton";
 import { ProgressDisplay } from "@/components/sprint/ProgressDisplay";
+import { SprintCountdown } from "@/components/sprint/SprintCountdown";
 import { MySprintsList } from "@/components/sprint/MySprintsList";
 import { SharedSprintsSelector } from "@/components/sprint/SharedSprintsSelector";
 import { SharedSprintBanner } from "@/components/sprint/SharedSprintBanner";
@@ -68,6 +69,11 @@ const SprintDashboardPage = () => {
         
         {/* Displays the selector for shared sprints if they exist */}
         <SharedSprintsSelector />
+        
+        {/* Sprint Countdown Timer */}
+        <div className="mb-6">
+          <SprintCountdown />
+        </div>
         
         <ProgressDisplay completedTasks={completedTasks} totalTasks={totalTasks} />
       </div>
