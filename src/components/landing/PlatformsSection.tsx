@@ -1,5 +1,4 @@
 
-
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import LumaEventsEmbed from "./LumaEventsEmbed";
@@ -37,7 +36,7 @@ export default function PlatformsSection() {
     {
       name: "Milvus Advanced", 
       location: "Oxford, UK",
-      image: "/lovable-uploads/dabb2926-37df-4faa-a83d-8ebfb7db6e9c.png"
+      image: "/lovable-uploads/816e6141-9e66-472e-8b16-d7196060771e.png"
     },
     {
       name: "Origen",
@@ -47,7 +46,12 @@ export default function PlatformsSection() {
     {
       name: "CarpeCarbon",
       location: "Turin, Italy",
-      image: "/lovable-uploads/c97a82b5-f37b-49a4-accd-5ef983857a24.png"
+      image: "/lovable-uploads/52b6b8f5-17d0-4344-ac5d-c35b60bea127.png"
+    },
+    {
+      name: "Dinura",
+      location: "Milan, Italy",
+      image: "/lovable-uploads/fd524d0d-e48e-4aed-ad02-d25a0c30d49e.png"
     }
   ];
 
@@ -115,7 +119,7 @@ export default function PlatformsSection() {
                 {/* Lab Gallery - only show for Wilbe Labs */}
                 {platform.showLabGallery && (
                   <div className="mb-4 sm:mb-6">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 max-w-5xl">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 max-w-5xl">
                       {labGallery.map((lab, labIndex) => (
                         <div key={labIndex} className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow">
                           <div className="aspect-video">
