@@ -35,9 +35,9 @@ export const TaskContent: React.FC<TaskContentProps> = ({
   renderCurrentStepWithDependencies
 }) => {
   return (
-    <div className="space-y-4 md:space-y-6">
+    <div className="space-y-6">
       {/* Progress indicator */}
-      <div className="flex justify-between text-xs md:text-sm text-gray-500 px-1">
+      <div className="flex justify-between text-sm text-gray-500">
         <div>
           Step {currentStepIndex + 1} of {visibleSteps.length}
         </div>
@@ -50,21 +50,17 @@ export const TaskContent: React.FC<TaskContentProps> = ({
       {currentStep && renderCurrentStepWithDependencies()}
       
       {/* Navigation buttons - moved here to be right after the step */}
-      <div className="flex justify-between pt-3 md:pt-4 gap-3">
+      <div className="flex justify-between pt-4">
         <Button
           variant="outline"
           onClick={() => goToStep(currentStepIndex - 1)}
           disabled={currentStepIndex === 0}
-          className="flex-1 md:flex-none"
         >
           Previous
         </Button>
         
         {currentStepIndex === visibleSteps.length - 1 ? (
-          <Button 
-            onClick={handleComplete}
-            className="flex-1 md:flex-none"
-          >
+          <Button onClick={handleComplete}>
             Complete Task
           </Button>
         ) : (
@@ -73,7 +69,6 @@ export const TaskContent: React.FC<TaskContentProps> = ({
             disabled={
               (!answers[currentStep?.id] && currentStep?.type === "question")
             }
-            className="flex-1 md:flex-none"
           >
             Next
           </Button>
