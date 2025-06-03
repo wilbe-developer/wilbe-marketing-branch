@@ -383,6 +383,11 @@ export const windows: Window[] = [
     title: "Minimal Success Vision",
     questions: [
       {
+        id: "ambitious_version",
+        question: "What is the most ambitious version of your company look like? Describe it in your own words.",
+        type: "textarea"
+      },
+      {
         id: 'minimal_success_version',
         question: 'What is the most minimal version of the company look like that you would consider successful? Describe in your own words.',
         type: 'textarea'

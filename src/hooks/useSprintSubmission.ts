@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -180,7 +179,10 @@ export const useSprintSubmission = () => {
         p_utm_term: utmTerm,
         p_utm_content: utmContent,
         
-        // Add the missing minimal_success_version parameter
+        // Add the missing ambitious_version parameter
+        p_ambitious_version: answers.ambitious_version || '',
+        
+        // Add the missing minimal_success_version parameter  
         p_minimal_success_version: answers.minimal_success_version || '',
         
         // Add the missing dashboard_access_enabled parameter

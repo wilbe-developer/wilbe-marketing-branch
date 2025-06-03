@@ -69,6 +69,7 @@ export interface SprintProfile {
   lab_space_details?: string;
   deck_feedback?: boolean;
   minimal_success_version?: string;
+  ambitious_version?: string;
   
   // UTM parameters
   utm_source?: string;

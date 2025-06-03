@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import FullScreenAdminLayout from '@/components/admin/FullScreenAdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -100,7 +99,7 @@ const AdminUsersPage = () => {
             >
               <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="all">All Users</TabsTrigger>
-                <TabsTrigger value="sprint">Sprint Users</TabsTrigger>
+                <TabsTrigger value="sprint">BSF Users</TabsTrigger>
                 <TabsTrigger value="waitlist">Waitlist</TabsTrigger>
               </TabsList>
             </Tabs>
@@ -179,7 +178,7 @@ const AdminUsersPage = () => {
                           {user.source === 'waitlist' ? (
                             <DropdownMenuItem className="cursor-pointer">
                               <UserCheck className="mr-2 h-4 w-4" />
-                              <span>Approve for Sprint</span>
+                              <span>Approve for BSF</span>
                             </DropdownMenuItem>
                           ) : (
                             <DropdownMenuItem className="cursor-pointer text-destructive">

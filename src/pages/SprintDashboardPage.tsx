@@ -8,6 +8,7 @@ import { AssessmentButton } from "@/components/sprint/AssessmentButton";
 import { RequestCallButton } from "@/components/sprint/RequestCallButton";
 import { ImStuckButton } from "@/components/sprint/ImStuckButton";
 import { ProgressDisplay } from "@/components/sprint/ProgressDisplay";
+import { SprintCountdown } from "@/components/sprint/SprintCountdown";
 import { MySprintsList } from "@/components/sprint/MySprintsList";
 import { SharedSprintsSelector } from "@/components/sprint/SharedSprintsSelector";
 import { SharedSprintBanner } from "@/components/sprint/SharedSprintBanner";
@@ -31,7 +32,7 @@ const SprintDashboardPage = () => {
     );
   }
 
-  const pageTitle = isSharedSprint ? `${sprintOwnerName}'s Sprint` : "Your Sprint Journey";
+  const pageTitle = isSharedSprint ? `${sprintOwnerName}'s BSF` : "Your BSF Journey";
 
   return (
     <div>
@@ -51,7 +52,7 @@ const SprintDashboardPage = () => {
         </div>
         
         <p className={`text-gray-600 ${isMobile ? 'text-sm mb-3' : 'mb-4'}`}>
-          Complete all tasks to finish your sprint and develop your full project plan.
+          Complete all tasks to finish your BSF and develop your full project plan.
         </p>
         
         {/* Mobile view buttons - improved to ensure they fit well on mobile */}
@@ -68,6 +69,11 @@ const SprintDashboardPage = () => {
         
         {/* Displays the selector for shared sprints if they exist */}
         <SharedSprintsSelector />
+        
+        {/* Sprint Countdown Timer */}
+        <div className="mb-6">
+          <SprintCountdown />
+        </div>
         
         <ProgressDisplay completedTasks={completedTasks} totalTasks={totalTasks} />
       </div>

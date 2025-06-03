@@ -30,11 +30,11 @@ const SprintMonitorPage = () => {
   const { isConnected } = useRealTimeUpdates(realtimeEnabled, refreshMonitorData);
 
   return (
-    <FullScreenAdminLayout title="Sprint Monitor">
+    <FullScreenAdminLayout title="BSF Monitor">
       <div className="mb-6 flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Sprint Monitor</h1>
-          <p className="text-gray-500 mt-2">Monitor sprint progress and user activity</p>
+          <h1 className="text-3xl font-bold">BSF Monitor</h1>
+          <p className="text-gray-500 mt-2">Monitor BSF progress and user activity</p>
         </div>
         <div className="flex items-center space-x-2">
           <Switch 
@@ -65,7 +65,7 @@ const SprintMonitorPage = () => {
         <TabsContent value="overview">
           <Card>
             <CardHeader>
-              <CardTitle>Sprint Control Room</CardTitle>
+              <CardTitle>BSF Control Room</CardTitle>
             </CardHeader>
             <CardContent>
               <SprintControlRoom />
@@ -76,7 +76,7 @@ const SprintMonitorPage = () => {
         <TabsContent value="profiles">
           <Card>
             <CardHeader>
-              <CardTitle>Sprint Profiles</CardTitle>
+              <CardTitle>BSF Profiles</CardTitle>
             </CardHeader>
             <CardContent>
               <SprintProfilesTab />

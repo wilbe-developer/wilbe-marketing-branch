@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
@@ -25,7 +24,6 @@ const SprintConversionMetrics: React.FC<SprintConversionMetricsProps> = ({ timeR
     setIsLoading(true);
     
     try {
-      // Get date range for filtering
       let startDate: Date | null = null;
       if (timeRange !== 'all') {
         startDate = new Date();
@@ -33,7 +31,6 @@ const SprintConversionMetrics: React.FC<SprintConversionMetricsProps> = ({ timeR
         startDate.setDate(startDate.getDate() - days);
       }
       
-      // Fetch waitlist signups
       let waitlistQuery = supabase
         .from('waitlist_signups')
         .select('email, created_at');
@@ -46,7 +43,6 @@ const SprintConversionMetrics: React.FC<SprintConversionMetricsProps> = ({ timeR
       
       if (waitlistError) throw waitlistError;
       
-      // Fetch sprint profiles 
       let sprintQuery = supabase
         .from('sprint_profiles')
         .select('email, created_at');
@@ -59,22 +55,17 @@ const SprintConversionMetrics: React.FC<SprintConversionMetricsProps> = ({ timeR
       
       if (sprintError) throw sprintError;
       
-      // Process data - normalize emails for comparison
       const waitlistEmails = new Set((waitlistData || []).map(item => item.email?.toLowerCase()).filter(Boolean));
       const sprintEmails = new Set((sprintData || []).map(item => item.email?.toLowerCase()).filter(Boolean));
       
-      // Find conversions (emails in both sets)
       const conversions = [...waitlistEmails].filter(email => sprintEmails.has(email));
       
-      // Calculate conversion rate - use the number of waitlist signups as denominator
       const totalWaitlist = waitlistEmails.size;
       const totalConversions = conversions.length;
       const totalSprints = sprintEmails.size;
       
-      // Avoid division by zero
       const conversionRate = totalWaitlist > 0 ? (totalConversions / totalWaitlist) * 100 : 0;
       
-      // Prepare chart data
       const chartData = [
         { name: 'Converted', value: totalConversions },
         { name: 'Not Converted', value: totalWaitlist - totalConversions }
@@ -83,7 +74,7 @@ const SprintConversionMetrics: React.FC<SprintConversionMetricsProps> = ({ timeR
       setConversionData(chartData);
       setConversionRate(conversionRate);
       setTotalSignups(totalWaitlist);
-      setTotalConversions(totalSprints); // Use total sprint signups for the display
+      setTotalConversions(totalSprints);
     } catch (error) {
       console.error('Error fetching conversion data:', error);
     } finally {
@@ -122,7 +113,7 @@ const SprintConversionMetrics: React.FC<SprintConversionMetricsProps> = ({ timeR
         
         <Card>
           <CardContent className="p-4">
-            <div className="text-sm text-gray-500">Total Sprint Signups</div>
+            <div className="text-sm text-gray-500">Total BSF Signups</div>
             <div className="text-2xl font-bold">{totalConversions}</div>
           </CardContent>
         </Card>

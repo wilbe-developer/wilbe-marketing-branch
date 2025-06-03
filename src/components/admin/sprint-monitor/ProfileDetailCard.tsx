@@ -46,6 +46,7 @@ export interface SprintProfile {
   current_job?: string;
   customer_engagement?: string;
   minimal_success_version?: string;
+  ambitious_version?: string;
   [key: string]: any; // For any other properties in the profile
 }
 

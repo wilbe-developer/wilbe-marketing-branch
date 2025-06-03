@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -74,7 +73,6 @@ const UnifiedAnalytics: React.FC<UnifiedAnalyticsProps> = ({ timeRange }) => {
       />
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* UTM Distribution Chart */}
         <Card>
           <CardContent className="pt-6">
             <div className="flex justify-between items-center mb-4">
@@ -93,7 +91,6 @@ const UnifiedAnalytics: React.FC<UnifiedAnalyticsProps> = ({ timeRange }) => {
           </CardContent>
         </Card>
         
-        {/* Daily Signups Chart */}
         <Card>
           <CardContent className="pt-6">
             <h3 className="text-lg font-medium mb-4">Daily Activity (Last 14 Days)</h3>

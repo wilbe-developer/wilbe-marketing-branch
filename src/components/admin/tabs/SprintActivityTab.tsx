@@ -14,7 +14,7 @@ const SprintActivityTab = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Sprint Activity Dashboard</h2>
+        <h2 className="text-2xl font-bold">BSF Activity Dashboard</h2>
         
         <div className="bg-background border rounded-md p-1 flex">
           <button 
@@ -48,8 +48,8 @@ const SprintActivityTab = () => {
         <TabsList className="mb-4">
           <TabsTrigger value="unified">Unified Analytics</TabsTrigger>
           <TabsTrigger value="waitlist">Waitlist Analytics</TabsTrigger>
-          <TabsTrigger value="conversion">Sprint Conversion</TabsTrigger>
-          <TabsTrigger value="engagement">Sprint Engagement</TabsTrigger>
+          <TabsTrigger value="conversion">BSF Conversion</TabsTrigger>
+          <TabsTrigger value="engagement">BSF Engagement</TabsTrigger>
         </TabsList>
 
         <TabsContent value="unified" className="space-y-6">
