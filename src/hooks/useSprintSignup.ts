@@ -112,7 +112,8 @@ export const useSprintSignup = () => {
             lab_space_secured: profile.lab_space_secured ? 'yes' : 'no',
             lab_space_details: profile.lab_space_details || '',
             
-            // Window 14 - New minimal success version field
+            // Window 14 - Final questions
+            ambitious_version: profile.ambitious_version || '',
             minimal_success_version: profile.minimal_success_version || '',
             
             // Other
