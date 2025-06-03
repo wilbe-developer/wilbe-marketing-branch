@@ -163,50 +163,49 @@ export const MultiFileUploader: React.FC<MultiFileUploaderProps> = ({
     <div className="space-y-4">
       {/* Existing Files Display */}
       {files.length > 0 && (
-        <div className="space-y-2">
+        <div className="space-y-4">
           <h4 className="font-medium">Uploaded Files ({files.length})</h4>
-          <div className="border rounded-lg overflow-hidden">
-            <div className="bg-gray-50 px-4 py-2 border-b">
-              <div className="grid grid-cols-4 gap-4 text-sm font-medium text-gray-700">
-                <div>Filename</div>
-                <div>Date Uploaded</div>
-                <div></div>
-                <div className="text-right">Actions</div>
-              </div>
-            </div>
-            <div className="divide-y">
-              {files.map((file, index) => (
-                <div key={`${file.fileId}-${index}`} className="px-4 py-3">
-                  <div className="grid grid-cols-4 gap-4 items-center">
-                    <div className="flex items-center space-x-3">
-                      <File className="h-5 w-5 text-blue-500" />
-                      <div>
-                        <p className="font-medium text-sm">{file.fileName}</p>
+          
+          {/* Desktop: Grid layout, Mobile: Stacked cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {files.map((file, index) => (
+              <Card key={`${file.fileId}-${index}`} className="border border-gray-200">
+                <CardContent className="p-4">
+                  <div className="flex flex-col space-y-3">
+                    {/* File Info */}
+                    <div className="flex items-start space-x-3">
+                      <div className="flex-shrink-0">
+                        <File className="h-8 w-8 text-blue-500" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm truncate" title={file.fileName}>
+                          {file.fileName}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {new Date(file.uploadedAt).toLocaleDateString()}
+                        </p>
                       </div>
                     </div>
                     
-                    <div className="text-sm text-gray-500">
-                      {new Date(file.uploadedAt).toLocaleDateString()}
-                    </div>
-                    
-                    <div></div>
-                    
+                    {/* Action Buttons */}
                     <div className="flex justify-end space-x-2">
                       <Button 
-                        variant="ghost" 
+                        variant="outline" 
                         size="sm" 
                         onClick={() => handleDownload(file)}
+                        className="flex-1"
                         title="Download file"
                       >
-                        <Download className="h-4 w-4" />
+                        <Download className="h-4 w-4 mr-1" />
+                        Download
                       </Button>
                       
                       {!isCompleted && (
                         <Button
-                          variant="ghost"
+                          variant="outline"
                           size="sm"
                           onClick={() => handleDeleteFile(file)}
-                          className="text-red-500 hover:text-red-700"
+                          className="text-red-500 hover:text-red-700 hover:bg-red-50"
                           title="Delete file"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -214,9 +213,9 @@ export const MultiFileUploader: React.FC<MultiFileUploaderProps> = ({
                       )}
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       )}
