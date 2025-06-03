@@ -1,7 +1,8 @@
+
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Upload, X, Download, File, Trash2 } from "lucide-react";
+import { Upload, Download, File, Trash2 } from "lucide-react";
 import { useFileUpload } from "@/hooks/useFileUpload";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -25,7 +26,7 @@ export const MultiFileUploader: React.FC<MultiFileUploaderProps> = ({
   existingFiles = [],
   onFilesChange,
   isCompleted = false,
-  maxFiles = 5
+  maxFiles
 }) => {
   const [files, setFiles] = useState<FileData[]>(existingFiles);
   const [uploading, setUploading] = useState(false);
@@ -35,8 +36,25 @@ export const MultiFileUploader: React.FC<MultiFileUploaderProps> = ({
     setFiles(existingFiles);
   }, [existingFiles]);
 
+  // Fetch file details from database to get correct filename
+  const fetchFileDetails = async (fileId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("user_files")
+        .select("file_name, download_url, view_url")
+        .eq("id", fileId)
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error("Error fetching file details:", error);
+      return null;
+    }
+  };
+
   const handleFileUpload = async (selectedFiles: FileList) => {
-    if (files.length + selectedFiles.length > maxFiles) {
+    if (maxFiles && files.length + selectedFiles.length > maxFiles) {
       toast.error(`Maximum ${maxFiles} files allowed`);
       return;
     }
@@ -45,13 +63,16 @@ export const MultiFileUploader: React.FC<MultiFileUploaderProps> = ({
     const uploadPromises = Array.from(selectedFiles).map(async (file) => {
       return new Promise<FileData>((resolve, reject) => {
         uploadFile(file, {
-          onSuccess: (response) => {
+          onSuccess: async (response) => {
+            // Fetch the actual file details from database
+            const fileDetails = await fetchFileDetails(response.id || response.fileId);
+            
             resolve({
               fileId: response.id || response.fileId,
-              fileName: file.name,
+              fileName: fileDetails?.file_name || file.name,
               uploadedAt: new Date().toISOString(),
-              viewUrl: response.viewLink,
-              downloadUrl: response.downloadLink
+              viewUrl: fileDetails?.view_url || response.viewLink,
+              downloadUrl: fileDetails?.download_url || response.downloadLink
             });
           },
           onError: (error) => reject(error)
@@ -93,6 +114,14 @@ export const MultiFileUploader: React.FC<MultiFileUploaderProps> = ({
     }
   };
 
+  const handleDownload = (file: FileData) => {
+    if (file.downloadUrl) {
+      window.open(file.downloadUrl, '_blank');
+    } else {
+      toast.error("Download link not available");
+    }
+  };
+
   return (
     <div className="space-y-4">
       {/* Existing Files Display */}
@@ -126,13 +155,14 @@ export const MultiFileUploader: React.FC<MultiFileUploaderProps> = ({
                     <div></div>
                     
                     <div className="flex justify-end space-x-2">
-                      {file.downloadUrl && (
-                        <Button variant="ghost" size="sm" asChild>
-                          <a href={file.downloadUrl} target="_blank" rel="noopener noreferrer">
-                            <Download className="h-4 w-4" />
-                          </a>
-                        </Button>
-                      )}
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => handleDownload(file)}
+                        title="Download file"
+                      >
+                        <Download className="h-4 w-4" />
+                      </Button>
                       
                       {!isCompleted && (
                         <Button
@@ -140,6 +170,7 @@ export const MultiFileUploader: React.FC<MultiFileUploaderProps> = ({
                           size="sm"
                           onClick={() => handleDeleteFile(file)}
                           className="text-red-500 hover:text-red-700"
+                          title="Delete file"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -154,7 +185,7 @@ export const MultiFileUploader: React.FC<MultiFileUploaderProps> = ({
       )}
 
       {/* Upload New Files */}
-      {!isCompleted && files.length < maxFiles && (
+      {!isCompleted && (!maxFiles || files.length < maxFiles) && (
         <Card className="border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors">
           <CardContent className="p-6">
             <div className="text-center">
@@ -164,8 +195,8 @@ export const MultiFileUploader: React.FC<MultiFileUploaderProps> = ({
               </h3>
               <p className="text-gray-500 mb-4">
                 {files.length === 0 
-                  ? `Choose files to upload (max ${maxFiles})`
-                  : `Add more files (${maxFiles - files.length} remaining)`
+                  ? "Choose files to upload"
+                  : "Add more files"
                 }
               </p>
               
