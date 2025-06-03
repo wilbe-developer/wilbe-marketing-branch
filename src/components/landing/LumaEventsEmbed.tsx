@@ -1,16 +1,14 @@
 
 interface LumaEventsEmbedProps {
-  height?: string;
   className?: string;
 }
 
 export default function LumaEventsEmbed({ 
-  height = "400px", 
   className = "" 
 }: LumaEventsEmbedProps) {
   return (
-    <div className={`rounded-lg border shadow-sm bg-white overflow-hidden ${className}`}>
-      <div className="relative w-full" style={{ height }}>
+    <div className={`rounded-lg border shadow-sm bg-white overflow-hidden h-64 sm:h-96 ${className}`}>
+      <div className="relative w-full h-full">
         <iframe
           src="https://lu.ma/embed/calendar/cal-DLkKXePQ5aA3GHL/events?light=true"
           className="absolute inset-0 w-full h-full"

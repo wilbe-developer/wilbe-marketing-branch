@@ -160,27 +160,33 @@ const UserApprovalsTab = () => {
       // Get user email for sending approval confirmation
       const approvedUser = pendingUsers.find(user => user.user_id === userId);
       if (approvedUser && approvedUser.email) {
-        // Send approval confirmation email
-        const emailSent = await sendApprovalConfirmationEmail(
-          approvedUser.email, 
-          userName
-        );
-        
-        if (emailSent) {
-          console.log('Approval confirmation email sent successfully');
+        // Only send approval email if user doesn't have a sprint profile
+        if (!approvedUser.has_sprint_profile) {
+          const emailSent = await sendApprovalConfirmationEmail(
+            approvedUser.email, 
+            userName
+          );
+          
+          if (emailSent) {
+            console.log('Approval confirmation email sent successfully');
+          } else {
+            console.warn('Failed to send approval confirmation email');
+            toast({
+              title: 'Approval Complete',
+              description: `${userName} has been approved, but email notification failed`,
+              variant: 'default'
+            });
+          }
         } else {
-          console.warn('Failed to send approval confirmation email');
-          toast({
-            title: 'Approval Complete',
-            description: `${userName} has been approved, but email notification failed`,
-            variant: 'default'
-          });
+          console.log('Skipping approval email for sprint user (already received confirmation)');
         }
       }
 
       toast({
         title: 'User Approved',
-        description: `${userName} has been approved as a member and notified via email`
+        description: approvedUser?.has_sprint_profile 
+          ? `${userName} has been approved (no email sent - already received sprint confirmation)`
+          : `${userName} has been approved as a member and notified via email`
       });
 
       // Refresh the list

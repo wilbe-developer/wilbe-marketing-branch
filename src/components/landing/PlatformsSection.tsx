@@ -1,7 +1,6 @@
 
-
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Construction } from "lucide-react";
 import LumaEventsEmbed from "./LumaEventsEmbed";
 
 export default function PlatformsSection() {
@@ -37,7 +36,7 @@ export default function PlatformsSection() {
     {
       name: "Milvus Advanced", 
       location: "Oxford, UK",
-      image: "/lovable-uploads/dabb2926-37df-4faa-a83d-8ebfb7db6e9c.png"
+      image: "/lovable-uploads/816e6141-9e66-472e-8b16-d7196060771e.png"
     },
     {
       name: "Origen",
@@ -47,7 +46,12 @@ export default function PlatformsSection() {
     {
       name: "CarpeCarbon",
       location: "Turin, Italy",
-      image: "/lovable-uploads/c97a82b5-f37b-49a4-accd-5ef983857a24.png"
+      image: "/lovable-uploads/52b6b8f5-17d0-4344-ac5d-c35b60bea127.png"
+    },
+    {
+      name: "Dinura",
+      location: "Milan, Italy",
+      image: "/lovable-uploads/fd524d0d-e48e-4aed-ad02-d25a0c30d49e.png"
     }
   ];
 
@@ -115,16 +119,24 @@ export default function PlatformsSection() {
                 {/* Lab Gallery - only show for Wilbe Labs */}
                 {platform.showLabGallery && (
                   <div className="mb-4 sm:mb-6">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 max-w-5xl">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 max-w-5xl">
                       {labGallery.map((lab, labIndex) => (
-                        <div key={labIndex} className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow">
-                          <div className="aspect-video">
+                        <div key={labIndex} className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow relative">
+                          <div className="aspect-video relative">
                             <img
                               src={lab.image}
                               alt={`${lab.name} laboratory facility`}
                               className="w-full h-full object-cover"
                               loading="lazy"
                             />
+                            {lab.name === "Dinura" && (
+                              <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                                <div className="bg-yellow-400 text-black px-3 py-1 rounded-full flex items-center gap-2 font-bold text-sm">
+                                  <Construction className="h-4 w-4" />
+                                  Under Construction
+                                </div>
+                              </div>
+                            )}
                           </div>
                           <div className="p-3 sm:p-4">
                             <h4 className="font-bold text-gray-900 text-sm mb-1">{lab.name}</h4>
@@ -152,19 +164,16 @@ export default function PlatformsSection() {
                     <div className="mt-6 sm:mt-8 max-w-4xl">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                         <img
-                          src="/lovable-uploads/1ea15f19-c70d-4a23-9800-9aab1bf6614d.png"
+                          src="/lovable-uploads/cb69c595-aeb4-4208-a8a9-93e43a9ac07e.png"
                           alt="Wilbe Sandbox Platform Interface"
-                          className="w-full h-64 sm:h-96 object-cover rounded-lg shadow-lg"
+                          className="w-full h-64 sm:h-96 object-contain rounded-lg shadow-lg bg-gray-100"
                           loading="lazy"
                           onError={(e) => {
                             console.error("Image failed to load:", e);
                             (e.target as HTMLImageElement).src = "/placeholder.svg";
                           }}
                         />
-                        <LumaEventsEmbed 
-                          height="16rem" 
-                          className="sm:h-96" 
-                        />
+                        <LumaEventsEmbed />
                       </div>
                     </div>
                     
