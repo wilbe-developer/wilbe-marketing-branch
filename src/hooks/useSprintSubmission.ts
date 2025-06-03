@@ -181,7 +181,10 @@ export const useSprintSubmission = () => {
         p_utm_content: utmContent,
         
         // Add the missing minimal_success_version parameter
-        p_minimal_success_version: answers.minimal_success_version || ''
+        p_minimal_success_version: answers.minimal_success_version || '',
+        
+        // Add the missing dashboard_access_enabled parameter
+        p_dashboard_access_enabled: false
       });
 
       if (profileError) {
