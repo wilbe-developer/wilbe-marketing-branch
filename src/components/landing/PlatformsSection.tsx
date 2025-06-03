@@ -165,7 +165,7 @@ export default function PlatformsSection() {
                         <img
                           src="/lovable-uploads/1ea15f19-c70d-4a23-9800-9aab1bf6614d.png"
                           alt="Wilbe Sandbox Platform Interface"
-                          className="w-full h-64 sm:h-96 object-cover rounded-lg shadow-lg"
+                          className="w-full h-64 sm:h-96 object-contain rounded-lg shadow-lg bg-gray-100"
                           loading="lazy"
                           onError={(e) => {
                             console.error("Image failed to load:", e);
