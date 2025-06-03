@@ -2,14 +2,13 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import { Play, Clock, CheckCircle, AlertTriangle } from "lucide-react";
 import { useSprintCountdown } from "@/hooks/useSprintCountdown";
 import { useSprintContext } from "@/hooks/useSprintContext";
 
 export const SprintCountdown = () => {
-  const { timeLeft, isLoading, startSprint, hasStarted } = useSprintCountdown();
-  const { isSharedSprint } = useSprintContext();
+  const { currentSprintOwnerId, isSharedSprint } = useSprintContext();
+  const { timeLeft, isLoading, startSprint, hasStarted } = useSprintCountdown(currentSprintOwnerId);
 
   if (isLoading) {
     return (
@@ -61,13 +60,6 @@ export const SprintCountdown = () => {
     if (timeLeft.progressPercentage > 80) return "text-orange-600";
     if (timeLeft.progressPercentage > 50) return "text-yellow-600";
     return "text-green-600";
-  };
-
-  const getProgressColor = () => {
-    if (timeLeft.isExpired) return "bg-red-500";
-    if (timeLeft.progressPercentage > 80) return "bg-orange-500";
-    if (timeLeft.progressPercentage > 50) return "bg-yellow-500";
-    return "bg-green-500";
   };
 
   const getIcon = () => {
@@ -122,17 +114,6 @@ export const SprintCountdown = () => {
                 </div>
                 <div className="text-sm text-gray-500">Seconds</div>
               </div>
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm text-gray-600">
-                <span>Sprint Progress</span>
-                <span>{Math.round(timeLeft.progressPercentage)}% elapsed</span>
-              </div>
-              <Progress 
-                value={timeLeft.progressPercentage} 
-                className="h-2"
-              />
             </div>
             
             {timeLeft.progressPercentage > 80 && (

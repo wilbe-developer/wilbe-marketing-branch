@@ -13,7 +13,7 @@ interface CountdownTime {
   progressPercentage: number;
 }
 
-export const useSprintCountdown = () => {
+export const useSprintCountdown = (sprintOwnerId?: string | null) => {
   const [timeLeft, setTimeLeft] = useState<CountdownTime>({
     days: 0,
     hours: 0,
@@ -25,6 +25,9 @@ export const useSprintCountdown = () => {
   const [sprintStartDate, setSprintStartDate] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
+
+  // Use the provided sprintOwnerId or fall back to the current user
+  const targetUserId = sprintOwnerId || user?.id;
 
   const SPRINT_DURATION_DAYS = 10;
   const SPRINT_DURATION_MS = SPRINT_DURATION_DAYS * 24 * 60 * 60 * 1000;
@@ -60,13 +63,13 @@ export const useSprintCountdown = () => {
   };
 
   const fetchSprintStartDate = async () => {
-    if (!user?.id) return;
+    if (!targetUserId) return;
 
     try {
       const { data, error } = await supabase
         .from("sprint_profiles")
         .select("sprint_start_date")
-        .eq("user_id", user.id)
+        .eq("user_id", targetUserId)
         .single();
 
       if (error && error.code !== "PGRST116") {
@@ -85,6 +88,12 @@ export const useSprintCountdown = () => {
   const startSprint = async () => {
     if (!user?.id) {
       toast.error("User not authenticated");
+      return;
+    }
+
+    // Only allow starting sprint for current user, not for shared sprints
+    if (sprintOwnerId && sprintOwnerId !== user.id) {
+      toast.error("You can only start your own sprint timer");
       return;
     }
 
@@ -112,7 +121,7 @@ export const useSprintCountdown = () => {
 
   useEffect(() => {
     fetchSprintStartDate();
-  }, [user?.id]);
+  }, [targetUserId]);
 
   useEffect(() => {
     if (!sprintStartDate) {
