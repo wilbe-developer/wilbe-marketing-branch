@@ -44,9 +44,7 @@ export const SprintProfileShowOrAsk = ({
             description="You may change your answer here if needed."
           />
         </div>
-        <div className="ml-6 border-l-2 border-slate-300 pl-4">
-          {children}
-        </div>
+        {children}
       </div>
     );
   }
