@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Building, Microscope, Users, Shield } from "lucide-react";
@@ -37,7 +38,7 @@ export default function WilbeLabsSection() {
     {
       name: "Milvus Advanced",
       location: "Oxford, UK", 
-      image: "/lovable-uploads/dc5b5559-aaec-44a3-a59b-5b38bd6a9477.png",
+      image: "/lovable-uploads/816e6141-9e66-472e-8b16-d7196060771e.png",
       description: "State-of-the-art research facility"
     },
     {
@@ -49,8 +50,14 @@ export default function WilbeLabsSection() {
     {
       name: "CarpeCarbon",
       location: "Turin, Italy",
-      image: "/lovable-uploads/dc5b5559-aaec-44a3-a59b-5b38bd6a9477.png",
+      image: "/lovable-uploads/52b6b8f5-17d0-4344-ac5d-c35b60bea127.png",
       description: "Climate tech innovation hub"
+    },
+    {
+      name: "Dinura",
+      location: "Milan, Italy",
+      image: "/lovable-uploads/fd524d0d-e48e-4aed-ad02-d25a0c30d49e.png",
+      description: "Advanced manufacturing and research space"
     }
   ];
 
@@ -136,7 +143,7 @@ export default function WilbeLabsSection() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6">
             {deliveredLabs.map((lab, index) => (
               <div key={index} className="bg-gray-50 rounded-lg overflow-hidden shadow-lg hover:shadow-lg transition-shadow">
                 <div className="aspect-video bg-gray-200 relative">
