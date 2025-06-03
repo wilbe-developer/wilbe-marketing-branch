@@ -53,7 +53,7 @@ export const ConditionalFieldRenderer: React.FC<ConditionalFieldRendererProps> =
         {field.text && <p className="text-sm text-blue-700 mb-4">{field.text}</p>}
         {!field.text && (
           <p className="text-sm text-blue-700 mb-4">
-            Invite your team members to collaborate on this BSF. They will be able to view and contribute to tasks.
+            Invite your team members to collaborate on this sprint. They will be able to view and contribute to tasks.
           </p>
         )}
         
@@ -70,7 +70,7 @@ export const ConditionalFieldRenderer: React.FC<ConditionalFieldRendererProps> =
             <DialogHeader>
               <DialogTitle>Manage Team Collaborators</DialogTitle>
               <DialogDescription>
-                Add or remove team members who can collaborate on your BSF.
+                Add or remove team members who can collaborate on your sprint.
               </DialogDescription>
             </DialogHeader>
             
