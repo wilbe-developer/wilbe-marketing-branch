@@ -2,7 +2,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import nodemailer from 'nodemailer';
 
-// Email transporter setup.
+// Email transporter setup
 const transporter = nodemailer.createTransporter({
   service: 'gmail',
   auth: {
