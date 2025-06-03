@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { StepNode, FormField } from '@/types/task-builder';
 import { Input } from '@/components/ui/input';
@@ -23,7 +22,15 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { CollaboratorsManagement } from '@/components/sprint/CollaboratorsManagement';
-import FileUploader from '@/components/sprint/FileUploader';
+import { MultiFileUploader } from '@/components/sprint/MultiFileUploader';
+
+interface FileData {
+  fileId: string;
+  fileName: string;
+  uploadedAt: string;
+  viewUrl?: string;
+  downloadUrl?: string;
+}
 
 interface FormStepRendererProps {
   step: StepNode;
@@ -54,13 +61,9 @@ export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
     handleAnswer(updatedValues);
   };
 
-  // Handle file upload
-  const handleFileUpload = (fieldId: string, fileId: string) => {
-    handleFieldChange(fieldId, {
-      fileId,
-      fileName: `Uploaded File (ID: ${fileId})`,
-      uploadedAt: new Date().toISOString()
-    });
+  // Handle multi-file upload
+  const handleMultiFileUpload = (fieldId: string, files: FileData[]) => {
+    handleFieldChange(fieldId, files);
   };
 
   // Normalize field properties (handle both type and inputType)
@@ -129,7 +132,7 @@ export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
       <div className="space-y-4">
         {step.fields.map((fieldData: FormField) => {
           const field = normalizeFieldType(fieldData);
-          const fieldType = field.type || field.inputType; // Ensure we check both type and inputType
+          const fieldType = field.type || field.inputType;
           
           // Handle collaboration fields
           if (fieldType === 'collaboration' || field.id === 'invite_link') {
@@ -260,18 +263,12 @@ export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
               
               {(fieldType === 'file' || fieldType === 'upload') && (
                 <div className="mt-2">
-                  {formValues[field.id] ? (
-                    <div className="bg-green-50 border border-green-200 rounded-md p-4 mt-2">
-                      <p className="font-medium">File uploaded successfully:</p>
-                      <p className="text-sm mt-1">{formValues[field.id].fileName || `File ID: ${formValues[field.id].fileId}`}</p>
-                    </div>
-                  ) : (
-                    <FileUploader
-                      onFileUploaded={(fileId) => handleFileUpload(field.id, fileId)}
-                      onUploadError={(error) => console.error("Upload error:", error)}
-                      isCompleted={false}
-                    />
-                  )}
+                  <MultiFileUploader
+                    existingFiles={Array.isArray(formValues[field.id]) ? formValues[field.id] : formValues[field.id] ? [formValues[field.id]] : []}
+                    onFilesChange={(files) => handleMultiFileUpload(field.id, files)}
+                    isCompleted={false}
+                    maxFiles={5}
+                  />
                 </div>
               )}
               

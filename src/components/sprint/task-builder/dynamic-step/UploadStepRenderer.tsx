@@ -1,7 +1,15 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { StepNode } from "@/types/task-builder";
-import FileUploader from "@/components/sprint/FileUploader";
+import { MultiFileUploader } from "@/components/sprint/MultiFileUploader";
+
+interface FileData {
+  fileId: string;
+  fileName: string;
+  uploadedAt: string;
+  viewUrl?: string;
+  downloadUrl?: string;
+}
 
 interface UploadStepRendererProps {
   step: StepNode;
@@ -16,40 +24,40 @@ export const UploadStepRenderer: React.FC<UploadStepRendererProps> = ({
   onAnswer,
   onFileUpload,
 }) => {
-  // Handle successful file upload
-  const handleFileUploaded = (fileId: string) => {
-    // If fileId is available, use it to create a proper answer object with metadata
-    onAnswer({
-      fileId,
-      fileName: `Uploaded File (ID: ${fileId})`,
-      uploadedAt: new Date().toISOString()
-    });
-  };
+  const [existingFiles, setExistingFiles] = useState<FileData[]>([]);
 
-  // Handle upload completion - this is for more complex upload scenarios
-  const handleUploadComplete = async (fileId?: string) => {
-    if (fileId) {
-      // Additional processing can be done here if needed
-      return Promise.resolve();
+  // Parse existing files from answer
+  useEffect(() => {
+    if (answer) {
+      if (Array.isArray(answer)) {
+        // Handle array of files
+        setExistingFiles(answer);
+      } else if (answer.fileId) {
+        // Handle single file (legacy format)
+        setExistingFiles([{
+          fileId: answer.fileId,
+          fileName: answer.fileName || `File ${answer.fileId}`,
+          uploadedAt: answer.uploadedAt || new Date().toISOString(),
+          viewUrl: answer.viewUrl,
+          downloadUrl: answer.downloadUrl
+        }]);
+      }
     }
-    return Promise.resolve();
+  }, [answer]);
+
+  const handleFilesChange = (files: FileData[]) => {
+    // Update the answer with the new files array
+    onAnswer(files);
   };
 
   return (
     <div className="space-y-4">
-      {answer ? (
-        <div className="bg-green-50 border border-green-200 rounded-md p-4">
-          <p className="font-medium">File uploaded successfully:</p>
-          <p className="text-sm mt-1">{answer.fileName || `File ID: ${answer.fileId}`}</p>
-        </div>
-      ) : (
-        <FileUploader
-          onFileUploaded={handleFileUploaded}
-          onUploadComplete={handleUploadComplete}
-          onUploadError={(error) => console.error("Upload error:", error)}
-          isCompleted={false}
-        />
-      )}
+      <MultiFileUploader
+        existingFiles={existingFiles}
+        onFilesChange={handleFilesChange}
+        isCompleted={false}
+        maxFiles={5}
+      />
     </div>
   );
 };

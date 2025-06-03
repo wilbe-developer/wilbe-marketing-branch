@@ -1,173 +1,149 @@
 
-import { useState, useRef } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Upload, File, CheckCircle } from "lucide-react";
 import { useFileUpload } from "@/hooks/useFileUpload";
-import { Progress } from "@/components/ui/progress";
-import { Upload, File, X } from "lucide-react";
 import { toast } from "sonner";
 
 interface FileUploaderProps {
   onFileUploaded: (fileId: string) => void;
-  onUploadError?: (error: string) => void;
-  taskId?: string;
   onUploadComplete?: (fileId?: string) => Promise<void>;
-  isCompleted?: boolean;
+  onUploadError?: (error: string) => void;
+  isCompleted: boolean;
 }
 
-const FileUploader = ({ 
-  onFileUploaded, 
-  onUploadError,
-  taskId, 
+const FileUploader: React.FC<FileUploaderProps> = ({
+  onFileUploaded,
   onUploadComplete,
-  isCompleted 
-}: FileUploaderProps) => {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  onUploadError,
+  isCompleted
+}) => {
+  const [dragOver, setDragOver] = useState(false);
+  const [uploadedFileInfo, setUploadedFileInfo] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
+  
   const { uploadFile, isUploading, progress } = useFileUpload();
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files && files.length > 0) {
-      setSelectedFile(files[0]);
-    }
-  };
+  const handleFileSelection = async (file: File) => {
+    if (!file) return;
 
-  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-  };
-
-  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    const files = event.dataTransfer.files;
-    if (files && files.length > 0) {
-      setSelectedFile(files[0]);
-    }
-  };
-
-  const handleUpload = () => {
-    if (selectedFile) {
-      uploadFile(selectedFile, {
-        onSuccess: (data) => {
-          console.log("File upload succeeded:", data);
-          
-          if (data && data.fileId) {
-            // Use onUploadComplete if provided, otherwise fall back to onFileUploaded
-            if (onUploadComplete) {
-              onUploadComplete(data.fileId)
-                .then(() => {
-                  onFileUploaded(data.fileId);
-                  setSelectedFile(null);
-                })
-                .catch(err => {
-                  console.error("Error in onUploadComplete:", err);
-                  if (onUploadError) onUploadError("Failed to process upload.");
-                  else toast.error("Failed to process upload.");
-                });
-            } else {
-              onFileUploaded(data.fileId);
-              setSelectedFile(null);
-            }
-          } else {
-            console.error("Upload succeeded but no file ID returned:", data);
-            if (onUploadError) onUploadError("Upload succeeded but no file ID returned.");
-            else toast.error("Upload succeeded but no file ID returned.");
-          }
-        },
-        onError: (error) => {
-          console.error("File upload error:", error);
-          const errorMessage = error?.message || "Unknown upload error";
-          if (onUploadError) onUploadError(errorMessage);
-          else toast.error(`Upload failed: ${errorMessage}`);
+    uploadFile(file, {
+      onSuccess: async (response) => {
+        const fileId = response.id || response.fileId;
+        setUploadedFileInfo({
+          id: fileId,
+          name: file.name
+        });
+        
+        onFileUploaded(fileId);
+        
+        if (onUploadComplete) {
+          await onUploadComplete(fileId);
         }
-      });
+        
+        toast.success("File uploaded successfully!");
+      },
+      onError: (error) => {
+        console.error("Upload error:", error);
+        const errorMessage = error.message || "Upload failed";
+        if (onUploadError) {
+          onUploadError(errorMessage);
+        }
+        toast.error(`Upload failed: ${errorMessage}`);
+      }
+    });
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      handleFileSelection(files[0]);
     }
   };
 
-  const clearFile = () => {
-    setSelectedFile(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(true);
   };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+  };
+
+  if (isCompleted && uploadedFileInfo) {
+    return (
+      <Card className="border-green-200 bg-green-50">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-center space-x-3">
+            <CheckCircle className="h-8 w-8 text-green-600" />
+            <div>
+              <h3 className="font-medium text-green-800">File Uploaded Successfully</h3>
+              <p className="text-sm text-green-600">{uploadedFileInfo.name}</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
-    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-      {!selectedFile ? (
-        <div
-          onDragOver={handleDragOver}
-          onDrop={handleDrop}
-          className="space-y-4"
-        >
-          <div className="mx-auto bg-gray-100 rounded-full p-3 w-16 h-16 flex items-center justify-center">
-            <Upload className="h-8 w-8 text-gray-400" />
-          </div>
-          <div>
-            <p className="text-lg font-medium">Drag and drop your file here</p>
-            <p className="text-sm text-gray-500 mt-1">or click to browse</p>
-          </div>
-          <input
-            type="file"
-            className="hidden"
-            onChange={handleFileChange}
-            ref={fileInputRef}
-            disabled={isCompleted}
-          />
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={isCompleted}
-          >
-            Browse Files
-          </Button>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {isUploading ? (
-            <div className="space-y-3">
-              <div className="animate-pulse bg-gray-100 rounded-full p-3 w-16 h-16 mx-auto flex items-center justify-center">
-                <Upload className="h-8 w-8 text-gray-400" />
+    <Card
+      className={`border-2 border-dashed transition-colors ${
+        dragOver
+          ? "border-blue-400 bg-blue-50"
+          : "border-gray-300 hover:border-gray-400"
+      }`}
+      onDrop={handleDrop}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+    >
+      <CardContent className="p-6">
+        <div className="text-center">
+          <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+          <h3 className="text-lg font-medium mb-2">Upload File</h3>
+          <p className="text-gray-500 mb-4">
+            Drag and drop a file here, or click to select
+          </p>
+          
+          {isUploading && (
+            <div className="mb-4">
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div 
+                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${progress}%` }}
+                />
               </div>
-              <p className="text-sm font-medium">Uploading {selectedFile.name}</p>
-              <Progress value={progress} className="h-2 w-full" />
-              <p className="text-xs text-gray-500">{progress}% complete</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              <div className="flex items-center justify-center space-x-3">
-                <div className="bg-gray-100 rounded-full p-3 w-16 h-16 flex items-center justify-center">
-                  <File className="h-8 w-8 text-gray-600" />
-                </div>
-                <button
-                  onClick={clearFile}
-                  className="bg-gray-200 hover:bg-gray-300 rounded-full p-1"
-                  title="Remove file"
-                  disabled={isCompleted}
-                >
-                  <X className="h-4 w-4 text-gray-600" />
-                </button>
-              </div>
-              <div className="text-center">
-                <p className="text-sm font-medium truncate max-w-xs mx-auto">
-                  {selectedFile.name}
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
-                </p>
-              </div>
-              <div className="flex justify-center">
-                <Button 
-                  onClick={handleUpload}
-                  disabled={isCompleted}
-                >
-                  Upload File
-                </Button>
-              </div>
+              <p className="text-sm text-gray-600 mt-2">Uploading... {progress}%</p>
             </div>
           )}
+          
+          <input
+            type="file"
+            onChange={(e) => e.target.files?.[0] && handleFileSelection(e.target.files[0])}
+            className="hidden"
+            id="file-upload-single"
+            disabled={isUploading || isCompleted}
+          />
+          
+          <Button 
+            asChild 
+            disabled={isUploading || isCompleted}
+            className="w-full"
+          >
+            <label htmlFor="file-upload-single" className="cursor-pointer">
+              {isUploading ? "Uploading..." : "Choose File"}
+            </label>
+          </Button>
         </div>
-      )}
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 
