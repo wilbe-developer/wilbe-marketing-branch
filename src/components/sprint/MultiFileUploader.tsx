@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -28,30 +27,63 @@ export const MultiFileUploader: React.FC<MultiFileUploaderProps> = ({
   isCompleted = false,
   maxFiles
 }) => {
-  const [files, setFiles] = useState<FileData[]>(existingFiles);
+  const [files, setFiles] = useState<FileData[]>([]);
   const [uploading, setUploading] = useState(false);
   const { uploadFile, isUploading } = useFileUpload();
 
-  useEffect(() => {
-    setFiles(existingFiles);
-  }, [existingFiles]);
-
-  // Fetch file details from database to get correct filename
-  const fetchFileDetails = async (fileId: string) => {
+  // Fetch complete file details from database using file IDs
+  const fetchFilesFromDatabase = async (fileIds: string[]) => {
+    if (fileIds.length === 0) return [];
+    
     try {
       const { data, error } = await supabase
         .from("user_files")
-        .select("file_name, download_url, view_url")
-        .eq("id", fileId)
-        .single();
+        .select("id, file_name, uploaded_at, download_url, view_url")
+        .in("id", fileIds);
 
-      if (error) throw error;
-      return data;
+      if (error) {
+        console.error("Error fetching files from database:", error);
+        return [];
+      }
+
+      return data.map(file => ({
+        fileId: file.id,
+        fileName: file.file_name,
+        uploadedAt: file.uploaded_at,
+        downloadUrl: file.download_url,
+        viewUrl: file.view_url
+      }));
     } catch (error) {
-      console.error("Error fetching file details:", error);
-      return null;
+      console.error("Error in fetchFilesFromDatabase:", error);
+      return [];
     }
   };
+
+  // Initialize files from existing data
+  useEffect(() => {
+    const initializeFiles = async () => {
+      if (existingFiles.length > 0) {
+        // Check if we have file IDs to fetch from database
+        const fileIds = existingFiles
+          .map(file => file.fileId)
+          .filter(Boolean);
+        
+        if (fileIds.length > 0) {
+          // Fetch complete file data from database
+          const dbFiles = await fetchFilesFromDatabase(fileIds);
+          if (dbFiles.length > 0) {
+            setFiles(dbFiles);
+            return;
+          }
+        }
+        
+        // Fallback to existing files if database fetch fails
+        setFiles(existingFiles);
+      }
+    };
+
+    initializeFiles();
+  }, [existingFiles]);
 
   const handleFileUpload = async (selectedFiles: FileList) => {
     if (maxFiles && files.length + selectedFiles.length > maxFiles) {
@@ -64,16 +96,21 @@ export const MultiFileUploader: React.FC<MultiFileUploaderProps> = ({
       return new Promise<FileData>((resolve, reject) => {
         uploadFile(file, {
           onSuccess: async (response) => {
-            // Fetch the actual file details from database
-            const fileDetails = await fetchFileDetails(response.id || response.fileId);
+            // Fetch the complete file details from database
+            const dbFiles = await fetchFilesFromDatabase([response.id || response.fileId]);
             
-            resolve({
-              fileId: response.id || response.fileId,
-              fileName: fileDetails?.file_name || file.name,
-              uploadedAt: new Date().toISOString(),
-              viewUrl: fileDetails?.view_url || response.viewLink,
-              downloadUrl: fileDetails?.download_url || response.downloadLink
-            });
+            if (dbFiles.length > 0) {
+              resolve(dbFiles[0]);
+            } else {
+              // Fallback if database fetch fails
+              resolve({
+                fileId: response.id || response.fileId,
+                fileName: file.name,
+                uploadedAt: new Date().toISOString(),
+                viewUrl: response.viewLink,
+                downloadUrl: response.downloadLink
+              });
+            }
           },
           onError: (error) => reject(error)
         });
