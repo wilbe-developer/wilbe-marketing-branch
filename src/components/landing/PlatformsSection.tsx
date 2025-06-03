@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Construction } from "lucide-react";
 import LumaEventsEmbed from "./LumaEventsEmbed";
@@ -173,10 +172,7 @@ export default function PlatformsSection() {
                             (e.target as HTMLImageElement).src = "/placeholder.svg";
                           }}
                         />
-                        <LumaEventsEmbed 
-                          height="16rem" 
-                          className="sm:h-96" 
-                        />
+                        <LumaEventsEmbed />
                       </div>
                     </div>
                     
