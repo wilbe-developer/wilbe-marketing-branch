@@ -49,16 +49,7 @@ export const TaskContent: React.FC<TaskContentProps> = ({
       {/* Current step */}
       {currentStep && renderCurrentStepWithDependencies()}
       
-      {/* Static panels if any */}
-      {taskDefinition.staticPanels && taskDefinition.staticPanels.length > 0 && (
-        <StaticPanels
-          panels={taskDefinition.staticPanels}
-          profileAnswers={sprintProfile}
-          stepAnswers={answers}
-        />
-      )}
-      
-      {/* Navigation buttons */}
+      {/* Navigation buttons - moved here to be right after the step */}
       <div className="flex justify-between pt-4">
         <Button
           variant="outline"
@@ -83,6 +74,15 @@ export const TaskContent: React.FC<TaskContentProps> = ({
           </Button>
         )}
       </div>
+      
+      {/* Static panels if any */}
+      {taskDefinition.staticPanels && taskDefinition.staticPanels.length > 0 && (
+        <StaticPanels
+          panels={taskDefinition.staticPanels}
+          profileAnswers={sprintProfile}
+          stepAnswers={answers}
+        />
+      )}
     </div>
   );
 };
