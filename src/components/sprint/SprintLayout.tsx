@@ -38,7 +38,7 @@ const SprintLayout = () => {
       <header className="bg-white shadow-sm py-3 px-4 md:py-4 md:px-6 flex justify-between items-center">
         <div className="flex items-center space-x-2 md:space-x-4">
           <Link to={PATHS.SPRINT_DASHBOARD} className="text-xl font-bold text-brand-pink">
-            Sprint Dashboard
+            BSF Dashboard
           </Link>
           <Link to="/community" className="flex items-center">
             <Button variant="ghost" className="flex items-center gap-1.5" title="Community">
@@ -80,7 +80,7 @@ const SprintLayout = () => {
         <Outlet />
       </main>
       <footer className="bg-white py-3 px-4 md:py-4 md:px-6 border-t text-center text-sm text-gray-500">
-        <p>© {new Date().getFullYear()} Wilbe. Sprint Program.</p>
+        <p>© {new Date().getFullYear()} Wilbe. BSF Program.</p>
       </footer>
     </div>
   );

@@ -30,12 +30,12 @@ export const SprintCountdown = () => {
         <CardHeader className="pb-4">
           <CardTitle className="flex items-center gap-2 text-green-800">
             <Play className="h-5 w-5" />
-            Ready to Start Your 10-Day Sprint?
+            Ready to Start Your 10-Day BSF?
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-green-700">
-            Click below to officially start your 10-day sprint timer. Once started, you'll have exactly 10 days to complete all tasks and build your comprehensive project plan.
+            Click below to officially start your 10-day BSF timer. Once started, you'll have exactly 10 days to complete all tasks and build your comprehensive project plan.
           </p>
           <Button 
             onClick={startSprint}
@@ -43,7 +43,7 @@ export const SprintCountdown = () => {
             size="lg"
           >
             <Play className="mr-2 h-4 w-4" />
-            Start My 10-Day Sprint
+            Start My 10-Day BSF
           </Button>
         </CardContent>
       </Card>
@@ -69,8 +69,8 @@ export const SprintCountdown = () => {
   };
 
   const getTitle = () => {
-    if (timeLeft.isExpired) return "Sprint Timer Expired";
-    return isSharedSprint ? "Sprint Timer" : "Your Sprint Timer";
+    if (timeLeft.isExpired) return "BSF Timer Expired";
+    return isSharedSprint ? "BSF Timer" : "Your BSF Timer";
   };
 
   return (
@@ -84,7 +84,7 @@ export const SprintCountdown = () => {
       <CardContent className="space-y-4">
         {timeLeft.isExpired ? (
           <div className="text-center py-4">
-            <p className="text-red-600 font-medium mb-2">Time's up! Your 10-day sprint has ended.</p>
+            <p className="text-red-600 font-medium mb-2">Time's up! Your 10-day BSF has ended.</p>
             <p className="text-gray-600">Don't worry - you can still complete your tasks and review your progress.</p>
           </div>
         ) : (
@@ -119,7 +119,7 @@ export const SprintCountdown = () => {
             {timeLeft.progressPercentage > 80 && (
               <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
                 <p className="text-orange-800 text-sm font-medium">
-                  ⚡ Sprint almost complete! Make sure to finish your remaining tasks.
+                  ⚡ BSF almost complete! Make sure to finish your remaining tasks.
                 </p>
               </div>
             )}

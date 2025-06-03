@@ -47,7 +47,7 @@ const SprintProfilesTab = () => {
   if (!profiles || profiles.length === 0) {
     return (
       <div className="text-center p-8">
-        <p className="text-muted-foreground">No sprint profile data available</p>
+        <p className="text-muted-foreground">No BSF profile data available</p>
       </div>
     );
   }

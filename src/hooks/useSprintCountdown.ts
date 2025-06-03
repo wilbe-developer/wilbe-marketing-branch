@@ -93,7 +93,7 @@ export const useSprintCountdown = (sprintOwnerId?: string | null) => {
 
     // Only allow starting sprint for current user, not for shared sprints
     if (sprintOwnerId && sprintOwnerId !== user.id) {
-      toast.error("You can only start your own sprint timer");
+      toast.error("You can only start your own BSF timer");
       return;
     }
 
@@ -106,15 +106,15 @@ export const useSprintCountdown = (sprintOwnerId?: string | null) => {
         .eq("user_id", user.id);
 
       if (error) {
-        toast.error("Failed to start sprint timer");
+        toast.error("Failed to start BSF timer");
         console.error("Error starting sprint:", error);
         return;
       }
 
       setSprintStartDate(startDate);
-      toast.success("10-day sprint timer started! 🚀");
+      toast.success("10-day BSF timer started! 🚀");
     } catch (error) {
-      toast.error("Failed to start sprint timer");
+      toast.error("Failed to start BSF timer");
       console.error("Error in startSprint:", error);
     }
   };

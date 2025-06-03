@@ -3,7 +3,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import nodemailer from 'nodemailer';
 
 // Email transporter setup
-const transporter = nodemailer.createTransport({
+const transporter = nodemailer.createTransporter({
   service: 'gmail',
   auth: {
     user: process.env.GMAIL_USER || 'jesse@wilbe.com',
@@ -19,7 +19,7 @@ const createEmailHtml = (name: string, referralLink: string) => `
   <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
     <h2 style="color: #1a365d;">You've Joined the Wilbe Waitlist</h2>
     <p>Hi ${name},</p>
-    <p>We'll notify you when the sprint is ready - get prepared!</p>
+    <p>We'll notify you when the BSF is ready - get prepared!</p>
     <div style="background: #f7fafc; padding: 15px; border-radius: 5px; margin: 20px 0;">
       <h3 style="margin-top: 0;">Get Early Access:</h3>
       <p>Share your personal referral link with 3 other builders to gain early access:</p>

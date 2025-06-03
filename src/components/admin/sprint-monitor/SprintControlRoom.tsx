@@ -85,7 +85,7 @@ const SprintControlRoom = () => {
     <div className="space-y-6">
       <div className="flex justify-between">
         <div>
-          <h2 className="text-2xl font-semibold">Sprint Overview</h2>
+          <h2 className="text-2xl font-semibold">BSF Overview</h2>
           <div className="text-sm text-muted-foreground">
             Showing statistics for non-admin users only ({adminUsersCount} admin users excluded from calculations)
           </div>
@@ -227,7 +227,7 @@ const SprintControlRoom = () => {
                     {activity.userName}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {activity.eventType === 'signup' && 'Signed up for sprint'}
+                    {activity.eventType === 'signup' && 'Signed up for BSF'}
                     {activity.eventType === 'task_completed' && `Completed task: ${activity.taskName}`}
                     {activity.eventType === 'file_uploaded' && `Uploaded file for: ${activity.taskName}`}
                     {activity.eventType === 'profile_updated' && 'Updated profile information'}
