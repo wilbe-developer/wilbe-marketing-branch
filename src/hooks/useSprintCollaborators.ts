@@ -123,7 +123,7 @@ export const useSprintCollaborators = () => {
       if (existingError && existingError.code !== "PGRST116") throw existingError;
 
       if (existingCollaborator) {
-        throw new Error("This user is already a collaborator on your BSF.");
+        throw new Error("This user is already a collaborator on your sprint.");
       }
 
       // Add as collaborator
@@ -140,7 +140,7 @@ export const useSprintCollaborators = () => {
 
       showToast({
         title: "Collaborator added",
-        description: "Successfully added collaborator to your BSF."
+        description: "Successfully added collaborator to your sprint."
       });
 
       // Refresh the list
@@ -209,7 +209,7 @@ export const useSprintCollaborators = () => {
 
       showToast({
         title: "Collaborator removed",
-        description: "Successfully removed collaborator from your BSF."
+        description: "Successfully removed collaborator from your sprint."
       });
 
       // Update state by filtering out the removed collaborator

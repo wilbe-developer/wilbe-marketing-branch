@@ -72,7 +72,7 @@ const TeamTaskLogic: React.FC<TeamTaskLogicProps> = ({
           <Users className="h-4 w-4" />
           <AlertTitle>Would you like to invite your co-founders to collaborate?</AlertTitle>
           <AlertDescription>
-            Your co-founders can help complete this information if you invite them to collaborate on your BSF.
+            Your co-founders can help complete this information if you invite them to collaborate on your sprint.
             <div className="mt-3">
               <Button 
                 onClick={() => setShowCollaborators(true)}

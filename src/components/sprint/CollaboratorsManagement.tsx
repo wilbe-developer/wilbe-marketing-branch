@@ -109,10 +109,10 @@ export const CollaboratorsManagement = () => {
       <CardHeader>
         <CardTitle className="flex items-center">
           <Users className="mr-2 h-5 w-5" /> 
-          <span>BSF Collaborators</span>
+          <span>Sprint Collaborators</span>
         </CardTitle>
         <CardDescription>
-          Invite team members to collaborate on your BSF projects
+          Invite team members to collaborate on your sprint projects
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -270,7 +270,7 @@ export const CollaboratorsManagement = () => {
                 <span>Remove Collaborator</span>
               </DialogTitle>
               <DialogDescription>
-                Are you sure you want to remove this collaborator? They will no longer be able to access your BSF projects.
+                Are you sure you want to remove this collaborator? They will no longer be able to access your sprint projects.
               </DialogDescription>
             </DialogHeader>
             {selectedCollaborator && (
