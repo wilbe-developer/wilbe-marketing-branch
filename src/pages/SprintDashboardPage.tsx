@@ -13,6 +13,9 @@ import { MySprintsList } from "@/components/sprint/MySprintsList";
 import { SharedSprintsSelector } from "@/components/sprint/SharedSprintsSelector";
 import { SharedSprintBanner } from "@/components/sprint/SharedSprintBanner";
 import { useSprintContext } from "@/hooks/useSprintContext";
+import { Button } from "@/components/ui/button";
+import { Eye } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const SprintDashboardPage = () => {
   const { tasksWithProgress, isLoading } = useSprintTaskDefinitions();
@@ -43,6 +46,12 @@ const SprintDashboardPage = () => {
           {/* Desktop view buttons */}
           {!isMobile && !isSharedSprint && user?.id && (
             <div className="flex gap-2">
+              <Button asChild variant="outline">
+                <Link to={`/sprint/data-room/${user.id}`}>
+                  <Eye className="mr-2 h-4 w-4" />
+                  View Data Room
+                </Link>
+              </Button>
               <ImStuckButton />
               <RequestCallButton />
               <AssessmentButton />
@@ -58,6 +67,12 @@ const SprintDashboardPage = () => {
         {/* Mobile view buttons - improved to ensure they fit well on mobile */}
         {isMobile && !isSharedSprint && user?.id && (
           <div className="flex flex-wrap gap-2 mb-4 w-full">
+            <Button asChild variant="outline" size="sm">
+              <Link to={`/sprint/data-room/${user.id}`}>
+                <Eye className="mr-2 h-4 w-4" />
+                View Data Room
+              </Link>
+            </Button>
             <ImStuckButton />
             <RequestCallButton />
             <AssessmentButton />
