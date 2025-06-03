@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { useSprintTaskDefinitions } from "@/hooks/useSprintTaskDefinitions";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -21,14 +20,14 @@ const SprintDashboardPage = () => {
   const { tasksWithProgress, isLoading } = useSprintTaskDefinitions();
   const isMobile = useIsMobile();
   const { user } = useAuth();
-  const { isSharedSprint, sprintOwnerName, currentSprintUserId } = useSprintContext();
+  const { isSharedSprint, sprintOwnerName, currentSprintOwnerId } = useSprintContext();
 
   // Calculate overall completion percentage
   const completedTasks = tasksWithProgress.filter(task => task.progress?.completed).length;
   const totalTasks = tasksWithProgress.length;
 
   // Get the appropriate user ID for the data room (current sprint user or logged-in user)
-  const dataRoomUserId = currentSprintUserId || user?.id;
+  const dataRoomUserId = currentSprintOwnerId || user?.id;
 
   if (isLoading) {
     return (
