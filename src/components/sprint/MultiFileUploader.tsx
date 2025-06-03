@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Upload, X, Download, ExternalLink, File, Trash2 } from "lucide-react";
+import { Upload, X, Download, File, Trash2 } from "lucide-react";
 import { useFileUpload } from "@/hooks/useFileUpload";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -99,54 +99,57 @@ export const MultiFileUploader: React.FC<MultiFileUploaderProps> = ({
       {files.length > 0 && (
         <div className="space-y-2">
           <h4 className="font-medium">Uploaded Files ({files.length})</h4>
-          {files.map((file, index) => (
-            <Card key={`${file.fileId}-${index}`} className="p-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <File className="h-5 w-5 text-blue-500" />
-                  <div>
-                    <p className="font-medium text-sm">{file.fileName}</p>
-                    <p className="text-xs text-gray-500">
+          <div className="border rounded-lg overflow-hidden">
+            <div className="bg-gray-50 px-4 py-2 border-b">
+              <div className="grid grid-cols-4 gap-4 text-sm font-medium text-gray-700">
+                <div>Filename</div>
+                <div>Date Uploaded</div>
+                <div></div>
+                <div className="text-right">Actions</div>
+              </div>
+            </div>
+            <div className="divide-y">
+              {files.map((file, index) => (
+                <div key={`${file.fileId}-${index}`} className="px-4 py-3">
+                  <div className="grid grid-cols-4 gap-4 items-center">
+                    <div className="flex items-center space-x-3">
+                      <File className="h-5 w-5 text-blue-500" />
+                      <div>
+                        <p className="font-medium text-sm">{file.fileName}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="text-sm text-gray-500">
                       {new Date(file.uploadedAt).toLocaleDateString()}
-                    </p>
+                    </div>
+                    
+                    <div></div>
+                    
+                    <div className="flex justify-end space-x-2">
+                      {file.downloadUrl && (
+                        <Button variant="ghost" size="sm" asChild>
+                          <a href={file.downloadUrl} target="_blank" rel="noopener noreferrer">
+                            <Download className="h-4 w-4" />
+                          </a>
+                        </Button>
+                      )}
+                      
+                      {!isCompleted && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteFile(file)}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </div>
-                
-                <div className="flex items-center space-x-2">
-                  {file.viewUrl && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => window.open(file.viewUrl, '_blank')}
-                    >
-                      <ExternalLink className="h-4 w-4" />
-                    </Button>
-                  )}
-                  
-                  {file.downloadUrl && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => window.open(file.downloadUrl, '_blank')}
-                    >
-                      <Download className="h-4 w-4" />
-                    </Button>
-                  )}
-                  
-                  {!isCompleted && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDeleteFile(file)}
-                      className="text-red-500 hover:text-red-700"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </Card>
-          ))}
+              ))}
+            </div>
+          </div>
         </div>
       )}
 
