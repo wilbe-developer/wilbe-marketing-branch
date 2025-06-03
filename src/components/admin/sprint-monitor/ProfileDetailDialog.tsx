@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import ProfileDetailCard from './ProfileDetailCard';
@@ -95,7 +96,8 @@ const ProfileDetailDialog: React.FC<ProfileDetailDialogProps> = ({
             {(profile.success_vision_1yr !== undefined || 
               profile.success_vision_10yr !== undefined || 
               profile.impact_scale !== undefined || 
-              profile.minimal_success_version !== undefined) && (
+              profile.minimal_success_version !== undefined ||
+              profile.ambitious_version !== undefined) && (
               <ProfileDetailCard 
                 title="Vision & Impact" 
                 profile={profile} 
@@ -103,6 +105,7 @@ const ProfileDetailDialog: React.FC<ProfileDetailDialogProps> = ({
                   {key: 'success_vision_1yr', label: 'Success Vision (1yr)'},
                   {key: 'success_vision_10yr', label: 'Success Vision (10yr)'},
                   {key: 'impact_scale', label: 'Impact Scale'},
+                  {key: 'ambitious_version', label: 'Ambitious Version'},
                   {key: 'minimal_success_version', label: 'Minimal Success Version'}
                 ]} 
               />
