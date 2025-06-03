@@ -30,22 +30,12 @@ export const SprintProfileShowOrAsk = ({
     sprintProfile[profileKey] !== undefined;
   
   if (hasProfileValue) {
-    const value = sprintProfile[profileKey];
-    
-    // Format value for display
-    let displayValue = value;
-    if (typeof value === "boolean") {
-      displayValue = value ? "Yes" : "No";
-    } else if (type === "select" && options) {
-      const option = options.find(opt => opt.value === value);
-      displayValue = option ? option.label : value;
-    }
-    
+    // When profile value exists, just render children with the Change button available
+    // The form renderers will handle displaying the actual value
     return (
       <div className="mb-6 p-4 bg-slate-50 rounded-lg border border-slate-200">
         <div className="flex items-center gap-2 mb-3">
           <span className="font-medium">{label || profileKey}:</span>
-          <span className="text-green-800">{displayValue}</span>
           <SprintProfileQuickEdit
             profileKey={profileKey}
             label={label}
