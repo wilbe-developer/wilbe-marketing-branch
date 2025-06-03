@@ -14,14 +14,14 @@ const AdminSettings = () => {
       
       <Tabs defaultValue="sprint">
         <TabsList className="mb-4">
-          <TabsTrigger value="sprint">Sprint Features</TabsTrigger>
+          <TabsTrigger value="sprint">BSF Features</TabsTrigger>
           <TabsTrigger value="analytics">Analytics Settings</TabsTrigger>
         </TabsList>
         
         <TabsContent value="sprint">
           <Card>
             <CardHeader>
-              <CardTitle>Sprint Feature Configuration</CardTitle>
+              <CardTitle>BSF Feature Configuration</CardTitle>
             </CardHeader>
             <CardContent>
               <SprintFeatureFlags />
@@ -40,7 +40,7 @@ const AdminSettings = () => {
                   <h3 className="text-lg font-medium mb-2">Available Analytics</h3>
                   <ul className="list-disc list-inside space-y-1 text-sm">
                     <li>Waitlist Signups Analytics</li>
-                    <li>Sprint Signups Analytics</li>
+                    <li>BSF Signups Analytics</li>
                     <li>Conversion Metrics</li>
                     <li>Quiz Visit Analytics</li>
                   </ul>

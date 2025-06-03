@@ -41,7 +41,7 @@ const FullScreenAdminLayout = ({ children, title = 'Admin' }: FullScreenAdminLay
     },
     { 
       path: '/admin/sprint-monitor', 
-      label: 'Sprint Monitor', 
+      label: 'BSF Monitor', 
       icon: <BarChart2 size={20} /> 
     },
     { 

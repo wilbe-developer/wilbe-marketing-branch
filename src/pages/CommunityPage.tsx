@@ -50,7 +50,7 @@ const CommunityPage = () => {
   const pageTitle = (() => {
     if (selectedTopic === 'private') return 'Private Messages';
     if (selectedTopic === 'all') return 'Community Discussions';
-    if (selectedTopic === 'challenges') return 'Sprint Challenges Discussions';
+    if (selectedTopic === 'challenges') return 'BSF Challenges Discussions';
     return challenges.find(c => c.id === selectedTopic)?.title || 'Discussions';
   })();
 
@@ -84,7 +84,7 @@ const CommunityPage = () => {
             <div className="text-center p-6 bg-white rounded-lg shadow-sm border">
               <p className="text-gray-500">
                 {selectedTopic === 'private' 
-                  ? "No private messages. Contact an admin using the 'Request Call' button on your sprint dashboard."
+                  ? "No private messages. Contact an admin using the 'Request Call' button on your BSF dashboard."
                   : "No discussions yet. Start a new thread!"}
               </p>
             </div>
@@ -146,7 +146,7 @@ const CommunityPage = () => {
                   )}
                   {thread.challenge_id && !thread.is_private && (
                     <Badge variant="secondary">
-                      {thread.challenge_name || 'Sprint Challenge'}
+                      {thread.challenge_name || 'BSF Challenge'}
                     </Badge>
                   )}
                 </div>
