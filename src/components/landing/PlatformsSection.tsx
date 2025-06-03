@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Construction } from "lucide-react";
 import LumaEventsEmbed from "./LumaEventsEmbed";
@@ -163,7 +164,7 @@ export default function PlatformsSection() {
                     <div className="mt-6 sm:mt-8 max-w-4xl">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                         <img
-                          src="/lovable-uploads/1ea15f19-c70d-4a23-9800-9aab1bf6614d.png"
+                          src="/lovable-uploads/cb69c595-aeb4-4208-a8a9-93e43a9ac07e.png"
                           alt="Wilbe Sandbox Platform Interface"
                           className="w-full h-64 sm:h-96 object-contain rounded-lg shadow-lg bg-gray-100"
                           loading="lazy"
