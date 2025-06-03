@@ -28,7 +28,7 @@ export const CollaborationFieldRenderer: React.FC<CollaborationFieldRendererProp
       {text && <p className="text-sm text-blue-700 mb-4">{text}</p>}
       {!text && (
         <p className="text-sm text-blue-700 mb-4">
-          Invite your team members to collaborate on this sprint. They will be able to view and contribute to tasks.
+          Invite your team members to collaborate on this BSF. They will be able to view and contribute to tasks.
         </p>
       )}
       
@@ -45,7 +45,7 @@ export const CollaborationFieldRenderer: React.FC<CollaborationFieldRendererProp
           <DialogHeader>
             <DialogTitle>Manage Team Collaborators</DialogTitle>
             <DialogDescription>
-              Add or remove team members who can collaborate on your sprint.
+              Add or remove team members who can collaborate on your BSF.
             </DialogDescription>
           </DialogHeader>
           
