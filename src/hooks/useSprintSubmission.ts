@@ -178,7 +178,10 @@ export const useSprintSubmission = () => {
         p_utm_medium: utmMedium,
         p_utm_campaign: utmCampaign,
         p_utm_term: utmTerm,
-        p_utm_content: utmContent
+        p_utm_content: utmContent,
+        
+        // Add the missing minimal_success_version parameter
+        p_minimal_success_version: answers.minimal_success_version || ''
       });
 
       if (profileError) {
