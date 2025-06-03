@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Construction } from "lucide-react";
 import LumaEventsEmbed from "./LumaEventsEmbed";
 
 export default function PlatformsSection() {
@@ -121,14 +121,22 @@ export default function PlatformsSection() {
                   <div className="mb-4 sm:mb-6">
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 max-w-5xl">
                       {labGallery.map((lab, labIndex) => (
-                        <div key={labIndex} className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow">
-                          <div className="aspect-video">
+                        <div key={labIndex} className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow relative">
+                          <div className="aspect-video relative">
                             <img
                               src={lab.image}
                               alt={`${lab.name} laboratory facility`}
                               className="w-full h-full object-cover"
                               loading="lazy"
                             />
+                            {lab.name === "Dinura" && (
+                              <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                                <div className="bg-yellow-400 text-black px-3 py-1 rounded-full flex items-center gap-2 font-bold text-sm">
+                                  <Construction className="h-4 w-4" />
+                                  Under Construction
+                                </div>
+                              </div>
+                            )}
                           </div>
                           <div className="p-3 sm:p-4">
                             <h4 className="font-bold text-gray-900 text-sm mb-1">{lab.name}</h4>
