@@ -1,6 +1,8 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { FloatingToolbar } from './FloatingToolbar';
+import { Button } from "@/components/ui/button";
+import { Save, X } from "lucide-react";
 
 interface InlineEditorProps {
   content: string;
@@ -121,15 +123,42 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
   };
 
   const handleBlur = (e: React.FocusEvent) => {
-    // Don't hide toolbar if clicking on toolbar buttons
+    // Don't hide toolbar if clicking on toolbar buttons or save/cancel bar
     const relatedTarget = e.relatedTarget as HTMLElement;
-    if (!relatedTarget || !relatedTarget.closest('[data-floating-toolbar]')) {
+    if (!relatedTarget || (!relatedTarget.closest('[data-floating-toolbar]') && !relatedTarget.closest('[data-save-cancel-bar]'))) {
       setTimeout(() => setShowToolbar(false), 100);
     }
   };
 
   return (
-    <>
+    <div className="relative">
+      {/* Save/Cancel Bar */}
+      {isEditing && (
+        <div 
+          data-save-cancel-bar
+          className="absolute -top-10 left-0 right-0 z-40 flex items-center justify-end gap-2 bg-white border border-gray-200 rounded-t-md px-3 py-1 shadow-sm"
+        >
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleCancel}
+            className="h-7 px-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+          >
+            <X className="h-3 w-3 mr-1" />
+            Cancel
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleSave}
+            className="h-7 px-2 text-green-600 hover:text-green-700 hover:bg-green-50"
+          >
+            <Save className="h-3 w-3 mr-1" />
+            Save
+          </Button>
+        </div>
+      )}
+      
       <div
         ref={editorRef}
         contentEditable={isEditing}
@@ -146,12 +175,10 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
       <div data-floating-toolbar>
         <FloatingToolbar
           onFormat={handleFormat}
-          onSave={handleSave}
-          onCancel={handleCancel}
           position={toolbarPosition}
           isVisible={showToolbar && isEditing}
         />
       </div>
-    </>
+    </div>
   );
 };
