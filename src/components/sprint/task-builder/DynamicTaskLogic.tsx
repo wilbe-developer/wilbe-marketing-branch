@@ -1,7 +1,7 @@
-
 import React, { useState } from "react";
 import { useDynamicTask } from "@/hooks/task-builder/useDynamicTask";
 import { useSprintProfileQuickEdit } from "@/hooks/useSprintProfileQuickEdit";
+import { useAuth } from "@/hooks/useAuth";
 import { SprintProfileShowOrAsk } from "@/components/sprint/SprintProfileShowOrAsk";
 import DynamicTaskStep from "./DynamicTaskStep";
 import StaticPanels from "./StaticPanels";
@@ -20,6 +20,7 @@ const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
   onComplete,
 }) => {
   const { sprintProfile } = useSprintProfileQuickEdit();
+  const { isAdmin } = useAuth();
   const [editMode, setEditMode] = useState(false);
   
   const {
@@ -237,12 +238,14 @@ const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
         {/* Current step */}
         {currentStep && renderCurrentStepWithDependencies()}
         
-        {/* Static panels if any */}
+        {/* Static panels if any - NOW WITH ADMIN SUPPORT */}
         {taskDefinition.staticPanels && taskDefinition.staticPanels.length > 0 && (
           <StaticPanels
             panels={taskDefinition.staticPanels}
             profileAnswers={sprintProfile}
             stepAnswers={answers}
+            isAdmin={isAdmin}
+            taskId={task.id}
           />
         )}
         

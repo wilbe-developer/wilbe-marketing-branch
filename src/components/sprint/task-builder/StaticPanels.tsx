@@ -7,21 +7,28 @@ import {
   CardHeader,
   CardDescription
 } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, Edit } from "lucide-react";
+import StaticPanelEditor from "@/components/admin/StaticPanelEditor";
 
 interface StaticPanelsProps {
   panels: StaticPanel[];
   profileAnswers: Record<string, any>;
   stepAnswers: Record<string, any>;
+  isAdmin?: boolean;
+  taskId?: string;
 }
 
 const StaticPanels: React.FC<StaticPanelsProps> = ({
   panels,
   profileAnswers,
   stepAnswers,
+  isAdmin = false,
+  taskId
 }) => {
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
+  const [editingPanelIndex, setEditingPanelIndex] = useState<number | null>(null);
 
   // Toggle expanded state for dropdown items
   const toggleExpanded = (panelId: string, itemIndex: number) => {
@@ -90,8 +97,19 @@ const StaticPanels: React.FC<StaticPanelsProps> = ({
       {visiblePanels.map((panel, index) => (
         <Card 
           key={index} 
-          className={getPanelClass(panel.type || 'info')}
+          className={`${getPanelClass(panel.type || 'info')} ${isAdmin ? 'relative group' : ''}`}
         >
+          {isAdmin && taskId && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+              onClick={() => setEditingPanelIndex(index)}
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+          )}
+          
           {panel.title && (
             <CardHeader>
               <CardTitle>{panel.title}</CardTitle>
@@ -146,6 +164,16 @@ const StaticPanels: React.FC<StaticPanelsProps> = ({
           </CardContent>
         </Card>
       ))}
+      
+      {isAdmin && taskId && (
+        <StaticPanelEditor
+          panels={panels}
+          taskId={taskId}
+          editingPanelIndex={editingPanelIndex}
+          onStartEdit={setEditingPanelIndex}
+          onStopEdit={() => setEditingPanelIndex(null)}
+        />
+      )}
     </div>
   );
 };
