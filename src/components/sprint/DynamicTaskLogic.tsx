@@ -6,7 +6,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { ProfileQuestionsRenderer } from "./dynamic-task/ProfileQuestionsRenderer";
 import { TaskContent } from "./dynamic-task/TaskContent";
 import { StepDependencyHelper, getStepProfileDependencies } from "./dynamic-task/StepDependencyHelper";
-import StaticPanels from "./task-builder/StaticPanels";
 import { toast } from "sonner";
 
 interface DynamicTaskLogicProps {
@@ -108,38 +107,27 @@ const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
   }
 
   return (
-    <div className="space-y-6">
-      <ProfileQuestionsRenderer
-        taskDefinition={taskDefinition}
+    <ProfileQuestionsRenderer
+      taskDefinition={taskDefinition}
+      sprintProfile={sprintProfile}
+    >
+      <TaskContent
+        currentStepIndex={currentStepIndex}
+        visibleSteps={visibleSteps}
+        currentStep={currentStep}
+        answers={answers}
         sprintProfile={sprintProfile}
-      >
-        <TaskContent
-          currentStepIndex={currentStepIndex}
-          visibleSteps={visibleSteps}
-          currentStep={currentStep}
-          answers={answers}
-          sprintProfile={sprintProfile}
-          taskDefinition={taskDefinition}
-          handleAnswer={handleAnswer}
-          handleFileUpload={handleFileUpload}
-          goToStep={goToStep}
-          handleComplete={handleComplete}
-          getStepProfileDependencies={getStepProfileDependencies}
-          renderCurrentStepWithDependencies={renderCurrentStepWithDependencies}
-        />
-      </ProfileQuestionsRenderer>
-      
-      {/* Static panels with admin support */}
-      {taskDefinition.staticPanels && taskDefinition.staticPanels.length > 0 && (
-        <StaticPanels
-          panels={taskDefinition.staticPanels}
-          profileAnswers={sprintProfile}
-          stepAnswers={answers}
-          isAdmin={isAdmin}
-          taskId={task.id}
-        />
-      )}
-    </div>
+        taskDefinition={taskDefinition}
+        handleAnswer={handleAnswer}
+        handleFileUpload={handleFileUpload}
+        goToStep={goToStep}
+        handleComplete={handleComplete}
+        getStepProfileDependencies={getStepProfileDependencies}
+        renderCurrentStepWithDependencies={renderCurrentStepWithDependencies}
+        isAdmin={isAdmin}
+        taskId={task.id}
+      />
+    </ProfileQuestionsRenderer>
   );
 };
 

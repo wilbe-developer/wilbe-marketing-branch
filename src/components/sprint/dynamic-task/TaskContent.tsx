@@ -18,6 +18,8 @@ interface TaskContentProps {
   handleComplete: () => Promise<void>;
   getStepProfileDependencies: (step: any) => any[];
   renderCurrentStepWithDependencies: () => React.ReactNode;
+  isAdmin?: boolean;
+  taskId?: string;
 }
 
 export const TaskContent: React.FC<TaskContentProps> = ({
@@ -32,7 +34,9 @@ export const TaskContent: React.FC<TaskContentProps> = ({
   goToStep,
   handleComplete,
   getStepProfileDependencies,
-  renderCurrentStepWithDependencies
+  renderCurrentStepWithDependencies,
+  isAdmin = false,
+  taskId
 }) => {
   return (
     <div className="space-y-6">
@@ -75,12 +79,14 @@ export const TaskContent: React.FC<TaskContentProps> = ({
         )}
       </div>
       
-      {/* Static panels if any */}
+      {/* Static panels with admin support */}
       {taskDefinition.staticPanels && taskDefinition.staticPanels.length > 0 && (
         <StaticPanels
           panels={taskDefinition.staticPanels}
           profileAnswers={sprintProfile}
           stepAnswers={answers}
+          isAdmin={isAdmin}
+          taskId={taskId}
         />
       )}
     </div>
