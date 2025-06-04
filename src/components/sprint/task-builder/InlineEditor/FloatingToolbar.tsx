@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Bold, Italic, Underline, List, ListOrdered, Link, Unlink, Check, X } from "lucide-react";
@@ -7,15 +8,27 @@ interface FloatingToolbarProps {
   onFormat: (command: string, value?: string) => void;
   position: { top: number; left: number } | null;
   isVisible: boolean;
+  isMobile?: boolean;
 }
 
 export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
   onFormat,
   position,
-  isVisible
+  isVisible,
+  isMobile = false
 }) => {
   const [showLinkInput, setShowLinkInput] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
+  const linkInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (showLinkInput && linkInputRef.current) {
+      // Focus the input after a short delay to ensure it's rendered
+      setTimeout(() => {
+        linkInputRef.current?.focus();
+      }, 100);
+    }
+  }, [showLinkInput]);
 
   if (!isVisible || !position) return null;
 
@@ -82,117 +95,133 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
     return false;
   };
 
-  return (
-    <div 
-      className="fixed z-50 bg-white border border-gray-300 rounded-lg shadow-lg transition-opacity duration-200"
-      style={{ 
-        top: position.top - 60, 
+  const toolbarClass = isMobile 
+    ? "fixed z-50 bg-white border border-gray-300 rounded-lg shadow-lg transition-all duration-200 left-2 right-2"
+    : "fixed z-50 bg-white border border-gray-300 rounded-lg shadow-lg transition-all duration-200";
+
+  const toolbarStyle = isMobile 
+    ? { 
+        bottom: 20,
+        opacity: isVisible ? 1 : 0,
+        transform: isVisible ? 'translateY(0)' : 'translateY(100%)'
+      }
+    : { 
+        top: position.top, 
         left: position.left,
         opacity: isVisible ? 1 : 0
-      }}
+      };
+
+  return (
+    <div 
+      className={toolbarClass}
+      style={toolbarStyle}
     >
       {showLinkInput ? (
-        <div className="flex items-center gap-1 p-2">
+        <div className="flex items-center gap-1 p-2 bg-white rounded-lg border border-gray-200 shadow-md">
           <Input
+            ref={linkInputRef}
             type="text"
             placeholder="Enter URL..."
             value={linkUrl}
             onChange={(e) => setLinkUrl(e.target.value)}
             onKeyDown={(e) => {
+              e.stopPropagation(); // Prevent parent key handlers
               if (e.key === 'Enter') {
+                e.preventDefault();
                 handleLinkConfirm();
               } else if (e.key === 'Escape') {
+                e.preventDefault();
                 handleLinkCancel();
               }
             }}
-            className="h-8 w-48 text-sm"
+            className={`${isMobile ? 'h-10 text-base' : 'h-8 text-sm'} flex-1 min-w-0`}
             autoFocus
           />
           <Button
             variant="ghost"
-            size="sm"
+            size={isMobile ? "default" : "sm"}
             onClick={handleLinkConfirm}
-            className="h-8 w-8 p-0 text-green-600"
+            className={`${isMobile ? 'h-10 w-10' : 'h-8 w-8'} p-0 text-green-600 hover:text-green-700 hover:bg-green-50`}
           >
-            <Check className="h-4 w-4" />
+            <Check className={`${isMobile ? 'h-5 w-5' : 'h-4 w-4'}`} />
           </Button>
           <Button
             variant="ghost"
-            size="sm"
+            size={isMobile ? "default" : "sm"}
             onClick={handleLinkCancel}
-            className="h-8 w-8 p-0 text-red-600"
+            className={`${isMobile ? 'h-10 w-10' : 'h-8 w-8'} p-0 text-red-600 hover:text-red-700 hover:bg-red-50`}
           >
-            <X className="h-4 w-4" />
+            <X className={`${isMobile ? 'h-5 w-5' : 'h-4 w-4'}`} />
           </Button>
         </div>
       ) : (
-        <div className="p-2 flex items-center gap-1">
+        <div className={`${isMobile ? 'p-3' : 'p-2'} flex items-center gap-1 justify-center`}>
           <Button
             variant="ghost"
-            size="sm"
+            size={isMobile ? "default" : "sm"}
             onClick={() => onFormat('bold')}
-            className="h-8 w-8 p-0"
+            className={`${isMobile ? 'h-10 w-10' : 'h-8 w-8'} p-0`}
           >
-            <Bold className="h-4 w-4" />
+            <Bold className={`${isMobile ? 'h-5 w-5' : 'h-4 w-4'}`} />
           </Button>
           
           <Button
             variant="ghost"
-            size="sm"
+            size={isMobile ? "default" : "sm"}
             onClick={() => onFormat('italic')}
-            className="h-8 w-8 p-0"
+            className={`${isMobile ? 'h-10 w-10' : 'h-8 w-8'} p-0`}
           >
-            <Italic className="h-4 w-4" />
+            <Italic className={`${isMobile ? 'h-5 w-5' : 'h-4 w-4'}`} />
           </Button>
           
           <Button
             variant="ghost"
-            size="sm"
+            size={isMobile ? "default" : "sm"}
             onClick={() => onFormat('underline')}
-            className="h-8 w-8 p-0"
+            className={`${isMobile ? 'h-10 w-10' : 'h-8 w-8'} p-0`}
           >
-            <Underline className="h-4 w-4" />
+            <Underline className={`${isMobile ? 'h-5 w-5' : 'h-4 w-4'}`} />
           </Button>
           
-          <div className="w-px h-6 bg-gray-300 mx-1" />
+          <div className={`w-px ${isMobile ? 'h-8' : 'h-6'} bg-gray-300 mx-1`} />
           
           <Button
             variant="ghost"
-            size="sm"
+            size={isMobile ? "default" : "sm"}
             onClick={() => onFormat('insertUnorderedList')}
-            className="h-8 w-8 p-0"
+            className={`${isMobile ? 'h-10 w-10' : 'h-8 w-8'} p-0`}
           >
-            <List className="h-4 w-4" />
+            <List className={`${isMobile ? 'h-5 w-5' : 'h-4 w-4'}`} />
           </Button>
           
           <Button
             variant="ghost"
-            size="sm"
+            size={isMobile ? "default" : "sm"}
             onClick={() => onFormat('insertOrderedList')}
-            className="h-8 w-8 p-0"
+            className={`${isMobile ? 'h-10 w-10' : 'h-8 w-8'} p-0`}
           >
-            <ListOrdered className="h-4 w-4" />
+            <ListOrdered className={`${isMobile ? 'h-5 w-5' : 'h-4 w-4'}`} />
           </Button>
           
-          <div className="w-px h-6 bg-gray-300 mx-1" />
+          <div className={`w-px ${isMobile ? 'h-8' : 'h-6'} bg-gray-300 mx-1`} />
           
           {isSelectionInLink() ? (
             <Button
               variant="ghost"
-              size="sm"
+              size={isMobile ? "default" : "sm"}
               onClick={handleUnlink}
-              className="h-8 w-8 p-0"
+              className={`${isMobile ? 'h-10 w-10' : 'h-8 w-8'} p-0`}
             >
-              <Unlink className="h-4 w-4" />
+              <Unlink className={`${isMobile ? 'h-5 w-5' : 'h-4 w-4'}`} />
             </Button>
           ) : (
             <Button
               variant="ghost"
-              size="sm"
+              size={isMobile ? "default" : "sm"}
               onClick={handleLinkClick}
-              className="h-8 w-8 p-0"
+              className={`${isMobile ? 'h-10 w-10' : 'h-8 w-8'} p-0`}
             >
-              <Link className="h-4 w-4" />
+              <Link className={`${isMobile ? 'h-5 w-5' : 'h-4 w-4'}`} />
             </Button>
           )}
         </div>

@@ -1,8 +1,8 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { FloatingToolbar } from './FloatingToolbar';
 import { Button } from "@/components/ui/button";
 import { Save, X } from "lucide-react";
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface InlineEditorProps {
   content: string;
@@ -23,6 +23,7 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
   const [toolbarPosition, setToolbarPosition] = useState<{ top: number; left: number } | null>(null);
   const [showToolbar, setShowToolbar] = useState(false);
   const editorRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (editorRef.current && isEditing) {
@@ -38,12 +39,31 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
       if (selection && selection.rangeCount > 0 && !selection.isCollapsed) {
         const range = selection.getRangeAt(0);
         const rect = range.getBoundingClientRect();
-        setToolbarPosition({
-          top: rect.top + window.scrollY,
-          left: rect.left + window.scrollX + (rect.width / 2) - 150
-        });
+        
+        if (isMobile) {
+          // On mobile, show toolbar at bottom of screen
+          setToolbarPosition({
+            top: window.innerHeight - 80,
+            left: 10
+          });
+        } else {
+          // Desktop: position above selection with viewport bounds checking
+          const viewportWidth = window.innerWidth;
+          const toolbarWidth = 300; // Approximate toolbar width
+          
+          let left = rect.left + window.scrollX + (rect.width / 2) - (toolbarWidth / 2);
+          let top = rect.top + window.scrollY - 60;
+          
+          // Keep toolbar within viewport bounds
+          if (left < 10) left = 10;
+          if (left + toolbarWidth > viewportWidth - 10) left = viewportWidth - toolbarWidth - 10;
+          if (top < 10) top = rect.bottom + window.scrollY + 10;
+          
+          setToolbarPosition({ top, left });
+        }
         setShowToolbar(true);
-      } else {
+      } else if (!isMobile) {
+        // On desktop, hide when no selection
         setShowToolbar(false);
       }
     };
@@ -52,16 +72,30 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
       setTimeout(handleSelection, 10);
     };
 
+    const handleTouchEnd = () => {
+      // On mobile, show toolbar when touching in editor
+      if (isMobile && editorRef.current?.contains(document.activeElement)) {
+        setTimeout(handleSelection, 100);
+      }
+    };
+
     if (isEditing) {
       document.addEventListener('selectionchange', handleSelection);
       document.addEventListener('keyup', handleKeyUp);
+      
+      if (isMobile) {
+        document.addEventListener('touchend', handleTouchEnd);
+      }
     }
 
     return () => {
       document.removeEventListener('selectionchange', handleSelection);
       document.removeEventListener('keyup', handleKeyUp);
+      if (isMobile) {
+        document.removeEventListener('touchend', handleTouchEnd);
+      }
     };
-  }, [isEditing]);
+  }, [isEditing, isMobile]);
 
   const handleFormat = (command: string, value?: string) => {
     document.execCommand(command, false, value);
@@ -115,18 +149,23 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
   };
 
   const handleFocus = () => {
-    setToolbarPosition({
-      top: editorRef.current?.getBoundingClientRect().top || 0,
-      left: editorRef.current?.getBoundingClientRect().left || 0
-    });
-    setShowToolbar(true);
+    if (isMobile) {
+      // On mobile, show toolbar when focused
+      setToolbarPosition({
+        top: window.innerHeight - 80,
+        left: 10
+      });
+      setShowToolbar(true);
+    }
   };
 
   const handleBlur = (e: React.FocusEvent) => {
     // Don't hide toolbar if clicking on toolbar buttons or save/cancel bar
     const relatedTarget = e.relatedTarget as HTMLElement;
     if (!relatedTarget || (!relatedTarget.closest('[data-floating-toolbar]') && !relatedTarget.closest('[data-save-cancel-bar]'))) {
-      setTimeout(() => setShowToolbar(false), 100);
+      if (!isMobile) {
+        setTimeout(() => setShowToolbar(false), 100);
+      }
     }
   };
 
@@ -177,6 +216,7 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
           onFormat={handleFormat}
           position={toolbarPosition}
           isVisible={showToolbar && isEditing}
+          isMobile={isMobile}
         />
       </div>
     </div>
