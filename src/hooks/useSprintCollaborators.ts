@@ -131,13 +131,13 @@ export const useSprintCollaborators = () => {
         throw new Error("This user is already a collaborator on your BSF.");
       }
 
-      // Add as collaborator
+      // Add as collaborator - always use sprintOwnerId as created_by to maintain ownership
       const { error: insertError } = await supabase
         .from("sprint_collaborators")
         .insert({
           sprint_owner_id: sprintOwnerId,
           collaborator_id: userData.id,
-          created_by: user?.id || sprintOwnerId,
+          created_by: sprintOwnerId, // Always use the sprint owner ID, not the current user
           access_level: accessLevel
         });
 

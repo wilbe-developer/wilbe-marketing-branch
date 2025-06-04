@@ -7,7 +7,7 @@ import { useSprintCountdown } from "@/hooks/useSprintCountdown";
 import { useSprintContext } from "@/hooks/useSprintContext";
 
 export const SprintCountdown = () => {
-  const { currentSprintOwnerId, isSharedSprint } = useSprintContext();
+  const { currentSprintOwnerId, isSharedSprint, canManage } = useSprintContext();
   const { timeLeft, isLoading, startSprint, hasStarted } = useSprintCountdown(currentSprintOwnerId);
 
   if (isLoading) {
@@ -23,8 +23,8 @@ export const SprintCountdown = () => {
     );
   }
 
-  // Don't show start button for shared sprints
-  if (!hasStarted && !isSharedSprint) {
+  // Show start button for own sprints or if user has manage access in shared sprint
+  if (!hasStarted && (!isSharedSprint || canManage)) {
     return (
       <Card className="w-full border-green-200 bg-green-50">
         <CardHeader className="pb-4">
@@ -50,8 +50,8 @@ export const SprintCountdown = () => {
     );
   }
 
-  // Don't show anything if shared sprint hasn't started
-  if (!hasStarted && isSharedSprint) {
+  // Don't show anything if shared sprint hasn't started and user doesn't have manage access
+  if (!hasStarted && isSharedSprint && !canManage) {
     return null;
   }
 

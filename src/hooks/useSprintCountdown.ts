@@ -91,9 +91,9 @@ export const useSprintCountdown = (sprintOwnerId?: string | null) => {
       return;
     }
 
-    // Only allow starting sprint for current user, not for shared sprints
-    if (sprintOwnerId && sprintOwnerId !== user.id) {
-      toast.error("You can only start your own BSF timer");
+    // Allow starting sprint for the target user (which could be the current user or someone they manage)
+    if (!targetUserId) {
+      toast.error("No target user specified");
       return;
     }
 
@@ -103,7 +103,7 @@ export const useSprintCountdown = (sprintOwnerId?: string | null) => {
       const { error } = await supabase
         .from("sprint_profiles")
         .update({ sprint_start_date: startDate })
-        .eq("user_id", user.id);
+        .eq("user_id", targetUserId);
 
       if (error) {
         toast.error("Failed to start BSF timer");
