@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Bold, Italic, Underline, List, ListOrdered, Link, Unlink } from "lucide-react";
@@ -53,8 +52,9 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
   const handleLinkClick = () => {
     // Calculate position for link input based on current toolbar position
     if (!isMobile && position) {
+      // Position link input below toolbar with better spacing
       setLinkInputPosition({
-        top: position.top + 50, // Position below toolbar
+        top: position.top + 50,
         left: position.left
       });
     }
@@ -115,7 +115,7 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
 
   const toolbarClass = isMobile 
     ? "fixed z-[9997] bg-white border border-gray-300 rounded-lg shadow-lg transition-all duration-200 left-2 right-2"
-    : "fixed z-[9997] bg-white border border-gray-300 rounded-lg shadow-lg transition-all duration-200";
+    : "fixed z-[9997] bg-white border border-gray-300 rounded-lg shadow-xl transition-all duration-200";
 
   const toolbarStyle = isMobile 
     ? { 
@@ -126,7 +126,8 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
     : { 
         top: position.top, 
         left: position.left,
-        opacity: isVisible ? 1 : 0
+        opacity: isVisible ? 1 : 0,
+        minWidth: '300px' // Ensure consistent width for positioning calculations
       };
 
   return (

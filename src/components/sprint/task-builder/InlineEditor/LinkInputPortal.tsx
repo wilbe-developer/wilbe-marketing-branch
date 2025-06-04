@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Input } from "@/components/ui/input";
@@ -30,7 +29,7 @@ export const LinkInputPortal: React.FC<LinkInputPortalProps> = ({
 
   useEffect(() => {
     if (isVisible && position && !isMobile) {
-      // Adjust position to keep popup within viewport
+      // Enhanced position adjustment to keep popup within viewport
       const viewportWidth = window.innerWidth;
       const viewportHeight = window.innerHeight;
       const popupWidth = 300;
@@ -38,20 +37,20 @@ export const LinkInputPortal: React.FC<LinkInputPortalProps> = ({
       
       let { left, top } = position;
       
-      // Keep within horizontal bounds
-      if (left + popupWidth > viewportWidth - 20) {
-        left = viewportWidth - popupWidth - 20;
+      // Keep within horizontal bounds with better margins
+      if (left + popupWidth > viewportWidth - 30) {
+        left = viewportWidth - popupWidth - 30;
       }
-      if (left < 20) {
-        left = 20;
+      if (left < 30) {
+        left = 30;
       }
       
-      // Keep within vertical bounds
-      if (top + popupHeight > viewportHeight - 20) {
-        top = position.top - popupHeight - 20;
+      // Keep within vertical bounds with better margins
+      if (top + popupHeight > viewportHeight - 30) {
+        top = position.top - popupHeight - 60; // Position above toolbar instead
       }
-      if (top < 20) {
-        top = position.top + 40;
+      if (top < 30) {
+        top = position.top + 60; // Position below toolbar
       }
       
       setAdjustedPosition({ left, top });
@@ -111,12 +110,12 @@ export const LinkInputPortal: React.FC<LinkInputPortalProps> = ({
         ref={containerRef}
         className={isMobile 
           ? "fixed bottom-4 left-4 right-4 z-[9999] bg-white border border-gray-300 rounded-lg shadow-lg p-3"
-          : "fixed z-[9999] bg-white border border-gray-300 rounded-lg shadow-lg"
+          : "fixed z-[9999] bg-white border border-gray-300 rounded-lg shadow-xl"
         }
         style={!isMobile && adjustedPosition ? {
           top: adjustedPosition.top,
           left: adjustedPosition.left,
-          minWidth: '300px'
+          width: '300px' // Fixed width for consistent positioning
         } : undefined}
         data-link-input-portal
         onMouseDown={handleMouseDown}

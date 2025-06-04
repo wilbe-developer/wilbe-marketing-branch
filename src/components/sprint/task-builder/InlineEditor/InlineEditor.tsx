@@ -1,9 +1,9 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { FloatingToolbar } from './FloatingToolbar';
 import { Button } from "@/components/ui/button";
 import { Save, X } from "lucide-react";
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useContainerAwarePositioning } from './useContainerAwarePositioning';
 
 interface InlineEditorProps {
   content: string;
@@ -27,6 +27,7 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
   const [isLinkEditing, setIsLinkEditing] = useState(false);
   const editorRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
+  const { calculatePosition } = useContainerAwarePositioning();
 
   useEffect(() => {
     if (editorRef.current && isEditing) {
@@ -52,22 +53,9 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
             left: 10
           });
         } else {
-          // Desktop: position above selection with viewport bounds checking
-          const viewportWidth = window.innerWidth;
-          const viewportHeight = window.innerHeight;
-          const toolbarWidth = 300;
-          const toolbarHeight = 50;
-          
-          let left = rect.left + window.scrollX + (rect.width / 2) - (toolbarWidth / 2);
-          let top = rect.top + window.scrollY - toolbarHeight - 10;
-          
-          // Keep toolbar within viewport bounds
-          if (left < 10) left = 10;
-          if (left + toolbarWidth > viewportWidth - 10) left = viewportWidth - toolbarWidth - 10;
-          if (top < 10) top = rect.bottom + window.scrollY + 10;
-          if (top + toolbarHeight > viewportHeight - 10) top = rect.top + window.scrollY - toolbarHeight - 10;
-          
-          setToolbarPosition({ top, left });
+          // Desktop: use container-aware positioning
+          const position = calculatePosition(rect);
+          setToolbarPosition({ top: position.top, left: position.left });
         }
         setShowToolbar(true);
       } else if (!isMobile && !isLinkEditing) {
@@ -86,9 +74,19 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
       }
     };
 
+    const handleScroll = () => {
+      // Reposition toolbar on scroll for desktop
+      if (!isMobile && showToolbar && storedSelection) {
+        const rect = storedSelection.getBoundingClientRect();
+        const position = calculatePosition(rect);
+        setToolbarPosition({ top: position.top, left: position.left });
+      }
+    };
+
     if (isEditing) {
       document.addEventListener('selectionchange', handleSelection);
       document.addEventListener('keyup', handleKeyUp);
+      document.addEventListener('scroll', handleScroll, true); // Use capture for all scroll events
       
       if (isMobile) {
         document.addEventListener('touchend', handleTouchEnd);
@@ -98,11 +96,12 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
     return () => {
       document.removeEventListener('selectionchange', handleSelection);
       document.removeEventListener('keyup', handleKeyUp);
+      document.removeEventListener('scroll', handleScroll, true);
       if (isMobile) {
         document.removeEventListener('touchend', handleTouchEnd);
       }
     };
-  }, [isEditing, isMobile, isLinkEditing]);
+  }, [isEditing, isMobile, isLinkEditing, showToolbar, storedSelection, calculatePosition]);
 
   const restoreSelection = () => {
     if (storedSelection && editorRef.current) {
