@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { FloatingToolbar } from './FloatingToolbar';
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,7 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
   const [toolbarPosition, setToolbarPosition] = useState<{ top: number; left: number } | null>(null);
   const [showToolbar, setShowToolbar] = useState(false);
   const [storedSelection, setStoredSelection] = useState<Range | null>(null);
+  const [isLinkEditing, setIsLinkEditing] = useState(false);
   const editorRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
 
@@ -68,7 +70,8 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
           setToolbarPosition({ top, left });
         }
         setShowToolbar(true);
-      } else if (!isMobile) {
+      } else if (!isMobile && !isLinkEditing) {
+        // Only hide toolbar if not in link editing mode
         setShowToolbar(false);
       }
     };
@@ -99,7 +102,7 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
         document.removeEventListener('touchend', handleTouchEnd);
       }
     };
-  }, [isEditing, isMobile]);
+  }, [isEditing, isMobile, isLinkEditing]);
 
   const restoreSelection = () => {
     if (storedSelection && editorRef.current) {
@@ -118,6 +121,7 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
       setTimeout(() => {
         document.execCommand(command, false, value);
         editorRef.current?.focus();
+        setIsLinkEditing(false);
       }, 10);
     } else {
       document.execCommand(command, false, value);
@@ -131,6 +135,7 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
       onSave(htmlContent);
       setIsEditing(false);
       setShowToolbar(false);
+      setIsLinkEditing(false);
     }
   };
 
@@ -141,9 +146,13 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
     onCancel();
     setIsEditing(false);
     setShowToolbar(false);
+    setIsLinkEditing(false);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    // Don't handle shortcuts if in link editing mode
+    if (isLinkEditing) return;
+    
     if (e.ctrlKey || e.metaKey) {
       switch (e.key) {
         case 'b':
@@ -165,7 +174,7 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
       }
     }
     
-    if (e.key === 'Escape') {
+    if (e.key === 'Escape' && !isLinkEditing) {
       handleCancel();
     }
   };
@@ -182,14 +191,35 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
 
   const handleBlur = (e: React.FocusEvent) => {
     const relatedTarget = e.relatedTarget as HTMLElement;
-    if (!relatedTarget || (
-      !relatedTarget.closest('[data-floating-toolbar]') && 
-      !relatedTarget.closest('[data-save-cancel-bar]') &&
-      !relatedTarget.closest('[data-link-input-portal]')
+    
+    // Don't hide toolbar if focusing on toolbar elements or during link editing
+    if (isLinkEditing || !relatedTarget || (
+      relatedTarget.closest('[data-floating-toolbar]') || 
+      relatedTarget.closest('[data-save-cancel-bar]') ||
+      relatedTarget.closest('[data-link-input-portal]')
     )) {
-      if (!isMobile) {
-        setTimeout(() => setShowToolbar(false), 100);
-      }
+      return;
+    }
+    
+    if (!isMobile) {
+      setTimeout(() => {
+        if (!isLinkEditing) {
+          setShowToolbar(false);
+        }
+      }, 100);
+    }
+  };
+
+  const handleLinkEditingChange = (isEditing: boolean) => {
+    setIsLinkEditing(isEditing);
+    if (!isEditing && !isMobile) {
+      // Small delay to prevent toolbar from disappearing too quickly
+      setTimeout(() => {
+        const selection = window.getSelection();
+        if (!selection || selection.isCollapsed) {
+          setShowToolbar(false);
+        }
+      }, 100);
     }
   };
 
@@ -242,6 +272,7 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
           isVisible={showToolbar && isEditing}
           isMobile={isMobile}
           onSelectionRestore={restoreSelection}
+          onLinkEditingChange={handleLinkEditingChange}
         />
       </div>
     </div>

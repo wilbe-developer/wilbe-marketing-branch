@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Input } from "@/components/ui/input";
@@ -88,6 +89,11 @@ export const LinkInputPortal: React.FC<LinkInputPortalProps> = ({
     }
   };
 
+  // Prevent blur events when clicking on portal elements
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+  };
+
   if (!isVisible) return null;
 
   const content = (
@@ -113,6 +119,7 @@ export const LinkInputPortal: React.FC<LinkInputPortalProps> = ({
           minWidth: '300px'
         } : undefined}
         data-link-input-portal
+        onMouseDown={handleMouseDown}
       >
         <div className="flex items-center gap-2">
           <Input
@@ -128,6 +135,7 @@ export const LinkInputPortal: React.FC<LinkInputPortalProps> = ({
             variant="ghost"
             size={isMobile ? "default" : "sm"}
             onClick={onConfirm}
+            onMouseDown={handleMouseDown}
             className={`${isMobile ? 'h-10 w-10' : 'h-8 w-8'} p-0 text-green-600 hover:text-green-700 hover:bg-green-50`}
           >
             <Check className={`${isMobile ? 'h-5 w-5' : 'h-4 w-4'}`} />
@@ -136,6 +144,7 @@ export const LinkInputPortal: React.FC<LinkInputPortalProps> = ({
             variant="ghost"
             size={isMobile ? "default" : "sm"}
             onClick={onCancel}
+            onMouseDown={handleMouseDown}
             className={`${isMobile ? 'h-10 w-10' : 'h-8 w-8'} p-0 text-red-600 hover:text-red-700 hover:bg-red-50`}
           >
             <X className={`${isMobile ? 'h-5 w-5' : 'h-4 w-4'}`} />

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Bold, Italic, Underline, List, ListOrdered, Link, Unlink } from "lucide-react";
@@ -9,6 +10,7 @@ interface FloatingToolbarProps {
   isVisible: boolean;
   isMobile?: boolean;
   onSelectionRestore?: () => void;
+  onLinkEditingChange?: (isEditing: boolean) => void;
 }
 
 export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
@@ -16,7 +18,8 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
   position,
   isVisible,
   isMobile = false,
-  onSelectionRestore
+  onSelectionRestore,
+  onLinkEditingChange
 }) => {
   const [showLinkInput, setShowLinkInput] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
@@ -57,6 +60,7 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
     }
     setShowLinkInput(true);
     setLinkUrl('');
+    onLinkEditingChange?.(true);
   };
 
   const handleLinkConfirm = () => {
@@ -74,11 +78,13 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
     }
     setShowLinkInput(false);
     setLinkUrl('');
+    onLinkEditingChange?.(false);
   };
 
   const handleLinkCancel = () => {
     setShowLinkInput(false);
     setLinkUrl('');
+    onLinkEditingChange?.(false);
   };
 
   const handleUnlink = () => {
@@ -102,6 +108,11 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
     return false;
   };
 
+  // Prevent blur events when clicking on toolbar
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+  };
+
   const toolbarClass = isMobile 
     ? "fixed z-[9997] bg-white border border-gray-300 rounded-lg shadow-lg transition-all duration-200 left-2 right-2"
     : "fixed z-[9997] bg-white border border-gray-300 rounded-lg shadow-lg transition-all duration-200";
@@ -123,12 +134,14 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
       <div 
         className={toolbarClass}
         style={toolbarStyle}
+        onMouseDown={handleMouseDown}
       >
         <div className={`${isMobile ? 'p-3' : 'p-2'} flex items-center gap-1 justify-center`}>
           <Button
             variant="ghost"
             size={isMobile ? "default" : "sm"}
             onClick={() => onFormat('bold')}
+            onMouseDown={handleMouseDown}
             className={`${isMobile ? 'h-10 w-10' : 'h-8 w-8'} p-0`}
           >
             <Bold className={`${isMobile ? 'h-5 w-5' : 'h-4 w-4'}`} />
@@ -138,6 +151,7 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
             variant="ghost"
             size={isMobile ? "default" : "sm"}
             onClick={() => onFormat('italic')}
+            onMouseDown={handleMouseDown}
             className={`${isMobile ? 'h-10 w-10' : 'h-8 w-8'} p-0`}
           >
             <Italic className={`${isMobile ? 'h-5 w-5' : 'h-4 w-4'}`} />
@@ -147,6 +161,7 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
             variant="ghost"
             size={isMobile ? "default" : "sm"}
             onClick={() => onFormat('underline')}
+            onMouseDown={handleMouseDown}
             className={`${isMobile ? 'h-10 w-10' : 'h-8 w-8'} p-0`}
           >
             <Underline className={`${isMobile ? 'h-5 w-5' : 'h-4 w-4'}`} />
@@ -158,6 +173,7 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
             variant="ghost"
             size={isMobile ? "default" : "sm"}
             onClick={() => onFormat('insertUnorderedList')}
+            onMouseDown={handleMouseDown}
             className={`${isMobile ? 'h-10 w-10' : 'h-8 w-8'} p-0`}
           >
             <List className={`${isMobile ? 'h-5 w-5' : 'h-4 w-4'}`} />
@@ -167,6 +183,7 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
             variant="ghost"
             size={isMobile ? "default" : "sm"}
             onClick={() => onFormat('insertOrderedList')}
+            onMouseDown={handleMouseDown}
             className={`${isMobile ? 'h-10 w-10' : 'h-8 w-8'} p-0`}
           >
             <ListOrdered className={`${isMobile ? 'h-5 w-5' : 'h-4 w-4'}`} />
@@ -179,6 +196,7 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
               variant="ghost"
               size={isMobile ? "default" : "sm"}
               onClick={handleUnlink}
+              onMouseDown={handleMouseDown}
               className={`${isMobile ? 'h-10 w-10' : 'h-8 w-8'} p-0`}
             >
               <Unlink className={`${isMobile ? 'h-5 w-5' : 'h-4 w-4'}`} />
@@ -188,6 +206,7 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
               variant="ghost"
               size={isMobile ? "default" : "sm"}
               onClick={handleLinkClick}
+              onMouseDown={handleMouseDown}
               className={`${isMobile ? 'h-10 w-10' : 'h-8 w-8'} p-0`}
             >
               <Link className={`${isMobile ? 'h-5 w-5' : 'h-4 w-4'}`} />
