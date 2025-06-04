@@ -88,14 +88,14 @@ export const DraggableStaticPanelItem: React.FC<DraggableStaticPanelItemProps> =
               {isAdmin && editMode && (
                 <div
                   ref={drag}
-                  className="cursor-move p-1 hover:bg-gray-200 rounded mr-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="cursor-move p-1 hover:bg-gray-200 rounded mr-1 md:mr-2 opacity-0 group-hover:opacity-100 transition-opacity"
                 >
-                  <GripVertical className="h-4 w-4 text-gray-500" />
+                  <GripVertical className="h-3 w-3 md:h-4 md:w-4 text-gray-500" />
                 </div>
               )}
               
               {isCurrentlyEditingText ? (
-                <div className="flex-1 mr-4" onClick={(e) => e.stopPropagation()}>
+                <div className="flex-1 mr-2 md:mr-4" onClick={(e) => e.stopPropagation()}>
                   <InlineEditor
                     content={item.text}
                     onSave={onSaveEdit}
@@ -105,7 +105,7 @@ export const DraggableStaticPanelItem: React.FC<DraggableStaticPanelItemProps> =
                 </div>
               ) : (
                 <span 
-                  className={`flex-1 prose max-w-none ${isAdmin && editMode ? "hover:bg-blue-50 p-1 rounded mr-2" : ""}`}
+                  className={`flex-1 prose max-w-none ${isAdmin && editMode ? "hover:bg-blue-50 p-1 rounded mr-1 md:mr-2" : ""}`}
                   onClick={isAdmin && editMode ? (e) => {
                     e.stopPropagation();
                     onStartEditingText();
@@ -116,7 +116,7 @@ export const DraggableStaticPanelItem: React.FC<DraggableStaticPanelItemProps> =
             </div>
             
             {!isCurrentlyEditingText && (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 md:gap-2">
                 {isAdmin && editMode && (
                   <Button
                     variant="outline"
@@ -126,21 +126,21 @@ export const DraggableStaticPanelItem: React.FC<DraggableStaticPanelItemProps> =
                       onDeleteItem();
                     }}
                     disabled={isDeletingItem}
-                    className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity bg-red-50 hover:bg-red-100 border-red-200"
+                    className="h-5 w-5 md:h-6 md:w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity bg-red-50 hover:bg-red-100 border-red-200"
                   >
-                    <Trash2 className="h-3 w-3 text-red-600" />
+                    <Trash2 className="h-2.5 w-2.5 md:h-3 md:w-3 text-red-600" />
                   </Button>
                 )}
                 {isExpanded ? (
-                  <ChevronUp className="h-4 w-4 flex-shrink-0" />
+                  <ChevronUp className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
                 ) : (
-                  <ChevronDown className="h-4 w-4 flex-shrink-0" />
+                  <ChevronDown className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
                 )}
               </div>
             )}
           </CollapsibleTrigger>
           
-          <CollapsibleContent className="mt-2 pl-4 border-l-2 border-gray-200 relative group">
+          <CollapsibleContent className="mt-2 pl-2 md:pl-4 border-l-2 border-gray-200 relative group">
             {isCurrentlyEditingExpanded ? (
               <InlineEditor
                 content={item.expandedContent || ''}
@@ -179,9 +179,9 @@ export const DraggableStaticPanelItem: React.FC<DraggableStaticPanelItemProps> =
           {isAdmin && editMode && (
             <div
               ref={drag}
-              className="cursor-move p-1 hover:bg-gray-200 rounded mr-2 opacity-0 group-hover:opacity-100 transition-opacity"
+              className="cursor-move p-1 hover:bg-gray-200 rounded mr-1 md:mr-2 opacity-0 group-hover:opacity-100 transition-opacity"
             >
-              <GripVertical className="h-4 w-4 text-gray-500" />
+              <GripVertical className="h-3 w-3 md:h-4 md:w-4 text-gray-500" />
             </div>
           )}
           
@@ -197,9 +197,9 @@ export const DraggableStaticPanelItem: React.FC<DraggableStaticPanelItemProps> =
               size="sm"
               onClick={onDeleteItem}
               disabled={isDeletingItem}
-              className="h-6 w-6 p-0 ml-2 opacity-0 group-hover:opacity-100 transition-opacity bg-red-50 hover:bg-red-100 border-red-200"
+              className="h-5 w-5 md:h-6 md:w-6 p-0 ml-1 md:ml-2 opacity-0 group-hover:opacity-100 transition-opacity bg-red-50 hover:bg-red-100 border-red-200"
             >
-              <Trash2 className="h-3 w-3 text-red-600" />
+              <Trash2 className="h-2.5 w-2.5 md:h-3 md:w-3 text-red-600" />
             </Button>
           )}
         </div>
