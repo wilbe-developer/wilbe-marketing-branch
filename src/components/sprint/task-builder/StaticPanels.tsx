@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { StaticPanel, Condition } from "@/types/task-builder";
 import { 
@@ -27,6 +28,12 @@ const StaticPanels: React.FC<StaticPanelsProps> = ({
   isAdmin = false,
   taskId
 }) => {
+  // Add console logs for debugging
+  console.log("StaticPanels - isAdmin:", isAdmin);
+  console.log("StaticPanels - taskId:", taskId);
+  console.log("StaticPanels - panels length:", panels?.length);
+  console.log("StaticPanels - edit button condition (isAdmin && taskId):", isAdmin && taskId);
+
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [editingPanelIndex, setEditingPanelIndex] = useState<number | null>(null);
 
@@ -88,9 +95,16 @@ const StaticPanels: React.FC<StaticPanelsProps> = ({
   // Get panels that should be visible based on current answers
   const visiblePanels = panels.filter(isPanelVisible);
 
+  console.log("StaticPanels - visiblePanels length:", visiblePanels.length);
+
   if (visiblePanels.length === 0) {
     return null;
   }
+
+  const handleEditClick = (index: number) => {
+    console.log("Edit button clicked for panel index:", index);
+    setEditingPanelIndex(index);
+  };
 
   return (
     <div className="space-y-4">
@@ -103,10 +117,11 @@ const StaticPanels: React.FC<StaticPanelsProps> = ({
             <Button
               variant="outline"
               size="sm"
-              className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10"
-              onClick={() => setEditingPanelIndex(index)}
+              className="absolute top-2 right-2 bg-red-500 text-white border-red-500 hover:bg-red-600 z-10"
+              onClick={() => handleEditClick(index)}
             >
-              <Edit className="h-4 w-4" />
+              <Edit className="h-4 w-4 mr-1" />
+              EDIT BUTTON
             </Button>
           )}
           
