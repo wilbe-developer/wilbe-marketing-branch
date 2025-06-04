@@ -25,6 +25,8 @@ export const useStaticPanelMutation = () => {
 
   const updateStaticPanel = useMutation({
     mutationFn: async ({ taskId, panelIndex, updates }: UpdateStaticPanelParams) => {
+      console.log("Updating panel:", { taskId, panelIndex, updates });
+      
       // First, get the current task definition
       const { data: taskDef, error: fetchError } = await supabase
         .from('sprint_task_definitions')
@@ -33,6 +35,7 @@ export const useStaticPanelMutation = () => {
         .single();
 
       if (fetchError || !taskDef) {
+        console.error("Failed to fetch task definition:", fetchError);
         throw new Error('Failed to fetch task definition');
       }
 
@@ -56,6 +59,8 @@ export const useStaticPanelMutation = () => {
         staticPanels: updatedPanels
       };
 
+      console.log("Saving updated definition:", updatedDefinition);
+
       // Update the database - convert back to Json format
       const { error: updateError } = await supabase
         .from('sprint_task_definitions')
@@ -66,16 +71,30 @@ export const useStaticPanelMutation = () => {
         .eq('id', taskId);
 
       if (updateError) {
+        console.error("Failed to update task definition:", updateError);
         throw updateError;
       }
 
       return { panelIndex, updates };
     },
-    onSuccess: () => {
-      // Invalidate and refetch task definitions
-      queryClient.invalidateQueries({ queryKey: ['task-definition'] });
-      queryClient.invalidateQueries({ queryKey: ['sprint-task-definitions'] });
-      toast.success("Panel updated successfully");
+    onSuccess: (data, variables) => {
+      console.log("Panel updated successfully:", data);
+      
+      // Invalidate all related queries to ensure fresh data
+      queryClient.invalidateQueries({ 
+        queryKey: ['task-definition', variables.taskId] 
+      });
+      queryClient.invalidateQueries({ 
+        queryKey: ['sprint-task-definitions'] 
+      });
+      queryClient.invalidateQueries({ 
+        queryKey: ['dynamic-task', variables.taskId] 
+      });
+      
+      // Force refetch the specific task
+      queryClient.refetchQueries({ 
+        queryKey: ['task-definition', variables.taskId] 
+      });
     },
     onError: (error) => {
       console.error('Error updating static panel:', error);
