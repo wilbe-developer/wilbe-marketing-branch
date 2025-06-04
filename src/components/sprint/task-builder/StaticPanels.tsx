@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { StaticPanel, Condition } from "@/types/task-builder";
 import { 
@@ -111,12 +112,9 @@ const StaticPanels: React.FC<StaticPanelsProps> = ({
     );
   }
 
-  if (visiblePanels.length === 0) {
-    return null;
-  }
-
   return (
     <div className="space-y-4">
+      {/* Admin edit toggle - show regardless of panel visibility */}
       {enableAdminEdit && isAdmin && taskId && (
         <div className="flex justify-end">
           <button
@@ -128,7 +126,8 @@ const StaticPanels: React.FC<StaticPanelsProps> = ({
         </div>
       )}
       
-      {visiblePanels.map((panel, index) => (
+      {/* Show panels only if there are visible ones */}
+      {visiblePanels.length > 0 && visiblePanels.map((panel, index) => (
         <Card 
           key={index} 
           className={getPanelClass(panel.type || 'info')}
@@ -187,6 +186,13 @@ const StaticPanels: React.FC<StaticPanelsProps> = ({
           </CardContent>
         </Card>
       ))}
+      
+      {/* Show message when no panels are visible but admin can still edit */}
+      {visiblePanels.length === 0 && enableAdminEdit && isAdmin && (
+        <div className="text-center py-4 text-gray-500">
+          No static panels are currently visible based on the current conditions.
+        </div>
+      )}
     </div>
   );
 };
