@@ -10,10 +10,12 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown, ChevronUp, Edit, Eye } from "lucide-react";
+import { ChevronDown, ChevronUp, Edit, Eye, Plus } from "lucide-react";
 import { useStaticPanelMutation } from "@/hooks/useStaticPanelMutation";
 import { toast } from "sonner";
 import { InlineEditor } from "./InlineEditor";
+import { useAddContent } from "./InlineEditor/useAddContent";
+import { AddContentButtons } from "./InlineEditor/AddContentButtons";
 
 interface StaticPanelsProps {
   panels: StaticPanel[];
@@ -38,7 +40,17 @@ const StaticPanels: React.FC<StaticPanelsProps> = ({
     itemIndex?: number;
   } | null>(null);
 
-  const { updateStaticPanel, isUpdating } = useStaticPanelMutation();
+  const { updateStaticPanel, addPanelItem, addNewPanel, isUpdating } = useStaticPanelMutation();
+  const {
+    addingContent,
+    startAddingItem,
+    startAddingCollapsibleItem,
+    startAddingContent,
+    startAddingPanel,
+    cancelAdding,
+    createNewItem,
+    createNewPanel
+  } = useAddContent();
 
   // Toggle expanded state for dropdown items
   const toggleExpanded = (panelId: string, itemIndex: number) => {
@@ -94,7 +106,7 @@ const StaticPanels: React.FC<StaticPanelsProps> = ({
 
   const visiblePanels = panels.filter(isPanelVisible);
 
-  if (visiblePanels.length === 0) {
+  if (visiblePanels.length === 0 && (!isAdmin || !editMode)) {
     return null;
   }
 
@@ -104,6 +116,7 @@ const StaticPanels: React.FC<StaticPanelsProps> = ({
 
   const cancelEditing = () => {
     setEditingState(null);
+    cancelAdding();
   };
 
   const saveEdit = async (newContent: string) => {
@@ -155,6 +168,73 @@ const StaticPanels: React.FC<StaticPanelsProps> = ({
     }
   };
 
+  const handleAddContent = async (panelId: string, type: 'item' | 'collapsible-item' | 'content') => {
+    if (!taskId) return;
+    
+    const originalPanelIndex = panels.findIndex(p => p.id === panelId);
+    if (originalPanelIndex === -1) return;
+
+    try {
+      if (type === 'item' || type === 'collapsible-item') {
+        const newItem = createNewItem(type === 'collapsible-item');
+        await addPanelItem({
+          taskId,
+          panelIndex: originalPanelIndex,
+          newItem
+        });
+        
+        // Start editing the new item immediately
+        setTimeout(() => {
+          const panel = panels[originalPanelIndex];
+          const itemIndex = (panel.items?.length || 0);
+          startEditing('item-text', panelId, itemIndex);
+        }, 100);
+      } else if (type === 'content') {
+        // Switch panel to content mode
+        await updateStaticPanel({
+          taskId,
+          panelIndex: originalPanelIndex,
+          updates: { content: "New content goes here..." }
+        });
+        
+        // Start editing the content immediately  
+        setTimeout(() => {
+          startEditing('panel-content', panelId);
+        }, 100);
+      }
+      
+      cancelAdding();
+      toast.success("Content added successfully");
+    } catch (error) {
+      console.error("Add content error:", error);
+      toast.error("Failed to add content");
+    }
+  };
+
+  const handleAddNewPanel = async () => {
+    if (!taskId) return;
+
+    try {
+      const newPanel = createNewPanel();
+      await addNewPanel({
+        taskId,
+        newPanel,
+        position: 'end'
+      });
+      
+      // Start editing the new panel title immediately
+      setTimeout(() => {
+        startEditing('panel-title', newPanel.id);
+      }, 100);
+      
+      cancelAdding();
+      toast.success("Panel added successfully");
+    } catch (error) {
+      console.error("Add panel error:", error);
+      toast.error("Failed to add panel");
+    }
+  };
+
   const isCurrentlyEditing = (type: string, panelId: string, itemIndex?: number) => {
     return editingState?.type === type && 
            editingState?.panelId === panelId && 
@@ -180,17 +260,30 @@ const StaticPanels: React.FC<StaticPanelsProps> = ({
               </>
             )}
           </div>
-          <Button
-            variant={editMode ? "default" : "outline"}
-            size="sm"
-            onClick={() => {
-              setEditMode(!editMode);
-              cancelEditing(); // Cancel any active editing when toggling mode
-            }}
-            className="h-8 px-3"
-          >
-            {editMode ? "Exit Edit" : "Edit Mode"}
-          </Button>
+          <div className="flex items-center gap-2">
+            {editMode && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleAddNewPanel}
+                className="h-8 px-3 text-blue-600 border-blue-300 hover:bg-blue-50"
+              >
+                <Plus className="h-3 w-3 mr-1" />
+                Add Panel
+              </Button>
+            )}
+            <Button
+              variant={editMode ? "default" : "outline"}
+              size="sm"
+              onClick={() => {
+                setEditMode(!editMode);
+                cancelEditing(); // Cancel any active editing when toggling mode
+              }}
+              className="h-8 px-3"
+            >
+              {editMode ? "Exit Edit" : "Edit Mode"}
+            </Button>
+          </div>
         </div>
       )}
 
@@ -331,9 +424,36 @@ const StaticPanels: React.FC<StaticPanelsProps> = ({
                   })}
               </ul>
             )}
+
+            {/* Add Content Buttons - shown in edit mode */}
+            {isAdmin && editMode && !editingState && (
+              <AddContentButtons
+                panel={panel}
+                onAddItem={() => handleAddContent(panel.id, 'item')}
+                onAddCollapsibleItem={() => handleAddContent(panel.id, 'collapsible-item')}
+                onAddContent={() => handleAddContent(panel.id, 'content')}
+                className="mt-4"
+              />
+            )}
           </CardContent>
         </Card>
       ))}
+
+      {/* Show add panel option when no panels exist but admin is in edit mode */}
+      {isAdmin && editMode && visiblePanels.length === 0 && (
+        <div className="text-center py-12 border-2 border-dashed border-blue-300 rounded-lg bg-blue-50">
+          <h3 className="text-lg font-medium text-blue-800 mb-2">
+            No static panels
+          </h3>
+          <p className="text-blue-600 mb-4">
+            Add your first panel to get started
+          </p>
+          <Button onClick={handleAddNewPanel} className="bg-blue-600 hover:bg-blue-700">
+            <Plus className="h-4 w-4 mr-2" />
+            Add First Panel
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

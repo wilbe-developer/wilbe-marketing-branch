@@ -2,7 +2,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { TaskDefinition } from "@/types/task-builder";
+import { TaskDefinition, StaticPanel, StaticPanelItem } from "@/types/task-builder";
 
 interface UpdateStaticPanelParams {
   taskId: string;
@@ -18,6 +18,18 @@ interface UpdateStaticPanelParams {
       expandedContent?: string;
     }>;
   };
+}
+
+interface AddPanelItemParams {
+  taskId: string;
+  panelIndex: number;
+  newItem: StaticPanelItem;
+}
+
+interface AddNewPanelParams {
+  taskId: string;
+  newPanel: StaticPanel;
+  position?: 'start' | 'end';
 }
 
 export const useStaticPanelMutation = () => {
@@ -96,8 +108,133 @@ export const useStaticPanelMutation = () => {
     }
   });
 
+  const addPanelItem = useMutation({
+    mutationFn: async ({ taskId, panelIndex, newItem }: AddPanelItemParams) => {
+      console.log("Adding panel item:", { taskId, panelIndex, newItem });
+      
+      const { data: taskDef, error: fetchError } = await supabase
+        .from('sprint_task_definitions')
+        .select('definition')
+        .eq('id', taskId)
+        .single();
+
+      if (fetchError || !taskDef) {
+        throw new Error('Failed to fetch task definition');
+      }
+
+      const definition = taskDef.definition as unknown as TaskDefinition;
+      
+      if (!definition.staticPanels || !definition.staticPanels[panelIndex]) {
+        throw new Error('Panel not found');
+      }
+
+      const updatedPanels = [...definition.staticPanels];
+      const panel = updatedPanels[panelIndex];
+      
+      // Initialize items if it doesn't exist
+      if (!panel.items) {
+        panel.items = [];
+      }
+      
+      // Set proper order for new item
+      const maxOrder = panel.items.reduce((max, item) => Math.max(max, item.order || 0), 0);
+      newItem.order = maxOrder + 1;
+      
+      // Add the new item
+      panel.items = [...panel.items, newItem];
+
+      const updatedDefinition = {
+        ...definition,
+        staticPanels: updatedPanels
+      };
+
+      const { error: updateError } = await supabase
+        .from('sprint_task_definitions')
+        .update({
+          definition: updatedDefinition as any,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', taskId);
+
+      if (updateError) {
+        throw updateError;
+      }
+
+      return { panelIndex, newItem };
+    },
+    onSuccess: (data, variables) => {
+      console.log("Item added successfully:", data);
+      queryClient.invalidateQueries({ 
+        queryKey: ["taskDefinition", variables.taskId] 
+      });
+    },
+    onError: (error) => {
+      console.error('Error adding panel item:', error);
+      toast.error("Failed to add item");
+    }
+  });
+
+  const addNewPanel = useMutation({
+    mutationFn: async ({ taskId, newPanel, position = 'end' }: AddNewPanelParams) => {
+      console.log("Adding new panel:", { taskId, newPanel, position });
+      
+      const { data: taskDef, error: fetchError } = await supabase
+        .from('sprint_task_definitions')
+        .select('definition')
+        .eq('id', taskId)
+        .single();
+
+      if (fetchError || !taskDef) {
+        throw new Error('Failed to fetch task definition');
+      }
+
+      const definition = taskDef.definition as unknown as TaskDefinition;
+      
+      let updatedPanels = definition.staticPanels || [];
+      
+      if (position === 'start') {
+        updatedPanels = [newPanel, ...updatedPanels];
+      } else {
+        updatedPanels = [...updatedPanels, newPanel];
+      }
+
+      const updatedDefinition = {
+        ...definition,
+        staticPanels: updatedPanels
+      };
+
+      const { error: updateError } = await supabase
+        .from('sprint_task_definitions')
+        .update({
+          definition: updatedDefinition as any,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', taskId);
+
+      if (updateError) {
+        throw updateError;
+      }
+
+      return { newPanel };
+    },
+    onSuccess: (data, variables) => {
+      console.log("Panel added successfully:", data);
+      queryClient.invalidateQueries({ 
+        queryKey: ["taskDefinition", variables.taskId] 
+      });
+    },
+    onError: (error) => {
+      console.error('Error adding new panel:', error);
+      toast.error("Failed to add panel");
+    }
+  });
+
   return {
     updateStaticPanel: updateStaticPanel.mutate,
-    isUpdating: updateStaticPanel.isPending
+    addPanelItem: addPanelItem.mutate,
+    addNewPanel: addNewPanel.mutate,
+    isUpdating: updateStaticPanel.isPending,
+    isAddingItem: addPanelItem.isPending,
+    isAddingPanel: addNewPanel.isPending
   };
 };
