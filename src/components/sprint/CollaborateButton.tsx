@@ -19,19 +19,27 @@ import { CollaboratorsManagement } from "./CollaboratorsManagement";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useSprintContext } from "@/hooks/useSprintContext";
 
 export const CollaborateButton = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { user } = useAuth();
+  const { currentSprintOwnerId, canManage } = useSprintContext();
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Use currentSprintOwnerId for data room link
+  const dataRoomUserId = currentSprintOwnerId || user?.id;
+
   const handleOpenDataRoom = () => {
-    if (!user?.id) return;
+    if (!dataRoomUserId) return;
     
-    navigate(`/sprint/data-room/${user.id}`);
+    navigate(`/sprint/data-room/${dataRoomUserId}`);
     setIsDialogOpen(false);
   };
+
+  // Don't show the button if user doesn't have manage access in a shared sprint
+  if (!canManage) return null;
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -80,13 +88,13 @@ export const CollaborateButton = () => {
                   <input 
                     type="text" 
                     readOnly
-                    value={`${window.location.origin}/sprint/data-room/${user?.id}`}
+                    value={`${window.location.origin}/sprint/data-room/${dataRoomUserId}`}
                     className="flex-1 p-2 rounded border text-sm"
                   />
                   <Button
                     size="sm"
                     onClick={() => {
-                      navigator.clipboard.writeText(`${window.location.origin}/sprint/data-room/${user?.id}`);
+                      navigator.clipboard.writeText(`${window.location.origin}/sprint/data-room/${dataRoomUserId}`);
                       toast({
                         title: "Link copied",
                         description: "Data room link copied to clipboard"

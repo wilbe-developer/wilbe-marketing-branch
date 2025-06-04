@@ -5,6 +5,7 @@ import {
   type Collaborator,
   type AccessLevel
 } from "@/hooks/useSprintCollaborators";
+import { useSprintContext } from "@/hooks/useSprintContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
@@ -36,6 +37,7 @@ import { Users, UserPlus, AlertTriangle, Trash2, ShieldCheck } from "lucide-reac
 import { toast } from "@/hooks/use-toast";
 
 export const CollaboratorsManagement = () => {
+  const { canManage, isSharedSprint } = useSprintContext();
   const { 
     collaborators, 
     isLoading, 
@@ -104,6 +106,65 @@ export const CollaboratorsManagement = () => {
     await updateCollaboratorAccess(collaboratorId, newLevel);
   };
 
+  // Show read-only view if user doesn't have manage access
+  if (!canManage && isSharedSprint) {
+    return (
+      <Card className="mt-0">
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <Users className="mr-2 h-5 w-5" /> 
+            <span>BSF Collaborators</span>
+          </CardTitle>
+          <CardDescription>
+            You can view collaborators but don't have permission to manage them
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="py-8 text-center">
+              <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
+              <p className="mt-2 text-sm text-gray-500">Loading collaborators...</p>
+            </div>
+          ) : collaborators.length === 0 ? (
+            <div className="py-8 text-center border border-dashed rounded-lg">
+              <Users className="h-12 w-12 mx-auto text-gray-400" />
+              <p className="mt-2 text-sm text-gray-500">
+                No collaborators to display
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {collaborators.map((collaborator) => (
+                <div 
+                  key={collaborator.id} 
+                  className="flex items-center justify-between p-3 bg-gray-50 rounded-md"
+                >
+                  <div className="flex-1">
+                    <p className="font-medium">
+                      {collaborator.firstName || ''} {collaborator.lastName || ''}
+                      {!collaborator.firstName && !collaborator.lastName && (
+                        <span className="italic text-gray-500">Name not available</span>
+                      )}
+                    </p>
+                    <p className="text-sm text-gray-500">{collaborator.email}</p>
+                  </div>
+                  
+                  <div className="flex items-center">
+                    {getAccessLevelIcon(collaborator.access_level as AccessLevel)}
+                    <span className="ml-2 text-sm">
+                      {getAccessLevelText(collaborator.access_level as AccessLevel)}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Full management view for owners and managers
   return (
     <Card className="mt-0">
       <CardHeader>

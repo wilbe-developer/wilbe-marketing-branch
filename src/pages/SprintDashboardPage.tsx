@@ -1,3 +1,4 @@
+
 import { useEffect } from "react";
 import { useSprintTaskDefinitions } from "@/hooks/useSprintTaskDefinitions";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -20,7 +21,7 @@ const SprintDashboardPage = () => {
   const { tasksWithProgress, isLoading } = useSprintTaskDefinitions();
   const isMobile = useIsMobile();
   const { user } = useAuth();
-  const { isSharedSprint, sprintOwnerName, currentSprintOwnerId } = useSprintContext();
+  const { isSharedSprint, sprintOwnerName, currentSprintOwnerId, canManage } = useSprintContext();
 
   // Calculate overall completion percentage
   const completedTasks = tasksWithProgress.filter(task => task.progress?.completed).length;
@@ -75,8 +76,8 @@ const SprintDashboardPage = () => {
           </div>
         )}
         
-        {/* Action buttons - only show for non-shared sprints */}
-        {!isSharedSprint && user?.id && (
+        {/* Action buttons - show for non-shared sprints OR for users with manage access */}
+        {(!isSharedSprint || canManage) && user?.id && (
           <div className={`${isMobile ? 'mb-4' : 'mb-6'}`}>
             <h3 className="text-sm font-medium text-gray-700 mb-2">Quick Actions</h3>
             <div className={`flex ${isMobile ? 'flex-wrap' : ''} gap-2`}>
@@ -93,10 +94,12 @@ const SprintDashboardPage = () => {
         {/* Displays the selector for shared sprints if they exist */}
         <SharedSprintsSelector />
         
-        {/* Sprint Countdown Timer */}
-        <div className="mb-6">
-          <SprintCountdown />
-        </div>
+        {/* Sprint Countdown Timer - show for non-shared sprints OR for users with manage access */}
+        {(!isSharedSprint || canManage) && (
+          <div className="mb-6">
+            <SprintCountdown />
+          </div>
+        )}
         
         <ProgressDisplay completedTasks={completedTasks} totalTasks={totalTasks} />
       </div>
