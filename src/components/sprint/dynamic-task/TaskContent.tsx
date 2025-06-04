@@ -81,8 +81,6 @@ export const TaskContent: React.FC<TaskContentProps> = ({
           panels={taskDefinition.staticPanels}
           profileAnswers={sprintProfile}
           stepAnswers={answers}
-          taskId={taskDefinition.id}
-          enableAdminEdit={true}
         />
       )}
     </div>

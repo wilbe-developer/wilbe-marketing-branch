@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { StaticPanel, Condition } from "@/types/task-builder";
 import { 
@@ -10,27 +9,19 @@ import {
 } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
-import { StaticPanelEditor } from "@/components/admin/StaticPanelEditor";
 
 interface StaticPanelsProps {
   panels: StaticPanel[];
   profileAnswers: Record<string, any>;
   stepAnswers: Record<string, any>;
-  taskId?: string;
-  enableAdminEdit?: boolean;
 }
 
 const StaticPanels: React.FC<StaticPanelsProps> = ({
   panels,
   profileAnswers,
   stepAnswers,
-  taskId,
-  enableAdminEdit = false,
 }) => {
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
-  const [isAdminEditMode, setIsAdminEditMode] = useState(false);
-  const { isAdmin } = useAuth();
 
   // Toggle expanded state for dropdown items
   const toggleExpanded = (panelId: string, itemIndex: number) => {
@@ -90,44 +81,13 @@ const StaticPanels: React.FC<StaticPanelsProps> = ({
   // Get panels that should be visible based on current answers
   const visiblePanels = panels.filter(isPanelVisible);
 
-  // If admin edit mode is enabled and user is admin, show the editor
-  if (enableAdminEdit && isAdmin && taskId && isAdminEditMode) {
-    return (
-      <div className="space-y-4">
-        <div className="flex justify-between items-center">
-          <h3 className="text-lg font-semibold">Edit Static Panels</h3>
-          <button
-            onClick={() => setIsAdminEditMode(false)}
-            className="text-sm text-blue-600 hover:text-blue-800"
-          >
-            Exit Edit Mode
-          </button>
-        </div>
-        <StaticPanelEditor
-          taskId={taskId}
-          panels={panels}
-          isAdmin={true}
-        />
-      </div>
-    );
+  if (visiblePanels.length === 0) {
+    return null;
   }
 
   return (
     <div className="space-y-4">
-      {/* Admin edit toggle - show regardless of panel visibility */}
-      {enableAdminEdit && isAdmin && taskId && (
-        <div className="flex justify-end">
-          <button
-            onClick={() => setIsAdminEditMode(true)}
-            className="text-sm text-blue-600 hover:text-blue-800"
-          >
-            Edit Static Panels
-          </button>
-        </div>
-      )}
-      
-      {/* Show panels only if there are visible ones */}
-      {visiblePanels.length > 0 && visiblePanels.map((panel, index) => (
+      {visiblePanels.map((panel, index) => (
         <Card 
           key={index} 
           className={getPanelClass(panel.type || 'info')}
@@ -186,13 +146,6 @@ const StaticPanels: React.FC<StaticPanelsProps> = ({
           </CardContent>
         </Card>
       ))}
-      
-      {/* Show message when no panels are visible but admin can still edit */}
-      {visiblePanels.length === 0 && enableAdminEdit && isAdmin && (
-        <div className="text-center py-4 text-gray-500">
-          No static panels are currently visible based on the current conditions.
-        </div>
-      )}
     </div>
   );
 };
