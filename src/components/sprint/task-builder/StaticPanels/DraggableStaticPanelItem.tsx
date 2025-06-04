@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import { GripVertical, ChevronDown, ChevronUp, Trash2 } from 'lucide-react';
@@ -140,7 +139,7 @@ export const DraggableStaticPanelItem: React.FC<DraggableStaticPanelItemProps> =
             )}
           </CollapsibleTrigger>
           
-          <CollapsibleContent className="mt-2 pl-4 border-l-2 border-gray-200 relative group">
+          <CollapsibleContent className="mt-2 pl-2 md:pl-4 border-l-2 border-gray-200 relative group">
             {isCurrentlyEditingExpanded ? (
               <InlineEditor
                 content={item.expandedContent || ''}
