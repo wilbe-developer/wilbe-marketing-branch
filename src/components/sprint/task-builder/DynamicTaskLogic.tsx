@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useDynamicTask } from "@/hooks/task-builder/useDynamicTask";
 import { useSprintProfileQuickEdit } from "@/hooks/useSprintProfileQuickEdit";
@@ -243,6 +242,8 @@ const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
             panels={taskDefinition.staticPanels}
             profileAnswers={sprintProfile}
             stepAnswers={answers}
+            taskId={taskDefinition.id}
+            enableAdminEdit={true}
           />
         )}
         
