@@ -382,7 +382,7 @@ const StaticPanels: React.FC<StaticPanelsProps> = ({
               )}
               
               {panel.items && panel.items.length > 0 && (
-                <ul className="prose max-w-none list-disc pl-5 space-y-2">
+                <ul className="prose max-w-none list-disc pl-3 md:pl-5 space-y-2">
                   {panel.items.map((item, itemIndex) => {
                     const itemKey = `${panel.id}-${itemIndex}`;
                     const isExpanded = expandedItems.has(itemKey);
