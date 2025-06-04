@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Bold, Italic, Underline, List, ListOrdered, Link, Save, X } from "lucide-react";
@@ -20,10 +19,34 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
 }) => {
   if (!isVisible || !position) return null;
 
+  const formatUrl = (url: string): string => {
+    // Remove any leading/trailing whitespace
+    url = url.trim();
+    
+    // If URL already has a protocol, return as is
+    if (url.match(/^https?:\/\//)) {
+      return url;
+    }
+    
+    // If it starts with www., add https://
+    if (url.startsWith('www.')) {
+      return `https://${url}`;
+    }
+    
+    // If it looks like a domain (contains a dot and no spaces), add https://
+    if (url.includes('.') && !url.includes(' ')) {
+      return `https://${url}`;
+    }
+    
+    // Otherwise, return as is (might be a relative path or other type of link)
+    return url;
+  };
+
   const handleLinkClick = () => {
     const url = prompt('Enter URL:');
     if (url) {
-      onFormat('createLink', url);
+      const formattedUrl = formatUrl(url);
+      onFormat('createLink', formattedUrl);
     }
   };
 

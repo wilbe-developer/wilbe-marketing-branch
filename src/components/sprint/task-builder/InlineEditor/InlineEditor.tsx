@@ -137,7 +137,7 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
         onKeyDown={handleKeyDown}
         onFocus={handleFocus}
         onBlur={handleBlur}
-        placeholder={placeholder}
+        data-placeholder={placeholder}
         style={{
           border: isEditing ? '2px dashed #3b82f6' : 'none'
         }}
