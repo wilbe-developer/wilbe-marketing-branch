@@ -80,20 +80,14 @@ export const useStaticPanelMutation = () => {
     onSuccess: (data, variables) => {
       console.log("Panel updated successfully:", data);
       
-      // Invalidate all related queries to ensure fresh data
+      // Invalidate the correct query key that matches what the component uses
       queryClient.invalidateQueries({ 
-        queryKey: ['task-definition', variables.taskId] 
-      });
-      queryClient.invalidateQueries({ 
-        queryKey: ['sprint-task-definitions'] 
-      });
-      queryClient.invalidateQueries({ 
-        queryKey: ['dynamic-task', variables.taskId] 
+        queryKey: ["taskDefinition", variables.taskId] 
       });
       
-      // Force refetch the specific task
+      // Force refetch the specific task with the correct key
       queryClient.refetchQueries({ 
-        queryKey: ['task-definition', variables.taskId] 
+        queryKey: ["taskDefinition", variables.taskId] 
       });
     },
     onError: (error) => {
