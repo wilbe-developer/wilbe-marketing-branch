@@ -15,6 +15,8 @@ import { toast } from "sonner";
 import { InlineEditor } from "./InlineEditor";
 import { useAddContent } from "./InlineEditor/useAddContent";
 import { AddContentButtons } from "./InlineEditor/AddContentButtons";
+import { DragDropProvider } from "./StaticPanels/DragDropProvider";
+import { DraggableStaticPanelItem } from "./StaticPanels/DraggableStaticPanelItem";
 
 interface StaticPanelsProps {
   panels: StaticPanel[];
@@ -174,6 +176,34 @@ const StaticPanels: React.FC<StaticPanelsProps> = ({
     }
   };
 
+  const handleMoveItem = async (panelId: string, dragIndex: number, hoverIndex: number) => {
+    if (!taskId) return;
+    
+    const originalPanelIndex = panels.findIndex(p => p.id === panelId);
+    if (originalPanelIndex === -1) return;
+
+    const panel = panels[originalPanelIndex];
+    if (!panel.items) return;
+
+    try {
+      const updatedItems = [...panel.items];
+      const draggedItem = updatedItems[dragIndex];
+      
+      // Remove the dragged item and insert it at the new position
+      updatedItems.splice(dragIndex, 1);
+      updatedItems.splice(hoverIndex, 0, draggedItem);
+
+      await updateStaticPanel({
+        taskId,
+        panelIndex: originalPanelIndex,
+        updates: { items: updatedItems }
+      });
+    } catch (error) {
+      console.error("Move item error:", error);
+      toast.error("Failed to reorder items");
+    }
+  };
+
   const handleAddContent = async (panelId: string, type: 'item' | 'collapsible-item' | 'content') => {
     if (!taskId) return;
     
@@ -257,244 +287,158 @@ const StaticPanels: React.FC<StaticPanelsProps> = ({
   };
 
   return (
-    <div className="space-y-4">
-      {/* Admin Edit Mode Toggle */}
-      {isAdmin && (
-        <div className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-lg">
-          <div className="flex items-center gap-2">
-            {editMode ? (
-              <>
-                <Edit className="h-4 w-4 text-blue-600" />
-                <span className="text-sm font-medium text-blue-800">Edit Mode Active</span>
-                <span className="text-xs text-blue-600">Click content to edit inline</span>
-              </>
-            ) : (
-              <>
-                <Eye className="h-4 w-4 text-gray-600" />
-                <span className="text-sm font-medium text-gray-700">Viewing as User</span>
-              </>
-            )}
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant={editMode ? "default" : "outline"}
-              size="sm"
-              onClick={() => {
-                setEditMode(!editMode);
-                cancelEditing(); // Cancel any active editing when toggling mode
-              }}
-              className="h-8 px-3"
-            >
-              {editMode ? "Exit Edit" : "Edit Mode"}
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {visiblePanels.map((panel) => (
-        <Card 
-          key={panel.id} 
-          className={`${getPanelClass(panel.type || 'info')} ${isAdmin && editMode ? 'ring-1 ring-blue-200' : ''}`}
-        >
-          {panel.title && (
-            <CardHeader>
-              {isCurrentlyEditing('panel-title', panel.id) ? (
-                <InlineEditor
-                  content={panel.title || ''}
-                  onSave={saveEdit}
-                  onCancel={cancelEditing}
-                  className="text-lg font-semibold"
-                  placeholder="Panel title..."
-                />
+    <DragDropProvider>
+      <div className="space-y-4">
+        {/* Admin Edit Mode Toggle */}
+        {isAdmin && (
+          <div className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-center gap-2">
+              {editMode ? (
+                <>
+                  <Edit className="h-4 w-4 text-blue-600" />
+                  <span className="text-sm font-medium text-blue-800">Edit Mode Active</span>
+                  <span className="text-xs text-blue-600">Click content to edit inline • Drag items to reorder</span>
+                </>
               ) : (
-                <CardTitle 
-                  className={`prose max-w-none ${isAdmin && editMode ? "cursor-pointer hover:bg-blue-50 p-2 rounded transition-colors" : ""}`}
-                  onClick={isAdmin && editMode ? () => startEditing('panel-title', panel.id) : undefined}
-                  dangerouslySetInnerHTML={{ __html: panel.title }}
-                />
+                <>
+                  <Eye className="h-4 w-4 text-gray-600" />
+                  <span className="text-sm font-medium text-gray-700">Viewing as User</span>
+                </>
               )}
-            </CardHeader>
-          )}
-          
-          <CardContent>
-            {panel.content && (
-              <div className="mb-4 relative group">
-                {isCurrentlyEditing('panel-content', panel.id) ? (
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant={editMode ? "default" : "outline"}
+                size="sm"
+                onClick={() => {
+                  setEditMode(!editMode);
+                  cancelEditing(); // Cancel any active editing when toggling mode
+                }}
+                className="h-8 px-3"
+              >
+                {editMode ? "Exit Edit" : "Edit Mode"}
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {visiblePanels.map((panel) => (
+          <Card 
+            key={panel.id} 
+            className={`${getPanelClass(panel.type || 'info')} ${isAdmin && editMode ? 'ring-1 ring-blue-200' : ''}`}
+          >
+            {panel.title && (
+              <CardHeader>
+                {isCurrentlyEditing('panel-title', panel.id) ? (
                   <InlineEditor
-                    content={panel.content || ''}
+                    content={panel.title || ''}
                     onSave={saveEdit}
                     onCancel={cancelEditing}
-                    className="prose max-w-none"
-                    placeholder="Panel content..."
+                    className="text-lg font-semibold"
+                    placeholder="Panel title..."
                   />
                 ) : (
-                  <div className="relative">
-                    <div 
-                      className={`prose max-w-none ${isAdmin && editMode ? "cursor-pointer hover:bg-blue-50 p-2 rounded transition-colors" : ""}`}
-                      dangerouslySetInnerHTML={{ __html: panel.content }}
-                      onClick={isAdmin && editMode ? () => startEditing('panel-content', panel.id) : undefined}
-                    />
-                    {isAdmin && editMode && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDeleteContent(panel.id)}
-                        disabled={isDeletingContent}
-                        className="absolute top-2 right-2 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity bg-red-50 hover:bg-red-100 border-red-200"
-                      >
-                        <Trash2 className="h-3 w-3 text-red-600" />
-                      </Button>
-                    )}
-                  </div>
+                  <CardTitle 
+                    className={`prose max-w-none ${isAdmin && editMode ? "cursor-pointer hover:bg-blue-50 p-2 rounded transition-colors" : ""}`}
+                    onClick={isAdmin && editMode ? () => startEditing('panel-title', panel.id) : undefined}
+                    dangerouslySetInnerHTML={{ __html: panel.title }}
+                  />
                 )}
-              </div>
+              </CardHeader>
             )}
             
-            {panel.items && panel.items.length > 0 && (
-              <ul className="prose max-w-none list-disc pl-5 space-y-2">
-                {panel.items
-                  .sort((a, b) => (a.order || 0) - (b.order || 0))
-                  .map((item, itemIndex) => {
+            <CardContent>
+              {panel.content && (
+                <div className="mb-4 relative group">
+                  {isCurrentlyEditing('panel-content', panel.id) ? (
+                    <InlineEditor
+                      content={panel.content || ''}
+                      onSave={saveEdit}
+                      onCancel={cancelEditing}
+                      className="prose max-w-none"
+                      placeholder="Panel content..."
+                    />
+                  ) : (
+                    <div className="relative">
+                      <div 
+                        className={`prose max-w-none ${isAdmin && editMode ? "cursor-pointer hover:bg-blue-50 p-2 rounded transition-colors" : ""}`}
+                        dangerouslySetInnerHTML={{ __html: panel.content }}
+                        onClick={isAdmin && editMode ? () => startEditing('panel-content', panel.id) : undefined}
+                      />
+                      {isAdmin && editMode && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDeleteContent(panel.id)}
+                          disabled={isDeletingContent}
+                          className="absolute top-2 right-2 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity bg-red-50 hover:bg-red-100 border-red-200"
+                        >
+                          <Trash2 className="h-3 w-3 text-red-600" />
+                        </Button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+              
+              {panel.items && panel.items.length > 0 && (
+                <ul className="prose max-w-none list-disc pl-5 space-y-2">
+                  {panel.items.map((item, itemIndex) => {
                     const itemKey = `${panel.id}-${itemIndex}`;
                     const isExpanded = expandedItems.has(itemKey);
                     
-                    if (item.isExpandable && item.expandedContent) {
-                      return (
-                        <li key={itemIndex} className="list-none relative group">
-                          <Collapsible>
-                            <CollapsibleTrigger
-                              className={`flex items-center justify-between w-full text-left hover:bg-gray-50 p-2 rounded cursor-pointer`}
-                              onClick={() => toggleExpanded(panel.id, itemIndex)}
-                            >
-                              {isCurrentlyEditing('item-text', panel.id, itemIndex) ? (
-                                <div className="flex-1 mr-4" onClick={(e) => e.stopPropagation()}>
-                                  <InlineEditor
-                                    content={item.text}
-                                    onSave={saveEdit}
-                                    onCancel={cancelEditing}
-                                    placeholder="Item text..."
-                                  />
-                                </div>
-                              ) : (
-                                <div className="flex items-center flex-1">
-                                  <span 
-                                    className={`flex-1 prose max-w-none ${isAdmin && editMode ? "hover:bg-blue-50 p-1 rounded mr-2" : ""}`}
-                                    onClick={isAdmin && editMode ? (e) => {
-                                      e.stopPropagation();
-                                      startEditing('item-text', panel.id, itemIndex);
-                                    } : undefined}
-                                    dangerouslySetInnerHTML={{ __html: item.text }}
-                                  />
-                                </div>
-                              )}
-                              {!isCurrentlyEditing('item-text', panel.id, itemIndex) && (
-                                <div className="flex items-center gap-2">
-                                  {isAdmin && editMode && (
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleDeleteItem(panel.id, itemIndex);
-                                      }}
-                                      disabled={isDeletingItem}
-                                      className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity bg-red-50 hover:bg-red-100 border-red-200"
-                                    >
-                                      <Trash2 className="h-3 w-3 text-red-600" />
-                                    </Button>
-                                  )}
-                                  {isExpanded ? (
-                                    <ChevronUp className="h-4 w-4 flex-shrink-0" />
-                                  ) : (
-                                    <ChevronDown className="h-4 w-4 flex-shrink-0" />
-                                  )}
-                                </div>
-                              )}
-                            </CollapsibleTrigger>
-                            
-                            <CollapsibleContent className="mt-2 pl-4 border-l-2 border-gray-200 relative group">
-                              {isCurrentlyEditing('item-expanded', panel.id, itemIndex) ? (
-                                <InlineEditor
-                                  content={item.expandedContent || ''}
-                                  onSave={saveEdit}
-                                  onCancel={cancelEditing}
-                                  className="text-sm text-gray-600"
-                                  placeholder="Expanded content..."
-                                />
-                              ) : (
-                                <div 
-                                  className={`prose max-w-none text-sm text-gray-600 ${isAdmin && editMode ? "cursor-pointer hover:bg-blue-50 p-2 rounded transition-colors" : ""}`}
-                                  dangerouslySetInnerHTML={{ __html: item.expandedContent }}
-                                  onClick={isAdmin && editMode ? () => startEditing('item-expanded', panel.id, itemIndex) : undefined}
-                                />
-                              )}
-                            </CollapsibleContent>
-                          </Collapsible>
-                        </li>
-                      );
-                    } else {
-                      return (
-                        <li key={itemIndex} className="relative group">
-                          {isCurrentlyEditing('item-text', panel.id, itemIndex) ? (
-                            <InlineEditor
-                              content={item.text}
-                              onSave={saveEdit}
-                              onCancel={cancelEditing}
-                              placeholder="Item text..."
-                            />
-                          ) : (
-                            <div className="flex items-center">
-                              <span 
-                                className={`prose max-w-none flex-1 ${isAdmin && editMode ? "cursor-pointer hover:bg-blue-50 p-1 rounded" : ""}`}
-                                dangerouslySetInnerHTML={{ __html: item.text }}
-                                onClick={isAdmin && editMode ? () => startEditing('item-text', panel.id, itemIndex) : undefined}
-                              />
-                              {isAdmin && editMode && (
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => handleDeleteItem(panel.id, itemIndex)}
-                                  disabled={isDeletingItem}
-                                  className="h-6 w-6 p-0 ml-2 opacity-0 group-hover:opacity-100 transition-opacity bg-red-50 hover:bg-red-100 border-red-200"
-                                >
-                                  <Trash2 className="h-3 w-3 text-red-600" />
-                                </Button>
-                              )}
-                            </div>
-                          )}
-                        </li>
-                      );
-                    }
+                    return (
+                      <DraggableStaticPanelItem
+                        key={itemIndex}
+                        item={item}
+                        itemIndex={itemIndex}
+                        panelId={panel.id}
+                        isExpanded={isExpanded}
+                        isAdmin={isAdmin}
+                        editMode={editMode}
+                        isDeletingItem={isDeletingItem}
+                        isCurrentlyEditingText={isCurrentlyEditing('item-text', panel.id, itemIndex)}
+                        isCurrentlyEditingExpanded={isCurrentlyEditing('item-expanded', panel.id, itemIndex)}
+                        onToggleExpanded={() => toggleExpanded(panel.id, itemIndex)}
+                        onStartEditingText={() => startEditing('item-text', panel.id, itemIndex)}
+                        onStartEditingExpanded={() => startEditing('item-expanded', panel.id, itemIndex)}
+                        onSaveEdit={saveEdit}
+                        onCancelEdit={cancelEditing}
+                        onDeleteItem={() => handleDeleteItem(panel.id, itemIndex)}
+                        onMoveItem={(dragIndex, hoverIndex) => handleMoveItem(panel.id, dragIndex, hoverIndex)}
+                      />
+                    );
                   })}
-              </ul>
-            )}
+                </ul>
+              )}
 
-            {/* Add Content Buttons - shown in edit mode */}
-            {isAdmin && editMode && !editingState && (
-              <AddContentButtons
-                panel={panel}
-                onAddItem={() => handleAddContent(panel.id, 'item')}
-                onAddCollapsibleItem={() => handleAddContent(panel.id, 'collapsible-item')}
-                onAddContent={() => handleAddContent(panel.id, 'content')}
-                className="mt-4"
-              />
-            )}
-          </CardContent>
-        </Card>
-      ))}
+              {/* Add Content Buttons - shown in edit mode */}
+              {isAdmin && editMode && !editingState && (
+                <AddContentButtons
+                  panel={panel}
+                  onAddItem={() => handleAddContent(panel.id, 'item')}
+                  onAddCollapsibleItem={() => handleAddContent(panel.id, 'collapsible-item')}
+                  onAddContent={() => handleAddContent(panel.id, 'content')}
+                  className="mt-4"
+                />
+              )}
+            </CardContent>
+          </Card>
+        ))}
 
-      {/* Show message when no panels exist but admin is in edit mode */}
-      {isAdmin && editMode && visiblePanels.length === 0 && (
-        <div className="text-center py-12 border-2 border-dashed border-blue-300 rounded-lg bg-blue-50">
-          <h3 className="text-lg font-medium text-blue-800 mb-2">
-            No static panels
-          </h3>
-          <p className="text-blue-600 mb-4">
-            This task doesn't have any static panels yet
-          </p>
-        </div>
-      )}
-    </div>
+        {/* Show message when no panels exist but admin is in edit mode */}
+        {isAdmin && editMode && visiblePanels.length === 0 && (
+          <div className="text-center py-12 border-2 border-dashed border-blue-300 rounded-lg bg-blue-50">
+            <h3 className="text-lg font-medium text-blue-800 mb-2">
+              No static panels
+            </h3>
+            <p className="text-blue-600 mb-4">
+              This task doesn't have any static panels yet
+            </p>
+          </div>
+        )}
+      </div>
+    </DragDropProvider>
   );
 };
 
