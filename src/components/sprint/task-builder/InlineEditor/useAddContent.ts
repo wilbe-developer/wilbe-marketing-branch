@@ -1,10 +1,9 @@
 
 import { useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
-import { StaticPanel, StaticPanelItem } from '@/types/task-builder';
+import { StaticPanelItem } from '@/types/task-builder';
 
 interface AddContentState {
-  type: 'item' | 'collapsible-item' | 'content' | 'panel' | null;
+  type: 'item' | 'collapsible-item' | 'content' | null;
   panelId?: string;
   itemIndex?: number;
 }
@@ -24,10 +23,6 @@ export const useAddContent = () => {
     setAddingContent({ type: 'content', panelId });
   };
 
-  const startAddingPanel = () => {
-    setAddingContent({ type: 'panel' });
-  };
-
   const cancelAdding = () => {
     setAddingContent({ type: null });
   };
@@ -41,25 +36,12 @@ export const useAddContent = () => {
     };
   };
 
-  const createNewPanel = (): StaticPanel => {
-    return {
-      id: uuidv4(),
-      title: "New Panel",
-      items: [{
-        text: "New panel item",
-        order: 1
-      }]
-    };
-  };
-
   return {
     addingContent,
     startAddingItem,
     startAddingCollapsibleItem,
     startAddingContent,
-    startAddingPanel,
     cancelAdding,
-    createNewItem,
-    createNewPanel
+    createNewItem
   };
 };

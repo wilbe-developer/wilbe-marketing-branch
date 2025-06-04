@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Plus, FileText, ChevronDown, Layout } from "lucide-react";
+import { Plus, FileText, ChevronDown } from "lucide-react";
 import { StaticPanel } from "@/types/task-builder";
 
 interface AddContentButtonsProps {

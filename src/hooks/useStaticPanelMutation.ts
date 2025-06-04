@@ -1,4 +1,3 @@
-
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -26,10 +25,15 @@ interface AddPanelItemParams {
   newItem: StaticPanelItem;
 }
 
-interface AddNewPanelParams {
+interface DeletePanelItemParams {
   taskId: string;
-  newPanel: StaticPanel;
-  position?: 'start' | 'end';
+  panelIndex: number;
+  itemIndex: number;
+}
+
+interface DeletePanelContentParams {
+  taskId: string;
+  panelIndex: number;
 }
 
 export const useStaticPanelMutation = () => {
@@ -174,9 +178,9 @@ export const useStaticPanelMutation = () => {
     }
   });
 
-  const addNewPanel = useMutation({
-    mutationFn: async ({ taskId, newPanel, position = 'end' }: AddNewPanelParams) => {
-      console.log("Adding new panel:", { taskId, newPanel, position });
+  const deletePanelItem = useMutation({
+    mutationFn: async ({ taskId, panelIndex, itemIndex }: DeletePanelItemParams) => {
+      console.log("Deleting panel item:", { taskId, panelIndex, itemIndex });
       
       const { data: taskDef, error: fetchError } = await supabase
         .from('sprint_task_definitions')
@@ -190,13 +194,19 @@ export const useStaticPanelMutation = () => {
 
       const definition = taskDef.definition as unknown as TaskDefinition;
       
-      let updatedPanels = definition.staticPanels || [];
-      
-      if (position === 'start') {
-        updatedPanels = [newPanel, ...updatedPanels];
-      } else {
-        updatedPanels = [...updatedPanels, newPanel];
+      if (!definition.staticPanels || !definition.staticPanels[panelIndex]) {
+        throw new Error('Panel not found');
       }
+
+      const updatedPanels = [...definition.staticPanels];
+      const panel = updatedPanels[panelIndex];
+      
+      if (!panel.items || itemIndex >= panel.items.length) {
+        throw new Error('Item not found');
+      }
+      
+      // Remove the item at the specified index
+      panel.items = panel.items.filter((_, index) => index !== itemIndex);
 
       const updatedDefinition = {
         ...definition,
@@ -215,26 +225,87 @@ export const useStaticPanelMutation = () => {
         throw updateError;
       }
 
-      return { newPanel };
+      return { panelIndex, itemIndex };
     },
     onSuccess: (data, variables) => {
-      console.log("Panel added successfully:", data);
+      console.log("Item deleted successfully:", data);
       queryClient.invalidateQueries({ 
         queryKey: ["taskDefinition", variables.taskId] 
       });
+      toast.success("Item deleted successfully");
     },
     onError: (error) => {
-      console.error('Error adding new panel:', error);
-      toast.error("Failed to add panel");
+      console.error('Error deleting panel item:', error);
+      toast.error("Failed to delete item");
+    }
+  });
+
+  const deletePanelContent = useMutation({
+    mutationFn: async ({ taskId, panelIndex }: DeletePanelContentParams) => {
+      console.log("Deleting panel content:", { taskId, panelIndex });
+      
+      const { data: taskDef, error: fetchError } = await supabase
+        .from('sprint_task_definitions')
+        .select('definition')
+        .eq('id', taskId)
+        .single();
+
+      if (fetchError || !taskDef) {
+        throw new Error('Failed to fetch task definition');
+      }
+
+      const definition = taskDef.definition as unknown as TaskDefinition;
+      
+      if (!definition.staticPanels || !definition.staticPanels[panelIndex]) {
+        throw new Error('Panel not found');
+      }
+
+      const updatedPanels = [...definition.staticPanels];
+      const panel = updatedPanels[panelIndex];
+      
+      // Remove the content field
+      delete panel.content;
+
+      const updatedDefinition = {
+        ...definition,
+        staticPanels: updatedPanels
+      };
+
+      const { error: updateError } = await supabase
+        .from('sprint_task_definitions')
+        .update({
+          definition: updatedDefinition as any,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', taskId);
+
+      if (updateError) {
+        throw updateError;
+      }
+
+      return { panelIndex };
+    },
+    onSuccess: (data, variables) => {
+      console.log("Content deleted successfully:", data);
+      queryClient.invalidateQueries({ 
+        queryKey: ["taskDefinition", variables.taskId] 
+      });
+      toast.success("Content deleted successfully");
+    },
+    onError: (error) => {
+      console.error('Error deleting panel content:', error);
+      toast.error("Failed to delete content");
     }
   });
 
   return {
     updateStaticPanel: updateStaticPanel.mutate,
     addPanelItem: addPanelItem.mutate,
-    addNewPanel: addNewPanel.mutate,
+    deletePanelItem: deletePanelItem.mutate,
+    deletePanelContent: deletePanelContent.mutate,
     isUpdating: updateStaticPanel.isPending,
     isAddingItem: addPanelItem.isPending,
-    isAddingPanel: addNewPanel.isPending
+    isDeletingItem: deletePanelItem.isPending,
+    isDeletingContent: deletePanelContent.isPending
   };
 };

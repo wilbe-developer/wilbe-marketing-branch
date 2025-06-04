@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { StaticPanel, Condition } from "@/types/task-builder";
 import { 
@@ -10,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown, ChevronUp, Edit, Eye, Plus } from "lucide-react";
+import { ChevronDown, ChevronUp, Edit, Eye, Trash2 } from "lucide-react";
 import { useStaticPanelMutation } from "@/hooks/useStaticPanelMutation";
 import { toast } from "sonner";
 import { InlineEditor } from "./InlineEditor";
@@ -40,16 +39,23 @@ const StaticPanels: React.FC<StaticPanelsProps> = ({
     itemIndex?: number;
   } | null>(null);
 
-  const { updateStaticPanel, addPanelItem, addNewPanel, isUpdating } = useStaticPanelMutation();
+  const { 
+    updateStaticPanel, 
+    addPanelItem, 
+    deletePanelItem, 
+    deletePanelContent,
+    isUpdating,
+    isDeletingItem,
+    isDeletingContent
+  } = useStaticPanelMutation();
+  
   const {
     addingContent,
     startAddingItem,
     startAddingCollapsibleItem,
     startAddingContent,
-    startAddingPanel,
     cancelAdding,
-    createNewItem,
-    createNewPanel
+    createNewItem
   } = useAddContent();
 
   // Toggle expanded state for dropdown items
@@ -211,27 +217,36 @@ const StaticPanels: React.FC<StaticPanelsProps> = ({
     }
   };
 
-  const handleAddNewPanel = async () => {
-    if (!taskId) return;
+  const handleDeleteItem = async (panelId: string, itemIndex: number) => {
+    if (!taskId || !window.confirm("Are you sure you want to delete this item?")) return;
+    
+    const originalPanelIndex = panels.findIndex(p => p.id === panelId);
+    if (originalPanelIndex === -1) return;
 
     try {
-      const newPanel = createNewPanel();
-      await addNewPanel({
+      await deletePanelItem({
         taskId,
-        newPanel,
-        position: 'end'
+        panelIndex: originalPanelIndex,
+        itemIndex
       });
-      
-      // Start editing the new panel title immediately
-      setTimeout(() => {
-        startEditing('panel-title', newPanel.id);
-      }, 100);
-      
-      cancelAdding();
-      toast.success("Panel added successfully");
     } catch (error) {
-      console.error("Add panel error:", error);
-      toast.error("Failed to add panel");
+      console.error("Delete item error:", error);
+    }
+  };
+
+  const handleDeleteContent = async (panelId: string) => {
+    if (!taskId || !window.confirm("Are you sure you want to delete this content section?")) return;
+    
+    const originalPanelIndex = panels.findIndex(p => p.id === panelId);
+    if (originalPanelIndex === -1) return;
+
+    try {
+      await deletePanelContent({
+        taskId,
+        panelIndex: originalPanelIndex
+      });
+    } catch (error) {
+      console.error("Delete content error:", error);
     }
   };
 
@@ -261,17 +276,6 @@ const StaticPanels: React.FC<StaticPanelsProps> = ({
             )}
           </div>
           <div className="flex items-center gap-2">
-            {editMode && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleAddNewPanel}
-                className="h-8 px-3 text-blue-600 border-blue-300 hover:bg-blue-50"
-              >
-                <Plus className="h-3 w-3 mr-1" />
-                Add Panel
-              </Button>
-            )}
             <Button
               variant={editMode ? "default" : "outline"}
               size="sm"
@@ -314,7 +318,7 @@ const StaticPanels: React.FC<StaticPanelsProps> = ({
           
           <CardContent>
             {panel.content && (
-              <div className="mb-4">
+              <div className="mb-4 relative group">
                 {isCurrentlyEditing('panel-content', panel.id) ? (
                   <InlineEditor
                     content={panel.content || ''}
@@ -324,11 +328,24 @@ const StaticPanels: React.FC<StaticPanelsProps> = ({
                     placeholder="Panel content..."
                   />
                 ) : (
-                  <div 
-                    className={`prose max-w-none ${isAdmin && editMode ? "cursor-pointer hover:bg-blue-50 p-2 rounded transition-colors" : ""}`}
-                    dangerouslySetInnerHTML={{ __html: panel.content }}
-                    onClick={isAdmin && editMode ? () => startEditing('panel-content', panel.id) : undefined}
-                  />
+                  <div className="relative">
+                    <div 
+                      className={`prose max-w-none ${isAdmin && editMode ? "cursor-pointer hover:bg-blue-50 p-2 rounded transition-colors" : ""}`}
+                      dangerouslySetInnerHTML={{ __html: panel.content }}
+                      onClick={isAdmin && editMode ? () => startEditing('panel-content', panel.id) : undefined}
+                    />
+                    {isAdmin && editMode && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDeleteContent(panel.id)}
+                        disabled={isDeletingContent}
+                        className="absolute top-2 right-2 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity bg-red-50 hover:bg-red-100 border-red-200"
+                      >
+                        <Trash2 className="h-3 w-3 text-red-600" />
+                      </Button>
+                    )}
+                  </div>
                 )}
               </div>
             )}
@@ -343,7 +360,7 @@ const StaticPanels: React.FC<StaticPanelsProps> = ({
                     
                     if (item.isExpandable && item.expandedContent) {
                       return (
-                        <li key={itemIndex} className="list-none">
+                        <li key={itemIndex} className="list-none relative group">
                           <Collapsible>
                             <CollapsibleTrigger
                               className={`flex items-center justify-between w-full text-left hover:bg-gray-50 p-2 rounded cursor-pointer`}
@@ -371,7 +388,21 @@ const StaticPanels: React.FC<StaticPanelsProps> = ({
                                 </div>
                               )}
                               {!isCurrentlyEditing('item-text', panel.id, itemIndex) && (
-                                <div className="flex items-center">
+                                <div className="flex items-center gap-2">
+                                  {isAdmin && editMode && (
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDeleteItem(panel.id, itemIndex);
+                                      }}
+                                      disabled={isDeletingItem}
+                                      className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity bg-red-50 hover:bg-red-100 border-red-200"
+                                    >
+                                      <Trash2 className="h-3 w-3 text-red-600" />
+                                    </Button>
+                                  )}
                                   {isExpanded ? (
                                     <ChevronUp className="h-4 w-4 flex-shrink-0" />
                                   ) : (
@@ -381,7 +412,7 @@ const StaticPanels: React.FC<StaticPanelsProps> = ({
                               )}
                             </CollapsibleTrigger>
                             
-                            <CollapsibleContent className="mt-2 pl-4 border-l-2 border-gray-200">
+                            <CollapsibleContent className="mt-2 pl-4 border-l-2 border-gray-200 relative group">
                               {isCurrentlyEditing('item-expanded', panel.id, itemIndex) ? (
                                 <InlineEditor
                                   content={item.expandedContent || ''}
@@ -403,7 +434,7 @@ const StaticPanels: React.FC<StaticPanelsProps> = ({
                       );
                     } else {
                       return (
-                        <li key={itemIndex}>
+                        <li key={itemIndex} className="relative group">
                           {isCurrentlyEditing('item-text', panel.id, itemIndex) ? (
                             <InlineEditor
                               content={item.text}
@@ -412,11 +443,24 @@ const StaticPanels: React.FC<StaticPanelsProps> = ({
                               placeholder="Item text..."
                             />
                           ) : (
-                            <span 
-                              className={`prose max-w-none ${isAdmin && editMode ? "cursor-pointer hover:bg-blue-50 p-1 rounded" : ""}`}
-                              dangerouslySetInnerHTML={{ __html: item.text }}
-                              onClick={isAdmin && editMode ? () => startEditing('item-text', panel.id, itemIndex) : undefined}
-                            />
+                            <div className="flex items-center">
+                              <span 
+                                className={`prose max-w-none flex-1 ${isAdmin && editMode ? "cursor-pointer hover:bg-blue-50 p-1 rounded" : ""}`}
+                                dangerouslySetInnerHTML={{ __html: item.text }}
+                                onClick={isAdmin && editMode ? () => startEditing('item-text', panel.id, itemIndex) : undefined}
+                              />
+                              {isAdmin && editMode && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleDeleteItem(panel.id, itemIndex)}
+                                  disabled={isDeletingItem}
+                                  className="h-6 w-6 p-0 ml-2 opacity-0 group-hover:opacity-100 transition-opacity bg-red-50 hover:bg-red-100 border-red-200"
+                                >
+                                  <Trash2 className="h-3 w-3 text-red-600" />
+                                </Button>
+                              )}
+                            </div>
                           )}
                         </li>
                       );
@@ -439,19 +483,15 @@ const StaticPanels: React.FC<StaticPanelsProps> = ({
         </Card>
       ))}
 
-      {/* Show add panel option when no panels exist but admin is in edit mode */}
+      {/* Show message when no panels exist but admin is in edit mode */}
       {isAdmin && editMode && visiblePanels.length === 0 && (
         <div className="text-center py-12 border-2 border-dashed border-blue-300 rounded-lg bg-blue-50">
           <h3 className="text-lg font-medium text-blue-800 mb-2">
             No static panels
           </h3>
           <p className="text-blue-600 mb-4">
-            Add your first panel to get started
+            This task doesn't have any static panels yet
           </p>
-          <Button onClick={handleAddNewPanel} className="bg-blue-600 hover:bg-blue-700">
-            <Plus className="h-4 w-4 mr-2" />
-            Add First Panel
-          </Button>
         </div>
       )}
     </div>
