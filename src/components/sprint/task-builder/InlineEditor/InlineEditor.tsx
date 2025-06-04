@@ -29,7 +29,6 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
   useEffect(() => {
     if (editorRef.current && isEditing) {
       editorRef.current.focus();
-      // Set initial content
       editorRef.current.innerHTML = content || '';
     }
   }, [isEditing, content]);
@@ -54,8 +53,8 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
           // Desktop: position above selection with viewport bounds checking
           const viewportWidth = window.innerWidth;
           const viewportHeight = window.innerHeight;
-          const toolbarWidth = 300; // Approximate toolbar width
-          const toolbarHeight = 50; // Approximate toolbar height
+          const toolbarWidth = 300;
+          const toolbarHeight = 50;
           
           let left = rect.left + window.scrollX + (rect.width / 2) - (toolbarWidth / 2);
           let top = rect.top + window.scrollY - toolbarHeight - 10;
@@ -70,7 +69,6 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
         }
         setShowToolbar(true);
       } else if (!isMobile) {
-        // On desktop, hide when no selection (but not on mobile during link editing)
         setShowToolbar(false);
       }
     };
@@ -80,7 +78,6 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
     };
 
     const handleTouchEnd = () => {
-      // On mobile, show toolbar when touching in editor
       if (isMobile && editorRef.current?.contains(document.activeElement)) {
         setTimeout(handleSelection, 100);
       }
@@ -117,7 +114,6 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
 
   const handleFormat = (command: string, value?: string) => {
     if (command === 'createLink' && value) {
-      // Restore selection before creating link
       restoreSelection();
       setTimeout(() => {
         document.execCommand(command, false, value);
@@ -148,7 +144,6 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    // Handle keyboard shortcuts
     if (e.ctrlKey || e.metaKey) {
       switch (e.key) {
         case 'b':
@@ -177,7 +172,6 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
 
   const handleFocus = () => {
     if (isMobile) {
-      // On mobile, show toolbar when focused
       setToolbarPosition({
         top: window.innerHeight - 80,
         left: 10
@@ -187,12 +181,11 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
   };
 
   const handleBlur = (e: React.FocusEvent) => {
-    // Don't hide toolbar if clicking on toolbar buttons, save/cancel bar, or link input
     const relatedTarget = e.relatedTarget as HTMLElement;
     if (!relatedTarget || (
       !relatedTarget.closest('[data-floating-toolbar]') && 
       !relatedTarget.closest('[data-save-cancel-bar]') &&
-      !relatedTarget.closest('[data-link-input]')
+      !relatedTarget.closest('[data-link-input-portal]')
     )) {
       if (!isMobile) {
         setTimeout(() => setShowToolbar(false), 100);

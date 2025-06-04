@@ -1,8 +1,7 @@
-
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Bold, Italic, Underline, List, ListOrdered, Link, Unlink, Check, X } from "lucide-react";
+import { Bold, Italic, Underline, List, ListOrdered, Link, Unlink } from "lucide-react";
+import { LinkInputPortal } from './LinkInputPortal';
 
 interface FloatingToolbarProps {
   onFormat: (command: string, value?: string) => void;
@@ -21,16 +20,7 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
 }) => {
   const [showLinkInput, setShowLinkInput] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
-  const linkInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (showLinkInput && linkInputRef.current) {
-      // Focus the input after a short delay to ensure it's rendered
-      setTimeout(() => {
-        linkInputRef.current?.focus();
-      }, 100);
-    }
-  }, [showLinkInput]);
+  const [linkInputPosition, setLinkInputPosition] = useState<{ top: number; left: number } | null>(null);
 
   if (!isVisible || !position) return null;
 
@@ -58,6 +48,13 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
   };
 
   const handleLinkClick = () => {
+    // Calculate position for link input based on current toolbar position
+    if (!isMobile && position) {
+      setLinkInputPosition({
+        top: position.top + 50, // Position below toolbar
+        left: position.left
+      });
+    }
     setShowLinkInput(true);
     setLinkUrl('');
   };
@@ -65,10 +62,12 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
   const handleLinkConfirm = () => {
     if (linkUrl.trim()) {
       const formattedUrl = formatUrl(linkUrl);
+      
       // Restore selection before applying link
       if (onSelectionRestore) {
         onSelectionRestore();
       }
+      
       setTimeout(() => {
         onFormat('createLink', formattedUrl);
       }, 10);
@@ -104,83 +103,27 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
   };
 
   const toolbarClass = isMobile 
-    ? "fixed z-50 bg-white border border-gray-300 rounded-lg shadow-lg transition-all duration-200 left-2 right-2"
-    : "fixed z-50 bg-white border border-gray-300 rounded-lg shadow-lg transition-all duration-200";
+    ? "fixed z-[9997] bg-white border border-gray-300 rounded-lg shadow-lg transition-all duration-200 left-2 right-2"
+    : "fixed z-[9997] bg-white border border-gray-300 rounded-lg shadow-lg transition-all duration-200";
 
   const toolbarStyle = isMobile 
     ? { 
         bottom: 20,
         opacity: isVisible ? 1 : 0,
-        transform: isVisible ? 'translateY(0)' : 'translateY(100%)',
-        zIndex: 9999
+        transform: isVisible ? 'translateY(0)' : 'translateY(100%)'
       }
     : { 
         top: position.top, 
         left: position.left,
-        opacity: isVisible ? 1 : 0,
-        zIndex: 9999
+        opacity: isVisible ? 1 : 0
       };
 
   return (
-    <div 
-      className={toolbarClass}
-      style={toolbarStyle}
-    >
-      {showLinkInput ? (
-        <div 
-          data-link-input
-          className="flex items-center gap-1 p-2 bg-white rounded-lg border border-gray-200 shadow-md"
-          style={{ zIndex: 10000 }}
-        >
-          <Input
-            ref={linkInputRef}
-            type="text"
-            placeholder="Enter URL..."
-            value={linkUrl}
-            onChange={(e) => setLinkUrl(e.target.value)}
-            onKeyDown={(e) => {
-              e.stopPropagation(); // Prevent parent key handlers
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                handleLinkConfirm();
-              } else if (e.key === 'Escape') {
-                e.preventDefault();
-                handleLinkCancel();
-              }
-            }}
-            onBlur={(e) => {
-              // Don't close if clicking on confirm/cancel buttons
-              const relatedTarget = e.relatedTarget as HTMLElement;
-              if (!relatedTarget || !relatedTarget.closest('[data-link-input]')) {
-                // Give a small delay to allow button clicks
-                setTimeout(() => {
-                  if (!document.activeElement?.closest('[data-link-input]')) {
-                    handleLinkCancel();
-                  }
-                }, 100);
-              }
-            }}
-            className={`${isMobile ? 'h-10 text-base' : 'h-8 text-sm'} flex-1 min-w-0`}
-            autoFocus
-          />
-          <Button
-            variant="ghost"
-            size={isMobile ? "default" : "sm"}
-            onClick={handleLinkConfirm}
-            className={`${isMobile ? 'h-10 w-10' : 'h-8 w-8'} p-0 text-green-600 hover:text-green-700 hover:bg-green-50`}
-          >
-            <Check className={`${isMobile ? 'h-5 w-5' : 'h-4 w-4'}`} />
-          </Button>
-          <Button
-            variant="ghost"
-            size={isMobile ? "default" : "sm"}
-            onClick={handleLinkCancel}
-            className={`${isMobile ? 'h-10 w-10' : 'h-8 w-8'} p-0 text-red-600 hover:text-red-700 hover:bg-red-50`}
-          >
-            <X className={`${isMobile ? 'h-5 w-5' : 'h-4 w-4'}`} />
-          </Button>
-        </div>
-      ) : (
+    <>
+      <div 
+        className={toolbarClass}
+        style={toolbarStyle}
+      >
         <div className={`${isMobile ? 'p-3' : 'p-2'} flex items-center gap-1 justify-center`}>
           <Button
             variant="ghost"
@@ -251,7 +194,17 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
             </Button>
           )}
         </div>
-      )}
-    </div>
+      </div>
+
+      <LinkInputPortal
+        isVisible={showLinkInput}
+        position={linkInputPosition}
+        value={linkUrl}
+        onChange={setLinkUrl}
+        onConfirm={handleLinkConfirm}
+        onCancel={handleLinkCancel}
+        isMobile={isMobile}
+      />
+    </>
   );
 };
