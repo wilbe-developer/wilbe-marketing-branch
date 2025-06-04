@@ -34,7 +34,7 @@ const EditablePanel: React.FC<EditablePanelProps> = ({
 }) => {
   const [title, setTitle] = useState(panel.title || '');
   const [content, setContent] = useState(panel.content || '');
-  const [type, setType] = useState(panel.type || 'info');
+  const [type, setType] = useState<'info' | 'warning' | 'success' | 'error'>(panel.type || 'info');
   const [items, setItems] = useState(panel.items || []);
   
   const { updateStaticPanel, isUpdating } = useStaticPanelMutation();
@@ -46,11 +46,15 @@ const EditablePanel: React.FC<EditablePanelProps> = ({
       updates: {
         title: title.trim() || undefined,
         content: content.trim() || undefined,
-        type: type as 'info' | 'warning' | 'success' | 'error',
+        type: type,
         items: items.length > 0 ? items : undefined
       }
     });
     onSave();
+  };
+
+  const handleTypeChange = (value: string) => {
+    setType(value as 'info' | 'warning' | 'success' | 'error');
   };
 
   const updateItem = (itemIndex: number, updates: any) => {
@@ -85,7 +89,7 @@ const EditablePanel: React.FC<EditablePanelProps> = ({
 
         <div>
           <label className="block text-sm font-medium mb-1">Type</label>
-          <Select value={type} onValueChange={setType}>
+          <Select value={type} onValueChange={handleTypeChange}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>

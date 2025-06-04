@@ -2,6 +2,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { TaskDefinition } from "@/types/task-builder";
 
 interface UpdateStaticPanelParams {
   taskId: string;
@@ -35,7 +36,8 @@ export const useStaticPanelMutation = () => {
         throw new Error('Failed to fetch task definition');
       }
 
-      const definition = taskDef.definition;
+      // Type assertion for the definition object
+      const definition = taskDef.definition as TaskDefinition;
       
       // Update the specific panel
       if (!definition.staticPanels || !definition.staticPanels[panelIndex]) {
