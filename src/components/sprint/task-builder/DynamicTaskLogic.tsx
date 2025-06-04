@@ -242,7 +242,7 @@ const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
             panels={taskDefinition.staticPanels}
             profileAnswers={sprintProfile}
             stepAnswers={answers}
-            taskId={taskDefinition.id}
+            taskId={task.id}
             enableAdminEdit={true}
           />
         )}
