@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { StaticPanel, Condition } from "@/types/task-builder";
 import { 
@@ -9,19 +10,30 @@ import {
 } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { StaticPanelEditor } from "@/components/admin/StaticPanelEditor";
 
 interface StaticPanelsProps {
   panels: StaticPanel[];
   profileAnswers: Record<string, any>;
   stepAnswers: Record<string, any>;
+  taskId?: string;
+  enableAdminEdit?: boolean;
 }
 
 const StaticPanels: React.FC<StaticPanelsProps> = ({
   panels,
   profileAnswers,
   stepAnswers,
+  taskId,
+  enableAdminEdit = false,
 }) => {
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
+  const [isAdminEditMode, setIsAdminEditMode] = useState(false);
+  const { user } = useAuth();
+
+  // Check if user is admin (you may need to adjust this based on your auth system)
+  const isAdmin = user?.email?.includes('@admin') || false; // Replace with your admin check logic
 
   // Toggle expanded state for dropdown items
   const toggleExpanded = (panelId: string, itemIndex: number) => {
@@ -81,12 +93,45 @@ const StaticPanels: React.FC<StaticPanelsProps> = ({
   // Get panels that should be visible based on current answers
   const visiblePanels = panels.filter(isPanelVisible);
 
+  // If admin edit mode is enabled and user is admin, show the editor
+  if (enableAdminEdit && isAdmin && taskId && isAdminEditMode) {
+    return (
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
+          <h3 className="text-lg font-semibold">Edit Static Panels</h3>
+          <button
+            onClick={() => setIsAdminEditMode(false)}
+            className="text-sm text-blue-600 hover:text-blue-800"
+          >
+            Exit Edit Mode
+          </button>
+        </div>
+        <StaticPanelEditor
+          taskId={taskId}
+          panels={panels}
+          isAdmin={true}
+        />
+      </div>
+    );
+  }
+
   if (visiblePanels.length === 0) {
     return null;
   }
 
   return (
     <div className="space-y-4">
+      {enableAdminEdit && isAdmin && taskId && (
+        <div className="flex justify-end">
+          <button
+            onClick={() => setIsAdminEditMode(true)}
+            className="text-sm text-blue-600 hover:text-blue-800"
+          >
+            Edit Static Panels
+          </button>
+        </div>
+      )}
+      
       {visiblePanels.map((panel, index) => (
         <Card 
           key={index} 
