@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { StaticPanel, Condition } from "@/types/task-builder";
 import { 
@@ -30,10 +29,7 @@ const StaticPanels: React.FC<StaticPanelsProps> = ({
 }) => {
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [isAdminEditMode, setIsAdminEditMode] = useState(false);
-  const { user } = useAuth();
-
-  // Check if user is admin (you may need to adjust this based on your auth system)
-  const isAdmin = user?.email?.includes('@admin') || false; // Replace with your admin check logic
+  const { isAdmin } = useAuth();
 
   // Toggle expanded state for dropdown items
   const toggleExpanded = (panelId: string, itemIndex: number) => {
