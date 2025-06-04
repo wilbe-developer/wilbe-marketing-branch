@@ -36,8 +36,8 @@ export const useStaticPanelMutation = () => {
         throw new Error('Failed to fetch task definition');
       }
 
-      // Type assertion for the definition object
-      const definition = taskDef.definition as TaskDefinition;
+      // Type assertion with unknown as intermediate step
+      const definition = taskDef.definition as unknown as TaskDefinition;
       
       // Update the specific panel
       if (!definition.staticPanels || !definition.staticPanels[panelIndex]) {
@@ -50,14 +50,17 @@ export const useStaticPanelMutation = () => {
         ...updates
       };
 
-      // Update the database
+      // Create updated definition
+      const updatedDefinition = {
+        ...definition,
+        staticPanels: updatedPanels
+      };
+
+      // Update the database - convert back to Json format
       const { error: updateError } = await supabase
         .from('sprint_task_definitions')
         .update({
-          definition: {
-            ...definition,
-            staticPanels: updatedPanels
-          },
+          definition: updatedDefinition as any, // Use 'any' to bypass strict Json typing
           updated_at: new Date().toISOString()
         })
         .eq('id', taskId);
