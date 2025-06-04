@@ -31,14 +31,6 @@ const StaticPanels: React.FC<StaticPanelsProps> = ({
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [editingPanelIndex, setEditingPanelIndex] = useState<number | null>(null);
 
-  // Debug logging
-  console.log("StaticPanels Debug:", {
-    isAdmin,
-    taskId,
-    panelsCount: panels.length,
-    hasVisiblePanels: visiblePanels.length > 0
-  });
-
   // Toggle expanded state for dropdown items
   const toggleExpanded = (panelId: string, itemIndex: number) => {
     const itemKey = `${panelId}-${itemIndex}`;
@@ -97,6 +89,14 @@ const StaticPanels: React.FC<StaticPanelsProps> = ({
   // Get panels that should be visible based on current answers
   const visiblePanels = panels.filter(isPanelVisible);
 
+  // Debug logging - now after visiblePanels is declared
+  console.log("StaticPanels Debug:", {
+    isAdmin,
+    taskId,
+    panelsCount: panels.length,
+    hasVisiblePanels: visiblePanels.length > 0
+  });
+
   if (visiblePanels.length === 0) {
     return null;
   }
@@ -125,14 +125,14 @@ const StaticPanels: React.FC<StaticPanelsProps> = ({
               <Button
                 variant="outline"
                 size="sm"
-                className="absolute top-2 right-2 opacity-100 transition-opacity z-10 bg-white border-2 border-blue-500"
+                className="absolute top-2 right-2 bg-red-500 text-white border-2 border-blue-500 z-10"
                 onClick={() => {
                   console.log("Edit button clicked for originalIndex:", originalIndex);
                   setEditingPanelIndex(originalIndex);
                 }}
               >
                 <Edit className="h-4 w-4" />
-                Edit
+                EDIT BUTTON
               </Button>
             )}
             
