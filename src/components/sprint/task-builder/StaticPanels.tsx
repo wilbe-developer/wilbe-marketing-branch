@@ -1,5 +1,7 @@
 
 import React, { useState } from "react";
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 import { StaticPanel, Condition } from "@/types/task-builder";
 import { 
   Card, 
@@ -9,9 +11,8 @@ import {
   CardDescription
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown, ChevronUp, Bold, Italic, List, Link, Save, X } from "lucide-react";
+import { ChevronDown, ChevronUp, Save, X } from "lucide-react";
 import { useStaticPanelMutation } from "@/hooks/useStaticPanelMutation";
 import { toast } from "sonner";
 
@@ -23,6 +24,19 @@ interface StaticPanelsProps {
   taskId?: string;
 }
 
+// Quill toolbar configuration
+const quillModules = {
+  toolbar: [
+    ['bold', 'italic', 'underline'],
+    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+    ['link']
+  ]
+};
+
+const quillFormats = [
+  'bold', 'italic', 'underline', 'list', 'bullet', 'link'
+];
+
 const StaticPanels: React.FC<StaticPanelsProps> = ({
   panels,
   profileAnswers,
@@ -31,11 +45,12 @@ const StaticPanels: React.FC<StaticPanelsProps> = ({
   taskId
 }) => {
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
-  const [editingPanel, setEditingPanel] = useState<{ panelIndex: number; field: 'title' | 'content' } | null>(null);
-  const [editingTitle, setEditingTitle] = useState("");
-  const [editingContent, setEditingContent] = useState("");
-  const [selectedText, setSelectedText] = useState("");
-  const [selectionRange, setSelectionRange] = useState<{ start: number; end: number } | null>(null);
+  const [editingState, setEditingState] = useState<{
+    type: 'panel-title' | 'panel-content' | 'item-text' | 'item-expanded';
+    panelIndex: number;
+    itemIndex?: number;
+  } | null>(null);
+  const [editingValue, setEditingValue] = useState("");
 
   const { updateStaticPanel, isUpdating } = useStaticPanelMutation();
 
@@ -97,34 +112,47 @@ const StaticPanels: React.FC<StaticPanelsProps> = ({
     return null;
   }
 
-  const startEditing = (panelIndex: number, field: 'title' | 'content', currentValue: string) => {
-    setEditingPanel({ panelIndex, field });
-    if (field === 'title') {
-      setEditingTitle(currentValue);
-    } else {
-      setEditingContent(currentValue);
-    }
+  const startEditing = (type: 'panel-title' | 'panel-content' | 'item-text' | 'item-expanded', panelIndex: number, currentValue: string, itemIndex?: number) => {
+    setEditingState({ type, panelIndex, itemIndex });
+    setEditingValue(currentValue || '');
   };
 
   const cancelEditing = () => {
-    setEditingPanel(null);
-    setEditingTitle("");
-    setEditingContent("");
-    setSelectedText("");
-    setSelectionRange(null);
+    setEditingState(null);
+    setEditingValue("");
   };
 
   const saveEdit = async () => {
-    if (!editingPanel || !taskId) return;
+    if (!editingState || !taskId) return;
 
-    const updates = editingPanel.field === 'title' 
-      ? { title: editingTitle }
-      : { content: editingContent };
-
+    const panel = visiblePanels[editingState.panelIndex];
+    
     try {
+      let updates: any = {};
+
+      if (editingState.type === 'panel-title') {
+        updates = { title: editingValue };
+      } else if (editingState.type === 'panel-content') {
+        updates = { content: editingValue };
+      } else if (editingState.type === 'item-text' && editingState.itemIndex !== undefined) {
+        const updatedItems = [...(panel.items || [])];
+        updatedItems[editingState.itemIndex] = {
+          ...updatedItems[editingState.itemIndex],
+          text: editingValue
+        };
+        updates = { items: updatedItems };
+      } else if (editingState.type === 'item-expanded' && editingState.itemIndex !== undefined) {
+        const updatedItems = [...(panel.items || [])];
+        updatedItems[editingState.itemIndex] = {
+          ...updatedItems[editingState.itemIndex],
+          expandedContent: editingValue
+        };
+        updates = { items: updatedItems };
+      }
+
       updateStaticPanel({
         taskId,
-        panelIndex: editingPanel.panelIndex,
+        panelIndex: editingState.panelIndex,
         updates
       });
       cancelEditing();
@@ -133,48 +161,35 @@ const StaticPanels: React.FC<StaticPanelsProps> = ({
     }
   };
 
-  const handleTextSelection = (e: React.MouseEvent<HTMLDivElement>) => {
-    const selection = window.getSelection();
-    if (selection && selection.toString().length > 0) {
-      setSelectedText(selection.toString());
-      const range = selection.getRangeAt(0);
-      setSelectionRange({
-        start: range.startOffset,
-        end: range.endOffset
-      });
-    }
+  const isCurrentlyEditing = (type: string, panelIndex: number, itemIndex?: number) => {
+    return editingState?.type === type && 
+           editingState?.panelIndex === panelIndex && 
+           editingState?.itemIndex === itemIndex;
   };
 
-  const applyFormatting = (format: 'bold' | 'italic' | 'list' | 'link') => {
-    if (!selectedText || !selectionRange) return;
-
-    let formattedText = selectedText;
-    switch (format) {
-      case 'bold':
-        formattedText = `<strong>${selectedText}</strong>`;
-        break;
-      case 'italic':
-        formattedText = `<em>${selectedText}</em>`;
-        break;
-      case 'list':
-        formattedText = `<ul><li>${selectedText}</li></ul>`;
-        break;
-      case 'link':
-        const url = prompt('Enter URL:');
-        if (url) {
-          formattedText = `<a href="${url}" target="_blank" rel="noopener noreferrer">${selectedText}</a>`;
-        } else {
-          return;
-        }
-        break;
-    }
-
-    const beforeSelection = editingContent.substring(0, selectionRange.start);
-    const afterSelection = editingContent.substring(selectionRange.end);
-    setEditingContent(beforeSelection + formattedText + afterSelection);
-    setSelectedText("");
-    setSelectionRange(null);
-  };
+  const renderEditControls = () => (
+    <div className="flex items-center gap-2 bg-white border rounded-lg p-2 shadow-lg mb-2 z-50">
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={saveEdit}
+        disabled={isUpdating}
+        className="h-8 px-3"
+      >
+        <Save className="h-4 w-4 mr-1" />
+        Save
+      </Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={cancelEditing}
+        className="h-8 px-3"
+      >
+        <X className="h-4 w-4 mr-1" />
+        Cancel
+      </Button>
+    </div>
+  );
 
   return (
     <div className="space-y-4">
@@ -185,40 +200,25 @@ const StaticPanels: React.FC<StaticPanelsProps> = ({
         >
           {panel.title && (
             <CardHeader>
-              {isAdmin && editingPanel?.panelIndex === index && editingPanel?.field === 'title' ? (
+              {isCurrentlyEditing('panel-title', index) ? (
                 <div className="space-y-2">
-                  <div className="flex items-center gap-2 bg-white border rounded-lg p-2 shadow-sm">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => saveEdit()}
-                      disabled={isUpdating}
-                      className="h-8 w-8 p-0"
-                    >
-                      <Save className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={cancelEditing}
-                      className="h-8 w-8 p-0"
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <Input
-                    value={editingTitle}
-                    onChange={(e) => setEditingTitle(e.target.value)}
-                    className="font-semibold text-lg"
-                    autoFocus
+                  {renderEditControls()}
+                  <ReactQuill
+                    value={editingValue}
+                    onChange={setEditingValue}
+                    modules={quillModules}
+                    formats={quillFormats}
+                    theme="snow"
+                    className="bg-white rounded border"
+                    placeholder="Panel title..."
                   />
                 </div>
               ) : (
                 <CardTitle 
-                  className={isAdmin ? "cursor-pointer hover:bg-gray-50 p-2 rounded" : ""}
-                  onClick={isAdmin ? () => startEditing(index, 'title', panel.title || '') : undefined}
+                  className={isAdmin ? "cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors" : ""}
+                  onClick={isAdmin ? () => startEditing('panel-title', index, panel.title || '') : undefined}
                 >
-                  {panel.title}
+                  <div dangerouslySetInnerHTML={{ __html: panel.title }} />
                   {isAdmin && (
                     <span className="text-xs text-gray-400 ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       Click to edit
@@ -228,93 +228,38 @@ const StaticPanels: React.FC<StaticPanelsProps> = ({
               )}
             </CardHeader>
           )}
+          
           <CardContent>
             {panel.content && (
-              <div className="prose max-w-none">
-                {isAdmin && editingPanel?.panelIndex === index && editingPanel?.field === 'content' ? (
+              <div className="prose max-w-none mb-4">
+                {isCurrentlyEditing('panel-content', index) ? (
                   <div className="space-y-2">
-                    <div className="flex items-center gap-2 bg-white border rounded-lg p-2 shadow-sm">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => applyFormatting('bold')}
-                        disabled={!selectedText}
-                        className="h-8 w-8 p-0"
-                        title="Bold"
-                      >
-                        <Bold className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => applyFormatting('italic')}
-                        disabled={!selectedText}
-                        className="h-8 w-8 p-0"
-                        title="Italic"
-                      >
-                        <Italic className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => applyFormatting('list')}
-                        disabled={!selectedText}
-                        className="h-8 w-8 p-0"
-                        title="List"
-                      >
-                        <List className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => applyFormatting('link')}
-                        disabled={!selectedText}
-                        className="h-8 w-8 p-0"
-                        title="Link"
-                      >
-                        <Link className="h-4 w-4" />
-                      </Button>
-                      <div className="mx-2 h-6 w-px bg-gray-200" />
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => saveEdit()}
-                        disabled={isUpdating}
-                        className="h-8 w-8 p-0"
-                      >
-                        <Save className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={cancelEditing}
-                        className="h-8 w-8 p-0"
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    <div
-                      contentEditable
-                      className="min-h-[100px] p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      dangerouslySetInnerHTML={{ __html: editingContent }}
-                      onInput={(e) => setEditingContent(e.currentTarget.innerHTML)}
-                      onMouseUp={handleTextSelection}
+                    {renderEditControls()}
+                    <ReactQuill
+                      value={editingValue}
+                      onChange={setEditingValue}
+                      modules={quillModules}
+                      formats={quillFormats}
+                      theme="snow"
+                      className="bg-white rounded border min-h-[150px]"
+                      placeholder="Panel content..."
                     />
                   </div>
                 ) : (
                   <div 
-                    className={isAdmin ? "cursor-pointer hover:bg-gray-50 p-2 rounded" : ""}
+                    className={isAdmin ? "cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors" : ""}
                     dangerouslySetInnerHTML={{ __html: panel.content }}
-                    onClick={isAdmin ? () => startEditing(index, 'content', panel.content || '') : undefined}
+                    onClick={isAdmin ? () => startEditing('panel-content', index, panel.content || '') : undefined}
                   />
                 )}
-                {isAdmin && !editingPanel && (
+                {isAdmin && !isCurrentlyEditing('panel-content', index) && (
                   <div className="text-xs text-gray-400 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     Click content to edit
                   </div>
                 )}
               </div>
             )}
+            
             {panel.items && panel.items.length > 0 && (
               <ul className="list-disc pl-5 space-y-2">
                 {panel.items
@@ -331,25 +276,101 @@ const StaticPanels: React.FC<StaticPanelsProps> = ({
                               className="flex items-center justify-between w-full text-left hover:bg-gray-50 p-2 rounded cursor-pointer"
                               onClick={() => toggleExpanded(panel.id, itemIndex)}
                             >
-                              <span>{item.text}</span>
-                              {isExpanded ? (
-                                <ChevronUp className="h-4 w-4 ml-2 flex-shrink-0" />
+                              {isCurrentlyEditing('item-text', index, itemIndex) ? (
+                                <div className="flex-1 mr-4" onClick={(e) => e.stopPropagation()}>
+                                  {renderEditControls()}
+                                  <ReactQuill
+                                    value={editingValue}
+                                    onChange={setEditingValue}
+                                    modules={quillModules}
+                                    formats={quillFormats}
+                                    theme="snow"
+                                    className="bg-white rounded border"
+                                    placeholder="Item text..."
+                                  />
+                                </div>
                               ) : (
-                                <ChevronDown className="h-4 w-4 ml-2 flex-shrink-0" />
+                                <span 
+                                  className={isAdmin ? "cursor-pointer hover:bg-gray-100 p-1 rounded flex-1" : "flex-1"}
+                                  onClick={isAdmin ? (e) => {
+                                    e.stopPropagation();
+                                    startEditing('item-text', index, item.text, itemIndex);
+                                  } : undefined}
+                                  dangerouslySetInnerHTML={{ __html: item.text }}
+                                />
+                              )}
+                              {!isCurrentlyEditing('item-text', index, itemIndex) && (
+                                <>
+                                  {isExpanded ? (
+                                    <ChevronUp className="h-4 w-4 ml-2 flex-shrink-0" />
+                                  ) : (
+                                    <ChevronDown className="h-4 w-4 ml-2 flex-shrink-0" />
+                                  )}
+                                </>
                               )}
                             </CollapsibleTrigger>
+                            
                             <CollapsibleContent className="mt-2 pl-4 border-l-2 border-gray-200">
-                              <div 
-                                className="text-sm text-gray-600 [&>p]:mb-4 [&>p:last-child]:mb-0"
-                                dangerouslySetInnerHTML={{ __html: item.expandedContent }}
-                              />
+                              {isCurrentlyEditing('item-expanded', index, itemIndex) ? (
+                                <div className="space-y-2">
+                                  {renderEditControls()}
+                                  <ReactQuill
+                                    value={editingValue}
+                                    onChange={setEditingValue}
+                                    modules={quillModules}
+                                    formats={quillFormats}
+                                    theme="snow"
+                                    className="bg-white rounded border min-h-[100px]"
+                                    placeholder="Expanded content..."
+                                  />
+                                </div>
+                              ) : (
+                                <div 
+                                  className={`text-sm text-gray-600 [&>p]:mb-4 [&>p:last-child]:mb-0 ${
+                                    isAdmin ? "cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors" : ""
+                                  }`}
+                                  dangerouslySetInnerHTML={{ __html: item.expandedContent }}
+                                  onClick={isAdmin ? () => startEditing('item-expanded', index, item.expandedContent || '', itemIndex) : undefined}
+                                />
+                              )}
+                              {isAdmin && !isCurrentlyEditing('item-expanded', index, itemIndex) && (
+                                <div className="text-xs text-gray-400 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  Click to edit expanded content
+                                </div>
+                              )}
                             </CollapsibleContent>
                           </Collapsible>
                         </li>
                       );
                     } else {
                       return (
-                        <li key={itemIndex}>{item.text}</li>
+                        <li key={itemIndex}>
+                          {isCurrentlyEditing('item-text', index, itemIndex) ? (
+                            <div className="space-y-2">
+                              {renderEditControls()}
+                              <ReactQuill
+                                value={editingValue}
+                                onChange={setEditingValue}
+                                modules={quillModules}
+                                formats={quillFormats}
+                                theme="snow"
+                                className="bg-white rounded border"
+                                placeholder="Item text..."
+                              />
+                            </div>
+                          ) : (
+                            <span 
+                              className={isAdmin ? "cursor-pointer hover:bg-gray-50 p-1 rounded" : ""}
+                              dangerouslySetInnerHTML={{ __html: item.text }}
+                              onClick={isAdmin ? () => startEditing('item-text', index, item.text, itemIndex) : undefined}
+                            />
+                          )}
+                          {isAdmin && !isCurrentlyEditing('item-text', index, itemIndex) && (
+                            <span className="text-xs text-gray-400 ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                              Click to edit
+                            </span>
+                          )}
+                        </li>
                       );
                     }
                   })}
