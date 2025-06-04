@@ -9,13 +9,15 @@ interface FloatingToolbarProps {
   position: { top: number; left: number } | null;
   isVisible: boolean;
   isMobile?: boolean;
+  onSelectionRestore?: () => void;
 }
 
 export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
   onFormat,
   position,
   isVisible,
-  isMobile = false
+  isMobile = false,
+  onSelectionRestore
 }) => {
   const [showLinkInput, setShowLinkInput] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
@@ -63,7 +65,13 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
   const handleLinkConfirm = () => {
     if (linkUrl.trim()) {
       const formattedUrl = formatUrl(linkUrl);
-      onFormat('createLink', formattedUrl);
+      // Restore selection before applying link
+      if (onSelectionRestore) {
+        onSelectionRestore();
+      }
+      setTimeout(() => {
+        onFormat('createLink', formattedUrl);
+      }, 10);
     }
     setShowLinkInput(false);
     setLinkUrl('');
@@ -103,12 +111,14 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
     ? { 
         bottom: 20,
         opacity: isVisible ? 1 : 0,
-        transform: isVisible ? 'translateY(0)' : 'translateY(100%)'
+        transform: isVisible ? 'translateY(0)' : 'translateY(100%)',
+        zIndex: 9999
       }
     : { 
         top: position.top, 
         left: position.left,
-        opacity: isVisible ? 1 : 0
+        opacity: isVisible ? 1 : 0,
+        zIndex: 9999
       };
 
   return (
@@ -117,7 +127,11 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
       style={toolbarStyle}
     >
       {showLinkInput ? (
-        <div className="flex items-center gap-1 p-2 bg-white rounded-lg border border-gray-200 shadow-md">
+        <div 
+          data-link-input
+          className="flex items-center gap-1 p-2 bg-white rounded-lg border border-gray-200 shadow-md"
+          style={{ zIndex: 10000 }}
+        >
           <Input
             ref={linkInputRef}
             type="text"
@@ -132,6 +146,18 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
               } else if (e.key === 'Escape') {
                 e.preventDefault();
                 handleLinkCancel();
+              }
+            }}
+            onBlur={(e) => {
+              // Don't close if clicking on confirm/cancel buttons
+              const relatedTarget = e.relatedTarget as HTMLElement;
+              if (!relatedTarget || !relatedTarget.closest('[data-link-input]')) {
+                // Give a small delay to allow button clicks
+                setTimeout(() => {
+                  if (!document.activeElement?.closest('[data-link-input]')) {
+                    handleLinkCancel();
+                  }
+                }, 100);
               }
             }}
             className={`${isMobile ? 'h-10 text-base' : 'h-8 text-sm'} flex-1 min-w-0`}

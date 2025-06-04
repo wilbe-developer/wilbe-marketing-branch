@@ -22,6 +22,7 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
   const [isEditing, setIsEditing] = useState(true);
   const [toolbarPosition, setToolbarPosition] = useState<{ top: number; left: number } | null>(null);
   const [showToolbar, setShowToolbar] = useState(false);
+  const [storedSelection, setStoredSelection] = useState<Range | null>(null);
   const editorRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
 
@@ -40,6 +41,9 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
         const range = selection.getRangeAt(0);
         const rect = range.getBoundingClientRect();
         
+        // Store selection for later use
+        setStoredSelection(range.cloneRange());
+        
         if (isMobile) {
           // On mobile, show toolbar at bottom of screen
           setToolbarPosition({
@@ -49,21 +53,24 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
         } else {
           // Desktop: position above selection with viewport bounds checking
           const viewportWidth = window.innerWidth;
+          const viewportHeight = window.innerHeight;
           const toolbarWidth = 300; // Approximate toolbar width
+          const toolbarHeight = 50; // Approximate toolbar height
           
           let left = rect.left + window.scrollX + (rect.width / 2) - (toolbarWidth / 2);
-          let top = rect.top + window.scrollY - 60;
+          let top = rect.top + window.scrollY - toolbarHeight - 10;
           
           // Keep toolbar within viewport bounds
           if (left < 10) left = 10;
           if (left + toolbarWidth > viewportWidth - 10) left = viewportWidth - toolbarWidth - 10;
           if (top < 10) top = rect.bottom + window.scrollY + 10;
+          if (top + toolbarHeight > viewportHeight - 10) top = rect.top + window.scrollY - toolbarHeight - 10;
           
           setToolbarPosition({ top, left });
         }
         setShowToolbar(true);
       } else if (!isMobile) {
-        // On desktop, hide when no selection
+        // On desktop, hide when no selection (but not on mobile during link editing)
         setShowToolbar(false);
       }
     };
@@ -97,9 +104,29 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
     };
   }, [isEditing, isMobile]);
 
+  const restoreSelection = () => {
+    if (storedSelection && editorRef.current) {
+      const selection = window.getSelection();
+      if (selection) {
+        selection.removeAllRanges();
+        selection.addRange(storedSelection);
+        editorRef.current.focus();
+      }
+    }
+  };
+
   const handleFormat = (command: string, value?: string) => {
-    document.execCommand(command, false, value);
-    editorRef.current?.focus();
+    if (command === 'createLink' && value) {
+      // Restore selection before creating link
+      restoreSelection();
+      setTimeout(() => {
+        document.execCommand(command, false, value);
+        editorRef.current?.focus();
+      }, 10);
+    } else {
+      document.execCommand(command, false, value);
+      editorRef.current?.focus();
+    }
   };
 
   const handleSave = () => {
@@ -160,9 +187,13 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
   };
 
   const handleBlur = (e: React.FocusEvent) => {
-    // Don't hide toolbar if clicking on toolbar buttons or save/cancel bar
+    // Don't hide toolbar if clicking on toolbar buttons, save/cancel bar, or link input
     const relatedTarget = e.relatedTarget as HTMLElement;
-    if (!relatedTarget || (!relatedTarget.closest('[data-floating-toolbar]') && !relatedTarget.closest('[data-save-cancel-bar]'))) {
+    if (!relatedTarget || (
+      !relatedTarget.closest('[data-floating-toolbar]') && 
+      !relatedTarget.closest('[data-save-cancel-bar]') &&
+      !relatedTarget.closest('[data-link-input]')
+    )) {
       if (!isMobile) {
         setTimeout(() => setShowToolbar(false), 100);
       }
@@ -217,6 +248,7 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
           position={toolbarPosition}
           isVisible={showToolbar && isEditing}
           isMobile={isMobile}
+          onSelectionRestore={restoreSelection}
         />
       </div>
     </div>
