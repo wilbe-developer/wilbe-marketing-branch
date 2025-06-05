@@ -16,7 +16,7 @@ export const useCommunityThreads = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  const { data: threads = [], isLoading } = useQuery({
+  const { data: threads = [], isLoading, refetch } = useQuery({
     queryKey: ['threads'],
     queryFn: async () => {
       // First, fetch the threads
@@ -240,5 +240,6 @@ export const useCommunityThreads = () => {
     challenges,
     isLoading: isLoading || isLoadingChallenges || isLoadingAdmins,
     createThread,
+    refetch,
   };
 };
