@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useCommunityThreads } from '@/hooks/useCommunityThreads';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Lock } from 'lucide-react';
+import { PlusCircle, Lock, MessageCircle } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -113,6 +113,11 @@ const CommunityPage = () => {
       return;
     }
     navigate(`/community/thread/${threadId}`);
+  };
+
+  const handleReplyClick = (e: React.MouseEvent, threadId: string) => {
+    e.stopPropagation();
+    navigate(`/community/thread/${threadId}#reply`);
   };
 
   return (
@@ -242,6 +247,15 @@ const CommunityPage = () => {
                         {thread.challenge_name || 'BSF Challenge'}
                       </Badge>
                     )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="ml-auto flex items-center gap-1 text-xs px-2 py-1 h-auto"
+                      onClick={(e) => handleReplyClick(e, thread.id)}
+                    >
+                      <MessageCircle size={12} />
+                      Reply
+                    </Button>
                   </div>
                 </div>
               ))

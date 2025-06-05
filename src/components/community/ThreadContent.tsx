@@ -1,5 +1,6 @@
 
 import { extractImages, removeImageMarkdown, parseMarkdown } from '@/utils/markdownUtils';
+import { cleanupContent } from '@/utils/contentUtils';
 import { ImageGrid } from './ImageGrid';
 import { useLinkPreview } from '@/hooks/useLinkPreview';
 import { LinkPreview } from './LinkPreview';
@@ -17,8 +18,10 @@ export const ThreadContent = ({
   className = '', 
   isPreview = false 
 }: ThreadContentProps) => {
-  const images = extractImages(content);
-  const textContent = removeImageMarkdown(content);
+  // Clean up content first to remove "Attached Images" sections
+  const cleanedContent = cleanupContent(content);
+  const images = extractImages(cleanedContent);
+  const textContent = removeImageMarkdown(cleanedContent);
   const { linkPreviews } = useLinkPreview(textContent);
 
   // Priority logic: show images if any exist, otherwise show link previews
@@ -29,9 +32,10 @@ export const ThreadContent = ({
   if (isPreview) {
     return (
       <div className={className}>
-        <p className="text-gray-600 line-clamp-2 whitespace-pre-wrap">
-          {textContent}
-        </p>
+        <div 
+          className="text-gray-600 line-clamp-2 whitespace-pre-wrap prose-sm prose-a:text-blue-600 prose-a:hover:text-blue-800 prose-a:underline"
+          dangerouslySetInnerHTML={{ __html: parseMarkdown(textContent) }}
+        />
         
         {shouldShowImages && (
           <ImageGrid images={images} maxImages={2} />
@@ -56,7 +60,7 @@ export const ThreadContent = ({
   return (
     <div className={className}>
       <div 
-        className="prose max-w-none text-gray-900 whitespace-pre-wrap"
+        className="prose max-w-none text-gray-900 whitespace-pre-wrap prose-a:text-blue-600 prose-a:hover:text-blue-800 prose-a:underline"
         dangerouslySetInnerHTML={{ __html: parseMarkdown(textContent) }}
       />
       

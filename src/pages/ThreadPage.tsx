@@ -1,18 +1,18 @@
 
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useThreadComments } from '@/hooks/useThreadComments';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { ArrowLeft, Clock, Lock } from 'lucide-react';
+import { ArrowLeft, Clock, Lock, MessageCircle } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { toast } from 'sonner';
 import { ThreadActions } from '@/components/community/ThreadActions';
 import { ThreadContent } from '@/components/community/ThreadContent';
 import { NewThreadModal } from '@/components/community/NewThreadModal';
+import { ReplyModal } from '@/components/community/ReplyModal';
 import { Thread } from '@/types/community';
 
 const ThreadPage = () => {
@@ -25,9 +25,10 @@ const ThreadPage = () => {
     markThreadAsViewed,
     refetch
   } = useThreadComments(threadId);
-  const [commentText, setCommentText] = useState('');
   const [editThreadModalOpen, setEditThreadModalOpen] = useState(false);
+  const [replyModalOpen, setReplyModalOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const isMobile = useIsMobile();
 
   // Mark thread as viewed when the page loads
@@ -37,19 +38,24 @@ const ThreadPage = () => {
     }
   }, [threadId, markThreadAsViewed]);
 
-  const handleSubmitComment = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!commentText.trim()) {
-      toast.error('Comment cannot be empty');
-      return;
+  // Auto-open reply modal if navigated from community page with #reply
+  useEffect(() => {
+    if (location.hash === '#reply' && thread) {
+      setReplyModalOpen(true);
+      // Clear the hash from URL
+      window.history.replaceState({}, '', location.pathname);
     }
+  }, [location, thread]);
 
+  const handleSubmitComment = async (content: string) => {
+    if (!threadId) return;
+    
     try {
-      await addComment.mutateAsync({ threadId: threadId as string, content: commentText });
-      setCommentText('');
-      toast.success('Comment added');
+      await addComment.mutateAsync({ threadId, content });
+      toast.success('Reply posted');
     } catch (error) {
-      toast.error('Failed to add comment');
+      toast.error('Failed to post reply');
+      throw error;
     }
   };
 
@@ -158,9 +164,18 @@ const ThreadPage = () => {
         />
       </div>
 
-      <h2 className="text-xl font-semibold mb-4">
-        {comments.length} {comments.length === 1 ? 'Reply' : 'Replies'}
-      </h2>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xl font-semibold">
+          {comments.length} {comments.length === 1 ? 'Reply' : 'Replies'}
+        </h2>
+        <Button 
+          onClick={() => setReplyModalOpen(true)}
+          className="flex items-center gap-2"
+        >
+          <MessageCircle size={16} />
+          Add Reply
+        </Button>
+      </div>
 
       {comments.map((comment) => (
         <div key={comment.id} className="bg-white rounded-lg shadow-sm border p-4 mb-4">
@@ -187,30 +202,28 @@ const ThreadPage = () => {
             </div>
           </div>
           <div className="pl-11">
-            <p className="whitespace-pre-wrap">{comment.content}</p>
+            <ThreadContent 
+              content={comment.content} 
+              showImages={true}
+              isPreview={false}
+            />
           </div>
         </div>
       ))}
-
-      <form onSubmit={handleSubmitComment} className="mt-6 bg-white rounded-lg shadow-sm border p-4">
-        <h3 className="font-medium mb-3">Add a reply</h3>
-        <Textarea
-          value={commentText}
-          onChange={(e) => setCommentText(e.target.value)}
-          placeholder="What are your thoughts?"
-          className="mb-3"
-          rows={4}
-        />
-        <Button type="submit" disabled={addComment.isPending}>
-          {addComment.isPending ? 'Posting...' : 'Post Reply'}
-        </Button>
-      </form>
 
       <NewThreadModal
         open={editThreadModalOpen}
         onOpenChange={setEditThreadModalOpen}
         editingThread={thread}
         onThreadCreated={handleThreadEdited}
+      />
+
+      <ReplyModal
+        open={replyModalOpen}
+        onOpenChange={setReplyModalOpen}
+        onSubmit={handleSubmitComment}
+        isSubmitting={addComment.isPending}
+        threadTitle={thread.title}
       />
     </div>
   );

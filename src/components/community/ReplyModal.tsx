@@ -1,103 +1,50 @@
-import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
-import { useCommunityThreads } from '@/hooks/useCommunityThreads';
+
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { toast } from 'sonner';
-import { 
-  Select,
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Challenge, Thread } from '@/types/community';
 import { Upload, X } from 'lucide-react';
 import { useSupabaseFileUpload } from '@/hooks/useSupabaseFileUpload';
 import { useLinkPreview } from '@/hooks/useLinkPreview';
 import { LinkPreview } from './LinkPreview';
-import { extractImages, removeImageMarkdown } from '@/utils/markdownUtils';
-import { cleanupContent } from '@/utils/contentUtils';
 
-interface NewThreadModalProps {
+interface ReplyModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  preselectedChallengeId?: string;
-  onThreadCreated?: () => void;
-  editingThread?: Thread | null;
+  onSubmit: (content: string) => Promise<void>;
+  isSubmitting: boolean;
+  threadTitle?: string;
 }
 
-export const NewThreadModal = ({ 
+export const ReplyModal = ({ 
   open, 
   onOpenChange, 
-  preselectedChallengeId,
-  onThreadCreated,
-  editingThread 
-}: NewThreadModalProps) => {
-  const [title, setTitle] = useState('');
+  onSubmit,
+  isSubmitting,
+  threadTitle
+}: ReplyModalProps) => {
   const [content, setContent] = useState('');
-  const [challengeId, setChallengeId] = useState<string | null>(preselectedChallengeId || null);
   const [uploadedImages, setUploadedImages] = useState<Array<{ id: string; url: string; name: string; path: string }>>([]);
   
-  const { createThread, updateThread, challenges, isLoading: isLoadingChallenges } = useCommunityThreads();
   const { uploadFile, isUploading, deleteFile } = useSupabaseFileUpload();
   const { linkPreviews } = useLinkPreview(content);
   const isMobile = useIsMobile();
-
-  const isEditing = !!editingThread;
 
   // Priority logic: show images if any exist, otherwise show link previews
   const shouldShowImages = uploadedImages.length > 0;
   const shouldShowLinkPreviews = !shouldShowImages && linkPreviews.length > 0;
 
-  // Set form data when editing
-  useEffect(() => {
-    if (editingThread) {
-      setTitle(editingThread.title);
-      
-      // Extract images from content and remove them from the text
-      const images = extractImages(editingThread.content);
-      const cleanedContent = cleanupContent(removeImageMarkdown(editingThread.content));
-      
-      setContent(cleanedContent);
-      setChallengeId(editingThread.challenge_id);
-      
-      // Convert extracted images to uploaded images format
-      const existingImages = images.map((img, index) => ({
-        id: `existing-${index}`,
-        url: img.url,
-        name: img.alt || 'Existing image',
-        path: img.url // For existing images, we use the URL as path
-      }));
-      setUploadedImages(existingImages);
-    } else {
-      // Reset form when not editing
-      setTitle('');
-      setContent('');
-      setChallengeId(preselectedChallengeId || null);
-      setUploadedImages([]);
-    }
-  }, [editingThread, preselectedChallengeId]);
-
-  // Set preselected challenge when modal opens
-  useEffect(() => {
-    if (preselectedChallengeId && !isEditing) {
-      setChallengeId(preselectedChallengeId);
-    }
-  }, [preselectedChallengeId, open, isEditing]);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !content.trim()) {
-      toast.error('Please fill in all required fields');
+    if (!content.trim()) {
+      toast.error('Reply cannot be empty');
       return;
     }
     
@@ -112,34 +59,15 @@ export const NewThreadModal = ({
         });
       }
 
-      if (isEditing && editingThread) {
-        await updateThread.mutateAsync({ 
-          id: editingThread.id,
-          title, 
-          content: finalContent
-        });
-        toast.success('Thread updated successfully');
-      } else {
-        await createThread.mutateAsync({ 
-          title, 
-          content: finalContent,
-          challenge_id: challengeId || undefined,
-          is_private: false
-        });
-        toast.success('Thread created successfully');
-      }
+      await onSubmit(finalContent);
       
       // Reset form
-      setTitle('');
       setContent('');
-      setChallengeId(null);
       setUploadedImages([]);
-      
-      onThreadCreated?.();
       onOpenChange(false);
     } catch (error) {
-      console.error('Error with thread:', error);
-      toast.error(isEditing ? 'Failed to update thread' : 'Failed to create thread');
+      console.error('Error submitting reply:', error);
+      toast.error('Failed to submit reply');
     }
   };
 
@@ -169,86 +97,30 @@ export const NewThreadModal = ({
   };
 
   const removeImage = async (imageId: string, imagePath: string) => {
-    // Remove from state
     setUploadedImages(prev => prev.filter(img => img.id !== imageId));
-    
-    // Only delete from Supabase Storage if it's not an existing image
-    if (!imageId.startsWith('existing-')) {
-      await deleteFile(imagePath);
-    }
+    await deleteFile(imagePath);
   };
-
-  // Group challenges by category for the select dropdown
-  const groupedChallenges = challenges.reduce((acc, challenge) => {
-    const category = challenge.category || 'Other';
-    if (!acc[category]) {
-      acc[category] = [];
-    }
-    acc[category].push(challenge);
-    return acc;
-  }, {} as Record<string, Challenge[]>);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className={`${isMobile ? 'max-w-[95vw] max-h-[90vh] w-full' : 'max-w-2xl max-h-[80vh]'} overflow-hidden flex flex-col`}>
         <DialogHeader className="flex-shrink-0">
           <DialogTitle>
-            {isEditing ? 'Edit Discussion' : 'Start a New Discussion'}
+            Reply to: {threadTitle}
           </DialogTitle>
         </DialogHeader>
         
         <div className="flex-1 overflow-y-auto px-1">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="title" className="block text-sm font-medium mb-1">
-                Title
-              </label>
-              <Input
-                id="title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="What would you like to discuss?"
-                required
-                className="w-full"
-              />
-            </div>
-            
-            {!isEditing && (
-              <div>
-                <label htmlFor="challenge" className="block text-sm font-medium mb-1">
-                  Related Challenge (optional)
-                </label>
-                <Select 
-                  value={challengeId || "none"}
-                  onValueChange={(value) => setChallengeId(value === "none" ? null : value)}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select a challenge (optional)" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">No specific challenge</SelectItem>
-                    
-                    {Object.entries(groupedChallenges).map(([category, items]) => 
-                      items.map(challenge => (
-                        <SelectItem key={challenge.id} value={challenge.id}>
-                          {(challenge.category || challenge.title).toUpperCase()}
-                        </SelectItem>
-                      ))
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-            
-            <div>
               <label htmlFor="content" className="block text-sm font-medium mb-1">
-                Content
+                Your Reply
               </label>
               <Textarea
                 id="content"
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                placeholder="Share your thoughts... (URLs will automatically show previews)"
+                placeholder="What are your thoughts? (URLs will automatically show previews)"
                 rows={6}
                 required
                 className="w-full resize-none"
@@ -277,7 +149,6 @@ export const NewThreadModal = ({
                   />
                 </label>
                 
-                {/* Uploaded Images Preview - only show if shouldShowImages */}
                 {shouldShowImages && (
                   <div className="grid grid-cols-1 gap-2 max-w-full overflow-hidden">
                     {uploadedImages.map((image) => (
@@ -306,7 +177,7 @@ export const NewThreadModal = ({
               </div>
             </div>
 
-            {/* Link Previews - only show if shouldShowLinkPreviews */}
+            {/* Link Previews */}
             {shouldShowLinkPreviews && (
               <div>
                 <label className="block text-sm font-medium mb-2">
@@ -333,13 +204,10 @@ export const NewThreadModal = ({
         <div className="flex gap-3 pt-4 border-t flex-shrink-0">
           <Button 
             type="submit" 
-            disabled={(isEditing ? updateThread.isPending : createThread.isPending) || isUploading}
+            disabled={isSubmitting || isUploading}
             onClick={handleSubmit}
           >
-            {isEditing 
-              ? (updateThread.isPending ? 'Updating...' : 'Update Thread')
-              : (createThread.isPending ? 'Creating...' : 'Create Thread')
-            }
+            {isSubmitting ? 'Posting...' : 'Post Reply'}
           </Button>
           <Button
             type="button"
