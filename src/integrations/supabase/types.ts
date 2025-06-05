@@ -71,6 +71,41 @@ export type Database = {
           },
         ]
       }
+      comment_votes: {
+        Row: {
+          comment_id: string
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+          vote_type: string
+        }
+        Insert: {
+          comment_id: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+          vote_type: string
+        }
+        Update: {
+          comment_id?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+          vote_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comment_votes_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "thread_comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       discussion_threads: {
         Row: {
           author_id: string
@@ -707,6 +742,7 @@ export type Database = {
           id: string
           name: string
           updated_at: string | null
+          workload: string | null
         }
         Insert: {
           created_at?: string | null
@@ -715,6 +751,7 @@ export type Database = {
           id?: string
           name: string
           updated_at?: string | null
+          workload?: string | null
         }
         Update: {
           created_at?: string | null
@@ -723,6 +760,7 @@ export type Database = {
           id?: string
           name?: string
           updated_at?: string | null
+          workload?: string | null
         }
         Relationships: []
       }
@@ -909,6 +947,41 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "thread_views_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "discussion_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      thread_votes: {
+        Row: {
+          created_at: string
+          id: string
+          thread_id: string
+          updated_at: string
+          user_id: string
+          vote_type: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          thread_id: string
+          updated_at?: string
+          user_id: string
+          vote_type: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          thread_id?: string
+          updated_at?: string
+          user_id?: string
+          vote_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "thread_votes_thread_id_fkey"
             columns: ["thread_id"]
             isOneToOne: false
             referencedRelation: "discussion_threads"
@@ -1314,6 +1387,10 @@ export type Database = {
       }
     }
     Functions: {
+      calculate_thread_score: {
+        Args: { p_thread_id: string; p_sort_type?: string }
+        Returns: number
+      }
       create_sprint_profile: {
         Args:
           | {
@@ -1664,6 +1741,14 @@ export type Database = {
         Args: { p_user_id: string; p_application_type?: string }
         Returns: Database["public"]["Enums"]["application_status"]
       }
+      get_comment_vote_summary: {
+        Args: { p_comment_id: string }
+        Returns: {
+          upvotes: number
+          downvotes: number
+          net_votes: number
+        }[]
+      }
       get_member_directory_profiles: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -1687,6 +1772,47 @@ export type Database = {
           last_login_date: string
           has_sprint_profile: boolean
           has_profile: boolean
+        }[]
+      }
+      get_sorted_community_threads: {
+        Args: {
+          p_sort_type?: string
+          p_challenge_id?: string
+          p_is_private?: boolean
+          p_limit?: number
+          p_offset?: number
+        }
+        Returns: {
+          id: string
+          title: string
+          content: string
+          author_id: string
+          challenge_id: string
+          is_private: boolean
+          recipient_id: string
+          created_at: string
+          last_edited_at: string
+          score: number
+        }[]
+      }
+      get_sorted_thread_comments: {
+        Args: { p_thread_id: string; p_sort_type?: string }
+        Returns: {
+          id: string
+          thread_id: string
+          author_id: string
+          content: string
+          created_at: string
+          updated_at: string
+          score: number
+        }[]
+      }
+      get_thread_vote_summary: {
+        Args: { p_thread_id: string }
+        Returns: {
+          upvotes: number
+          downvotes: number
+          net_votes: number
         }[]
       }
       get_unified_profile: {

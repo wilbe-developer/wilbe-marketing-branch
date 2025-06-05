@@ -10,9 +10,10 @@ import { Button } from '@/components/ui/button';
 import { MessageCircle } from 'lucide-react';
 import { ImStuckButton } from '@/components/sprint/ImStuckButton';
 import { SharedSprintBanner } from '@/components/sprint/SharedSprintBanner';
+import { WorkloadBadge } from '@/components/sprint/WorkloadBadge';
 import { supabase } from '@/integrations/supabase/client';
 import { SprintTaskDefinition } from '@/types/task-builder';
-import { generateTaskSummary } from '@/utils/taskDefinitionAdapter';
+import { generateTaskSummary, extractTaskWorkload } from '@/utils/taskDefinitionAdapter';
 
 const SprintTaskPage = () => {
   const { taskId } = useParams<{ taskId: string }>();
@@ -88,6 +89,9 @@ const SprintTaskPage = () => {
   // Generate a display summary if we have the task definition
   const taskSummary = taskDefinition ? generateTaskSummary(taskDefinition) : currentTask;
 
+  // Get workload info from current task or calculate it
+  const workload = currentTask.workload || (taskDefinition ? extractTaskWorkload(taskDefinition) : null);
+
   const handleTaskCompletion = async (fileId?: string) => {
     await updateProgress.mutateAsync({
       taskId: currentTask.id,
@@ -118,12 +122,21 @@ const SprintTaskPage = () => {
     <div className={`mx-auto ${isMobile ? 'max-w-full' : 'max-w-4xl'}`}>
       <SharedSprintBanner />
       
-      <div className={`${isMobile ? 'flex flex-col' : 'flex justify-between items-center'}`}>
-        <h1 className={`${isMobile ? 'text-2xl mb-3' : 'text-3xl mb-2'} font-bold`}>
-          {taskSummary.title}
-        </h1>
+      <div className={`${isMobile ? 'flex flex-col' : 'flex justify-between items-start'}`}>
+        <div className="flex-1">
+          <h1 className={`${isMobile ? 'text-2xl mb-2' : 'text-3xl mb-2'} font-bold`}>
+            {taskSummary.title}
+          </h1>
+          
+          {/* Workload badge under title */}
+          {workload && (
+            <div className="mb-3">
+              <WorkloadBadge workload={workload} size={isMobile ? 'sm' : 'default'} />
+            </div>
+          )}
+        </div>
         
-        <div className={`flex gap-2 ${isMobile ? 'mb-2' : ''}`}>
+        <div className={`flex gap-2 ${isMobile ? 'mb-2 mt-2' : 'ml-4'}`}>
           <ImStuckButton taskId={currentTask.id} />
           <Button 
             variant="outline" 

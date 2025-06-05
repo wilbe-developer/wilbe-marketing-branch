@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Thread, Challenge } from '@/types/community';
@@ -12,18 +11,29 @@ const getDefinitionProperty = (definition: any, property: string): any => {
   return null;
 };
 
-export const useCommunityThreads = () => {
+interface UseCommunityThreadsParams {
+  sortType?: string;
+  challengeId?: string;
+  isPrivate?: boolean;
+}
+
+export const useCommunityThreads = (params: UseCommunityThreadsParams = {}) => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const { sortType = 'hot', challengeId, isPrivate = false } = params;
 
   const { data: threads = [], isLoading, refetch } = useQuery({
-    queryKey: ['threads'],
+    queryKey: ['threads', sortType, challengeId, isPrivate],
     queryFn: async () => {
-      // First, fetch the threads
+      // Use the new sorting function
       const { data: threadsData, error: threadsError } = await supabase
-        .from('discussion_threads')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .rpc('get_sorted_community_threads', {
+          p_sort_type: sortType,
+          p_challenge_id: challengeId || null,
+          p_is_private: isPrivate,
+          p_limit: 50,
+          p_offset: 0
+        });
 
       if (threadsError) throw threadsError;
       

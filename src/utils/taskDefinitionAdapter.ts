@@ -1,4 +1,5 @@
 import { SprintTaskDefinition, StepNode, Condition } from "@/types/task-builder";
+import { getTaskWorkload } from "@/utils/workloadCalculation";
 
 // Function to generate a summary of a task definition for display
 export const generateTaskSummary = (taskDef: SprintTaskDefinition) => {
@@ -120,4 +121,34 @@ export const evaluateStepVisibility = (
         return false;
     }
   });
+};
+
+// Add workload extraction function with manual override support
+export const extractTaskWorkload = (taskDef: SprintTaskDefinition) => {
+  // Check if there's a manual time override in the workload field
+  if (taskDef.workload && typeof taskDef.workload === 'string') {
+    // Check if it's a time format (e.g., "45 min", "1-2 hours")
+    const timePattern = /^\d+[-\s]?\d*\s*(min|hour|hr)s?$/i;
+    if (timePattern.test(taskDef.workload)) {
+      // Create a custom workload indicator with the manual time
+      const level = taskDef.workload.includes('hour') || taskDef.workload.includes('hr') ? 'high' : 
+                   parseInt(taskDef.workload) > 30 ? 'medium' : 'low';
+      
+      return {
+        level: level as 'low' | 'medium' | 'high',
+        label: level.charAt(0).toUpperCase() + level.slice(1),
+        color: level === 'low' ? 'text-green-700' : level === 'medium' ? 'text-yellow-700' : 'text-red-700',
+        bgColor: level === 'low' ? 'bg-green-100' : level === 'medium' ? 'bg-yellow-100' : 'bg-red-100',
+        estimatedTime: taskDef.workload
+      };
+    }
+    
+    // Check if it's a workload level (low/medium/high)
+    if (['low', 'medium', 'high'].includes(taskDef.workload.toLowerCase())) {
+      return getTaskWorkload(taskDef.definition, taskDef.workload);
+    }
+  }
+  
+  // Fall back to calculated workload
+  return getTaskWorkload(taskDef.definition, taskDef.workload);
 };

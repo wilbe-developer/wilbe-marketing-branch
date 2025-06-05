@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -13,7 +12,7 @@ const getDefinitionProperty = (definition: any, property: string): any => {
   return null;
 };
 
-export const useThreadComments = (threadId?: string) => {
+export const useThreadComments = (threadId?: string, commentSort: string = 'chronological') => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [commentAdded, setCommentAdded] = useState(false);
@@ -89,17 +88,17 @@ export const useThreadComments = (threadId?: string) => {
     enabled: !!threadId,
   });
 
-  // Get comments for the thread
+  // Get comments for the thread using the new sorting function
   const { data: comments = [], isLoading: isCommentsLoading } = useQuery({
-    queryKey: ['thread-comments', threadId, commentAdded],
+    queryKey: ['thread-comments', threadId, commentSort, commentAdded],
     queryFn: async () => {
       if (!threadId) return [];
 
       const { data, error } = await supabase
-        .from('thread_comments')
-        .select('*')
-        .eq('thread_id', threadId)
-        .order('created_at', { ascending: true });
+        .rpc('get_sorted_thread_comments', {
+          p_thread_id: threadId,
+          p_sort_type: commentSort
+        });
 
       if (error) throw error;
 
@@ -113,7 +112,7 @@ export const useThreadComments = (threadId?: string) => {
             .eq('id', comment.author_id)
             .maybeSingle();
 
-          // Get author role - using maybeSingle to handle no results gracefully
+          // Get author role
           const { data: roleData } = await supabase
             .from('user_roles')
             .select('role')
