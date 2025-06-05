@@ -34,14 +34,17 @@ export const TaskChallengeLink = ({ taskId }: TaskChallengeLinkProps) => {
     }
   });
 
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    // Navigate to community with challenge parameter to trigger modal
+    navigate(`/community?challenge=${taskId}`);
+  };
+
   return (
     <Button 
       variant="ghost" 
       className="text-sm text-gray-600 hover:text-brand-pink"
-      onClick={(e) => {
-        e.stopPropagation();
-        navigate(`/community?challenge=${taskId}`);
-      }}
+      onClick={handleClick}
     >
       <MessageCircle className="mr-1 h-4 w-4" />
       {data?.count ? `View ${data.count} discussions` : 'Start a discussion'}

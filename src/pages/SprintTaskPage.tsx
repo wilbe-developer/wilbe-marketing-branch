@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSprintTaskDefinitions } from '@/hooks/useSprintTaskDefinitions';
@@ -129,7 +128,7 @@ const SprintTaskPage = () => {
           <Button 
             variant="outline" 
             size={isMobile ? "sm" : "default"}
-            onClick={() => navigate(`/community/new?challenge=${currentTask.id}`)}
+            onClick={() => navigate(`/community?challenge=${currentTask.id}`)}
           >
             <MessageCircle className="mr-2 h-4 w-4" />
             Discuss

@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react';
 import { Challenge } from '@/types/community';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, BookOpen, MessageCircle, Plus, Lock, HelpCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -12,6 +11,7 @@ interface CommunitySidebarProps {
   selectedTopic: string;
   isMobile: boolean;
   hasPrivateMessages?: boolean;
+  onNewThreadClick?: () => void;
 }
 
 export const CommunitySidebar = ({ 
@@ -19,10 +19,10 @@ export const CommunitySidebar = ({
   onSelectTopic, 
   selectedTopic,
   isMobile,
-  hasPrivateMessages = false
+  hasPrivateMessages = false,
+  onNewThreadClick
 }: CommunitySidebarProps) => {
   const [collapsed, setCollapsed] = useState(isMobile);
-  const navigate = useNavigate();
 
   // Ensure sidebar collapses when switching to mobile
   useEffect(() => {
@@ -147,7 +147,7 @@ export const CommunitySidebar = ({
               "w-full",
               collapsed && "px-2.5"
             )}
-            onClick={() => navigate('/community/new')}
+            onClick={onNewThreadClick}
             disabled={selectedTopic === 'faqs'}
           >
             <Plus size={iconSize} className={collapsed ? "" : "mr-2"} />

@@ -9,14 +9,17 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { CommunitySidebar } from '@/components/community/CommunitySidebar';
 import { FAQContent } from '@/components/community/FAQContent';
+import { NewThreadModal } from '@/components/community/NewThreadModal';
 import { TopicFilter } from '@/types/community';
 import { useAuth } from '@/hooks/useAuth';
 
 const CommunityPage = () => {
-  const { threads, privateThreads, challenges, isLoading } = useCommunityThreads();
+  const { threads, privateThreads, challenges, isLoading, refetch } = useCommunityThreads();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [selectedTopic, setSelectedTopic] = useState<TopicFilter>('all');
+  const [newThreadModalOpen, setNewThreadModalOpen] = useState(false);
+  const [preselectedChallenge, setPreselectedChallenge] = useState<string | undefined>();
   const location = useLocation();
   const { user } = useAuth();
 
@@ -24,8 +27,21 @@ const CommunityPage = () => {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const topic = params.get('topic');
+    const challengeParam = params.get('challenge');
+    
     if (topic) {
       setSelectedTopic(topic);
+    }
+    
+    // If there's a challenge parameter, open the modal with preselected challenge
+    if (challengeParam) {
+      setPreselectedChallenge(challengeParam);
+      setNewThreadModalOpen(true);
+      // Clear the URL parameter
+      const newParams = new URLSearchParams(location.search);
+      newParams.delete('challenge');
+      const newUrl = newParams.toString() ? `/community?${newParams.toString()}` : '/community';
+      window.history.replaceState({}, '', newUrl);
     }
   }, [location]);
 
@@ -67,6 +83,15 @@ const CommunityPage = () => {
     window.history.replaceState({}, '', newUrl);
   };
 
+  const handleNewThreadClick = () => {
+    setPreselectedChallenge(selectedTopic !== 'all' && selectedTopic !== 'faqs' && selectedTopic !== 'private' ? selectedTopic : undefined);
+    setNewThreadModalOpen(true);
+  };
+
+  const handleThreadCreated = () => {
+    refetch();
+  };
+
   return (
     <div className="flex h-full">
       <CommunitySidebar 
@@ -75,6 +100,7 @@ const CommunityPage = () => {
         selectedTopic={selectedTopic}
         isMobile={isMobile}
         hasPrivateMessages={privateThreads.length > 0}
+        onNewThreadClick={handleNewThreadClick}
       />
       
       <div className="flex-1 overflow-auto p-4">
@@ -84,7 +110,7 @@ const CommunityPage = () => {
           </h1>
           {selectedTopic !== 'faqs' && (
             <Button 
-              onClick={() => navigate('/community/new')} 
+              onClick={handleNewThreadClick}
               size={isMobile ? 'sm' : 'default'}
               disabled={selectedTopic === 'private'}
               className={isMobile ? 'w-full' : ''}
@@ -188,6 +214,13 @@ const CommunityPage = () => {
           </div>
         )}
       </div>
+
+      <NewThreadModal
+        open={newThreadModalOpen}
+        onOpenChange={setNewThreadModalOpen}
+        preselectedChallengeId={preselectedChallenge}
+        onThreadCreated={handleThreadCreated}
+      />
     </div>
   );
 };

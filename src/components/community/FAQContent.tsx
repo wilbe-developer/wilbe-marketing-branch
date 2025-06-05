@@ -36,9 +36,9 @@ export const FAQContent = () => {
 
   const handlePostQuestion = () => {
     if (taskId) {
-      navigate(`/community/new?challenge=${taskId}`);
+      navigate(`/community?challenge=${taskId}`);
     } else {
-      navigate("/community/new");
+      navigate("/community");
     }
   };
 
