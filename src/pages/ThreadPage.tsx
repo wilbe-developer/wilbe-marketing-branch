@@ -13,7 +13,9 @@ import { ThreadActions } from '@/components/community/ThreadActions';
 import { ThreadContent } from '@/components/community/ThreadContent';
 import { NewThreadModal } from '@/components/community/NewThreadModal';
 import { ReplyModal } from '@/components/community/ReplyModal';
-import { Thread } from '@/types/community';
+import { CommentActions } from '@/components/community/CommentActions';
+import { EditCommentModal } from '@/components/community/EditCommentModal';
+import { Thread, ThreadComment } from '@/types/community';
 
 const ThreadPage = () => {
   const { threadId } = useParams<{ threadId: string }>();
@@ -27,6 +29,8 @@ const ThreadPage = () => {
   } = useThreadComments(threadId);
   const [editThreadModalOpen, setEditThreadModalOpen] = useState(false);
   const [replyModalOpen, setReplyModalOpen] = useState(false);
+  const [editCommentModalOpen, setEditCommentModalOpen] = useState(false);
+  const [editingComment, setEditingComment] = useState<ThreadComment | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useIsMobile();
@@ -64,6 +68,20 @@ const ThreadPage = () => {
   };
 
   const handleThreadEdited = () => {
+    refetch();
+  };
+
+  const handleEditComment = (comment: ThreadComment) => {
+    setEditingComment(comment);
+    setEditCommentModalOpen(true);
+  };
+
+  const handleCommentUpdated = () => {
+    refetch();
+    setEditingComment(null);
+  };
+
+  const handleCommentDeleted = () => {
     refetch();
   };
 
@@ -179,27 +197,37 @@ const ThreadPage = () => {
 
       {comments.map((comment) => (
         <div key={comment.id} className="bg-white rounded-lg shadow-sm border p-4 mb-4">
-          <div className="flex items-start mb-2">
-            <Avatar className="h-8 w-8 mr-3">
-              <AvatarImage src={comment.author_profile?.avatar || undefined} />
-              <AvatarFallback>
-                {comment.author_profile?.first_name?.[0] || ''}
-                {comment.author_profile?.last_name?.[0] || ''}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <div className="flex items-center">
-                <span className="font-medium">
-                  {comment.author_profile?.first_name || ''} {comment.author_profile?.last_name || ''}
-                </span>
-                {comment.author_role?.role === 'admin' && (
-                  <Badge variant="default" className="ml-2 bg-brand-pink text-xs">Admin</Badge>
-                )}
-              </div>
-              <div className="text-xs text-gray-500">
-                {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
+          <div className="flex items-start justify-between mb-2">
+            <div className="flex items-start">
+              <Avatar className="h-8 w-8 mr-3">
+                <AvatarImage src={comment.author_profile?.avatar || undefined} />
+                <AvatarFallback>
+                  {comment.author_profile?.first_name?.[0] || ''}
+                  {comment.author_profile?.last_name?.[0] || ''}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <div className="flex items-center">
+                  <span className="font-medium">
+                    {comment.author_profile?.first_name || ''} {comment.author_profile?.last_name || ''}
+                  </span>
+                  {comment.author_role?.role === 'admin' && (
+                    <Badge variant="default" className="ml-2 bg-brand-pink text-xs">Admin</Badge>
+                  )}
+                </div>
+                <div className="text-xs text-gray-500">
+                  {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
+                  {comment.updated_at && comment.updated_at !== comment.created_at && (
+                    <span className="ml-2">(edited)</span>
+                  )}
+                </div>
               </div>
             </div>
+            <CommentActions 
+              comment={comment}
+              onEdit={() => handleEditComment(comment)}
+              onDeleted={handleCommentDeleted}
+            />
           </div>
           <div className="pl-11">
             <ThreadContent 
@@ -225,6 +253,15 @@ const ThreadPage = () => {
         isSubmitting={addComment.isPending}
         threadTitle={thread.title}
       />
+
+      {editingComment && (
+        <EditCommentModal
+          open={editCommentModalOpen}
+          onOpenChange={setEditCommentModalOpen}
+          comment={editingComment}
+          onCommentUpdated={handleCommentUpdated}
+        />
+      )}
     </div>
   );
 };

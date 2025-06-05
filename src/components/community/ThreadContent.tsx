@@ -18,9 +18,11 @@ export const ThreadContent = ({
   className = '', 
   isPreview = false 
 }: ThreadContentProps) => {
-  // Clean up content first to remove "Attached Images" sections
+  // Extract images from raw content BEFORE any cleanup
+  const images = extractImages(content);
+  
+  // Now clean up content for text display
   const cleanedContent = cleanupContent(content);
-  const images = extractImages(cleanedContent);
   const textContent = removeImageMarkdown(cleanedContent);
   const { linkPreviews } = useLinkPreview(textContent);
 
