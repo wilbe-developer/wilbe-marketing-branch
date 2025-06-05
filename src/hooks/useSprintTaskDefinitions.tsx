@@ -7,6 +7,7 @@ import { useAuth } from "./useAuth";
 import { useSprintContext } from "./useSprintContext";
 import { toast } from "sonner";
 import { generateTaskSummary, requiresUpload, getMainContent, getMainQuestion } from "@/utils/taskDefinitionAdapter";
+import { getTaskWorkload } from "@/utils/workloadCalculation";
 
 export const useSprintTaskDefinitions = () => {
   const { user } = useAuth();
@@ -97,6 +98,9 @@ export const useSprintTaskDefinitions = () => {
     // Generate task summary for display
     const summary = generateTaskSummary(taskDef);
 
+    // Calculate workload (with manual override support)
+    const workloadIndicator = getTaskWorkload(taskDef.definition, taskDef.workload);
+
     // Get order_index from definition or default to 0
     const orderIndex = taskDef.definition.order_index || 0;
 
@@ -105,13 +109,14 @@ export const useSprintTaskDefinitions = () => {
       id: taskDef.id,
       title: summary.title,
       description: summary.description || "",
-      order_index: orderIndex, // Use order_index from definition
+      order_index: orderIndex,
       upload_required: summary.requiresUpload,
       content: summary.content,
       question: summary.mainQuestion,
       options: null,
       category: summary.category,
       status: "active",
+      workload: workloadIndicator, // Add workload indicator
       progress: progress ? {
         ...progress,
         answers: progress.answers || null,
