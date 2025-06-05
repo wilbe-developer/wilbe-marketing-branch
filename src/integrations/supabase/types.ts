@@ -1387,6 +1387,10 @@ export type Database = {
       }
     }
     Functions: {
+      calculate_thread_score: {
+        Args: { p_thread_id: string; p_sort_type?: string }
+        Returns: number
+      }
       create_sprint_profile: {
         Args:
           | {
@@ -1768,6 +1772,39 @@ export type Database = {
           last_login_date: string
           has_sprint_profile: boolean
           has_profile: boolean
+        }[]
+      }
+      get_sorted_community_threads: {
+        Args: {
+          p_sort_type?: string
+          p_challenge_id?: string
+          p_is_private?: boolean
+          p_limit?: number
+          p_offset?: number
+        }
+        Returns: {
+          id: string
+          title: string
+          content: string
+          author_id: string
+          challenge_id: string
+          is_private: boolean
+          recipient_id: string
+          created_at: string
+          last_edited_at: string
+          score: number
+        }[]
+      }
+      get_sorted_thread_comments: {
+        Args: { p_thread_id: string; p_sort_type?: string }
+        Returns: {
+          id: string
+          thread_id: string
+          author_id: string
+          content: string
+          created_at: string
+          updated_at: string
+          score: number
         }[]
       }
       get_thread_vote_summary: {

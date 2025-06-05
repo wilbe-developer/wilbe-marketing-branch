@@ -1,6 +1,7 @@
 
 import { CommunitySidebar } from '@/components/community/CommunitySidebar';
 import { CommunityHeader } from '@/components/community/CommunityHeader';
+import { CommunitySortControls } from '@/components/community/CommunitySortControls';
 import { FAQContent } from '@/components/community/FAQContent';
 import { ThreadList } from '@/components/community/ThreadList';
 import { NewThreadModal } from '@/components/community/NewThreadModal';
@@ -12,7 +13,9 @@ interface CommunityPageLayoutProps {
   challenges: Challenge[];
   hasPrivateMessages: boolean;
   selectedTopic: string;
+  selectedSort: string;
   onSelectTopic: (topic: string) => void;
+  onSelectSort: (sort: string) => void;
   onNewThreadClick: () => void;
   
   // Header props
@@ -40,7 +43,9 @@ export const CommunityPageLayout = ({
   challenges,
   hasPrivateMessages,
   selectedTopic,
+  selectedSort,
   onSelectTopic,
+  onSelectSort,
   onNewThreadClick,
   pageTitle,
   filteredThreads,
@@ -86,14 +91,21 @@ export const CommunityPageLayout = ({
         {selectedTopic === 'faqs' ? (
           <FAQContent />
         ) : (
-          <ThreadList
-            threads={filteredThreads}
-            selectedTopic={selectedTopic}
-            onThreadClick={onThreadClick}
-            onReplyClick={onReplyClick}
-            onEditThread={onEditThread}
-            onThreadDeleted={onThreadDeleted}
-          />
+          <>
+            <CommunitySortControls 
+              selectedSort={selectedSort}
+              onSortChange={onSelectSort}
+            />
+            
+            <ThreadList
+              threads={filteredThreads}
+              selectedTopic={selectedTopic}
+              onThreadClick={onThreadClick}
+              onReplyClick={onReplyClick}
+              onEditThread={onEditThread}
+              onThreadDeleted={onThreadDeleted}
+            />
+          </>
         )}
       </div>
 

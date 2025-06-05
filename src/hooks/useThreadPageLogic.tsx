@@ -7,6 +7,8 @@ import { ThreadComment } from '@/types/community';
 
 export const useThreadPageLogic = () => {
   const { threadId } = useParams<{ threadId: string }>();
+  const [commentSort, setCommentSort] = useState<string>('chronological');
+  
   const { 
     thread, 
     comments, 
@@ -14,7 +16,7 @@ export const useThreadPageLogic = () => {
     addComment,
     markThreadAsViewed,
     refetch
-  } = useThreadComments(threadId);
+  } = useThreadComments(threadId, commentSort);
   
   const [editThreadModalOpen, setEditThreadModalOpen] = useState(false);
   const [replyModalOpen, setReplyModalOpen] = useState(false);
@@ -73,6 +75,10 @@ export const useThreadPageLogic = () => {
     refetch();
   };
 
+  const handleCommentSortChange = (sort: string) => {
+    setCommentSort(sort);
+  };
+
   const returnPath = thread?.is_private ? '/community?topic=private' : '/community';
 
   return {
@@ -80,6 +86,7 @@ export const useThreadPageLogic = () => {
     comments,
     isLoading,
     threadId,
+    commentSort,
     editThreadModalOpen,
     setEditThreadModalOpen,
     replyModalOpen,
@@ -95,6 +102,7 @@ export const useThreadPageLogic = () => {
     handleEditComment,
     handleCommentUpdated,
     handleCommentDeleted,
+    handleCommentSortChange,
     addComment
   };
 };

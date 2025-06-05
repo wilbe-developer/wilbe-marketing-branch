@@ -5,19 +5,24 @@ import { TopicFilter, Thread } from '@/types/community';
 
 export const useCommunityFilters = (threads: Thread[], privateThreads: Thread[], challenges: any[]) => {
   const [selectedTopic, setSelectedTopic] = useState<TopicFilter>('all');
+  const [selectedSort, setSelectedSort] = useState<string>('hot');
   const location = useLocation();
 
-  // Check URL parameters for pre-selected topic
+  // Check URL parameters for pre-selected topic and sort
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const topic = params.get('topic');
+    const sort = params.get('sort');
     
     if (topic) {
       setSelectedTopic(topic);
     }
+    if (sort) {
+      setSelectedSort(sort);
+    }
   }, [location]);
 
-  // Filter threads based on selected topic
+  // Filter threads based on selected topic (client-side filtering for now)
   const filteredThreads = (() => {
     if (selectedTopic === 'private') {
       return privateThreads;
@@ -38,10 +43,21 @@ export const useCommunityFilters = (threads: Thread[], privateThreads: Thread[],
 
   const handleTopicSelect = (topic: string) => {
     setSelectedTopic(topic);
-    // Update URL to reflect the selected topic
+    updateURL(topic, selectedSort);
+  };
+
+  const handleSortSelect = (sort: string) => {
+    setSelectedSort(sort);
+    updateURL(selectedTopic, sort);
+  };
+
+  const updateURL = (topic: string, sort: string) => {
     const params = new URLSearchParams();
     if (topic !== 'all') {
       params.set('topic', topic);
+    }
+    if (sort !== 'hot') {
+      params.set('sort', sort);
     }
     const newUrl = params.toString() ? `/community?${params.toString()}` : '/community';
     window.history.replaceState({}, '', newUrl);
@@ -49,9 +65,11 @@ export const useCommunityFilters = (threads: Thread[], privateThreads: Thread[],
 
   return {
     selectedTopic,
+    selectedSort,
     filteredThreads,
     pageTitle,
     handleTopicSelect,
+    handleSortSelect,
     setSelectedTopic
   };
 };

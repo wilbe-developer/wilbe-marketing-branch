@@ -3,6 +3,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { useThreadPageLogic } from '@/hooks/useThreadPageLogic';
 import { ThreadHeader } from '@/components/community/ThreadHeader';
 import { ThreadRepliesSection } from '@/components/community/ThreadRepliesSection';
+import { ThreadCommentSortControls } from '@/components/community/ThreadCommentSortControls';
 import { ThreadCommentsList } from '@/components/community/ThreadCommentsList';
 import { NewThreadModal } from '@/components/community/NewThreadModal';
 import { ReplyModal } from '@/components/community/ReplyModal';
@@ -13,6 +14,7 @@ const ThreadPage = () => {
     thread,
     comments,
     isLoading,
+    commentSort,
     editThreadModalOpen,
     setEditThreadModalOpen,
     replyModalOpen,
@@ -28,6 +30,7 @@ const ThreadPage = () => {
     handleEditComment,
     handleCommentUpdated,
     handleCommentDeleted,
+    handleCommentSortChange,
     addComment
   } = useThreadPageLogic();
 
@@ -56,6 +59,12 @@ const ThreadPage = () => {
       <ThreadRepliesSection
         commentsCount={comments.length}
         onAddReply={() => setReplyModalOpen(true)}
+      />
+
+      <ThreadCommentSortControls
+        selectedSort={commentSort}
+        onSortChange={handleCommentSortChange}
+        commentsCount={comments.length}
       />
 
       <ThreadCommentsList
