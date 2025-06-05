@@ -79,6 +79,7 @@ export type Database = {
           created_at: string
           id: string
           is_private: boolean
+          last_edited_at: string | null
           recipient_id: string | null
           title: string
           updated_at: string
@@ -90,6 +91,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_private?: boolean
+          last_edited_at?: string | null
           recipient_id?: string | null
           title: string
           updated_at?: string
@@ -101,6 +103,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_private?: boolean
+          last_edited_at?: string | null
           recipient_id?: string | null
           title?: string
           updated_at?: string
@@ -1729,6 +1732,10 @@ export type Database = {
       }
       is_sprint_collaborator: {
         Args: { p_user_id: string; p_owner_id: string }
+        Returns: boolean
+      }
+      is_sprint_manager: {
+        Args: { p_user_id: string; p_sprint_owner_id: string }
         Returns: boolean
       }
       submit_membership_application: {
