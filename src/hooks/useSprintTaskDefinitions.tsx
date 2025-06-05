@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { SprintTaskDefinition } from "@/types/task-builder";
@@ -6,8 +5,7 @@ import { UserTaskProgress } from "@/types/sprint";
 import { useAuth } from "./useAuth";
 import { useSprintContext } from "./useSprintContext";
 import { toast } from "sonner";
-import { generateTaskSummary, requiresUpload, getMainContent, getMainQuestion } from "@/utils/taskDefinitionAdapter";
-import { getTaskWorkload } from "@/utils/workloadCalculation";
+import { generateTaskSummary, requiresUpload, getMainContent, getMainQuestion, extractTaskWorkload } from "@/utils/taskDefinitionAdapter";
 
 export const useSprintTaskDefinitions = () => {
   const { user } = useAuth();
@@ -21,7 +19,6 @@ export const useSprintTaskDefinitions = () => {
       const { data, error } = await supabase
         .from("sprint_task_definitions")
         .select("*")
-        // Changed from .order("name") to order by order_index
         .order("definition->order_index");
       
       if (error) throw error;
@@ -98,8 +95,8 @@ export const useSprintTaskDefinitions = () => {
     // Generate task summary for display
     const summary = generateTaskSummary(taskDef);
 
-    // Calculate workload (with manual override support)
-    const workloadIndicator = getTaskWorkload(taskDef.definition, taskDef.workload);
+    // Extract workload indicator
+    const workload = extractTaskWorkload(taskDef);
 
     // Get order_index from definition or default to 0
     const orderIndex = taskDef.definition.order_index || 0;
@@ -116,7 +113,7 @@ export const useSprintTaskDefinitions = () => {
       options: null,
       category: summary.category,
       status: "active",
-      workload: workloadIndicator, // Add workload indicator
+      workload: workload,
       progress: progress ? {
         ...progress,
         answers: progress.answers || null,

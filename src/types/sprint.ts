@@ -1,4 +1,6 @@
 
+import { WorkloadIndicator } from '@/utils/workloadCalculation';
+
 export interface UserTaskProgress {
   id: string;
   title: string;
@@ -10,6 +12,7 @@ export interface UserTaskProgress {
   options: any | null;
   category: string | null;
   status: string;
+  workload?: WorkloadIndicator; // Add workload field
   progress?: {
     id: string;
     user_id: string;

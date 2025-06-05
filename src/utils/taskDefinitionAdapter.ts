@@ -1,4 +1,5 @@
 import { SprintTaskDefinition, StepNode, Condition } from "@/types/task-builder";
+import { getTaskWorkload } from "@/utils/workloadCalculation";
 
 // Function to generate a summary of a task definition for display
 export const generateTaskSummary = (taskDef: SprintTaskDefinition) => {
@@ -120,4 +121,9 @@ export const evaluateStepVisibility = (
         return false;
     }
   });
+};
+
+// Add workload extraction function
+export const extractTaskWorkload = (taskDef: SprintTaskDefinition) => {
+  return getTaskWorkload(taskDef.definition, taskDef.workload);
 };
