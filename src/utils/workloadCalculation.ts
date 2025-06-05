@@ -90,14 +90,14 @@ const getTeamComplexity = (steps: StepNode[]): number => {
   steps.forEach(step => {
     // Team member steps are highly complex
     if (step.type === 'team-members') {
-      score += 15;
+      score += 20; // Increased for major complexity
     }
     
     // Collaboration fields add complexity
     if (step.fields) {
       step.fields.forEach(field => {
         if (field.type === 'collaboration') {
-          score += 5;
+          score += 8; // Increased for collaboration complexity
         }
       });
     }
@@ -118,7 +118,7 @@ const getTeamComplexity = (steps: StepNode[]): number => {
 };
 
 /**
- * Analyze content complexity based on static panels
+ * Analyze content complexity based on static panels - more selective
  */
 const getContentComplexity = (definition: TaskDefinition): number => {
   let score = 0;
@@ -128,25 +128,23 @@ const getContentComplexity = (definition: TaskDefinition): number => {
       const content = panel.content || '';
       const items = panel.items || [];
       
-      // Look for specific numbers indicating complexity
+      // Look for specific high-complexity indicators only
       const complexityIndicators = [
-        /\b\d+\s*calls?\b/i,        // "50 calls"
-        /\b\d+\s*slides?\b/i,       // "15 slides"
-        /\b\d+\s*interviews?\b/i,   // "customer interviews"
-        /\b\d+\s*hours?\b/i,        // "10 hours"
-        /\bcrm\b/i,                 // "CRM"
-        /\bdeck\b/i,                // "deck"
-        /\broadmap\b/i,             // "roadmap"
-        /\bmilestone\b/i            // "milestone"
+        /\b50\+?\s*calls?\b/i,        // "50+ calls", "50 calls"
+        /\b15\s*slides?\b/i,          // "15 slides"
+        /\b\d+\s*interviews?\b/i,     // "customer interviews" with numbers
+        /\bcrm\s*management\b/i,      // "CRM management"
+        /\br&d\s*roadmap\b/i,         // "R&D roadmap"
+        /\bcommercial\s*roadmap\b/i   // "commercial roadmap"
       ];
       
       complexityIndicators.forEach(indicator => {
         if (indicator.test(content)) {
-          score += 5;
+          score += 8; // Increased for specific complexity markers
         }
         items.forEach(item => {
           if (indicator.test(item.text || '')) {
-            score += 3;
+            score += 5;
           }
         });
       });
@@ -165,17 +163,17 @@ export const calculateWorkloadScore = (definition: TaskDefinition): number => {
   let score = 0;
   const steps = definition.steps;
   
-  // Base score for number of steps (reduced weight)
-  score += steps.length * 1;
+  // Base score for number of steps (minimal weight)
+  score += steps.length * 0.5;
   
-  // Form field complexity (major factor)
+  // Form field complexity (reduced weight)
   const formFieldCount = countFormFields(steps);
-  score += formFieldCount * 2;
+  score += formFieldCount * 1; // Reduced from 2
   
-  // Team complexity (high weight)
+  // Team complexity (high weight for truly complex tasks)
   score += getTeamComplexity(steps);
   
-  // Content complexity from static panels
+  // Content complexity from static panels (selective)
   score += getContentComplexity(definition);
   
   // Analyze each step for specific complexity
@@ -183,56 +181,58 @@ export const calculateWorkloadScore = (definition: TaskDefinition): number => {
     switch (step.type) {
       case 'upload':
       case 'file':
-        score += 8; // File uploads are time-consuming
+        score += 5; // Reduced from 8
         break;
       case 'team-members':
-        score += 15; // Team forms are very complex
+        score += 20; // Increased for major complexity
         break;
       case 'form':
-        score += 10; // Multi-field forms are complex
+        score += 4; // Reduced from 10
         break;
       case 'question':
         if (step.options && step.options.length > 4) {
-          score += 5; // Complex multiple choice
+          score += 3; // Reduced from 5
         } else if (step.options && step.options.length > 0) {
-          score += 3; // Simple multiple choice
+          score += 2; // Reduced from 3
         } else {
-          score += 4; // Free text questions require thought
+          score += 2; // Reduced from 4
         }
         break;
       case 'content':
-        score += 1; // Reading content is quick
+        score += 0.5; // Reduced from 1
         break;
       case 'exercise':
-        score += 6; // Exercises require effort
+        score += 3; // Reduced from 6
         break;
       default:
-        score += 2;
+        score += 1; // Reduced from 2
     }
     
     // Add complexity for conditional logic
     if (step.conditions && step.conditions.length > 0) {
-      score += 3; // Increased from 2
+      score += 2; // Reduced from 3
     }
     
     // Add complexity for grouped questions
     if (step.questions && step.questions.length > 0) {
-      score += step.questions.length * 2;
+      score += step.questions.length * 1; // Reduced from 2
     }
   });
   
-  // Profile questions add complexity
+  // Profile questions add minimal complexity
   if (definition.profileQuestions && definition.profileQuestions.length > 0) {
-    score += definition.profileQuestions.length * 3;
+    score += definition.profileQuestions.length * 1; // Reduced from 3
   }
   
-  // Category-based adjustments
+  // Category-based adjustments (more selective)
   if (definition.category) {
     const category = definition.category.toLowerCase();
     if (category.includes('team')) {
-      score += 10; // Team tasks are inherently complex
-    } else if (category.includes('funding') || category.includes('market')) {
-      score += 5; // Medium complexity categories
+      score += 15; // Team tasks are inherently very complex
+    } else if (category.includes('customer') && category.includes('engagement')) {
+      score += 10; // Customer engagement is complex
+    } else if (category.includes('execution') || category.includes('iterative')) {
+      score += 8; // Execution tasks are moderately complex
     }
   }
   
@@ -243,8 +243,8 @@ export const calculateWorkloadScore = (definition: TaskDefinition): number => {
  * Convert workload score to workload level (adjusted thresholds)
  */
 export const scoreToWorkloadLevel = (score: number): WorkloadLevel => {
-  if (score <= 10) return 'low';    // Reduced from 15
-  if (score <= 25) return 'medium'; // Reduced from 35
+  if (score <= 20) return 'low';    // Increased from 10
+  if (score <= 45) return 'medium'; // Increased from 25
   return 'high';
 };
 
