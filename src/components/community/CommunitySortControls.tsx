@@ -1,5 +1,7 @@
 
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 
 interface CommunitySortControlsProps {
@@ -20,25 +22,52 @@ export const CommunitySortControls = ({
   onSortChange, 
   className 
 }: CommunitySortControlsProps) => {
+  const isMobile = useIsMobile();
+
+  if (isMobile) {
+    return (
+      <div className={cn("flex items-center gap-3 mb-4", className)}>
+        <span className="text-sm text-gray-600 whitespace-nowrap">Sort by:</span>
+        <Select value={selectedSort} onValueChange={onSortChange}>
+          <SelectTrigger className="w-32 h-8 text-xs">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {sortOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                <div className="flex flex-col">
+                  <span className="font-medium">{option.label}</span>
+                  <span className="text-xs text-gray-500">{option.description}</span>
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+    );
+  }
+
   return (
-    <div className={cn("flex items-center gap-2 mb-4", className)}>
-      <span className="text-sm text-gray-600 mr-2">Sort by:</span>
-      {sortOptions.map((option) => (
-        <Button
-          key={option.value}
-          variant={selectedSort === option.value ? "default" : "ghost"}
-          size="sm"
-          onClick={() => onSortChange(option.value)}
-          className={cn(
-            "text-xs",
-            selectedSort === option.value 
-              ? "bg-brand-pink text-white" 
-              : "text-gray-600 hover:text-gray-800"
-          )}
-        >
-          {option.label}
-        </Button>
-      ))}
+    <div className={cn("flex items-center gap-1 mb-4", className)}>
+      <span className="text-sm text-gray-600 mr-3">Sort by:</span>
+      <div className="flex items-center bg-gray-100 rounded-lg p-1">
+        {sortOptions.map((option) => (
+          <Button
+            key={option.value}
+            variant="ghost"
+            size="sm"
+            onClick={() => onSortChange(option.value)}
+            className={cn(
+              "text-xs px-3 py-1.5 h-auto rounded-md transition-all duration-200",
+              selectedSort === option.value 
+                ? "bg-white text-gray-900 shadow-sm font-medium" 
+                : "text-gray-600 hover:text-gray-800 hover:bg-white/50"
+            )}
+          >
+            {option.label}
+          </Button>
+        ))}
+      </div>
     </div>
   );
 };
