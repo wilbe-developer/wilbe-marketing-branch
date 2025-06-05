@@ -2,11 +2,19 @@
 import { useState } from 'react';
 import { useFAQs, FAQ } from '@/hooks/useFAQs';
 import { Input } from '@/components/ui/input';
-import { Search } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Search, MessageCircle, Phone } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 export const FAQContent = () => {
   const { faqsByCategory, isLoading } = useFAQs();
   const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Get taskId from URL params if available
+  const params = new URLSearchParams(location.search);
+  const taskId = params.get('taskId');
 
   // Filter FAQs based on search query
   const filteredFaqsByCategory = searchQuery.trim() === '' 
@@ -25,6 +33,25 @@ export const FAQContent = () => {
         return acc;
       }, {} as Record<string, FAQ[]>);
 
+  const handlePostQuestion = () => {
+    if (taskId) {
+      navigate(`/community/new?challenge=${taskId}`);
+    } else {
+      navigate("/community/new");
+    }
+  };
+
+  const handleRequestCall = () => {
+    // Find the RequestCall button in the DOM and click it
+    const requestCallButton = document.querySelector('[data-request-call-button="true"]');
+    if (requestCallButton instanceof HTMLButtonElement) {
+      requestCallButton.click();
+    } else {
+      // Fallback - navigate to community with instruction
+      navigate("/community/new");
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -35,14 +62,32 @@ export const FAQContent = () => {
 
   return (
     <>
-      <div className="mb-6 relative">
-        <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-        <Input
-          placeholder="Search FAQs..."
-          className="pl-10"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
+      <div className="mb-6 space-y-4">
+        {/* Action Buttons */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <h3 className="text-sm font-medium text-blue-900 mb-3">Need More Help?</h3>
+          <div className="flex flex-wrap gap-3">
+            <Button onClick={handlePostQuestion} variant="outline" size="sm" className="gap-2">
+              <MessageCircle className="h-4 w-4" />
+              Post a Question
+            </Button>
+            <Button onClick={handleRequestCall} size="sm" className="gap-2">
+              <Phone className="h-4 w-4" />
+              Request Call
+            </Button>
+          </div>
+        </div>
+
+        {/* Search Bar */}
+        <div className="relative">
+          <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+          <Input
+            placeholder="Search FAQs..."
+            className="pl-10"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
       </div>
 
       <div className="space-y-8">
