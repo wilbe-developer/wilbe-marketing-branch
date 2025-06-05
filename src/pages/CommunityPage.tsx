@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useCommunityThreads } from '@/hooks/useCommunityThreads';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -168,95 +167,189 @@ const CommunityPage = () => {
                   className="bg-white rounded-lg shadow-sm border p-4 hover:border-brand-pink transition-colors cursor-pointer"
                   onClick={(e) => handleThreadClick(e, thread.id)}
                 >
-                  <div className={`${isMobile ? 'space-y-3' : 'flex items-start justify-between gap-4'}`}>
-                    <div className="flex-1">
-                      <div className={`flex items-center gap-2 mb-2 ${isMobile ? 'flex-wrap' : ''}`}>
-                        <Avatar className="h-8 w-8">
-                          <AvatarImage src={thread.author_profile?.avatar || undefined} />
-                          <AvatarFallback>
-                            {thread.author_profile?.first_name?.[0] || ''}
-                            {thread.author_profile?.last_name?.[0] || ''}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className={`${isMobile ? 'flex-1 min-w-0' : ''}`}>
-                          <span className="font-medium text-sm">
-                            {thread.author_profile?.first_name || ''} {thread.author_profile?.last_name || ''}
-                          </span>
-                          {thread.author_role?.role === 'admin' && (
-                            <Badge variant="default" className={`bg-brand-pink ${isMobile ? 'ml-1 text-xs' : 'ml-2'}`}>
-                              Admin
-                            </Badge>
-                          )}
-                        </div>
-                        {isMobile && (
-                          <div className="text-xs text-gray-500 ml-auto">
-                            {formatDistanceToNow(new Date(thread.created_at), { addSuffix: true })}
+                  {isMobile ? (
+                    // Mobile layout - stacked vertically
+                    <div className="space-y-3">
+                      {/* Author and metadata row */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 min-w-0 flex-1">
+                          <Avatar className="h-7 w-7 flex-shrink-0">
+                            <AvatarImage src={thread.author_profile?.avatar || undefined} />
+                            <AvatarFallback className="text-xs">
+                              {thread.author_profile?.first_name?.[0] || ''}
+                              {thread.author_profile?.last_name?.[0] || ''}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-1 flex-wrap">
+                              <span className="font-medium text-sm truncate">
+                                {thread.author_profile?.first_name || ''} {thread.author_profile?.last_name || ''}
+                              </span>
+                              {thread.author_role?.role === 'admin' && (
+                                <Badge variant="default" className="bg-brand-pink text-xs px-1 py-0">
+                                  Admin
+                                </Badge>
+                              )}
+                            </div>
                           </div>
-                        )}
+                        </div>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <span className="text-xs text-gray-500">
+                            {formatDistanceToNow(new Date(thread.created_at), { addSuffix: true })}
+                          </span>
+                          <ThreadActions 
+                            thread={thread} 
+                            onEdit={() => handleEditThread(thread)}
+                            onDeleted={handleThreadDeleted}
+                          />
+                        </div>
                       </div>
                       
-                      <div className="flex items-center gap-2 mb-2">
-                        <h3 className={`font-semibold ${isMobile ? 'text-base' : 'text-lg'}`}>
+                      {/* Title row */}
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-semibold text-base leading-tight flex-1">
                           {thread.title}
                         </h3>
-                        {thread.is_private && (
-                          <Lock size={14} className="text-gray-500" />
-                        )}
-                        {thread.last_edited_at && (
-                          <span className="text-xs text-gray-500">(edited)</span>
-                        )}
+                        <div className="flex items-center gap-1 flex-shrink-0">
+                          {thread.is_private && (
+                            <Lock size={12} className="text-gray-500" />
+                          )}
+                          {thread.last_edited_at && (
+                            <span className="text-xs text-gray-500">(edited)</span>
+                          )}
+                        </div>
                       </div>
                       
+                      {/* Private message recipient */}
                       {thread.is_private && thread.recipient_profile && (
-                        <div className="flex items-center text-xs text-gray-600 mb-2">
+                        <div className="flex items-center text-xs text-gray-600">
                           <span>To: {thread.recipient_profile.first_name} {thread.recipient_profile.last_name}</span>
                         </div>
                       )}
                       
+                      {/* Content preview */}
                       <ThreadContent 
                         content={thread.content} 
-                        className={isMobile ? 'text-sm' : ''}
+                        className="text-sm"
                         isPreview={true}
                       />
+                      
+                      {/* Footer with metadata and actions */}
+                      <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                        <div className="flex items-center gap-3 text-xs text-gray-500">
+                          <span>
+                            {thread.comment_count && thread.comment_count[0] ? thread.comment_count[0].count : 0} replies
+                          </span>
+                          {thread.is_private && (
+                            <Badge variant="outline" className="flex items-center gap-1 text-xs px-1 py-0">
+                              <Lock size={8} />
+                              <span>Private</span>
+                            </Badge>
+                          )}
+                          {thread.challenge_id && !thread.is_private && (
+                            <Badge variant="secondary" className="text-xs px-1 py-0">
+                              {thread.challenge_name || 'BSF Challenge'}
+                            </Badge>
+                          )}
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="flex items-center gap-1 text-xs px-2 py-1 h-auto"
+                          onClick={(e) => handleReplyClick(e, thread.id)}
+                        >
+                          <MessageCircle size={10} />
+                          Reply
+                        </Button>
+                      </div>
                     </div>
-                    <div className="flex items-start gap-2">
-                      {!isMobile && (
+                  ) : (
+                    // Desktop layout - existing layout
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Avatar className="h-8 w-8">
+                            <AvatarImage src={thread.author_profile?.avatar || undefined} />
+                            <AvatarFallback>
+                              {thread.author_profile?.first_name?.[0] || ''}
+                              {thread.author_profile?.last_name?.[0] || ''}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <span className="font-medium text-sm">
+                              {thread.author_profile?.first_name || ''} {thread.author_profile?.last_name || ''}
+                            </span>
+                            {thread.author_role?.role === 'admin' && (
+                              <Badge variant="default" className="bg-brand-pink ml-2">
+                                Admin
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center gap-2 mb-2">
+                          <h3 className="font-semibold text-lg">
+                            {thread.title}
+                          </h3>
+                          {thread.is_private && (
+                            <Lock size={14} className="text-gray-500" />
+                          )}
+                          {thread.last_edited_at && (
+                            <span className="text-xs text-gray-500">(edited)</span>
+                          )}
+                        </div>
+                        
+                        {thread.is_private && thread.recipient_profile && (
+                          <div className="flex items-center text-xs text-gray-600 mb-2">
+                            <span>To: {thread.recipient_profile.first_name} {thread.recipient_profile.last_name}</span>
+                          </div>
+                        )}
+                        
+                        <ThreadContent 
+                          content={thread.content} 
+                          isPreview={true}
+                        />
+                      </div>
+                      <div className="flex items-start gap-2">
                         <div className="text-sm text-gray-500">
                           {formatDistanceToNow(new Date(thread.created_at), { addSuffix: true })}
                         </div>
-                      )}
-                      <ThreadActions 
-                        thread={thread} 
-                        onEdit={() => handleEditThread(thread)}
-                        onDeleted={handleThreadDeleted}
-                      />
+                        <ThreadActions 
+                          thread={thread} 
+                          onEdit={() => handleEditThread(thread)}
+                          onDeleted={handleThreadDeleted}
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <div className={`mt-3 flex items-center gap-4 text-sm text-gray-500 ${isMobile ? 'flex-wrap' : ''}`}>
-                    <span>
-                      {thread.comment_count && thread.comment_count[0] ? thread.comment_count[0].count : 0} replies
-                    </span>
-                    {thread.is_private && (
-                      <Badge variant="outline" className="flex items-center gap-1 text-xs">
-                        <Lock size={10} />
-                        <span>Private</span>
-                      </Badge>
-                    )}
-                    {thread.challenge_id && !thread.is_private && (
-                      <Badge variant="secondary" className="text-xs">
-                        {thread.challenge_name || 'BSF Challenge'}
-                      </Badge>
-                    )}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="ml-auto flex items-center gap-1 text-xs px-2 py-1 h-auto"
-                      onClick={(e) => handleReplyClick(e, thread.id)}
-                    >
-                      <MessageCircle size={12} />
-                      Reply
-                    </Button>
-                  </div>
+                  )}
+                  
+                  {!isMobile && (
+                    <div className="mt-3 flex items-center gap-4 text-sm text-gray-500">
+                      <span>
+                        {thread.comment_count && thread.comment_count[0] ? thread.comment_count[0].count : 0} replies
+                      </span>
+                      {thread.is_private && (
+                        <Badge variant="outline" className="flex items-center gap-1 text-xs">
+                          <Lock size={10} />
+                          <span>Private</span>
+                        </Badge>
+                      )}
+                      {thread.challenge_id && !thread.is_private && (
+                        <Badge variant="secondary" className="text-xs">
+                          {thread.challenge_name || 'BSF Challenge'}
+                        </Badge>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="ml-auto flex items-center gap-1 text-xs px-2 py-1 h-auto"
+                        onClick={(e) => handleReplyClick(e, thread.id)}
+                      >
+                        <MessageCircle size={12} />
+                        Reply
+                      </Button>
+                    </div>
+                  )}
                 </div>
               ))
             )}
