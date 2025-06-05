@@ -1,5 +1,5 @@
 
-import { TaskDefinition, TaskStep } from '@/types/task-builder';
+import { TaskDefinition, StepNode } from '@/types/task-builder';
 
 export type WorkloadLevel = 'low' | 'medium' | 'high';
 
@@ -67,8 +67,8 @@ export const calculateWorkloadScore = (definition: TaskDefinition): number => {
         score += 2;
     }
     
-    // Add complexity for conditional logic
-    if (step.profileDependencies && step.profileDependencies.length > 0) {
+    // Add complexity for conditional logic (if conditions exist)
+    if (step.conditions && step.conditions.length > 0) {
       score += 2;
     }
   });
@@ -76,11 +76,6 @@ export const calculateWorkloadScore = (definition: TaskDefinition): number => {
   // Profile questions add complexity
   if (definition.profileQuestions && definition.profileQuestions.length > 0) {
     score += definition.profileQuestions.length * 3;
-  }
-  
-  // Conditional flow adds complexity
-  if (definition.conditionalFlow && Object.keys(definition.conditionalFlow).length > 0) {
-    score += Object.keys(definition.conditionalFlow).length * 2;
   }
   
   return score;

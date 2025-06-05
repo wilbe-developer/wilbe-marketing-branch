@@ -4,8 +4,9 @@ export interface SprintTaskDefinition {
   id: string;
   name: string;
   description?: string;
-  created_at?: string;
-  updated_at?: string;
+  workload?: string | null; // Add workload field
+  created_at: string;
+  updated_at: string;
   definition: TaskDefinition;
 }
 

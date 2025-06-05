@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSprintTaskDefinitions } from '@/hooks/useSprintTaskDefinitions';
@@ -14,7 +13,7 @@ import { SharedSprintBanner } from '@/components/sprint/SharedSprintBanner';
 import { WorkloadBadge } from '@/components/sprint/WorkloadBadge';
 import { supabase } from '@/integrations/supabase/client';
 import { SprintTaskDefinition } from '@/types/task-builder';
-import { generateTaskSummary, getTaskWorkload } from '@/utils/taskDefinitionAdapter';
+import { generateTaskSummary, extractTaskWorkload } from '@/utils/taskDefinitionAdapter';
 
 const SprintTaskPage = () => {
   const { taskId } = useParams<{ taskId: string }>();
@@ -91,7 +90,7 @@ const SprintTaskPage = () => {
   const taskSummary = taskDefinition ? generateTaskSummary(taskDefinition) : currentTask;
 
   // Get workload info from current task or calculate it
-  const workload = currentTask.workload || (taskDefinition ? getTaskWorkload(taskDefinition.definition, taskDefinition.workload) : null);
+  const workload = currentTask.workload || (taskDefinition ? extractTaskWorkload(taskDefinition) : null);
 
   const handleTaskCompletion = async (fileId?: string) => {
     await updateProgress.mutateAsync({
