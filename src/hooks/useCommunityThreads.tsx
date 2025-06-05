@@ -87,9 +87,9 @@ export const useCommunityThreads = () => {
             ...thread,
             author_profile: profileData || null,
             author_role: roleData || null,
+            recipient_profile: recipientProfile,
             comment_count: count ? [{ count }] : [{ count: 0 }],
-            challenge_name: challengeName,
-            recipient_profile: recipientProfile
+            challenge_name: challengeName
           };
         })
       );
@@ -233,6 +233,57 @@ export const useCommunityThreads = () => {
     },
   });
 
+  const updateThread = useMutation({
+    mutationFn: async ({ 
+      id, 
+      title, 
+      content 
+    }: { id: string; title: string; content: string }) => {
+      if (!user) {
+        throw new Error("User not authenticated");
+      }
+      
+      const { data, error } = await supabase
+        .from('discussion_threads')
+        .update({ title, content })
+        .eq('id', id)
+        .eq('author_id', user.id) // Ensure only the author can edit
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error updating thread:', error);
+        throw error;
+      }
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['threads'] });
+    },
+  });
+
+  const deleteThread = useMutation({
+    mutationFn: async (threadId: string) => {
+      if (!user) {
+        throw new Error("User not authenticated");
+      }
+      
+      const { error } = await supabase
+        .from('discussion_threads')
+        .delete()
+        .eq('id', threadId)
+        .eq('author_id', user.id); // Ensure only the author can delete
+
+      if (error) {
+        console.error('Error deleting thread:', error);
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['threads'] });
+    },
+  });
+
   return {
     threads: publicThreads,
     privateThreads,
@@ -240,6 +291,8 @@ export const useCommunityThreads = () => {
     challenges,
     isLoading: isLoading || isLoadingChallenges || isLoadingAdmins,
     createThread,
+    updateThread,
+    deleteThread,
     refetch,
   };
 };

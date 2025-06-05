@@ -20,48 +20,60 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Challenge } from '@/types/community';
-import { Upload, X, Link as LinkIcon } from 'lucide-react';
-import { useFileUpload } from '@/hooks/useFileUpload';
+import { Challenge, Thread } from '@/types/community';
+import { Upload, X } from 'lucide-react';
+import { useSupabaseFileUpload } from '@/hooks/useSupabaseFileUpload';
+import { useLinkPreview } from '@/hooks/useLinkPreview';
+import { LinkPreview } from './LinkPreview';
 
 interface NewThreadModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   preselectedChallengeId?: string;
   onThreadCreated?: () => void;
+  editingThread?: Thread | null;
 }
 
 export const NewThreadModal = ({ 
   open, 
   onOpenChange, 
   preselectedChallengeId,
-  onThreadCreated 
+  onThreadCreated,
+  editingThread 
 }: NewThreadModalProps) => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [challengeId, setChallengeId] = useState<string | null>(preselectedChallengeId || null);
-  const [uploadedImages, setUploadedImages] = useState<Array<{ id: string; url: string; name: string }>>([]);
-  const [linkPreviews, setLinkPreviews] = useState<Array<{ url: string; title?: string }>>([]);
+  const [uploadedImages, setUploadedImages] = useState<Array<{ id: string; url: string; name: string; path: string }>>([]);
   
-  const { createThread, challenges, isLoading: isLoadingChallenges } = useCommunityThreads();
-  const { uploadFile, isUploading } = useFileUpload();
+  const { createThread, updateThread, challenges, isLoading: isLoadingChallenges } = useCommunityThreads();
+  const { uploadFile, isUploading, deleteFile } = useSupabaseFileUpload();
+  const { linkPreviews } = useLinkPreview(content);
   const isMobile = useIsMobile();
+
+  const isEditing = !!editingThread;
+
+  // Set form data when editing
+  useEffect(() => {
+    if (editingThread) {
+      setTitle(editingThread.title);
+      setContent(editingThread.content);
+      setChallengeId(editingThread.challenge_id);
+    } else {
+      // Reset form when not editing
+      setTitle('');
+      setContent('');
+      setChallengeId(preselectedChallengeId || null);
+      setUploadedImages([]);
+    }
+  }, [editingThread, preselectedChallengeId]);
 
   // Set preselected challenge when modal opens
   useEffect(() => {
-    if (preselectedChallengeId) {
+    if (preselectedChallengeId && !isEditing) {
       setChallengeId(preselectedChallengeId);
     }
-  }, [preselectedChallengeId, open]);
-
-  // Extract links from content and create previews
-  useEffect(() => {
-    const urlRegex = /(https?:\/\/[^\s]+)/g;
-    const urls = content.match(urlRegex) || [];
-    const uniqueUrls = [...new Set(urls)];
-    
-    setLinkPreviews(uniqueUrls.map(url => ({ url, title: url })));
-  }, [content]);
+  }, [preselectedChallengeId, open, isEditing]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,31 +89,38 @@ export const NewThreadModal = ({
       if (uploadedImages.length > 0) {
         finalContent += '\n\n---\n**Attached Images:**\n';
         uploadedImages.forEach(img => {
-          finalContent += `- ${img.name}\n`;
+          finalContent += `![${img.name}](${img.url})\n`;
         });
       }
-      
-      await createThread.mutateAsync({ 
-        title, 
-        content: finalContent,
-        challenge_id: challengeId || undefined,
-        is_private: false
-      });
-      
-      toast.success('Thread created successfully');
+
+      if (isEditing && editingThread) {
+        await updateThread.mutateAsync({ 
+          id: editingThread.id,
+          title, 
+          content: finalContent
+        });
+        toast.success('Thread updated successfully');
+      } else {
+        await createThread.mutateAsync({ 
+          title, 
+          content: finalContent,
+          challenge_id: challengeId || undefined,
+          is_private: false
+        });
+        toast.success('Thread created successfully');
+      }
       
       // Reset form
       setTitle('');
       setContent('');
       setChallengeId(null);
       setUploadedImages([]);
-      setLinkPreviews([]);
       
       onThreadCreated?.();
       onOpenChange(false);
     } catch (error) {
-      console.error('Error creating thread:', error);
-      toast.error('Failed to create thread');
+      console.error('Error with thread:', error);
+      toast.error(isEditing ? 'Failed to update thread' : 'Failed to create thread');
     }
   };
 
@@ -117,9 +136,10 @@ export const NewThreadModal = ({
     uploadFile(file, {
       onSuccess: (data) => {
         setUploadedImages(prev => [...prev, {
-          id: data.fileId,
-          url: data.viewLink || '',
-          name: file.name
+          id: data.id,
+          url: data.url,
+          name: file.name,
+          path: data.path
         }]);
         toast.success('Image uploaded successfully');
       },
@@ -129,8 +149,12 @@ export const NewThreadModal = ({
     });
   };
 
-  const removeImage = (imageId: string) => {
+  const removeImage = async (imageId: string, imagePath: string) => {
+    // Remove from state
     setUploadedImages(prev => prev.filter(img => img.id !== imageId));
+    
+    // Delete from Supabase Storage
+    await deleteFile(imagePath);
   };
 
   // Group challenges by category for the select dropdown
@@ -147,7 +171,9 @@ export const NewThreadModal = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className={`${isMobile ? 'max-w-[95vw] h-[90vh]' : 'max-w-2xl max-h-[80vh]'} overflow-y-auto`}>
         <DialogHeader>
-          <DialogTitle>Start a New Discussion</DialogTitle>
+          <DialogTitle>
+            {isEditing ? 'Edit Discussion' : 'Start a New Discussion'}
+          </DialogTitle>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -164,35 +190,37 @@ export const NewThreadModal = ({
             />
           </div>
           
-          <div>
-            <label htmlFor="challenge" className="block text-sm font-medium mb-1">
-              Related Challenge (optional)
-            </label>
-            <Select 
-              value={challengeId || "none"}
-              onValueChange={(value) => setChallengeId(value === "none" ? null : value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select a challenge (optional)" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">No specific challenge</SelectItem>
-                
-                {Object.entries(groupedChallenges).map(([category, items]) => (
-                  <div key={category}>
-                    <div className="px-2 py-1.5 text-xs font-semibold text-gray-500 uppercase">
-                      {category}
+          {!isEditing && (
+            <div>
+              <label htmlFor="challenge" className="block text-sm font-medium mb-1">
+                Related Challenge (optional)
+              </label>
+              <Select 
+                value={challengeId || "none"}
+                onValueChange={(value) => setChallengeId(value === "none" ? null : value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a challenge (optional)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No specific challenge</SelectItem>
+                  
+                  {Object.entries(groupedChallenges).map(([category, items]) => (
+                    <div key={category}>
+                      <div className="px-2 py-1.5 text-xs font-semibold text-gray-500 uppercase">
+                        {category}
+                      </div>
+                      {items.map(challenge => (
+                        <SelectItem key={challenge.id} value={challenge.id}>
+                          {challenge.title}
+                        </SelectItem>
+                      ))}
                     </div>
-                    {items.map(challenge => (
-                      <SelectItem key={challenge.id} value={challenge.id}>
-                        {challenge.title}
-                      </SelectItem>
-                    ))}
-                  </div>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
           
           <div>
             <label htmlFor="content" className="block text-sm font-medium mb-1">
@@ -236,12 +264,17 @@ export const NewThreadModal = ({
                   {uploadedImages.map((image) => (
                     <div key={image.id} className="relative group">
                       <div className="flex items-center p-2 bg-gray-50 rounded border">
+                        <img 
+                          src={image.url} 
+                          alt={image.name}
+                          className="w-12 h-12 object-cover rounded mr-2"
+                        />
                         <span className="text-sm truncate flex-1">{image.name}</span>
                         <Button
                           type="button"
                           variant="ghost"
                           size="sm"
-                          onClick={() => removeImage(image.id)}
+                          onClick={() => removeImage(image.id, image.path)}
                           className="opacity-0 group-hover:opacity-100 transition-opacity"
                         >
                           <X size={14} />
@@ -262,18 +295,27 @@ export const NewThreadModal = ({
               </label>
               <div className="space-y-2">
                 {linkPreviews.map((link, index) => (
-                  <div key={index} className="flex items-center p-2 bg-blue-50 rounded border">
-                    <LinkIcon size={16} className="text-blue-600 mr-2 flex-shrink-0" />
-                    <span className="text-sm text-blue-800 truncate">{link.url}</span>
-                  </div>
+                  <LinkPreview 
+                    key={index} 
+                    url={link.url}
+                    title={link.title}
+                    description={link.description}
+                    siteName={link.siteName}
+                  />
                 ))}
               </div>
             </div>
           )}
 
           <div className="flex gap-3 pt-2">
-            <Button type="submit" disabled={createThread.isPending || isUploading}>
-              {createThread.isPending ? 'Creating...' : 'Create Thread'}
+            <Button 
+              type="submit" 
+              disabled={(isEditing ? updateThread.isPending : createThread.isPending) || isUploading}
+            >
+              {isEditing 
+                ? (updateThread.isPending ? 'Updating...' : 'Update Thread')
+                : (createThread.isPending ? 'Creating...' : 'Create Thread')
+              }
             </Button>
             <Button
               type="button"

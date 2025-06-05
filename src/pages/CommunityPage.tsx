@@ -10,8 +10,10 @@ import { Badge } from '@/components/ui/badge';
 import { CommunitySidebar } from '@/components/community/CommunitySidebar';
 import { FAQContent } from '@/components/community/FAQContent';
 import { NewThreadModal } from '@/components/community/NewThreadModal';
-import { TopicFilter } from '@/types/community';
+import { ThreadActions } from '@/components/community/ThreadActions';
+import { TopicFilter, Thread } from '@/types/community';
 import { useAuth } from '@/hooks/useAuth';
+import { formatDistanceToNow } from 'date-fns';
 
 const CommunityPage = () => {
   const { threads, privateThreads, challenges, isLoading, refetch } = useCommunityThreads();
@@ -19,6 +21,7 @@ const CommunityPage = () => {
   const isMobile = useIsMobile();
   const [selectedTopic, setSelectedTopic] = useState<TopicFilter>('all');
   const [newThreadModalOpen, setNewThreadModalOpen] = useState(false);
+  const [editingThread, setEditingThread] = useState<Thread | null>(null);
   const [preselectedChallenge, setPreselectedChallenge] = useState<string | undefined>();
   const location = useLocation();
   const { user } = useAuth();
@@ -84,7 +87,13 @@ const CommunityPage = () => {
   };
 
   const handleNewThreadClick = () => {
+    setEditingThread(null);
     setPreselectedChallenge(selectedTopic !== 'all' && selectedTopic !== 'faqs' && selectedTopic !== 'private' ? selectedTopic : undefined);
+    setNewThreadModalOpen(true);
+  };
+
+  const handleEditThread = (thread: Thread) => {
+    setEditingThread(thread);
     setNewThreadModalOpen(true);
   };
 
@@ -162,7 +171,7 @@ const CommunityPage = () => {
                         </div>
                         {isMobile && (
                           <div className="text-xs text-gray-500 ml-auto">
-                            {new Date(thread.created_at).toLocaleDateString()}
+                            {formatDistanceToNow(new Date(thread.created_at), { addSuffix: true })}
                           </div>
                         )}
                       </div>
@@ -173,6 +182,9 @@ const CommunityPage = () => {
                         </h3>
                         {thread.is_private && (
                           <Lock size={14} className="text-gray-500" />
+                        )}
+                        {thread.last_edited_at && (
+                          <span className="text-xs text-gray-500">(edited)</span>
                         )}
                       </div>
                       
@@ -186,11 +198,17 @@ const CommunityPage = () => {
                         {thread.content}
                       </p>
                     </div>
-                    {!isMobile && (
-                      <div className="text-sm text-gray-500">
-                        {new Date(thread.created_at).toLocaleDateString()}
-                      </div>
-                    )}
+                    <div className="flex items-start gap-2">
+                      {!isMobile && (
+                        <div className="text-sm text-gray-500">
+                          {formatDistanceToNow(new Date(thread.created_at), { addSuffix: true })}
+                        </div>
+                      )}
+                      <ThreadActions 
+                        thread={thread} 
+                        onEdit={() => handleEditThread(thread)}
+                      />
+                    </div>
                   </div>
                   <div className={`mt-3 flex items-center gap-4 text-sm text-gray-500 ${isMobile ? 'flex-wrap' : ''}`}>
                     <span>
@@ -220,6 +238,7 @@ const CommunityPage = () => {
         onOpenChange={setNewThreadModalOpen}
         preselectedChallengeId={preselectedChallenge}
         onThreadCreated={handleThreadCreated}
+        editingThread={editingThread}
       />
     </div>
   );

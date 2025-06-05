@@ -1,3 +1,4 @@
+
 export interface Thread {
   id: string;
   author_id: string;
@@ -6,6 +7,7 @@ export interface Thread {
   content: string;
   created_at: string;
   updated_at: string;
+  last_edited_at?: string;
   is_private: boolean;
   recipient_id: string | null;
   author_profile?: {
