@@ -1,4 +1,3 @@
-
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -29,16 +28,15 @@ export const CommunitySortControls = ({
       <div className={cn("flex items-center gap-3 mb-4", className)}>
         <span className="text-sm text-gray-600 whitespace-nowrap">Sort by:</span>
         <Select value={selectedSort} onValueChange={onSortChange}>
-          <SelectTrigger className="w-32 h-8 text-xs">
-            <SelectValue />
+          <SelectTrigger className="w-24 h-8 text-xs">
+            <SelectValue placeholder="Sort">
+              {sortOptions.find(option => option.value === selectedSort)?.label}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {sortOptions.map((option) => (
               <SelectItem key={option.value} value={option.value}>
-                <div className="flex flex-col">
-                  <span className="font-medium">{option.label}</span>
-                  <span className="text-xs text-gray-500">{option.description}</span>
-                </div>
+                {option.label}
               </SelectItem>
             ))}
           </SelectContent>
