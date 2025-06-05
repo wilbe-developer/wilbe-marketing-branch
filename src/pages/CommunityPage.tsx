@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useCommunityThreads } from '@/hooks/useCommunityThreads';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -10,6 +11,7 @@ import { CommunitySidebar } from '@/components/community/CommunitySidebar';
 import { FAQContent } from '@/components/community/FAQContent';
 import { NewThreadModal } from '@/components/community/NewThreadModal';
 import { ThreadActions } from '@/components/community/ThreadActions';
+import { ThreadVoting } from '@/components/community/ThreadVoting';
 import { TopicFilter, Thread } from '@/types/community';
 import { useAuth } from '@/hooks/useAuth';
 import { formatDistanceToNow } from 'date-fns';
@@ -168,7 +170,7 @@ const CommunityPage = () => {
                   onClick={(e) => handleThreadClick(e, thread.id)}
                 >
                   {isMobile ? (
-                    // Mobile layout - improved structure
+                    // Mobile layout with voting
                     <div className="space-y-3">
                       {/* Author info with proper spacing */}
                       <div className="flex items-start justify-between">
@@ -230,12 +232,17 @@ const CommunityPage = () => {
                         isPreview={true}
                       />
                       
-                      {/* Footer with metadata and actions */}
+                      {/* Footer with voting, metadata and actions */}
                       <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-                        <div className="flex items-center gap-3 text-xs text-gray-500">
-                          <span>
+                        <div className="flex items-center gap-3">
+                          <div onClick={(e) => e.stopPropagation()}>
+                            <ThreadVoting threadId={thread.id} size="sm" />
+                          </div>
+                          <div className="text-xs text-gray-500">
                             {thread.comment_count && thread.comment_count[0] ? thread.comment_count[0].count : 0} replies
-                          </span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
                           {thread.is_private && (
                             <Badge variant="outline" className="flex items-center gap-1 text-xs px-1.5 py-0.5">
                               <Lock size={8} />
@@ -247,21 +254,24 @@ const CommunityPage = () => {
                               {thread.challenge_name || 'BSF Challenge'}
                             </Badge>
                           )}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="flex items-center gap-1.5 text-xs px-3 py-1.5 h-auto"
+                            onClick={(e) => handleReplyClick(e, thread.id)}
+                          >
+                            <MessageCircle size={12} />
+                            Reply
+                          </Button>
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="flex items-center gap-1.5 text-xs px-3 py-1.5 h-auto"
-                          onClick={(e) => handleReplyClick(e, thread.id)}
-                        >
-                          <MessageCircle size={12} />
-                          Reply
-                        </Button>
                       </div>
                     </div>
                   ) : (
-                    // Desktop layout - existing layout
-                    <div className="flex items-start justify-between gap-4">
+                    // Desktop layout with voting
+                    <div className="flex items-start gap-4">
+                      <div onClick={(e) => e.stopPropagation()}>
+                        <ThreadVoting threadId={thread.id} />
+                      </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                           <Avatar className="h-8 w-8">
@@ -320,7 +330,7 @@ const CommunityPage = () => {
                   )}
                   
                   {!isMobile && (
-                    <div className="mt-3 flex items-center gap-4 text-sm text-gray-500">
+                    <div className="mt-3 flex items-center gap-4 text-sm text-gray-500 pl-16">
                       <span>
                         {thread.comment_count && thread.comment_count[0] ? thread.comment_count[0].count : 0} replies
                       </span>
