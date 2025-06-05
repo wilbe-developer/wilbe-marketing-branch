@@ -134,7 +134,7 @@ export const CommunitySidebar = ({
                   )}
                   onClick={() => onSelectTopic(challenge.id)}
                 >
-                  {challenge.title}
+                  {challenge.category || challenge.title}
                 </Button>
               ))}
             </div>

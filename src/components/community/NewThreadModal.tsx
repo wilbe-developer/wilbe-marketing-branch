@@ -169,7 +169,7 @@ export const NewThreadModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={`${isMobile ? 'max-w-[95vw] h-[90vh]' : 'max-w-2xl max-h-[80vh]'} overflow-y-auto`}>
+      <DialogContent className={`${isMobile ? 'max-w-[95vw] max-h-[90vh]' : 'max-w-2xl max-h-[80vh]'} overflow-y-auto`}>
         <DialogHeader>
           <DialogTitle>
             {isEditing ? 'Edit Discussion' : 'Start a New Discussion'}
@@ -212,7 +212,7 @@ export const NewThreadModal = ({
                       </div>
                       {items.map(challenge => (
                         <SelectItem key={challenge.id} value={challenge.id}>
-                          {challenge.title}
+                          {challenge.category || challenge.title}
                         </SelectItem>
                       ))}
                     </div>
