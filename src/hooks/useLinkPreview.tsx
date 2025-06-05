@@ -25,36 +25,47 @@ export const useLinkPreview = (content: string) => {
       return;
     }
 
-    // For now, create basic previews without fetching metadata
-    // In a real implementation, you'd fetch Open Graph data from the URLs
-    const previews: LinkPreview[] = uniqueUrls.map(url => {
-      // Detect common platforms and provide better previews
-      let siteName = 'Website';
-      let title = url;
-      
-      if (url.includes('youtube.com') || url.includes('youtu.be')) {
-        siteName = 'YouTube';
-        title = 'YouTube Video';
-      } else if (url.includes('twitter.com') || url.includes('x.com')) {
-        siteName = 'Twitter/X';
-        title = 'Twitter Post';
-      } else if (url.includes('linkedin.com')) {
-        siteName = 'LinkedIn';
-        title = 'LinkedIn Post';
-      } else if (url.includes('github.com')) {
-        siteName = 'GitHub';
-        title = 'GitHub Repository';
+    const fetchPreviews = async () => {
+      setIsLoading(true);
+      try {
+        const previews = await Promise.all(
+          uniqueUrls.map(async (url) => {
+            try {
+              const response = await fetch('/api/fetch-link-preview', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ url }),
+              });
+              
+              if (response.ok) {
+                return await response.json();
+              }
+              throw new Error('Failed to fetch preview');
+            } catch (error) {
+              console.error('Error fetching preview for', url, error);
+              // Return basic preview on error
+              return {
+                url,
+                title: new URL(url).hostname,
+                description: 'Click to view this link',
+                siteName: new URL(url).hostname,
+              };
+            }
+          })
+        );
+        
+        setLinkPreviews(previews);
+      } catch (error) {
+        console.error('Error fetching link previews:', error);
+        setLinkPreviews([]);
+      } finally {
+        setIsLoading(false);
       }
+    };
 
-      return {
-        url,
-        title,
-        siteName,
-        description: 'Click to view this link'
-      };
-    });
-
-    setLinkPreviews(previews);
+    fetchPreviews();
   }, [content]);
 
   return { linkPreviews, isLoading };

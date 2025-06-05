@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useCommunityThreads } from '@/hooks/useCommunityThreads';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -14,6 +13,7 @@ import { ThreadActions } from '@/components/community/ThreadActions';
 import { TopicFilter, Thread } from '@/types/community';
 import { useAuth } from '@/hooks/useAuth';
 import { formatDistanceToNow } from 'date-fns';
+import { ThreadContent } from '@/components/community/ThreadContent';
 
 const CommunityPage = () => {
   const { threads, privateThreads, challenges, isLoading, refetch } = useCommunityThreads();
@@ -194,9 +194,10 @@ const CommunityPage = () => {
                         </div>
                       )}
                       
-                      <p className={`text-gray-600 line-clamp-2 ${isMobile ? 'text-sm' : ''}`}>
-                        {thread.content}
-                      </p>
+                      <ThreadContent 
+                        content={thread.content} 
+                        className={isMobile ? 'text-sm' : ''}
+                      />
                     </div>
                     <div className="flex items-start gap-2">
                       {!isMobile && (

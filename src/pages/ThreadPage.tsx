@@ -10,6 +10,10 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { ArrowLeft, Clock, Lock } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { toast } from 'sonner';
+import { ThreadActions } from '@/components/community/ThreadActions';
+import { ThreadContent } from '@/components/community/ThreadContent';
+import { NewThreadModal } from '@/components/community/NewThreadModal';
+import { Thread } from '@/types/community';
 
 const ThreadPage = () => {
   const { threadId } = useParams<{ threadId: string }>();
@@ -18,9 +22,11 @@ const ThreadPage = () => {
     comments, 
     isLoading, 
     addComment,
-    markThreadAsViewed 
+    markThreadAsViewed,
+    refetch
   } = useThreadComments(threadId);
   const [commentText, setCommentText] = useState('');
+  const [editThreadModalOpen, setEditThreadModalOpen] = useState(false);
   const navigate = useNavigate();
   const isMobile = useIsMobile();
 
@@ -45,6 +51,14 @@ const ThreadPage = () => {
     } catch (error) {
       toast.error('Failed to add comment');
     }
+  };
+
+  const handleEditThread = () => {
+    setEditThreadModalOpen(true);
+  };
+
+  const handleThreadEdited = () => {
+    refetch();
   };
 
   if (isLoading) {
@@ -73,28 +87,38 @@ const ThreadPage = () => {
       </Button>
 
       <div className="bg-white rounded-lg shadow-sm border p-5 mb-6">
-        <div className="flex items-start mb-4">
-          <Avatar className="h-10 w-10 mr-3">
-            <AvatarImage src={thread.author_profile?.avatar || undefined} />
-            <AvatarFallback>
-              {thread.author_profile?.first_name?.[0] || ''}
-              {thread.author_profile?.last_name?.[0] || ''}
-            </AvatarFallback>
-          </Avatar>
-          <div>
-            <div className="flex items-center">
-              <span className="font-medium">
-                {thread.author_profile?.first_name || ''} {thread.author_profile?.last_name || ''}
-              </span>
-              {thread.author_role?.role === 'admin' && (
-                <Badge variant="default" className="ml-2 bg-brand-pink">Admin</Badge>
-              )}
-            </div>
-            <div className="text-sm text-gray-500 flex items-center">
-              <Clock className="h-3 w-3 mr-1" />
-              {formatDistanceToNow(new Date(thread.created_at), { addSuffix: true })}
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex items-start">
+            <Avatar className="h-10 w-10 mr-3">
+              <AvatarImage src={thread.author_profile?.avatar || undefined} />
+              <AvatarFallback>
+                {thread.author_profile?.first_name?.[0] || ''}
+                {thread.author_profile?.last_name?.[0] || ''}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <div className="flex items-center">
+                <span className="font-medium">
+                  {thread.author_profile?.first_name || ''} {thread.author_profile?.last_name || ''}
+                </span>
+                {thread.author_role?.role === 'admin' && (
+                  <Badge variant="default" className="ml-2 bg-brand-pink">Admin</Badge>
+                )}
+              </div>
+              <div className="text-sm text-gray-500 flex items-center">
+                <Clock className="h-3 w-3 mr-1" />
+                {formatDistanceToNow(new Date(thread.created_at), { addSuffix: true })}
+                {thread.last_edited_at && (
+                  <span className="ml-2">(edited)</span>
+                )}
+              </div>
             </div>
           </div>
+          
+          <ThreadActions 
+            thread={thread} 
+            onEdit={handleEditThread}
+          />
         </div>
 
         <div className="flex items-center gap-2 mb-4">
@@ -128,7 +152,11 @@ const ThreadPage = () => {
         )}
 
         <div className="prose max-w-none">
-          <p className="whitespace-pre-wrap">{thread.content}</p>
+          <ThreadContent 
+            content={thread.content} 
+            showImages={true}
+            className="whitespace-pre-wrap text-gray-900"
+          />
         </div>
       </div>
 
@@ -179,6 +207,13 @@ const ThreadPage = () => {
           {addComment.isPending ? 'Posting...' : 'Post Reply'}
         </Button>
       </form>
+
+      <NewThreadModal
+        open={editThreadModalOpen}
+        onOpenChange={setEditThreadModalOpen}
+        editingThread={thread}
+        onThreadCreated={handleThreadEdited}
+      />
     </div>
   );
 };
