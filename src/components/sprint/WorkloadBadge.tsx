@@ -11,19 +11,20 @@ interface WorkloadBadgeProps {
 
 export const WorkloadBadge = ({ workload, showTime = false, size = 'default' }: WorkloadBadgeProps) => {
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center gap-1.5">
       <Badge 
         variant="secondary" 
-        className={`${workload.bgColor} ${workload.color} border-0 ${size === 'sm' ? 'text-xs px-1.5 py-0.5' : ''}`}
+        className={`
+          flex items-center gap-1 border-0 font-medium
+          ${size === 'sm' ? 'text-xs px-2 py-0.5' : 'text-sm px-2.5 py-1'}
+          ${workload.level === 'low' ? 'bg-green-50 text-green-700' : ''}
+          ${workload.level === 'medium' ? 'bg-yellow-50 text-yellow-700' : ''}
+          ${workload.level === 'high' ? 'bg-red-50 text-red-700' : ''}
+        `}
       >
-        {workload.label}
+        <Clock size={size === 'sm' ? 10 : 12} />
+        {workload.estimatedTime}
       </Badge>
-      {showTime && (
-        <span className={`text-gray-500 flex items-center gap-1 ${size === 'sm' ? 'text-xs' : 'text-sm'}`}>
-          <Clock size={size === 'sm' ? 10 : 12} />
-          {workload.estimatedTime}
-        </span>
-      )}
     </div>
   );
 };

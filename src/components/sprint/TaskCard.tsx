@@ -31,20 +31,22 @@ const TaskCard = ({ task, disabled }: TaskCardProps) => {
       }`}
       onClick={handleClick}
     >
-      <div className="p-5">
-        <div className="flex items-start justify-between mb-2">
-          <h3 className="text-lg font-semibold">{task.title}</h3>
+      <div className="p-4 md:p-5">
+        <div className="flex items-start justify-between gap-3 mb-3">
+          <h3 className="text-lg font-semibold leading-tight flex-1">{task.title}</h3>
           {task.workload && (
-            <WorkloadBadge workload={task.workload} size="sm" />
+            <div className="flex-shrink-0">
+              <WorkloadBadge workload={task.workload} size="sm" />
+            </div>
           )}
         </div>
 
-        <p className="text-gray-600 mb-3 text-sm line-clamp-2">{task.description}</p>
+        <p className="text-gray-600 mb-4 text-sm line-clamp-2">{task.description}</p>
 
-        <div className="flex justify-between items-center mt-4">
+        <div className="flex justify-between items-center">
           <Badge
             variant={isCompleted ? "default" : "secondary"}
-            className={isCompleted ? "bg-green-500 hover:bg-green-600" : ""}
+            className={`${isCompleted ? "bg-green-500 hover:bg-green-600" : ""} text-xs`}
           >
             {isCompleted ? "Completed" : "Pending"}
           </Badge>

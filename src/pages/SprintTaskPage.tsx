@@ -131,7 +131,7 @@ const SprintTaskPage = () => {
           {/* Workload badge under title */}
           {workload && (
             <div className="mb-3">
-              <WorkloadBadge workload={workload} showTime={true} size={isMobile ? 'sm' : 'default'} />
+              <WorkloadBadge workload={workload} size={isMobile ? 'sm' : 'default'} />
             </div>
           )}
         </div>
