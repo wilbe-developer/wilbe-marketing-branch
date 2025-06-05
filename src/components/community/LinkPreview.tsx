@@ -1,4 +1,5 @@
 
+import { useState } from 'react';
 import { ExternalLink } from 'lucide-react';
 
 interface LinkPreviewProps {
@@ -10,6 +11,17 @@ interface LinkPreviewProps {
 }
 
 export const LinkPreview = ({ url, title, description, image, siteName }: LinkPreviewProps) => {
+  const [imageError, setImageError] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
+
+  const handleImageError = () => {
+    setImageError(true);
+  };
+
+  const handleImageLoad = () => {
+    setImageLoaded(true);
+  };
+
   return (
     <div className="border rounded-lg overflow-hidden bg-gray-50 hover:bg-gray-100 transition-colors">
       <a 
@@ -18,16 +30,19 @@ export const LinkPreview = ({ url, title, description, image, siteName }: LinkPr
         rel="noopener noreferrer"
         className="block"
       >
-        {image && (
-          <div className="w-full h-48 overflow-hidden">
+        {image && !imageError && (
+          <div className="w-full h-48 overflow-hidden bg-gray-200 relative">
+            {!imageLoaded && (
+              <div className="absolute inset-0 bg-gray-200 animate-pulse" />
+            )}
             <img 
               src={image} 
               alt={title || 'Preview'} 
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.style.display = 'none';
-              }}
+              className={`w-full h-full object-cover transition-opacity duration-200 ${
+                imageLoaded ? 'opacity-100' : 'opacity-0'
+              }`}
+              onError={handleImageError}
+              onLoad={handleImageLoad}
             />
           </div>
         )}

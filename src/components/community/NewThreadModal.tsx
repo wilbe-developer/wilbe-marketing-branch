@@ -54,6 +54,10 @@ export const NewThreadModal = ({
 
   const isEditing = !!editingThread;
 
+  // Priority logic: show images if any exist, otherwise show link previews
+  const shouldShowImages = uploadedImages.length > 0;
+  const shouldShowLinkPreviews = !shouldShowImages && linkPreviews.length > 0;
+
   // Function to clean up content by removing "Attached Images" section
   const cleanupContent = (rawContent: string): string => {
     // Remove everything from "---" onwards that contains "Attached Images"
@@ -298,8 +302,8 @@ export const NewThreadModal = ({
                   />
                 </label>
                 
-                {/* Uploaded Images Preview */}
-                {uploadedImages.length > 0 && (
+                {/* Uploaded Images Preview - only show if shouldShowImages */}
+                {shouldShowImages && (
                   <div className="grid grid-cols-1 gap-2 max-w-full overflow-hidden">
                     {uploadedImages.map((image) => (
                       <div key={image.id} className="relative group">
@@ -327,8 +331,8 @@ export const NewThreadModal = ({
               </div>
             </div>
 
-            {/* Link Previews */}
-            {linkPreviews.length > 0 && (
+            {/* Link Previews - only show if shouldShowLinkPreviews */}
+            {shouldShowLinkPreviews && (
               <div>
                 <label className="block text-sm font-medium mb-2">
                   Link Previews
@@ -340,6 +344,7 @@ export const NewThreadModal = ({
                         url={link.url}
                         title={link.title}
                         description={link.description}
+                        image={link.image}
                         siteName={link.siteName}
                       />
                     </div>

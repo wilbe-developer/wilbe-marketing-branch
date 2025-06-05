@@ -1,6 +1,8 @@
 
 import { extractImages, removeImageMarkdown, parseMarkdown } from '@/utils/markdownUtils';
 import { ImageGrid } from './ImageGrid';
+import { useLinkPreview } from '@/hooks/useLinkPreview';
+import { LinkPreview } from './LinkPreview';
 
 interface ThreadContentProps {
   content: string;
@@ -17,6 +19,11 @@ export const ThreadContent = ({
 }: ThreadContentProps) => {
   const images = extractImages(content);
   const textContent = removeImageMarkdown(content);
+  const { linkPreviews } = useLinkPreview(textContent);
+
+  // Priority logic: show images if any exist, otherwise show link previews
+  const shouldShowImages = showImages && images.length > 0;
+  const shouldShowLinkPreviews = !shouldShowImages && linkPreviews.length > 0;
 
   // For preview mode (community page), show truncated text
   if (isPreview) {
@@ -26,8 +33,20 @@ export const ThreadContent = ({
           {textContent}
         </p>
         
-        {showImages && images.length > 0 && (
+        {shouldShowImages && (
           <ImageGrid images={images} maxImages={2} />
+        )}
+
+        {shouldShowLinkPreviews && (
+          <div className="mt-2">
+            <LinkPreview 
+              url={linkPreviews[0].url}
+              title={linkPreviews[0].title}
+              description={linkPreviews[0].description}
+              image={linkPreviews[0].image}
+              siteName={linkPreviews[0].siteName}
+            />
+          </div>
         )}
       </div>
     );
@@ -41,8 +60,23 @@ export const ThreadContent = ({
         dangerouslySetInnerHTML={{ __html: parseMarkdown(textContent) }}
       />
       
-      {showImages && images.length > 0 && (
+      {shouldShowImages && (
         <ImageGrid images={images} maxImages={4} />
+      )}
+
+      {shouldShowLinkPreviews && (
+        <div className="mt-4 space-y-2">
+          {linkPreviews.map((link, index) => (
+            <LinkPreview 
+              key={index}
+              url={link.url}
+              title={link.title}
+              description={link.description}
+              image={link.image}
+              siteName={link.siteName}
+            />
+          ))}
+        </div>
       )}
     </div>
   );
