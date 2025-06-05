@@ -1,6 +1,7 @@
 
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useSprintContext } from "@/hooks/useSprintContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast as showToast } from "@/hooks/use-toast";
 
@@ -27,9 +28,13 @@ export const useSprintCollaborators = () => {
   const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useAuth();
+  const { currentSprintOwnerId } = useSprintContext();
+
+  // Use currentSprintOwnerId instead of user.id for all operations
+  const sprintOwnerId = currentSprintOwnerId || user?.id;
 
   const fetchCollaborators = async () => {
-    if (!user?.id) return;
+    if (!sprintOwnerId) return;
     
     setIsLoading(true);
     try {
@@ -37,7 +42,7 @@ export const useSprintCollaborators = () => {
       const { data: collabData, error: collabError } = await supabase
         .from("sprint_collaborators")
         .select("*")
-        .eq("sprint_owner_id", user.id);
+        .eq("sprint_owner_id", sprintOwnerId);
 
       if (collabError) throw collabError;
       
@@ -90,7 +95,7 @@ export const useSprintCollaborators = () => {
   };
 
   const addCollaborator = async (email: string, accessLevel: AccessLevel = 'edit') => {
-    if (!user?.id) return;
+    if (!sprintOwnerId) return;
     
     setIsLoading(true);
     try {
@@ -116,23 +121,23 @@ export const useSprintCollaborators = () => {
       const { data: existingCollaborator, error: existingError } = await supabase
         .from("sprint_collaborators")
         .select("id")
-        .eq("sprint_owner_id", user.id)
+        .eq("sprint_owner_id", sprintOwnerId)
         .eq("collaborator_id", userData.id)
         .maybeSingle();
 
       if (existingError && existingError.code !== "PGRST116") throw existingError;
 
       if (existingCollaborator) {
-        throw new Error("This user is already a collaborator on your sprint.");
+        throw new Error("This user is already a collaborator on your BSF.");
       }
 
-      // Add as collaborator
+      // Add as collaborator - always use sprintOwnerId as created_by to maintain ownership
       const { error: insertError } = await supabase
         .from("sprint_collaborators")
         .insert({
-          sprint_owner_id: user.id,
+          sprint_owner_id: sprintOwnerId,
           collaborator_id: userData.id,
-          created_by: user.id,
+          created_by: sprintOwnerId, // Always use the sprint owner ID, not the current user
           access_level: accessLevel
         });
 
@@ -140,7 +145,7 @@ export const useSprintCollaborators = () => {
 
       showToast({
         title: "Collaborator added",
-        description: "Successfully added collaborator to your sprint."
+        description: "Successfully added collaborator to your BSF."
       });
 
       // Refresh the list
@@ -158,7 +163,7 @@ export const useSprintCollaborators = () => {
   };
 
   const updateCollaboratorAccess = async (collaboratorId: string, accessLevel: AccessLevel) => {
-    if (!user?.id) return;
+    if (!sprintOwnerId) return;
     
     setIsLoading(true);
     try {
@@ -166,7 +171,7 @@ export const useSprintCollaborators = () => {
         .from("sprint_collaborators")
         .update({ access_level: accessLevel })
         .eq("id", collaboratorId)
-        .eq("sprint_owner_id", user.id); // Ensure owner is making this change
+        .eq("sprint_owner_id", sprintOwnerId); // Ensure we're updating the right sprint
 
       if (error) throw error;
 
@@ -195,7 +200,7 @@ export const useSprintCollaborators = () => {
   };
 
   const removeCollaborator = async (collaboratorId: string) => {
-    if (!user?.id) return;
+    if (!sprintOwnerId) return;
     
     setIsLoading(true);
     try {
@@ -203,13 +208,13 @@ export const useSprintCollaborators = () => {
         .from("sprint_collaborators")
         .delete()
         .eq("id", collaboratorId)
-        .eq("sprint_owner_id", user.id); // Ensure owner is making this change
+        .eq("sprint_owner_id", sprintOwnerId); // Ensure we're deleting from the right sprint
 
       if (error) throw error;
 
       showToast({
         title: "Collaborator removed",
-        description: "Successfully removed collaborator from your sprint."
+        description: "Successfully removed collaborator from your BSF."
       });
 
       // Update state by filtering out the removed collaborator

@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -140,7 +141,12 @@ const StepBasedTaskLogic: React.FC<StepBasedTaskLogicProps> = ({
             action={step.action || ''}
             uploads={step.uploads}
             isCompleted={isCompleted}
-            onComplete={(fileId) => handleComplete(fileId)}
+            onComplete={(files) => {
+              // Convert files array to a completion signal
+              // For now, we'll just call handleComplete without a file ID
+              // since the files are already saved in the component
+              handleComplete();
+            }}
           />
         )}
 

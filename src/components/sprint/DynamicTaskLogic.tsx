@@ -2,6 +2,7 @@
 import React from "react";
 import { useDynamicTask } from "@/hooks/task-builder/useDynamicTask";
 import { useSprintProfileQuickEdit } from "@/hooks/useSprintProfileQuickEdit";
+import { useAuth } from "@/hooks/useAuth";
 import { ProfileQuestionsRenderer } from "./dynamic-task/ProfileQuestionsRenderer";
 import { TaskContent } from "./dynamic-task/TaskContent";
 import { StepDependencyHelper, getStepProfileDependencies } from "./dynamic-task/StepDependencyHelper";
@@ -21,6 +22,7 @@ const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
   initialAnswers = {}
 }) => {
   const { sprintProfile } = useSprintProfileQuickEdit();
+  const { isAdmin } = useAuth();
   
   const {
     taskDefinition,
@@ -122,6 +124,8 @@ const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
         handleComplete={handleComplete}
         getStepProfileDependencies={getStepProfileDependencies}
         renderCurrentStepWithDependencies={renderCurrentStepWithDependencies}
+        isAdmin={isAdmin}
+        taskId={task.id}
       />
     </ProfileQuestionsRenderer>
   );

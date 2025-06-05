@@ -1,4 +1,3 @@
-
 export * from './task-builder/index';
 
 export interface SprintTaskDefinition {
@@ -13,6 +12,7 @@ export interface SprintTaskDefinition {
 export interface TaskDefinition {
   taskName: string;
   description?: string;
+  summary?: string; // Optional dedicated summary field
   
   // Core fields for task functionality
   steps: StepNode[];

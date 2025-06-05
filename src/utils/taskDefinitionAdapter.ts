@@ -1,4 +1,3 @@
-
 import { SprintTaskDefinition, StepNode, Condition } from "@/types/task-builder";
 
 // Function to generate a summary of a task definition for display
@@ -28,12 +27,8 @@ export const generateTaskSummary = (taskDef: SprintTaskDefinition) => {
     }
   }
   
-  // Get content from the first content step or the first step if no content step
-  let content = '';
-  const contentStep = definition.steps.find(step => step.type === 'content');
-  if (contentStep && contentStep.content) {
-    content = contentStep.content.toString();
-  }
+  // Use only the dedicated summary field if available
+  const content = definition.summary || '';
   
   // Get the order index if available
   const order_index = definition.order_index || 0;

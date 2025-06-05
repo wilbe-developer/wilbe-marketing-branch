@@ -23,7 +23,15 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { CollaboratorsManagement } from '@/components/sprint/CollaboratorsManagement';
-import FileUploader from '@/components/sprint/FileUploader';
+import { MultiFileUploader } from '@/components/sprint/MultiFileUploader';
+
+interface FileData {
+  fileId: string;
+  fileName: string;
+  uploadedAt: string;
+  viewUrl?: string;
+  downloadUrl?: string;
+}
 
 interface FormStepRendererProps {
   step: StepNode;
@@ -54,13 +62,9 @@ export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
     handleAnswer(updatedValues);
   };
 
-  // Handle file upload
-  const handleFileUpload = (fieldId: string, fileId: string) => {
-    handleFieldChange(fieldId, {
-      fileId,
-      fileName: `Uploaded File (ID: ${fileId})`,
-      uploadedAt: new Date().toISOString()
-    });
+  // Handle multi-file upload
+  const handleMultiFileUpload = (fieldId: string, files: FileData[]) => {
+    handleFieldChange(fieldId, files);
   };
 
   // Normalize field properties (handle both type and inputType)
@@ -91,7 +95,7 @@ export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
         {field.text && <p className="text-sm text-blue-700 mb-4">{field.text}</p>}
         {!field.text && (
           <p className="text-sm text-blue-700 mb-4">
-            Invite your team members to collaborate on this sprint. They will be able to view and contribute to tasks.
+            Invite your team members to collaborate on this BSF. They will be able to view and contribute to tasks.
           </p>
         )}
         
@@ -108,7 +112,7 @@ export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
             <DialogHeader>
               <DialogTitle>Manage Team Collaborators</DialogTitle>
               <DialogDescription>
-                Add or remove team members who can collaborate on your sprint.
+                Add or remove team members who can collaborate on your BSF.
               </DialogDescription>
             </DialogHeader>
             
@@ -129,7 +133,7 @@ export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
       <div className="space-y-4">
         {step.fields.map((fieldData: FormField) => {
           const field = normalizeFieldType(fieldData);
-          const fieldType = field.type || field.inputType; // Ensure we check both type and inputType
+          const fieldType = field.type || field.inputType;
           
           // Handle collaboration fields
           if (fieldType === 'collaboration' || field.id === 'invite_link') {
@@ -260,18 +264,12 @@ export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
               
               {(fieldType === 'file' || fieldType === 'upload') && (
                 <div className="mt-2">
-                  {formValues[field.id] ? (
-                    <div className="bg-green-50 border border-green-200 rounded-md p-4 mt-2">
-                      <p className="font-medium">File uploaded successfully:</p>
-                      <p className="text-sm mt-1">{formValues[field.id].fileName || `File ID: ${formValues[field.id].fileId}`}</p>
-                    </div>
-                  ) : (
-                    <FileUploader
-                      onFileUploaded={(fileId) => handleFileUpload(field.id, fileId)}
-                      onUploadError={(error) => console.error("Upload error:", error)}
-                      isCompleted={false}
-                    />
-                  )}
+                  <MultiFileUploader
+                    existingFiles={Array.isArray(formValues[field.id]) ? formValues[field.id] : formValues[field.id] ? [formValues[field.id]] : []}
+                    onFilesChange={(files) => handleMultiFileUpload(field.id, files)}
+                    isCompleted={false}
+                    maxFiles={5}
+                  />
                 </div>
               )}
               

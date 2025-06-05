@@ -1,14 +1,22 @@
 
 import React, { useState, useEffect } from "react";
-import FileUploader from "../FileUploader";
-import UploadedFileView from "../UploadedFileView";
+import { MultiFileUploader } from "../MultiFileUploader";
 import { toast } from "sonner";
+
+interface FileData {
+  fileId: string;
+  fileName: string;
+  uploadedAt: string;
+  viewUrl?: string;
+  downloadUrl?: string;
+}
 
 interface UploadStepProps {
   action?: string;
   uploads?: string[];
   isCompleted: boolean;
-  onComplete: (fileId?: string) => void;
+  onComplete: (files?: FileData[]) => void;
+  existingFiles?: FileData[];
 }
 
 const UploadStep: React.FC<UploadStepProps> = ({
@@ -16,23 +24,22 @@ const UploadStep: React.FC<UploadStepProps> = ({
   uploads,
   isCompleted,
   onComplete,
+  existingFiles = []
 }) => {
-  const [uploadedFileId, setUploadedFileId] = useState<string | undefined>();
+  const [files, setFiles] = useState<FileData[]>(existingFiles);
   const [uploadError, setUploadError] = useState<string | null>(null);
   
-  // Check if there's any file saved in the parent state
   useEffect(() => {
-    // The file will be set by the FileUploader component
-  }, []);
+    setFiles(existingFiles);
+  }, [existingFiles]);
   
-  const handleFileUploaded = (fileId: string) => {
-    setUploadedFileId(fileId);
-    setUploadError(null); // Clear any previous errors
-  };
-  
-  const handleCompleteUpload = () => {
-    if (uploadedFileId) {
-      onComplete(uploadedFileId);
+  const handleFilesChange = (updatedFiles: FileData[]) => {
+    setFiles(updatedFiles);
+    setUploadError(null);
+    
+    // Auto-complete when files are uploaded
+    if (updatedFiles.length > 0 && !isCompleted) {
+      onComplete(updatedFiles);
     }
   };
 
@@ -67,32 +74,19 @@ const UploadStep: React.FC<UploadStepProps> = ({
         </div>
       )}
       
-      {uploadedFileId ? (
-        <div className="mb-4">
-          <UploadedFileView fileId={uploadedFileId} />
-          <div className="mt-4 flex justify-between">
-            <button 
-              className="text-sm text-blue-500 hover:underline"
-              onClick={() => setUploadedFileId(undefined)}
-              disabled={isCompleted}
-            >
-              Upload a different file
-            </button>
-            <button
-              className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:bg-gray-300"
-              onClick={handleCompleteUpload}
-              disabled={isCompleted}
-            >
-              {isCompleted ? "Completed" : "Confirm Upload"}
-            </button>
-          </div>
+      <MultiFileUploader
+        existingFiles={files}
+        onFilesChange={handleFilesChange}
+        isCompleted={isCompleted}
+        maxFiles={5}
+      />
+      
+      {isCompleted && files.length > 0 && (
+        <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+          <p className="text-sm font-medium text-green-800">
+            ✓ Task completed with {files.length} file(s) uploaded
+          </p>
         </div>
-      ) : (
-        <FileUploader
-          onFileUploaded={handleFileUploaded}
-          onUploadError={handleUploadError}
-          isCompleted={isCompleted}
-        />
       )}
     </div>
   );

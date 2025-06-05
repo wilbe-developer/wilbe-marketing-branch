@@ -119,12 +119,12 @@ const SprintTaskPage = () => {
     <div className={`mx-auto ${isMobile ? 'max-w-full' : 'max-w-4xl'}`}>
       <SharedSprintBanner />
       
-      <div className="flex justify-between items-center">
-        <h1 className={`${isMobile ? 'text-2xl mb-1' : 'text-3xl mb-2'} font-bold`}>
+      <div className={`${isMobile ? 'flex flex-col' : 'flex justify-between items-center'}`}>
+        <h1 className={`${isMobile ? 'text-2xl mb-3' : 'text-3xl mb-2'} font-bold`}>
           {taskSummary.title}
         </h1>
         
-        <div className="flex gap-2">
+        <div className={`flex gap-2 ${isMobile ? 'mb-2' : ''}`}>
           <ImStuckButton taskId={currentTask.id} />
           <Button 
             variant="outline" 
