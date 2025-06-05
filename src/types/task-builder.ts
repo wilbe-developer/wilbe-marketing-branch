@@ -5,8 +5,8 @@ export interface SprintTaskDefinition {
   name: string;
   description?: string;
   workload?: string | null; // Add workload field
-  created_at: string;
-  updated_at: string;
+  created_at?: string; // Make optional to fix admin component errors
+  updated_at?: string; // Make optional to fix admin component errors
   definition: TaskDefinition;
 }
 
