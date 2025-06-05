@@ -7,17 +7,20 @@ import { MoreHorizontal, Edit, Trash2 } from 'lucide-react';
 import { Thread } from '@/types/community';
 import { useCommunityThreads } from '@/hooks/useCommunityThreads';
 import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 interface ThreadActionsProps {
   thread: Thread;
   onEdit: () => void;
+  onDeleted?: () => void;
 }
 
-export const ThreadActions = ({ thread, onEdit }: ThreadActionsProps) => {
+export const ThreadActions = ({ thread, onEdit, onDeleted }: ThreadActionsProps) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const { deleteThread } = useCommunityThreads();
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   // Only show actions if current user is the thread author
   if (!user || thread.author_id !== user.id) {
@@ -29,6 +32,15 @@ export const ThreadActions = ({ thread, onEdit }: ThreadActionsProps) => {
       await deleteThread.mutateAsync(thread.id);
       toast.success('Thread deleted successfully');
       setShowDeleteDialog(false);
+      
+      // If we're on the thread page, navigate back to community
+      if (window.location.pathname.includes('/thread/')) {
+        const returnPath = thread.is_private ? '/community?topic=private' : '/community';
+        navigate(returnPath);
+      } else {
+        // If we're on the community page, just call the onDeleted callback
+        onDeleted?.();
+      }
     } catch (error) {
       toast.error('Failed to delete thread');
     }
@@ -72,7 +84,7 @@ export const ThreadActions = ({ thread, onEdit }: ThreadActionsProps) => {
       </DropdownMenu>
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent onClick={(e) => e.stopPropagation()}>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Thread</AlertDialogTitle>
             <AlertDialogDescription>
@@ -80,9 +92,14 @@ export const ThreadActions = ({ thread, onEdit }: ThreadActionsProps) => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel onClick={(e) => e.stopPropagation()}>
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction 
-              onClick={handleDelete}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDelete();
+              }}
               className="bg-red-600 hover:bg-red-700"
               disabled={deleteThread.isPending}
             >

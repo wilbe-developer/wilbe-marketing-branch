@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useCommunityThreads } from '@/hooks/useCommunityThreads';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -101,6 +102,19 @@ const CommunityPage = () => {
     refetch();
   };
 
+  const handleThreadDeleted = () => {
+    refetch();
+  };
+
+  const handleThreadClick = (e: React.MouseEvent, threadId: string) => {
+    // Prevent navigation if the click is on a button or form element
+    const target = e.target as HTMLElement;
+    if (target.closest('button') || target.closest('[role="button"]') || target.closest('form')) {
+      return;
+    }
+    navigate(`/community/thread/${threadId}`);
+  };
+
   return (
     <div className="flex h-full">
       <CommunitySidebar 
@@ -147,7 +161,7 @@ const CommunityPage = () => {
                 <div
                   key={thread.id}
                   className="bg-white rounded-lg shadow-sm border p-4 hover:border-brand-pink transition-colors cursor-pointer"
-                  onClick={() => navigate(`/community/thread/${thread.id}`)}
+                  onClick={(e) => handleThreadClick(e, thread.id)}
                 >
                   <div className={`${isMobile ? 'space-y-3' : 'flex items-start justify-between gap-4'}`}>
                     <div className="flex-1">
@@ -197,6 +211,7 @@ const CommunityPage = () => {
                       <ThreadContent 
                         content={thread.content} 
                         className={isMobile ? 'text-sm' : ''}
+                        isPreview={true}
                       />
                     </div>
                     <div className="flex items-start gap-2">
@@ -208,6 +223,7 @@ const CommunityPage = () => {
                       <ThreadActions 
                         thread={thread} 
                         onEdit={() => handleEditThread(thread)}
+                        onDeleted={handleThreadDeleted}
                       />
                     </div>
                   </div>

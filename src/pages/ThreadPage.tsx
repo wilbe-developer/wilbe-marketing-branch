@@ -151,13 +151,11 @@ const ThreadPage = () => {
           </Badge>
         )}
 
-        <div className="prose max-w-none">
-          <ThreadContent 
-            content={thread.content} 
-            showImages={true}
-            className="whitespace-pre-wrap text-gray-900"
-          />
-        </div>
+        <ThreadContent 
+          content={thread.content} 
+          showImages={true}
+          isPreview={false}
+        />
       </div>
 
       <h2 className="text-xl font-semibold mb-4">
