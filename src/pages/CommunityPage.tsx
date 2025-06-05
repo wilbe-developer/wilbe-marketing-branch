@@ -168,12 +168,12 @@ const CommunityPage = () => {
                   onClick={(e) => handleThreadClick(e, thread.id)}
                 >
                   {isMobile ? (
-                    // Mobile layout - stacked vertically
+                    // Mobile layout - improved structure
                     <div className="space-y-3">
-                      {/* Author and metadata row */}
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 min-w-0 flex-1">
-                          <Avatar className="h-7 w-7 flex-shrink-0">
+                      {/* Author info with proper spacing */}
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start gap-3 min-w-0 flex-1">
+                          <Avatar className="h-8 w-8 flex-shrink-0">
                             <AvatarImage src={thread.author_profile?.avatar || undefined} />
                             <AvatarFallback className="text-xs">
                               {thread.author_profile?.first_name?.[0] || ''}
@@ -181,43 +181,39 @@ const CommunityPage = () => {
                             </AvatarFallback>
                           </Avatar>
                           <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-1 flex-wrap">
-                              <span className="font-medium text-sm truncate">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-medium text-sm">
                                 {thread.author_profile?.first_name || ''} {thread.author_profile?.last_name || ''}
                               </span>
                               {thread.author_role?.role === 'admin' && (
-                                <Badge variant="default" className="bg-brand-pink text-xs px-1 py-0">
+                                <Badge variant="default" className="bg-brand-pink text-xs px-1.5 py-0.5">
                                   Admin
                                 </Badge>
                               )}
                             </div>
+                            <div className="text-xs text-gray-500">
+                              {formatDistanceToNow(new Date(thread.created_at), { addSuffix: true })}
+                              {thread.last_edited_at && (
+                                <span className="ml-1">(edited)</span>
+                              )}
+                            </div>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 flex-shrink-0">
-                          <span className="text-xs text-gray-500">
-                            {formatDistanceToNow(new Date(thread.created_at), { addSuffix: true })}
-                          </span>
-                          <ThreadActions 
-                            thread={thread} 
-                            onEdit={() => handleEditThread(thread)}
-                            onDeleted={handleThreadDeleted}
-                          />
-                        </div>
+                        <ThreadActions 
+                          thread={thread} 
+                          onEdit={() => handleEditThread(thread)}
+                          onDeleted={handleThreadDeleted}
+                        />
                       </div>
                       
                       {/* Title row */}
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-start gap-2">
                         <h3 className="font-semibold text-base leading-tight flex-1">
                           {thread.title}
                         </h3>
-                        <div className="flex items-center gap-1 flex-shrink-0">
-                          {thread.is_private && (
-                            <Lock size={12} className="text-gray-500" />
-                          )}
-                          {thread.last_edited_at && (
-                            <span className="text-xs text-gray-500">(edited)</span>
-                          )}
-                        </div>
+                        {thread.is_private && (
+                          <Lock size={14} className="text-gray-500 flex-shrink-0 mt-0.5" />
+                        )}
                       </div>
                       
                       {/* Private message recipient */}
@@ -241,13 +237,13 @@ const CommunityPage = () => {
                             {thread.comment_count && thread.comment_count[0] ? thread.comment_count[0].count : 0} replies
                           </span>
                           {thread.is_private && (
-                            <Badge variant="outline" className="flex items-center gap-1 text-xs px-1 py-0">
+                            <Badge variant="outline" className="flex items-center gap-1 text-xs px-1.5 py-0.5">
                               <Lock size={8} />
                               <span>Private</span>
                             </Badge>
                           )}
                           {thread.challenge_id && !thread.is_private && (
-                            <Badge variant="secondary" className="text-xs px-1 py-0">
+                            <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
                               {thread.challenge_name || 'BSF Challenge'}
                             </Badge>
                           )}
@@ -255,10 +251,10 @@ const CommunityPage = () => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="flex items-center gap-1 text-xs px-2 py-1 h-auto"
+                          className="flex items-center gap-1.5 text-xs px-3 py-1.5 h-auto"
                           onClick={(e) => handleReplyClick(e, thread.id)}
                         >
-                          <MessageCircle size={10} />
+                          <MessageCircle size={12} />
                           Reply
                         </Button>
                       </div>
