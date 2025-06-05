@@ -54,6 +54,31 @@ export const NewThreadModal = ({
 
   const isEditing = !!editingThread;
 
+  // Function to clean up content by removing "Attached Images" section
+  const cleanupContent = (rawContent: string): string => {
+    // Remove everything from "---" onwards that contains "Attached Images"
+    const sections = rawContent.split('\n---\n');
+    if (sections.length > 1) {
+      // Check if any section after the first contains "Attached Images"
+      const mainContent = sections[0];
+      const otherSections = sections.slice(1);
+      
+      // Filter out sections that contain "Attached Images" or similar patterns
+      const filteredSections = otherSections.filter(section => 
+        !section.includes('**Attached Images:**') &&
+        !section.includes('Attached Images:') &&
+        !section.toLowerCase().includes('attached images')
+      );
+      
+      // Rejoin if there are any valid sections left
+      if (filteredSections.length > 0) {
+        return [mainContent, ...filteredSections].join('\n---\n');
+      }
+      return mainContent;
+    }
+    return rawContent;
+  };
+
   // Set form data when editing
   useEffect(() => {
     if (editingThread) {
@@ -61,9 +86,9 @@ export const NewThreadModal = ({
       
       // Extract images from content and remove them from the text
       const images = extractImages(editingThread.content);
-      const textContent = removeImageMarkdown(editingThread.content);
+      const cleanedContent = cleanupContent(removeImageMarkdown(editingThread.content));
       
-      setContent(textContent);
+      setContent(cleanedContent);
       setChallengeId(editingThread.challenge_id);
       
       // Convert extracted images to uploaded images format
@@ -224,18 +249,13 @@ export const NewThreadModal = ({
                   <SelectContent>
                     <SelectItem value="none">No specific challenge</SelectItem>
                     
-                    {Object.entries(groupedChallenges).map(([category, items]) => (
-                      <div key={category}>
-                        <div className="px-2 py-1.5 text-xs font-semibold text-gray-500 uppercase">
-                          {category}
-                        </div>
-                        {items.map(challenge => (
-                          <SelectItem key={challenge.id} value={challenge.id}>
-                            {(challenge.category || challenge.title).toUpperCase()}
-                          </SelectItem>
-                        ))}
-                      </div>
-                    ))}
+                    {Object.entries(groupedChallenges).map(([category, items]) => 
+                      items.map(challenge => (
+                        <SelectItem key={challenge.id} value={challenge.id}>
+                          {(challenge.category || challenge.title).toUpperCase()}
+                        </SelectItem>
+                      ))
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -280,10 +300,10 @@ export const NewThreadModal = ({
                 
                 {/* Uploaded Images Preview */}
                 {uploadedImages.length > 0 && (
-                  <div className="grid grid-cols-1 gap-2">
+                  <div className="grid grid-cols-1 gap-2 max-w-full overflow-hidden">
                     {uploadedImages.map((image) => (
                       <div key={image.id} className="relative group">
-                        <div className="flex items-center p-2 bg-gray-50 rounded border">
+                        <div className="flex items-center p-2 bg-gray-50 rounded border min-w-0">
                           <img 
                             src={image.url} 
                             alt={image.name}
@@ -313,7 +333,7 @@ export const NewThreadModal = ({
                 <label className="block text-sm font-medium mb-2">
                   Link Previews
                 </label>
-                <div className="space-y-2">
+                <div className="space-y-2 max-w-full overflow-hidden">
                   {linkPreviews.map((link, index) => (
                     <div key={index} className="w-full overflow-hidden">
                       <LinkPreview 

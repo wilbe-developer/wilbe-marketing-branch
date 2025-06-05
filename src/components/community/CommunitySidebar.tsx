@@ -49,109 +49,120 @@ export const CommunitySidebar = ({
   const iconSize = collapsed ? (isMobile ? 18 : 22) : 18;
 
   return (
-    <div 
-      className={cn(
-        "bg-white border-r transition-all duration-300 h-[calc(100vh-64px)] sticky top-0",
-        collapsed ? "w-14" : "w-64"
+    <>
+      {/* Mobile overlay backdrop */}
+      {isMobile && !collapsed && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-40"
+          onClick={() => setCollapsed(true)}
+        />
       )}
-    >
-      <div className="flex justify-between items-center p-3 border-b">
-        {!collapsed && <h3 className="font-medium">Topics</h3>}
-        <Button variant="ghost" size="icon" onClick={toggleSidebar}>
-          {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
-        </Button>
-      </div>
       
-      <div className="p-2">
-        <Button 
-          variant="ghost" 
-          className={cn(
-            "w-full justify-start mb-1",
-            selectedTopic === 'all' && "bg-slate-100",
-            collapsed && "px-2.5 justify-center"
-          )}
-          onClick={() => onSelectTopic('all')}
-        >
-          <MessageCircle size={iconSize} className={collapsed ? "" : "mr-2"} />
-          {!collapsed && "All Discussions"}
-        </Button>
+      <div 
+        className={cn(
+          "bg-white border-r transition-all duration-300 h-[calc(100vh-64px)] sticky top-0 z-50",
+          collapsed ? "w-14" : "w-64",
+          isMobile && !collapsed && "fixed left-0 top-0 h-screen shadow-lg"
+        )}
+      >
+        <div className="flex justify-between items-center p-3 border-b">
+          {!collapsed && <h3 className="font-medium">Topics</h3>}
+          <Button variant="ghost" size="icon" onClick={toggleSidebar}>
+            {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+          </Button>
+        </div>
         
-        <Button 
-          variant="ghost" 
-          className={cn(
-            "w-full justify-start mb-1",
-            selectedTopic === 'faqs' && "bg-slate-100",
-            collapsed && "px-2.5 justify-center"
-          )}
-          onClick={() => onSelectTopic('faqs')}
-        >
-          <HelpCircle size={iconSize} className={collapsed ? "" : "mr-2"} />
-          {!collapsed && "FAQs"}
-        </Button>
-        
-        {hasPrivateMessages && (
+        <div className="p-2">
           <Button 
             variant="ghost" 
             className={cn(
               "w-full justify-start mb-1",
-              selectedTopic === 'private' && "bg-slate-100",
+              selectedTopic === 'all' && "bg-slate-100",
               collapsed && "px-2.5 justify-center"
             )}
-            onClick={() => onSelectTopic('private')}
+            onClick={() => onSelectTopic('all')}
           >
-            <Lock size={iconSize} className={collapsed ? "" : "mr-2"} />
-            {!collapsed && "Private Messages"}
+            <MessageCircle size={iconSize} className={collapsed ? "" : "mr-2"} />
+            {!collapsed && "All Discussions"}
           </Button>
-        )}
-        
-        <Button 
-          variant="ghost" 
-          className={cn(
-            "w-full justify-start mb-3",
-            selectedTopic === 'challenges' && "bg-slate-100",
-            collapsed && "px-2.5 justify-center"
-          )}
-          onClick={() => onSelectTopic('challenges')}
-        >
-          <BookOpen size={iconSize} className={collapsed ? "" : "mr-2"} />
-          {!collapsed && "BSF Challenges"}
-        </Button>
-        
-        {!collapsed && Object.entries(categorizedChallenges).map(([category, items]) => (
-          <div key={category} className="mb-3">
-            <div className="space-y-1">
-              {items.map(challenge => (
-                <Button
-                  key={challenge.id}
-                  variant="ghost"
-                  size="sm"
-                  className={cn(
-                    "w-full justify-start text-sm h-auto py-2 px-3 whitespace-normal text-left",
-                    selectedTopic === challenge.id && "bg-slate-100"
-                  )}
-                  onClick={() => onSelectTopic(challenge.id)}
-                >
-                  {(challenge.category || challenge.title).toUpperCase()}
-                </Button>
-              ))}
-            </div>
-          </div>
-        ))}
-        
-        <div className="mt-4">
+          
           <Button 
+            variant="ghost" 
             className={cn(
-              "w-full",
-              collapsed && "px-2.5"
+              "w-full justify-start mb-1",
+              selectedTopic === 'faqs' && "bg-slate-100",
+              collapsed && "px-2.5 justify-center"
             )}
-            onClick={onNewThreadClick}
-            disabled={selectedTopic === 'faqs'}
+            onClick={() => onSelectTopic('faqs')}
           >
-            <Plus size={iconSize} className={collapsed ? "" : "mr-2"} />
-            {!collapsed && "New Thread"}
+            <HelpCircle size={iconSize} className={collapsed ? "" : "mr-2"} />
+            {!collapsed && "FAQs"}
           </Button>
+          
+          {hasPrivateMessages && (
+            <Button 
+              variant="ghost" 
+              className={cn(
+                "w-full justify-start mb-1",
+                selectedTopic === 'private' && "bg-slate-100",
+                collapsed && "px-2.5 justify-center"
+              )}
+              onClick={() => onSelectTopic('private')}
+            >
+              <Lock size={iconSize} className={collapsed ? "" : "mr-2"} />
+              {!collapsed && "Private Messages"}
+            </Button>
+          )}
+          
+          <Button 
+            variant="ghost" 
+            className={cn(
+              "w-full justify-start mb-2",
+              selectedTopic === 'challenges' && "bg-slate-100",
+              collapsed && "px-2.5 justify-center"
+            )}
+            onClick={() => onSelectTopic('challenges')}
+          >
+            <BookOpen size={iconSize} className={collapsed ? "" : "mr-2"} />
+            {!collapsed && "BSF Challenges"}
+          </Button>
+          
+          {!collapsed && Object.entries(categorizedChallenges).map(([category, items]) => (
+            <div key={category} className="mb-2">
+              <div className="space-y-1">
+                {items.map(challenge => (
+                  <Button
+                    key={challenge.id}
+                    variant="ghost"
+                    size="sm"
+                    className={cn(
+                      "w-full justify-start text-sm h-auto py-1.5 px-3 whitespace-normal text-left",
+                      selectedTopic === challenge.id && "bg-slate-100"
+                    )}
+                    onClick={() => onSelectTopic(challenge.id)}
+                  >
+                    {(challenge.category || challenge.title).toUpperCase()}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          ))}
+          
+          <div className="mt-4">
+            <Button 
+              className={cn(
+                "w-full",
+                collapsed && "px-2.5"
+              )}
+              onClick={onNewThreadClick}
+              disabled={selectedTopic === 'faqs'}
+            >
+              <Plus size={iconSize} className={collapsed ? "" : "mr-2"} />
+              {!collapsed && "New Thread"}
+            </Button>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
