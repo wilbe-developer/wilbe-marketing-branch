@@ -2,6 +2,7 @@
 import { WorkloadIndicator } from '@/utils/workloadCalculation';
 import { Badge } from '@/components/ui/badge';
 import { Clock } from 'lucide-react';
+import { BatteryIndicator } from './BatteryIndicator';
 
 interface WorkloadBadgeProps {
   workload: WorkloadIndicator;
@@ -15,15 +16,15 @@ export const WorkloadBadge = ({ workload, showTime = false, size = 'default' }: 
       <Badge 
         variant="secondary" 
         className={`
-          flex items-center gap-1 border-0 font-medium
-          ${size === 'sm' ? 'text-xs px-2 py-0.5' : 'text-sm px-2.5 py-1'}
-          ${workload.level === 'low' ? 'bg-green-50 text-green-700' : ''}
-          ${workload.level === 'medium' ? 'bg-yellow-50 text-yellow-700' : ''}
-          ${workload.level === 'high' ? 'bg-red-50 text-red-700' : ''}
+          flex items-center gap-2 border-0 font-medium bg-slate-100 text-slate-700
+          ${size === 'sm' ? 'text-xs px-2 py-1' : 'text-sm px-3 py-1.5'}
         `}
       >
-        <Clock size={size === 'sm' ? 10 : 12} />
-        {workload.estimatedTime}
+        <BatteryIndicator level={workload.level} size={size} />
+        <div className="flex items-center gap-1">
+          <Clock size={size === 'sm' ? 10 : 12} />
+          {workload.estimatedTime}
+        </div>
       </Badge>
     </div>
   );
