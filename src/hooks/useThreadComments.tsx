@@ -19,7 +19,7 @@ export const useThreadComments = (threadId?: string) => {
   const [commentAdded, setCommentAdded] = useState(false);
 
   // Get thread details
-  const { data: thread, isLoading: isThreadLoading } = useQuery({
+  const { data: thread, isLoading: isThreadLoading, refetch: refetchThread } = useQuery({
     queryKey: ['thread', threadId],
     queryFn: async () => {
       if (!threadId) return null;
@@ -185,11 +185,18 @@ export const useThreadComments = (threadId?: string) => {
     }
   }, [user]);
 
+  // Create a refetch function that refetches both thread and comments
+  const refetch = useCallback(() => {
+    refetchThread();
+    queryClient.invalidateQueries({ queryKey: ['thread-comments', threadId] });
+  }, [refetchThread, queryClient, threadId]);
+
   return {
     thread,
     comments,
     isLoading: isThreadLoading || isCommentsLoading,
     addComment,
     markThreadAsViewed,
+    refetch,
   };
 };
