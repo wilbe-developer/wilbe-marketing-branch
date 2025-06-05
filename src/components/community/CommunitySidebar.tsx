@@ -83,7 +83,7 @@ export const CommunitySidebar = ({
             selectedTopic === 'faqs' && "bg-slate-100",
             collapsed && "px-2.5 justify-center"
           )}
-          onClick={() => navigate('/faqs')}
+          onClick={() => onSelectTopic('faqs')}
         >
           <HelpCircle size={iconSize} className={collapsed ? "" : "mr-2"} />
           {!collapsed && "FAQs"}
@@ -148,6 +148,7 @@ export const CommunitySidebar = ({
               collapsed && "px-2.5"
             )}
             onClick={() => navigate('/community/new')}
+            disabled={selectedTopic === 'faqs'}
           >
             <Plus size={iconSize} className={collapsed ? "" : "mr-2"} />
             {!collapsed && "New Thread"}
