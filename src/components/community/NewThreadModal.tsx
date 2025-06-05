@@ -25,6 +25,7 @@ import { Upload, X } from 'lucide-react';
 import { useSupabaseFileUpload } from '@/hooks/useSupabaseFileUpload';
 import { useLinkPreview } from '@/hooks/useLinkPreview';
 import { LinkPreview } from './LinkPreview';
+import { extractImages, removeImageMarkdown } from '@/utils/markdownUtils';
 
 interface NewThreadModalProps {
   open: boolean;
@@ -57,8 +58,22 @@ export const NewThreadModal = ({
   useEffect(() => {
     if (editingThread) {
       setTitle(editingThread.title);
-      setContent(editingThread.content);
+      
+      // Extract images from content and remove them from the text
+      const images = extractImages(editingThread.content);
+      const textContent = removeImageMarkdown(editingThread.content);
+      
+      setContent(textContent);
       setChallengeId(editingThread.challenge_id);
+      
+      // Convert extracted images to uploaded images format
+      const existingImages = images.map((img, index) => ({
+        id: `existing-${index}`,
+        url: img.url,
+        name: img.alt || 'Existing image',
+        path: img.url // For existing images, we use the URL as path
+      }));
+      setUploadedImages(existingImages);
     } else {
       // Reset form when not editing
       setTitle('');
@@ -153,8 +168,10 @@ export const NewThreadModal = ({
     // Remove from state
     setUploadedImages(prev => prev.filter(img => img.id !== imageId));
     
-    // Delete from Supabase Storage
-    await deleteFile(imagePath);
+    // Only delete from Supabase Storage if it's not an existing image
+    if (!imageId.startsWith('existing-')) {
+      await deleteFile(imagePath);
+    }
   };
 
   // Group challenges by category for the select dropdown
@@ -169,163 +186,169 @@ export const NewThreadModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={`${isMobile ? 'max-w-[95vw] max-h-[90vh]' : 'max-w-2xl max-h-[80vh]'} overflow-y-auto`}>
-        <DialogHeader>
+      <DialogContent className={`${isMobile ? 'max-w-[95vw] max-h-[90vh] w-full' : 'max-w-2xl max-h-[80vh]'} overflow-hidden flex flex-col`}>
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle>
             {isEditing ? 'Edit Discussion' : 'Start a New Discussion'}
           </DialogTitle>
         </DialogHeader>
         
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="title" className="block text-sm font-medium mb-1">
-              Title
-            </label>
-            <Input
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="What would you like to discuss?"
-              required
-            />
-          </div>
-          
-          {!isEditing && (
+        <div className="flex-1 overflow-y-auto px-1">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="challenge" className="block text-sm font-medium mb-1">
-                Related Challenge (optional)
+              <label htmlFor="title" className="block text-sm font-medium mb-1">
+                Title
               </label>
-              <Select 
-                value={challengeId || "none"}
-                onValueChange={(value) => setChallengeId(value === "none" ? null : value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a challenge (optional)" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">No specific challenge</SelectItem>
-                  
-                  {Object.entries(groupedChallenges).map(([category, items]) => (
-                    <div key={category}>
-                      <div className="px-2 py-1.5 text-xs font-semibold text-gray-500 uppercase">
-                        {category}
-                      </div>
-                      {items.map(challenge => (
-                        <SelectItem key={challenge.id} value={challenge.id}>
-                          {challenge.category || challenge.title}
-                        </SelectItem>
-                      ))}
-                    </div>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Input
+                id="title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="What would you like to discuss?"
+                required
+                className="w-full"
+              />
             </div>
-          )}
-          
-          <div>
-            <label htmlFor="content" className="block text-sm font-medium mb-1">
-              Content
-            </label>
-            <Textarea
-              id="content"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="Share your thoughts... (URLs will automatically show previews)"
-              rows={6}
-              required
-            />
-          </div>
-
-          {/* Image Upload Section */}
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              Attach Images (optional)
-            </label>
-            <div className="space-y-2">
-              <label className="flex items-center justify-center w-full h-20 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-                <div className="flex items-center space-x-2 text-gray-500">
-                  <Upload size={20} />
-                  <span className="text-sm">
-                    {isUploading ? 'Uploading...' : 'Click to upload image'}
-                  </span>
-                </div>
-                <input
-                  type="file"
-                  className="hidden"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  disabled={isUploading}
-                />
+            
+            {!isEditing && (
+              <div>
+                <label htmlFor="challenge" className="block text-sm font-medium mb-1">
+                  Related Challenge (optional)
+                </label>
+                <Select 
+                  value={challengeId || "none"}
+                  onValueChange={(value) => setChallengeId(value === "none" ? null : value)}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select a challenge (optional)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">No specific challenge</SelectItem>
+                    
+                    {Object.entries(groupedChallenges).map(([category, items]) => (
+                      <div key={category}>
+                        <div className="px-2 py-1.5 text-xs font-semibold text-gray-500 uppercase">
+                          {category}
+                        </div>
+                        {items.map(challenge => (
+                          <SelectItem key={challenge.id} value={challenge.id}>
+                            {(challenge.category || challenge.title).toUpperCase()}
+                          </SelectItem>
+                        ))}
+                      </div>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            
+            <div>
+              <label htmlFor="content" className="block text-sm font-medium mb-1">
+                Content
               </label>
-              
-              {/* Uploaded Images Preview */}
-              {uploadedImages.length > 0 && (
-                <div className="grid grid-cols-2 gap-2">
-                  {uploadedImages.map((image) => (
-                    <div key={image.id} className="relative group">
-                      <div className="flex items-center p-2 bg-gray-50 rounded border">
-                        <img 
-                          src={image.url} 
-                          alt={image.name}
-                          className="w-12 h-12 object-cover rounded mr-2"
-                        />
-                        <span className="text-sm truncate flex-1">{image.name}</span>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeImage(image.id, image.path)}
-                          className="opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <X size={14} />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <Textarea
+                id="content"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="Share your thoughts... (URLs will automatically show previews)"
+                rows={6}
+                required
+                className="w-full resize-none"
+              />
             </div>
-          </div>
 
-          {/* Link Previews */}
-          {linkPreviews.length > 0 && (
+            {/* Image Upload Section */}
             <div>
               <label className="block text-sm font-medium mb-2">
-                Link Previews
+                Attach Images (optional)
               </label>
               <div className="space-y-2">
-                {linkPreviews.map((link, index) => (
-                  <LinkPreview 
-                    key={index} 
-                    url={link.url}
-                    title={link.title}
-                    description={link.description}
-                    siteName={link.siteName}
+                <label className="flex items-center justify-center w-full h-20 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                  <div className="flex items-center space-x-2 text-gray-500">
+                    <Upload size={20} />
+                    <span className="text-sm">
+                      {isUploading ? 'Uploading...' : 'Click to upload image'}
+                    </span>
+                  </div>
+                  <input
+                    type="file"
+                    className="hidden"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    disabled={isUploading}
                   />
-                ))}
+                </label>
+                
+                {/* Uploaded Images Preview */}
+                {uploadedImages.length > 0 && (
+                  <div className="grid grid-cols-1 gap-2">
+                    {uploadedImages.map((image) => (
+                      <div key={image.id} className="relative group">
+                        <div className="flex items-center p-2 bg-gray-50 rounded border">
+                          <img 
+                            src={image.url} 
+                            alt={image.name}
+                            className="w-12 h-12 object-cover rounded mr-2 flex-shrink-0"
+                          />
+                          <span className="text-sm truncate flex-1 min-w-0">{image.name}</span>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeImage(image.id, image.path)}
+                            className="opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
+                          >
+                            <X size={14} />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
-          )}
 
-          <div className="flex gap-3 pt-2">
-            <Button 
-              type="submit" 
-              disabled={(isEditing ? updateThread.isPending : createThread.isPending) || isUploading}
-            >
-              {isEditing 
-                ? (updateThread.isPending ? 'Updating...' : 'Update Thread')
-                : (createThread.isPending ? 'Creating...' : 'Create Thread')
-              }
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
-              Cancel
-            </Button>
-          </div>
-        </form>
+            {/* Link Previews */}
+            {linkPreviews.length > 0 && (
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Link Previews
+                </label>
+                <div className="space-y-2">
+                  {linkPreviews.map((link, index) => (
+                    <div key={index} className="w-full overflow-hidden">
+                      <LinkPreview 
+                        url={link.url}
+                        title={link.title}
+                        description={link.description}
+                        siteName={link.siteName}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </form>
+        </div>
+
+        <div className="flex gap-3 pt-4 border-t flex-shrink-0">
+          <Button 
+            type="submit" 
+            disabled={(isEditing ? updateThread.isPending : createThread.isPending) || isUploading}
+            onClick={handleSubmit}
+          >
+            {isEditing 
+              ? (updateThread.isPending ? 'Updating...' : 'Update Thread')
+              : (createThread.isPending ? 'Creating...' : 'Create Thread')
+            }
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+          >
+            Cancel
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );

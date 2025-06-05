@@ -35,7 +35,7 @@ export const CommunitySidebar = ({
     setCollapsed(!collapsed);
   };
   
-  // Group challenges by category.
+  // Group challenges by category, but use category name for display
   const categorizedChallenges = challenges.reduce((acc, challenge) => {
     const category = challenge.category || 'Uncategorized';
     if (!acc[category]) {
@@ -119,9 +119,6 @@ export const CommunitySidebar = ({
         
         {!collapsed && Object.entries(categorizedChallenges).map(([category, items]) => (
           <div key={category} className="mb-3">
-            <div className="text-xs font-semibold uppercase text-gray-500 px-3 py-1 break-words">
-              {category}
-            </div>
             <div className="space-y-1">
               {items.map(challenge => (
                 <Button
@@ -129,12 +126,12 @@ export const CommunitySidebar = ({
                   variant="ghost"
                   size="sm"
                   className={cn(
-                    "w-full justify-start text-sm h-auto py-1 px-3 whitespace-normal text-left",
+                    "w-full justify-start text-sm h-auto py-2 px-3 whitespace-normal text-left",
                     selectedTopic === challenge.id && "bg-slate-100"
                   )}
                   onClick={() => onSelectTopic(challenge.id)}
                 >
-                  {challenge.category || challenge.title}
+                  {(challenge.category || challenge.title).toUpperCase()}
                 </Button>
               ))}
             </div>
