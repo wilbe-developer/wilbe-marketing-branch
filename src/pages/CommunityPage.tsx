@@ -169,7 +169,7 @@ const CommunityPage = () => {
                   onClick={(e) => handleThreadClick(e, thread.id)}
                 >
                   {isMobile ? (
-                    // Mobile layout with voting moved to footer
+                    // Mobile layout
                     <div className="space-y-3">
                       {/* Author info with proper spacing */}
                       <div className="flex items-start justify-between">
@@ -237,9 +237,15 @@ const CommunityPage = () => {
                           <div onClick={(e) => e.stopPropagation()}>
                             <ThreadVoting threadId={thread.id} size="sm" />
                           </div>
-                          <div className="text-xs text-gray-500">
-                            {thread.comment_count && thread.comment_count[0] ? thread.comment_count[0].count : 0} replies
-                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="flex items-center gap-1.5 text-xs px-2 py-1 h-auto text-gray-600 hover:text-gray-800"
+                            onClick={(e) => handleReplyClick(e, thread.id)}
+                          >
+                            <MessageCircle size={14} />
+                            <span>{thread.comment_count && thread.comment_count[0] ? thread.comment_count[0].count : 0}</span>
+                          </Button>
                         </div>
                         <div className="flex items-center gap-2">
                           {thread.is_private && (
@@ -253,20 +259,11 @@ const CommunityPage = () => {
                               {thread.challenge_name || 'BSF Challenge'}
                             </Badge>
                           )}
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="flex items-center gap-1.5 text-xs px-3 py-1.5 h-auto"
-                            onClick={(e) => handleReplyClick(e, thread.id)}
-                          >
-                            <MessageCircle size={12} />
-                            Reply
-                          </Button>
                         </div>
                       </div>
                     </div>
                   ) : (
-                    // Desktop layout with voting moved to footer
+                    // Desktop layout
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
                         <Avatar className="h-8 w-8">
@@ -333,9 +330,15 @@ const CommunityPage = () => {
                         <div onClick={(e) => e.stopPropagation()}>
                           <ThreadVoting threadId={thread.id} size="sm" />
                         </div>
-                        <span>
-                          {thread.comment_count && thread.comment_count[0] ? thread.comment_count[0].count : 0} replies
-                        </span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="flex items-center gap-1.5 text-xs px-2 py-1 h-auto text-gray-600 hover:text-gray-800"
+                          onClick={(e) => handleReplyClick(e, thread.id)}
+                        >
+                          <MessageCircle size={14} />
+                          <span>{thread.comment_count && thread.comment_count[0] ? thread.comment_count[0].count : 0}</span>
+                        </Button>
                         {thread.is_private && (
                           <Badge variant="outline" className="flex items-center gap-1 text-xs">
                             <Lock size={10} />
@@ -348,15 +351,6 @@ const CommunityPage = () => {
                           </Badge>
                         )}
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="flex items-center gap-1 text-xs px-2 py-1 h-auto"
-                        onClick={(e) => handleReplyClick(e, thread.id)}
-                      >
-                        <MessageCircle size={12} />
-                        Reply
-                      </Button>
                     </div>
                   )}
                 </div>

@@ -191,9 +191,14 @@ const ThreadPage = () => {
       </div>
 
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold">
-          {comments.length} {comments.length === 1 ? 'Reply' : 'Replies'}
-        </h2>
+        <Button
+          variant="ghost"
+          className="flex items-center gap-2 text-xl font-semibold p-0 h-auto hover:bg-transparent"
+          onClick={() => setReplyModalOpen(true)}
+        >
+          <MessageCircle size={20} />
+          <span>{comments.length}</span>
+        </Button>
         <Button 
           onClick={() => setReplyModalOpen(true)}
           className="flex items-center gap-2"
