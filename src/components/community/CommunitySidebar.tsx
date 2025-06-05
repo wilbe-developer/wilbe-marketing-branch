@@ -1,4 +1,5 @@
-import { useState } from 'react';
+
+import { useState, useEffect } from 'react';
 import { Challenge } from '@/types/community';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
@@ -23,6 +24,13 @@ export const CommunitySidebar = ({
   const [collapsed, setCollapsed] = useState(isMobile);
   const navigate = useNavigate();
 
+  // Ensure sidebar collapses when switching to mobile
+  useEffect(() => {
+    if (isMobile) {
+      setCollapsed(true);
+    }
+  }, [isMobile]);
+
   const toggleSidebar = () => {
     setCollapsed(!collapsed);
   };
@@ -36,6 +44,9 @@ export const CommunitySidebar = ({
     acc[category].push(challenge);
     return acc;
   }, {} as Record<string, Challenge[]>);
+
+  // Determine icon size based on collapsed state and device
+  const iconSize = collapsed ? (isMobile ? 18 : 22) : 18;
 
   return (
     <div 
@@ -61,7 +72,7 @@ export const CommunitySidebar = ({
           )}
           onClick={() => onSelectTopic('all')}
         >
-          <MessageCircle size={18} className="mr-2" />
+          <MessageCircle size={iconSize} className={collapsed ? "" : "mr-2"} />
           {!collapsed && "All Discussions"}
         </Button>
         
@@ -74,7 +85,7 @@ export const CommunitySidebar = ({
           )}
           onClick={() => navigate('/faqs')}
         >
-          <HelpCircle size={18} className="mr-2" />
+          <HelpCircle size={iconSize} className={collapsed ? "" : "mr-2"} />
           {!collapsed && "FAQs"}
         </Button>
         
@@ -88,7 +99,7 @@ export const CommunitySidebar = ({
             )}
             onClick={() => onSelectTopic('private')}
           >
-            <Lock size={18} className="mr-2" />
+            <Lock size={iconSize} className={collapsed ? "" : "mr-2"} />
             {!collapsed && "Private Messages"}
           </Button>
         )}
@@ -102,7 +113,7 @@ export const CommunitySidebar = ({
           )}
           onClick={() => onSelectTopic('challenges')}
         >
-          <BookOpen size={18} className="mr-2" />
+          <BookOpen size={iconSize} className={collapsed ? "" : "mr-2"} />
           {!collapsed && "BSF Challenges"}
         </Button>
         
@@ -138,7 +149,7 @@ export const CommunitySidebar = ({
             )}
             onClick={() => navigate('/community/new')}
           >
-            <Plus size={18} className="mr-2" />
+            <Plus size={iconSize} className={collapsed ? "" : "mr-2"} />
             {!collapsed && "New Thread"}
           </Button>
         </div>

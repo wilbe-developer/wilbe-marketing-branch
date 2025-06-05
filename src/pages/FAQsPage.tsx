@@ -52,13 +52,14 @@ const FAQsPage = () => {
       />
       
       <div className="flex-1 overflow-auto p-4">
-        <div className="flex justify-between items-center mb-6">
+        <div className={`mb-6 ${isMobile ? 'space-y-4' : 'flex justify-between items-center'}`}>
           <h1 className={`font-bold ${isMobile ? 'text-2xl' : 'text-3xl'}`}>
             Frequently Asked Questions
           </h1>
           <Button 
             onClick={() => navigate('/community/new')} 
             size={isMobile ? 'sm' : 'default'}
+            className={isMobile ? 'w-full' : ''}
           >
             <MessageCircle className="mr-2 h-4 w-4" />
             Ask a Question
