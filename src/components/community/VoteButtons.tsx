@@ -24,8 +24,8 @@ export const VoteButtons = ({
 }: VoteButtonsProps) => {
   const { user } = useAuth();
 
-  const buttonSize = size === 'sm' ? 'h-6 w-6' : 'h-8 w-8';
-  const iconSize = size === 'sm' ? 12 : 16;
+  const buttonSize = size === 'sm' ? 'h-6 w-6' : 'h-7 w-7';
+  const iconSize = size === 'sm' ? 14 : 16;
   const textSize = size === 'sm' ? 'text-xs' : 'text-sm';
 
   const handleVote = (voteType: VoteType) => {
@@ -36,13 +36,13 @@ export const VoteButtons = ({
   const isDisabled = disabled || isVoting || !user;
 
   return (
-    <div className="flex flex-col items-center gap-1">
+    <div className="flex items-center gap-1">
       <Button
         variant="ghost"
         size="sm"
         className={cn(
           buttonSize,
-          'p-0 transition-colors',
+          'p-0 transition-colors rounded-full',
           userVote === 'up' 
             ? 'text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100' 
             : 'text-gray-400 hover:text-blue-600 hover:bg-blue-50',
@@ -57,7 +57,7 @@ export const VoteButtons = ({
       
       <span 
         className={cn(
-          'font-medium tabular-nums min-w-0',
+          'font-medium tabular-nums min-w-0 px-2',
           textSize,
           netVotes > 0 && 'text-blue-600',
           netVotes < 0 && 'text-red-600',
@@ -72,7 +72,7 @@ export const VoteButtons = ({
         size="sm"
         className={cn(
           buttonSize,
-          'p-0 transition-colors',
+          'p-0 transition-colors rounded-full',
           userVote === 'down' 
             ? 'text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100' 
             : 'text-gray-400 hover:text-red-600 hover:bg-red-50',
