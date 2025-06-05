@@ -3,8 +3,9 @@ import { useState } from 'react';
 import { useFAQs, FAQ } from '@/hooks/useFAQs';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, MessageCircle, Phone } from 'lucide-react';
+import { Search, MessageCircle } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { RequestCallButton } from '@/components/sprint/RequestCallButton';
 
 export const FAQContent = () => {
   const { faqsByCategory, isLoading } = useFAQs();
@@ -41,17 +42,6 @@ export const FAQContent = () => {
     }
   };
 
-  const handleRequestCall = () => {
-    // Find the RequestCall button in the DOM and click it
-    const requestCallButton = document.querySelector('[data-request-call-button="true"]');
-    if (requestCallButton instanceof HTMLButtonElement) {
-      requestCallButton.click();
-    } else {
-      // Fallback - navigate to community with instruction
-      navigate("/community/new");
-    }
-  };
-
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -71,10 +61,7 @@ export const FAQContent = () => {
               <MessageCircle className="h-4 w-4" />
               Post a Question
             </Button>
-            <Button onClick={handleRequestCall} size="sm" className="gap-2">
-              <Phone className="h-4 w-4" />
-              Request Call
-            </Button>
+            <RequestCallButton />
           </div>
         </div>
 
