@@ -1,169 +1,298 @@
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Thread } from '@/types/community';
+import { Thread, Challenge } from '@/types/community';
+import { useAuth } from '@/hooks/useAuth';
 
-interface CommunityThreadsOptions {
-  sortType?: string;
-  challengeId?: string;
-  isPrivate?: boolean;
-  limit?: number;
-  offset?: number;
-}
+// Helper function to safely access JSON properties
+const getDefinitionProperty = (definition: any, property: string): any => {
+  if (definition && typeof definition === 'object' && !Array.isArray(definition)) {
+    return definition[property];
+  }
+  return null;
+};
 
-export const useCommunityThreads = (options: CommunityThreadsOptions = {}) => {
-  const { 
-    sortType = 'hot', 
-    challengeId, 
-    isPrivate = false, 
-    limit = 50, 
-    offset = 0 
-  } = options;
+export const useCommunityThreads = () => {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
 
-  const { data: threadsData, isLoading: threadsLoading, refetch: refetchThreads } = useQuery({
-    queryKey: ['community-threads', sortType, challengeId, isPrivate, limit, offset],
+  const { data: threads = [], isLoading, refetch } = useQuery({
+    queryKey: ['threads'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .rpc('get_sorted_community_threads', {
-          p_sort_type: sortType,
-          p_challenge_id: challengeId || null,
-          p_is_private: isPrivate,
-          p_limit: limit,
-          p_offset: offset
-        });
+      // First, fetch the threads
+      const { data: threadsData, error: threadsError } = await supabase
+        .from('discussion_threads')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  const { data: privateThreadsData, isLoading: privateLoading, refetch: refetchPrivateThreads } = useQuery({
-    queryKey: ['private-threads', sortType],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .rpc('get_sorted_community_threads', {
-          p_sort_type: sortType,
-          p_challenge_id: null,
-          p_is_private: true,
-          p_limit: 50,
-          p_offset: 0
-        });
-
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  const { data: challenges, isLoading: challengesLoading } = useQuery({
-    queryKey: ['sprint-challenges'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('sprint_task_definitions')
-        .select('id, name')
-        .order('name');
-
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  // Process threads data to match the expected Thread interface
-  const processThreads = async (rawThreads: any[]) => {
-    if (!rawThreads?.length) return [];
-
-    const threadsWithMetadata = await Promise.all(
-      rawThreads.map(async (thread) => {
-        // Get author profile
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('first_name, last_name, avatar')
-          .eq('id', thread.author_id)
-          .maybeSingle();
-
-        // Get author role
-        const { data: roleData } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', thread.author_id)
-          .maybeSingle();
-
-        // Get comment count
-        const { data: commentCount } = await supabase
-          .from('thread_comments')
-          .select('id', { count: 'exact' })
-          .eq('thread_id', thread.id);
-
-        // Get challenge name if challenge_id exists
-        let challengeName = null;
-        if (thread.challenge_id) {
-          const { data: challengeData } = await supabase
-            .from('sprint_task_definitions')
-            .select('name, definition')
-            .eq('id', thread.challenge_id)
+      if (threadsError) throw threadsError;
+      
+      // For each thread, get the author profile, role, and comment count
+      const threadsWithDetails = await Promise.all(
+        threadsData.map(async (thread) => {
+          // Get author profile
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('first_name, last_name, avatar')
+            .eq('id', thread.author_id)
             .maybeSingle();
-          
-          if (challengeData) {
-            challengeName = challengeData.name;
-            // Try to get taskName from definition if available
-            if (challengeData.definition && typeof challengeData.definition === 'object') {
-              const taskName = (challengeData.definition as any)?.taskName;
+
+          // Get author role - using maybeSingle instead of single to handle no results gracefully
+          const { data: roleData } = await supabase
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', thread.author_id)
+            .maybeSingle();
+
+          // Get comment count
+          const { count } = await supabase
+            .from('thread_comments')
+            .select('*', { count: 'exact', head: true })
+            .eq('thread_id', thread.id);
+            
+          // Get challenge name if challenge_id is present
+          let challengeName = null;
+          if (thread.challenge_id) {
+            // Updated to use sprint_task_definitions instead of sprint_tasks
+            const { data: challengeData } = await supabase
+              .from('sprint_task_definitions')
+              .select('name, definition')
+              .eq('id', thread.challenge_id)
+              .maybeSingle();
+            
+            // Extract the task name from either the name field or the definition.taskName
+            if (challengeData) {
+              challengeName = challengeData.name;
+              // Safely access the taskName property using the helper function
+              const taskName = getDefinitionProperty(challengeData.definition, 'taskName');
               if (taskName) {
                 challengeName = taskName;
               }
             }
           }
-        }
 
-        // Get recipient profile if private thread
-        let recipientProfile = null;
-        if (thread.is_private && thread.recipient_id) {
-          const { data: recipient } = await supabase
-            .from('profiles')
-            .select('first_name, last_name, avatar')
-            .eq('id', thread.recipient_id)
-            .maybeSingle();
-          
-          recipientProfile = recipient;
-        }
+          // Get recipient profile if this is a private thread
+          let recipientProfile = null;
+          if (thread.is_private && thread.recipient_id) {
+            const { data: recipient } = await supabase
+              .from('profiles')
+              .select('first_name, last_name, avatar')
+              .eq('id', thread.recipient_id)
+              .maybeSingle();
+            
+            recipientProfile = recipient;
+          }
 
+          return {
+            ...thread,
+            author_profile: profileData || null,
+            author_role: roleData || null,
+            recipient_profile: recipientProfile,
+            comment_count: count ? [{ count }] : [{ count: 0 }],
+            challenge_name: challengeName
+          };
+        })
+      );
+      
+      return threadsWithDetails as Thread[];
+    },
+  });
+
+  // Filter to get only private threads where the current user is either author or recipient
+  const privateThreads = threads.filter(thread => 
+    thread.is_private && 
+    (thread.author_id === user?.id || thread.recipient_id === user?.id)
+  );
+
+  // Filter to get only public threads
+  const publicThreads = threads.filter(thread => !thread.is_private);
+
+  // Get admin users for the "Request Call" feature
+  const { data: adminUsers = [], isLoading: isLoadingAdmins } = useQuery({
+    queryKey: ['admin-users'],
+    queryFn: async () => {
+      console.log("Fetching admin users...");
+      try {
+        // First, get all user_ids with admin role
+        const { data: adminRoles, error: rolesError } = await supabase
+          .from('user_roles')
+          .select('user_id')
+          .eq('role', 'admin');
+        
+        if (rolesError) {
+          console.error("Error fetching admin roles:", rolesError);
+          throw rolesError;
+        }
+        
+        console.log("Admin roles data:", adminRoles);
+        
+        if (!adminRoles || adminRoles.length === 0) {
+          console.log("No admin roles found");
+          return [];
+        }
+        
+        // Extract user_ids
+        const adminUserIds = adminRoles.map(role => role.user_id);
+        console.log("Admin user IDs:", adminUserIds);
+        
+        // Then fetch the profiles for these users
+        const { data: adminProfiles, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, first_name, last_name, avatar')
+          .in('id', adminUserIds);
+        
+        if (profilesError) {
+          console.error("Error fetching admin profiles:", profilesError);
+          throw profilesError;
+        }
+        
+        console.log("Admin profiles:", adminProfiles);
+        return adminProfiles || [];
+      } catch (error) {
+        console.error("Error in admin users query:", error);
+        return [];
+      }
+    },
+  });
+
+  const { data: challenges = [], isLoading: isLoadingChallenges } = useQuery({
+    queryKey: ['sprint-challenges'],
+    queryFn: async () => {
+      // Updated to use sprint_task_definitions instead of sprint_tasks
+      const { data, error } = await supabase
+        .from('sprint_task_definitions')
+        .select('id, name, description, definition')
+        .order('name', { ascending: true });
+
+      if (error) throw error;
+      
+      // Transform the data to match the Challenge type
+      return data.map(task => {
+        let category = 'Other';
+        let description = task.description || '';
+        
+        // Safely access properties from definition
+        const categoryFromDef = getDefinitionProperty(task.definition, 'category');
+        if (categoryFromDef) {
+          category = categoryFromDef;
+        }
+        
+        const descriptionFromDef = getDefinitionProperty(task.definition, 'description');
+        if (descriptionFromDef && !description) {
+          description = descriptionFromDef;
+        }
+        
+        // Safely access taskName property
+        const taskName = getDefinitionProperty(task.definition, 'taskName');
+        
         return {
-          ...thread,
-          author_profile: profileData || null,
-          author_role: roleData || null,
-          comment_count: [{ count: commentCount?.length || 0 }],
-          challenge_name: challengeName,
-          recipient_profile: recipientProfile
-        } as Thread;
-      })
-    );
-
-    return threadsWithMetadata;
-  };
-
-  const { data: threads = [], isLoading: processedThreadsLoading } = useQuery({
-    queryKey: ['processed-threads', threadsData],
-    queryFn: () => processThreads(threadsData || []),
-    enabled: !!threadsData,
+          id: task.id,
+          title: taskName || task.name,
+          description: description,
+          category: category
+        };
+      }) as Challenge[];
+    }
   });
 
-  const { data: privateThreads = [], isLoading: processedPrivateLoading } = useQuery({
-    queryKey: ['processed-private-threads', privateThreadsData],
-    queryFn: () => processThreads(privateThreadsData || []),
-    enabled: !!privateThreadsData,
+  const createThread = useMutation({
+    mutationFn: async ({ 
+      title, 
+      content, 
+      challenge_id, 
+      is_private = false, 
+      recipient_id = null 
+    }: Partial<Thread>) => {
+      if (!user) {
+        throw new Error("User not authenticated");
+      }
+      
+      const { data, error } = await supabase
+        .from('discussion_threads')
+        .insert([
+          {
+            title,
+            content,
+            challenge_id,
+            author_id: user.id,
+            is_private,
+            recipient_id
+          },
+        ])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error creating thread:', error);
+        throw error;
+      }
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['threads'] });
+    },
   });
 
-  const isLoading = threadsLoading || privateLoading || challengesLoading || processedThreadsLoading || processedPrivateLoading;
+  const updateThread = useMutation({
+    mutationFn: async ({ 
+      id, 
+      title, 
+      content 
+    }: { id: string; title: string; content: string }) => {
+      if (!user) {
+        throw new Error("User not authenticated");
+      }
+      
+      const { data, error } = await supabase
+        .from('discussion_threads')
+        .update({ title, content })
+        .eq('id', id)
+        .eq('author_id', user.id) // Ensure only the author can edit
+        .select()
+        .single();
 
-  const refetch = () => {
-    refetchThreads();
-    refetchPrivateThreads();
-  };
+      if (error) {
+        console.error('Error updating thread:', error);
+        throw error;
+      }
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['threads'] });
+    },
+  });
+
+  const deleteThread = useMutation({
+    mutationFn: async (threadId: string) => {
+      if (!user) {
+        throw new Error("User not authenticated");
+      }
+      
+      const { error } = await supabase
+        .from('discussion_threads')
+        .delete()
+        .eq('id', threadId)
+        .eq('author_id', user.id); // Ensure only the author can delete
+
+      if (error) {
+        console.error('Error deleting thread:', error);
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['threads'] });
+    },
+  });
 
   return {
-    threads,
+    threads: publicThreads,
     privateThreads,
-    challenges: challenges || [],
-    isLoading,
+    adminUsers,
+    challenges,
+    isLoading: isLoading || isLoadingChallenges || isLoadingAdmins,
+    createThread,
+    updateThread,
+    deleteThread,
     refetch,
   };
 };
