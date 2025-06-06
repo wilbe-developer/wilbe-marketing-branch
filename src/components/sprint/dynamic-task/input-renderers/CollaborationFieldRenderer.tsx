@@ -17,7 +17,7 @@ interface CollaborationFieldRendererProps {
 }
 
 export const CollaborationFieldRenderer: React.FC<CollaborationFieldRendererProps> = ({
-  label = "Team Collaboration",
+  label = "Team Access",
   text,
 }) => {
   const [isCollaboratorsDialogOpen, setIsCollaboratorsDialogOpen] = useState(false);
@@ -28,7 +28,7 @@ export const CollaborationFieldRenderer: React.FC<CollaborationFieldRendererProp
       {text && <p className="text-sm text-blue-700 mb-4">{text}</p>}
       {!text && (
         <p className="text-sm text-blue-700 mb-4">
-          Invite your team members to collaborate on this BSF. They will be able to view and contribute to tasks.
+          Invite your team members to work on this BSF. They will be able to view and contribute to tasks.
         </p>
       )}
       
@@ -37,15 +37,15 @@ export const CollaborationFieldRenderer: React.FC<CollaborationFieldRendererProp
         className="w-full flex items-center justify-center gap-2"
       >
         <Users className="h-4 w-4" />
-        <span>Manage Collaborators</span>
+        <span>Manage Your Team</span>
       </Button>
       
       <Dialog open={isCollaboratorsDialogOpen} onOpenChange={setIsCollaboratorsDialogOpen}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
-            <DialogTitle>Manage Team Collaborators</DialogTitle>
+            <DialogTitle>Manage Your Team</DialogTitle>
             <DialogDescription>
-              Add or remove team members who can collaborate on your BSF.
+              Add or remove team members who can work on your BSF.
             </DialogDescription>
           </DialogHeader>
           
