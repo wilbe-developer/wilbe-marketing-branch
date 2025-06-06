@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { TutorialStep, TutorialState, TutorialContext } from '@/types/tutorial';
 import { getMobileSteps, getDesktopSteps } from '@/config/tutorialSteps';
@@ -23,6 +22,7 @@ export const useTutorial = () => {
   });
 
   const observerRef = useRef<MutationObserver | null>(null);
+  const hasAutoStarted = useRef(false);
 
   // Custom smooth scroll function with easing - now pure with no side effects
   const smoothScrollTo = useCallback((targetY: number, duration: number = 1200) => {
@@ -81,7 +81,7 @@ export const useTutorial = () => {
     try {
       const { data, error } = await supabase
         .from('sprint_profiles')
-        .select('tutorial_completed, tutorial_last_step')
+        .select('tutorial_completed, tutorial_last_step, tutorial_dismissed_at')
         .eq('user_id', user.id)
         .single();
 
@@ -100,6 +100,14 @@ export const useTutorial = () => {
         currentStep: data?.tutorial_last_step || 0,
         isLoading: false
       }));
+
+      // Auto-start logic for new users
+      if (!hasAutoStarted.current && !data?.tutorial_completed && !data?.tutorial_dismissed_at) {
+        hasAutoStarted.current = true;
+        setTimeout(() => {
+          setState(prev => ({ ...prev, isActive: true, currentStep: 0 }));
+        }, 500); // Small delay to ensure UI is ready
+      }
     } catch (error) {
       console.error('Error loading tutorial state:', error);
       setState(prev => ({ ...prev, isLoading: false }));
@@ -132,6 +140,27 @@ export const useTutorial = () => {
       console.error('Error saving tutorial progress:', error);
     }
   }, [user?.id]);
+
+  // Save dismissal (when user closes tutorial temporarily)
+  const saveTutorialDismissal = useCallback(async () => {
+    if (!user?.id) return;
+
+    try {
+      const { error } = await supabase
+        .from('sprint_profiles')
+        .update({
+          tutorial_dismissed_at: new Date().toISOString(),
+          tutorial_last_step: state.currentStep
+        })
+        .eq('user_id', user.id);
+
+      if (error) {
+        console.error('Error saving tutorial dismissal:', error);
+      }
+    } catch (error) {
+      console.error('Error saving tutorial dismissal:', error);
+    }
+  }, [user?.id, state.currentStep]);
 
   // Calculate element positions only - no auto-scrolling here
   const calculatePositions = useCallback(() => {
@@ -185,7 +214,7 @@ export const useTutorial = () => {
       
       if (newStep >= prev.steps.length) {
         // Tutorial completed
-        saveTutorialProgress(newStep, true);
+        saveTutorialProgress(prev.currentStep, true);
         toast({
           title: "Tutorial completed! 🎉",
           description: "You're all set to start your BSF journey!"
@@ -212,9 +241,22 @@ export const useTutorial = () => {
     });
   }, [saveTutorialProgress]);
 
-  // Skip tutorial
+  // Close tutorial (temporary dismissal)
+  const closeTutorial = useCallback(() => {
+    saveTutorialDismissal();
+    setState(prev => ({
+      ...prev,
+      isActive: false
+    }));
+    toast({
+      title: "Tutorial closed",
+      description: "You can restart it anytime from your profile menu."
+    });
+  }, [saveTutorialDismissal]);
+
+  // Skip tutorial (permanent completion)
   const skipTutorial = useCallback(() => {
-    saveTutorialProgress(state.steps.length, true);
+    saveTutorialProgress(state.currentStep, true);
     setState(prev => ({
       ...prev,
       isActive: false,
@@ -224,7 +266,7 @@ export const useTutorial = () => {
       title: "Tutorial skipped",
       description: "You can restart it anytime from your profile settings."
     });
-  }, [state.steps.length, saveTutorialProgress]);
+  }, [state.currentStep, saveTutorialProgress]);
 
   // Restart tutorial
   const restartTutorial = useCallback(async () => {
@@ -323,6 +365,7 @@ export const useTutorial = () => {
     startTutorial,
     nextStep,
     prevStep,
+    closeTutorial,
     skipTutorial,
     restartTutorial,
     currentStepData: state.steps[state.currentStep] || null,
