@@ -1804,6 +1804,8 @@ export type Database = {
           content: string
           created_at: string
           updated_at: string
+          upvotes: number
+          downvotes: number
           score: number
         }[]
       }
