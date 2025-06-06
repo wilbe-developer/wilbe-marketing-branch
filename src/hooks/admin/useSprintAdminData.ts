@@ -52,9 +52,15 @@ export const useSprintAdminData = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
+        console.log('Starting admin data load...');
         setIsLoading(true);
+        setError(null);
+        
         const waitlistData = await fetchWaitlistSignups();
+        console.log('Waitlist data loaded:', waitlistData.length, 'items');
+        
         const sprintData = await fetchSprintProfiles();
+        console.log('Sprint profiles loaded:', sprintData.length, 'items');
         
         setWaitlistSignups(waitlistData);
         setSprintProfiles(sprintData);
@@ -71,8 +77,9 @@ export const useSprintAdminData = () => {
           setUtmMediums(utmMediums);
         }
         
-        setError(null);
+        console.log('Admin data load completed successfully');
       } catch (err: any) {
+        console.error('Admin data load failed:', err);
         setError(err.message);
       } finally {
         setIsLoading(false);
@@ -85,12 +92,14 @@ export const useSprintAdminData = () => {
   // Unify data whenever either data source changes or adminUserIds changes
   useEffect(() => {
     if ((waitlistSignups.length > 0 || sprintProfiles.length > 0) && adminUserIds.length >= 0) {
+      console.log('Unifying data with', waitlistSignups.length, 'waitlist and', sprintProfiles.length, 'sprint profiles');
       const unified = unifyData(waitlistSignups, sprintProfiles, adminUserIds);
       setUnifiedSignups(unified);
       
       // Analyze unified data
       const stats = analyzeUnifiedData(unified);
       setUnifiedStats(stats);
+      console.log('Unified data stats:', stats);
     }
   }, [waitlistSignups, sprintProfiles, adminUserIds]);
 
@@ -105,15 +114,19 @@ export const useSprintAdminData = () => {
   // Refresh data
   const refreshData = async () => {
     try {
+      console.log('Refreshing admin data...');
       setIsLoading(true);
+      setError(null);
+      
       const waitlistData = await fetchWaitlistSignups();
       const sprintData = await fetchSprintProfiles();
       
       setWaitlistSignups(waitlistData);
       setSprintProfiles(sprintData);
       
-      setError(null);
+      console.log('Admin data refresh completed');
     } catch (err: any) {
+      console.error('Admin data refresh failed:', err);
       setError(err.message);
     } finally {
       setIsLoading(false);

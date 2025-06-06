@@ -23,19 +23,22 @@ export const fetchWaitlistSignups = async (): Promise<WaitlistSignup[]> => {
 
 export const fetchSprintProfiles = async (): Promise<SprintProfile[]> => {
   try {
+    console.log('Fetching sprint profiles...');
     const { data, error } = await supabase
       .from('sprint_profiles')
       .select('*')
       .order('created_at', { ascending: false });
       
     if (error) {
+      console.error('Sprint profiles fetch error:', error);
       throw error;
     }
     
+    console.log(`Successfully fetched ${data?.length || 0} sprint profiles`);
     return data || [];
   } catch (err: any) {
     console.error('Error fetching sprint profiles:', err);
-    toast.error('Failed to load sprint profile data');
+    toast.error(`Failed to load sprint profile data: ${err.message}`);
     return [];
   }
 };
