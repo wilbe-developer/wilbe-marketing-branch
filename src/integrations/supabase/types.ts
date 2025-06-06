@@ -623,6 +623,9 @@ export type Database = {
           success_vision_1yr: boolean | null
           team_status: string | null
           tto_engaged: boolean | null
+          tutorial_completed: boolean | null
+          tutorial_dismissed_at: string | null
+          tutorial_last_step: number | null
           university_ip: boolean | null
           updated_at: string
           user_id: string
@@ -679,6 +682,9 @@ export type Database = {
           success_vision_1yr?: boolean | null
           team_status?: string | null
           tto_engaged?: boolean | null
+          tutorial_completed?: boolean | null
+          tutorial_dismissed_at?: string | null
+          tutorial_last_step?: number | null
           university_ip?: boolean | null
           updated_at?: string
           user_id: string
@@ -735,6 +741,9 @@ export type Database = {
           success_vision_1yr?: boolean | null
           team_status?: string | null
           tto_engaged?: boolean | null
+          tutorial_completed?: boolean | null
+          tutorial_dismissed_at?: string | null
+          tutorial_last_step?: number | null
           university_ip?: boolean | null
           updated_at?: string
           user_id?: string
