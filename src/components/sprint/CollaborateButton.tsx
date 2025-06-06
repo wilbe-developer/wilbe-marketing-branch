@@ -23,7 +23,7 @@ export const CollaborateButton = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { user } = useAuth();
   const { currentSprintOwnerId, canManage } = useSprintContext();
-  const { isPublic, isLoading, updatePrivacySetting } = useDataRoomPrivacy();
+  const { isPublic, isLoading, updatePrivacySetting, canManagePrivacy } = useDataRoomPrivacy(currentSprintOwnerId || undefined);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -106,9 +106,42 @@ export const CollaborateButton = () => {
           
           <TabsContent value="dataroom">
             <div className="space-y-6 p-2">
-              {/* Privacy Toggle Section */}
-              <div className="border rounded-lg p-4">
-                <div className="flex items-center justify-between mb-3">
+              {/* Privacy Toggle Section - Only show if user can manage privacy */}
+              {canManagePrivacy && (
+                <div className="border rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center space-x-2">
+                      {isPublic ? <Globe className="h-5 w-5 text-green-600" /> : <Lock className="h-5 w-5 text-gray-500" />}
+                      <div>
+                        <h4 className="font-medium">
+                          {isPublic ? "Public Data Room" : "Private Data Room"}
+                        </h4>
+                        <p className="text-sm text-gray-500">
+                          {isPublic 
+                            ? "Anyone with the link can view your data room" 
+                            : "Only you and your team members can access your data room"
+                          }
+                        </p>
+                      </div>
+                    </div>
+                    <Switch
+                      checked={isPublic}
+                      onCheckedChange={updatePrivacySetting}
+                      disabled={isLoading}
+                    />
+                  </div>
+                  
+                  {isLoading && (
+                    <div className="text-sm text-gray-500 mt-2">
+                      Updating privacy setting...
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Read-only privacy status for non-owners */}
+              {!canManagePrivacy && (
+                <div className="border rounded-lg p-4 bg-gray-50">
                   <div className="flex items-center space-x-2">
                     {isPublic ? <Globe className="h-5 w-5 text-green-600" /> : <Lock className="h-5 w-5 text-gray-500" />}
                     <div>
@@ -116,26 +149,12 @@ export const CollaborateButton = () => {
                         {isPublic ? "Public Data Room" : "Private Data Room"}
                       </h4>
                       <p className="text-sm text-gray-500">
-                        {isPublic 
-                          ? "Anyone with the link can view your data room" 
-                          : "Only you and your team members can access your data room"
-                        }
+                        This data room is {isPublic ? "publicly accessible" : "private"}
                       </p>
                     </div>
                   </div>
-                  <Switch
-                    checked={isPublic}
-                    onCheckedChange={updatePrivacySetting}
-                    disabled={isLoading}
-                  />
                 </div>
-                
-                {isLoading && (
-                  <div className="text-sm text-gray-500 mt-2">
-                    Updating privacy setting...
-                  </div>
-                )}
-              </div>
+              )}
 
               {/* Data Room Description */}
               <div className="bg-blue-50 p-4 rounded-md">
@@ -172,7 +191,10 @@ export const CollaborateButton = () => {
                 {!isPublic && (
                   <div className="text-center p-3 bg-gray-50 rounded border border-dashed">
                     <p className="text-sm text-gray-500">
-                      Make your data room public to generate a shareable link
+                      {canManagePrivacy 
+                        ? "Make your data room public to generate a shareable link"
+                        : "This data room is private"
+                      }
                     </p>
                   </div>
                 )}

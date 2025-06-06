@@ -7,7 +7,6 @@ import MemberRoute from "@/components/MemberRoute";
 import SprintDashboardPage from "@/pages/SprintDashboardPage";
 import SprintTaskPage from "@/pages/SprintTaskPage";
 import SprintProfilePage from "@/pages/SprintProfilePage";
-import SprintDataRoomPage from "@/pages/SprintDataRoomPage";
 import CommunityPage from "@/pages/CommunityPage";
 import NewThreadPage from "@/pages/NewThreadPage";
 import ThreadPage from "@/pages/ThreadPage";
@@ -21,7 +20,6 @@ export default function SprintRoutes() {
           <Route path={PATHS.SPRINT_DASHBOARD} element={<SprintDashboardPage />} />
           <Route path={`${PATHS.SPRINT_TASK}/:taskId`} element={<SprintTaskPage />} />
           <Route path={PATHS.SPRINT_PROFILE} element={<SprintProfilePage />} />
-          <Route path="/sprint/data-room/:sprintId" element={<SprintDataRoomPage />} />
         </Route>
       </Route>
 

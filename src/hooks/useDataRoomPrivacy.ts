@@ -4,38 +4,46 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
-export const useDataRoomPrivacy = () => {
+export const useDataRoomPrivacy = (targetUserId?: string) => {
   const [isPublic, setIsPublic] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useAuth();
 
+  // Use targetUserId if provided, otherwise fall back to current user
+  const userId = targetUserId || user?.id;
+  
+  // Check if current user can manage the target user's privacy settings
+  const canManagePrivacy = user?.id === userId;
+
   const fetchPrivacySetting = async () => {
-    if (!user?.id) {
+    if (!userId) {
       console.log("No user ID available for fetching privacy setting");
       return;
     }
     
-    console.log("Fetching privacy setting for user:", user.id);
+    console.log("Fetching privacy setting for user:", userId);
     
     try {
       const { data, error } = await supabase
         .from("sprint_profiles")
         .select("data_room_public")
-        .eq("user_id", user.id)
+        .eq("user_id", userId)
         .single();
 
       if (error) {
         if (error.code === 'PGRST116') {
-          console.log("No sprint profile found for user:", user.id);
+          console.log("No sprint profile found for user:", userId);
           setIsPublic(false);
           return;
         }
         console.error("Error fetching privacy setting:", error);
-        toast({
-          title: "Error loading privacy setting",
-          description: error.message || "Unable to load data room privacy setting",
-          variant: "destructive"
-        });
+        if (canManagePrivacy) {
+          toast({
+            title: "Error loading privacy setting",
+            description: error.message || "Unable to load data room privacy setting",
+            variant: "destructive"
+          });
+        }
         return;
       }
       
@@ -43,11 +51,13 @@ export const useDataRoomPrivacy = () => {
       setIsPublic(data?.data_room_public || false);
     } catch (error: any) {
       console.error("Unexpected error fetching privacy setting:", error);
-      toast({
-        title: "Error loading privacy setting",
-        description: "An unexpected error occurred",
-        variant: "destructive"
-      });
+      if (canManagePrivacy) {
+        toast({
+          title: "Error loading privacy setting",
+          description: "An unexpected error occurred",
+          variant: "destructive"
+        });
+      }
     }
   };
 
@@ -61,16 +71,25 @@ export const useDataRoomPrivacy = () => {
       });
       return;
     }
+
+    if (!canManagePrivacy) {
+      console.error("User cannot manage this data room's privacy settings");
+      toast({
+        title: "Permission denied",
+        description: "You can only manage your own data room privacy settings",
+        variant: "destructive"
+      });
+      return;
+    }
     
-    console.log("Updating privacy setting to:", newIsPublic, "for user:", user.id);
+    console.log("Updating privacy setting to:", newIsPublic, "for user:", userId);
     
     setIsLoading(true);
     try {
-      // Use upsert with the correct conflict resolution now that we have the unique constraint
       const { error } = await supabase
         .from("sprint_profiles")
         .upsert({ 
-          user_id: user.id, 
+          user_id: userId, 
           data_room_public: newIsPublic 
         }, { 
           onConflict: 'user_id' 
@@ -79,7 +98,6 @@ export const useDataRoomPrivacy = () => {
       if (error) {
         console.error("Error updating privacy setting:", error);
         
-        // Handle specific error types
         if (error.code === '42501') {
           toast({
             title: "Permission denied",
@@ -124,12 +142,13 @@ export const useDataRoomPrivacy = () => {
 
   useEffect(() => {
     fetchPrivacySetting();
-  }, [user?.id]);
+  }, [userId]);
 
   return {
     isPublic,
     isLoading,
     updatePrivacySetting,
-    refetch: fetchPrivacySetting
+    refetch: fetchPrivacySetting,
+    canManagePrivacy
   };
 };
