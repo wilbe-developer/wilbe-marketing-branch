@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Construction } from "lucide-react";
 import LumaEventsEmbed from "./LumaEventsEmbed";
@@ -41,7 +40,7 @@ export default function PlatformsSection() {
     {
       name: "Origen",
       location: "Bristol, UK", 
-      image: "/lovable-uploads/cad82760-686a-4c37-9e96-c9f6705dcc92.png"
+      image: "/lovable-uploads/2af3b264-f549-43f1-adea-52626de48c4c.png"
     },
     {
       name: "CarpeCarbon",
