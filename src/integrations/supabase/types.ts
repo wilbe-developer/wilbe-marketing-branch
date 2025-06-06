@@ -113,8 +113,11 @@ export type Database = {
           content: string
           created_at: string
           id: string
+          is_pinned: boolean
           is_private: boolean
           last_edited_at: string | null
+          pinned_at: string | null
+          pinned_by: string | null
           recipient_id: string | null
           title: string
           updated_at: string
@@ -125,8 +128,11 @@ export type Database = {
           content: string
           created_at?: string
           id?: string
+          is_pinned?: boolean
           is_private?: boolean
           last_edited_at?: string | null
+          pinned_at?: string | null
+          pinned_by?: string | null
           recipient_id?: string | null
           title: string
           updated_at?: string
@@ -137,8 +143,11 @@ export type Database = {
           content?: string
           created_at?: string
           id?: string
+          is_pinned?: boolean
           is_private?: boolean
           last_edited_at?: string | null
+          pinned_at?: string | null
+          pinned_by?: string | null
           recipient_id?: string | null
           title?: string
           updated_at?: string
@@ -1792,6 +1801,9 @@ export type Database = {
           recipient_id: string
           created_at: string
           last_edited_at: string
+          is_pinned: boolean
+          pinned_at: string
+          pinned_by: string
           score: number
         }[]
       }

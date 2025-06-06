@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { MoreHorizontal, Edit, Trash2 } from 'lucide-react';
+import { MoreHorizontal, Edit, Trash2, Pin, PinOff } from 'lucide-react';
 import { Thread } from '@/types/community';
 import { useCommunityThreads } from '@/hooks/useCommunityThreads';
 import { useAuth } from '@/hooks/useAuth';
@@ -18,12 +18,36 @@ interface ThreadActionsProps {
 
 export const ThreadActions = ({ thread, onEdit, onDeleted }: ThreadActionsProps) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const { deleteThread } = useCommunityThreads();
+  const { deleteThread, pinThread, unpinThread } = useCommunityThreads();
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  // Only show actions if current user is the thread author
-  if (!user || thread.author_id !== user.id) {
+  // Check if user is admin
+  const [isAdmin, setIsAdmin] = useState(false);
+  
+  // Check admin status
+  React.useEffect(() => {
+    const checkAdminStatus = async () => {
+      if (!user) return;
+      
+      const { data } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('role', 'admin')
+        .maybeSingle();
+      
+      setIsAdmin(!!data);
+    };
+    
+    checkAdminStatus();
+  }, [user]);
+
+  // Show actions if current user is the thread author OR if user is admin (for pinning)
+  const canEdit = user && thread.author_id === user.id;
+  const canPin = isAdmin;
+  
+  if (!canEdit && !canPin) {
     return null;
   }
 
@@ -46,6 +70,20 @@ export const ThreadActions = ({ thread, onEdit, onDeleted }: ThreadActionsProps)
     }
   };
 
+  const handlePin = async () => {
+    try {
+      if (thread.is_pinned) {
+        await unpinThread.mutateAsync(thread.id);
+        toast.success('Thread unpinned');
+      } else {
+        await pinThread.mutateAsync(thread.id);
+        toast.success('Thread pinned to top');
+      }
+    } catch (error) {
+      toast.error('Failed to update pin status');
+    }
+  };
+
   const handleDropdownClick = (e: React.MouseEvent) => {
     e.stopPropagation();
   };
@@ -60,6 +98,11 @@ export const ThreadActions = ({ thread, onEdit, onDeleted }: ThreadActionsProps)
     setShowDeleteDialog(true);
   };
 
+  const handlePinClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    handlePin();
+  };
+
   return (
     <>
       <DropdownMenu>
@@ -69,17 +112,36 @@ export const ThreadActions = ({ thread, onEdit, onDeleted }: ThreadActionsProps)
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={handleEditClick}>
-            <Edit className="mr-2 h-4 w-4" />
-            Edit
-          </DropdownMenuItem>
-          <DropdownMenuItem 
-            onClick={handleDeleteClick}
-            className="text-red-600"
-          >
-            <Trash2 className="mr-2 h-4 w-4" />
-            Delete
-          </DropdownMenuItem>
+          {canEdit && (
+            <>
+              <DropdownMenuItem onClick={handleEditClick}>
+                <Edit className="mr-2 h-4 w-4" />
+                Edit
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={handleDeleteClick}
+                className="text-red-600"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete
+              </DropdownMenuItem>
+            </>
+          )}
+          {canPin && (
+            <DropdownMenuItem onClick={handlePinClick}>
+              {thread.is_pinned ? (
+                <>
+                  <PinOff className="mr-2 h-4 w-4" />
+                  Unpin
+                </>
+              ) : (
+                <>
+                  <Pin className="mr-2 h-4 w-4" />
+                  Pin to top
+                </>
+              )}
+            </DropdownMenuItem>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
 

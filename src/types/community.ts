@@ -11,6 +11,9 @@ export interface Thread {
   recipient_id?: string;
   created_at: string;
   last_edited_at?: string;
+  is_pinned?: boolean;
+  pinned_at?: string;
+  pinned_by?: string;
   author_profile?: {
     first_name: string;
     last_name: string;

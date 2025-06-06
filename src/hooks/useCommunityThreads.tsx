@@ -25,7 +25,7 @@ export const useCommunityThreads = (params: UseCommunityThreadsParams = {}) => {
   const { data: threads = [], isLoading, refetch } = useQuery({
     queryKey: ['threads', sortType, challengeId, isPrivate],
     queryFn: async () => {
-      // Use the new sorting function
+      // Use the updated sorting function with pinned fields
       const { data: threadsData, error: threadsError } = await supabase
         .rpc('get_sorted_community_threads', {
           p_sort_type: sortType,
@@ -205,6 +205,67 @@ export const useCommunityThreads = (params: UseCommunityThreadsParams = {}) => {
     }
   });
 
+  // Add pinThread mutation
+  const pinThread = useMutation({
+    mutationFn: async (threadId: string) => {
+      if (!user) {
+        throw new Error("User not authenticated");
+      }
+      
+      // First unpin any existing pinned thread
+      await supabase
+        .from('discussion_threads')
+        .update({ 
+          is_pinned: false, 
+          pinned_at: null, 
+          pinned_by: null 
+        })
+        .eq('is_pinned', true);
+
+      // Then pin the new thread
+      const { data, error } = await supabase
+        .from('discussion_threads')
+        .update({ 
+          is_pinned: true, 
+          pinned_at: new Date().toISOString(),
+          pinned_by: user.id 
+        })
+        .eq('id', threadId)
+        .select();
+
+      if (error) throw error;
+      return data[0];
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['threads'] });
+    },
+  });
+
+  // Add unpinThread mutation
+  const unpinThread = useMutation({
+    mutationFn: async (threadId: string) => {
+      if (!user) {
+        throw new Error("User not authenticated");
+      }
+      
+      const { data, error } = await supabase
+        .from('discussion_threads')
+        .update({ 
+          is_pinned: false, 
+          pinned_at: null, 
+          pinned_by: null 
+        })
+        .eq('id', threadId)
+        .select();
+
+      if (error) throw error;
+      return data[0];
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['threads'] });
+    },
+  });
+
   const createThread = useMutation({
     mutationFn: async ({ 
       title, 
@@ -303,6 +364,8 @@ export const useCommunityThreads = (params: UseCommunityThreadsParams = {}) => {
     createThread,
     updateThread,
     deleteThread,
+    pinThread,
+    unpinThread,
     refetch,
   };
 };
