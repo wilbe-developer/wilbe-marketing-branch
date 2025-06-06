@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useProfileActions } from "@/hooks/auth/useProfileActions";
 
 interface User {
   id: string;
@@ -34,8 +35,15 @@ export const ProfileForm = ({ user }: ProfileFormProps) => {
     twitter_handle: "",
   });
 
+  const { updateProfile } = useProfileActions({
+    user: user as any,
+    setUser: () => {}, // We don't need to update user state here
+    setLoading: setIsLoading,
+    toast
+  });
+
   // Load existing profile data
-  useState(() => {
+  useEffect(() => {
     const loadProfile = async () => {
       if (!user?.id) return;
       
@@ -70,7 +78,7 @@ export const ProfileForm = ({ user }: ProfileFormProps) => {
     };
 
     loadProfile();
-  });
+  }, [user?.id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,60 +92,20 @@ export const ProfileForm = ({ user }: ProfileFormProps) => {
       return;
     }
 
-    setIsLoading(true);
+    // Convert form data to UserProfile format
+    const profileData = {
+      firstName: formData.first_name,
+      lastName: formData.last_name,
+      institution: formData.institution,
+      location: formData.location,
+      bio: formData.bio,
+      about: formData.about,
+      expertise: formData.expertise,
+      linkedIn: formData.linked_in,
+      twitterHandle: formData.twitter_handle,
+    };
 
-    try {
-      // Use upsert to handle both insert and update cases
-      const { error } = await supabase
-        .from("profiles")
-        .upsert({
-          id: user.id,
-          email: user.email,
-          ...formData,
-        }, {
-          onConflict: 'id'
-        });
-
-      if (error) {
-        console.error("Error updating profile:", error);
-        
-        // Handle specific error types
-        if (error.code === '42501') {
-          toast({
-            title: "Permission denied",
-            description: "You don't have permission to update your profile",
-            variant: "destructive"
-          });
-        } else if (error.code === '23505') {
-          toast({
-            title: "Duplicate entry",
-            description: "There was a conflict updating your profile. Please try again.",
-            variant: "destructive"
-          });
-        } else {
-          toast({
-            title: "Error updating profile",
-            description: error.message || "Please try again later",
-            variant: "destructive"
-          });
-        }
-        return;
-      }
-
-      toast({
-        title: "Profile updated",
-        description: "Your profile has been successfully updated",
-      });
-    } catch (error: any) {
-      console.error("Error updating profile:", error);
-      toast({
-        title: "Error updating profile",
-        description: error.message || "An unexpected error occurred",
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    await updateProfile(profileData);
   };
 
   return (
