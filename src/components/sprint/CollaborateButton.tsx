@@ -46,20 +46,20 @@ export const CollaborateButton = () => {
       <DialogTrigger asChild>
         <Button size="sm" variant="outline" className="gap-2">
           <Share className="h-4 w-4" />
-          <span>Collaborate</span>
+          <span>Share</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>BSF Collaboration</DialogTitle>
+          <DialogTitle>Manage Your Team</DialogTitle>
           <DialogDescription>
-            Manage your BSF collaborators and share your BSF content with team members or investors.
+            Share access to your BSF with team members. Give them edit or manage access to work on this together or restrict them to view only access.
           </DialogDescription>
         </DialogHeader>
         
         <Tabs defaultValue="collaborators" className="w-full">
           <TabsList className="mb-4 w-full">
-            <TabsTrigger value="collaborators" className="flex-1">Collaborators</TabsTrigger>
+            <TabsTrigger value="collaborators" className="flex-1">Team</TabsTrigger>
             <TabsTrigger value="dataroom" className="flex-1">Data Room</TabsTrigger>
           </TabsList>
           
@@ -72,7 +72,7 @@ export const CollaborateButton = () => {
               <div className="bg-blue-50 p-4 rounded-md">
                 <h3 className="font-medium text-blue-800 mb-2">About the Data Room</h3>
                 <p className="text-sm text-blue-700 mb-2">
-                  The Data Room presents your BSF information in an investor-friendly format, making it easy to share your progress and plans.
+                  The Data Room presents your BSF uploads, making it easy to view your progress and plans.
                 </p>
                 <p className="text-sm text-blue-700">
                   Anyone with the link can view your data room. You can share the link with investors, advisors, or team members.
