@@ -113,8 +113,11 @@ export type Database = {
           content: string
           created_at: string
           id: string
+          is_pinned: boolean
           is_private: boolean
           last_edited_at: string | null
+          pinned_at: string | null
+          pinned_by: string | null
           recipient_id: string | null
           title: string
           updated_at: string
@@ -125,8 +128,11 @@ export type Database = {
           content: string
           created_at?: string
           id?: string
+          is_pinned?: boolean
           is_private?: boolean
           last_edited_at?: string | null
+          pinned_at?: string | null
+          pinned_by?: string | null
           recipient_id?: string | null
           title: string
           updated_at?: string
@@ -137,8 +143,11 @@ export type Database = {
           content?: string
           created_at?: string
           id?: string
+          is_pinned?: boolean
           is_private?: boolean
           last_edited_at?: string | null
+          pinned_at?: string | null
+          pinned_by?: string | null
           recipient_id?: string | null
           title?: string
           updated_at?: string
@@ -578,6 +587,7 @@ export type Database = {
           customer_evidence: boolean | null
           cv_url: string | null
           dashboard_access_enabled: boolean | null
+          data_room_public: boolean
           deck_feedback: boolean | null
           email: string | null
           experiment_validated: boolean | null
@@ -633,6 +643,7 @@ export type Database = {
           customer_evidence?: boolean | null
           cv_url?: string | null
           dashboard_access_enabled?: boolean | null
+          data_room_public?: boolean
           deck_feedback?: boolean | null
           email?: string | null
           experiment_validated?: boolean | null
@@ -688,6 +699,7 @@ export type Database = {
           customer_evidence?: boolean | null
           cv_url?: string | null
           dashboard_access_enabled?: boolean | null
+          data_room_public?: boolean
           deck_feedback?: boolean | null
           email?: string | null
           experiment_validated?: boolean | null
@@ -1391,6 +1403,10 @@ export type Database = {
         Args: { p_thread_id: string; p_sort_type?: string }
         Returns: number
       }
+      can_access_data_room: {
+        Args: { p_sprint_owner_id: string; p_requesting_user_id?: string }
+        Returns: boolean
+      }
       create_sprint_profile: {
         Args:
           | {
@@ -1749,6 +1765,10 @@ export type Database = {
           net_votes: number
         }[]
       }
+      get_current_user_role: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       get_member_directory_profiles: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -1792,6 +1812,9 @@ export type Database = {
           recipient_id: string
           created_at: string
           last_edited_at: string
+          is_pinned: boolean
+          pinned_at: string
+          pinned_by: string
           score: number
         }[]
       }

@@ -2,7 +2,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Lock, MessageCircle } from 'lucide-react';
+import { Lock, MessageCircle, Pin } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ThreadActions } from '@/components/community/ThreadActions';
 import { ThreadVoting } from '@/components/community/ThreadVoting';
@@ -27,11 +27,23 @@ export const ThreadCard = ({
 }: ThreadCardProps) => {
   const isMobile = useIsMobile();
 
+  const cardClassName = `bg-white rounded-lg shadow-sm border p-4 hover:border-brand-pink transition-colors cursor-pointer ${
+    thread.is_pinned ? 'border-yellow-400 bg-yellow-50' : ''
+  }`;
+
   return (
     <div
-      className="bg-white rounded-lg shadow-sm border p-4 hover:border-brand-pink transition-colors cursor-pointer"
+      className={cardClassName}
       onClick={(e) => onThreadClick(e, thread.id)}
     >
+      {/* Pinned indicator */}
+      {thread.is_pinned && (
+        <div className="flex items-center gap-2 mb-3 text-yellow-700 text-sm font-medium">
+          <Pin size={16} className="text-yellow-600" />
+          <span>Pinned by admin</span>
+        </div>
+      )}
+
       {isMobile ? (
         // Mobile layout
         <div className="space-y-3">
