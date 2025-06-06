@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Share } from "lucide-react";
+import { Share, Eye, Globe, Lock } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -11,20 +11,19 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { 
-  useSprintCollaborators, 
-  type Collaborator 
-} from "@/hooks/useSprintCollaborators";
+import { Switch } from "@/components/ui/switch";
 import { CollaboratorsManagement } from "./CollaboratorsManagement";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useSprintContext } from "@/hooks/useSprintContext";
+import { useDataRoomPrivacy } from "@/hooks/useDataRoomPrivacy";
 
 export const CollaborateButton = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { user } = useAuth();
   const { currentSprintOwnerId, canManage } = useSprintContext();
+  const { isPublic, isLoading, updatePrivacySetting } = useDataRoomPrivacy();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -38,7 +37,24 @@ export const CollaborateButton = () => {
     setIsDialogOpen(false);
   };
 
-  // Don't show the button if user doesn't have manage access in a shared sprint
+  const handleCopyLink = () => {
+    if (!isPublic) {
+      toast({
+        title: "Data room is private",
+        description: "Please make your data room public first to share the link",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    navigator.clipboard.writeText(`${window.location.origin}/sprint/data-room/${dataRoomUserId}`);
+    toast({
+      title: "Link copied",
+      description: "Data room link copied to clipboard"
+    });
+  };
+
+  // Don't show the button if user doesn't have manage access
   if (!canManage) return null;
 
   return (
@@ -53,7 +69,7 @@ export const CollaborateButton = () => {
         <DialogHeader>
           <DialogTitle>Manage Your Team</DialogTitle>
           <DialogDescription>
-            Share access to your BSF with team members. Give them edit or manage access to work on this together or restrict them to view only access.
+            Share access to your BSF with team members and manage your data room visibility.
           </DialogDescription>
         </DialogHeader>
         
@@ -68,42 +84,71 @@ export const CollaborateButton = () => {
           </TabsContent>
           
           <TabsContent value="dataroom">
-            <div className="space-y-4 p-2">
+            <div className="space-y-6 p-2">
+              {/* Privacy Toggle Section */}
+              <div className="border rounded-lg p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center space-x-2">
+                    {isPublic ? <Globe className="h-5 w-5 text-green-600" /> : <Lock className="h-5 w-5 text-gray-500" />}
+                    <div>
+                      <h4 className="font-medium">
+                        {isPublic ? "Public Data Room" : "Private Data Room"}
+                      </h4>
+                      <p className="text-sm text-gray-500">
+                        {isPublic 
+                          ? "Anyone with the link can view your data room" 
+                          : "Only you and your team members can access your data room"
+                        }
+                      </p>
+                    </div>
+                  </div>
+                  <Switch
+                    checked={isPublic}
+                    onCheckedChange={updatePrivacySetting}
+                    disabled={isLoading}
+                  />
+                </div>
+              </div>
+
+              {/* Data Room Description */}
               <div className="bg-blue-50 p-4 rounded-md">
                 <h3 className="font-medium text-blue-800 mb-2">About the Data Room</h3>
                 <p className="text-sm text-blue-700 mb-2">
-                  The Data Room presents your BSF uploads, making it easy to view your progress and plans.
+                  The Data Room presents your BSF uploads and progress, making it easy to view your work and plans.
                 </p>
                 <p className="text-sm text-blue-700">
-                  Anyone with the link can view your data room. You can share the link with investors, advisors, or team members.
+                  You can share this with investors, advisors, or team members when it's public.
                 </p>
               </div>
               
-              <div className="flex flex-col space-y-4">
-                <Button onClick={handleOpenDataRoom}>
-                  Open Data Room
+              {/* Action Buttons */}
+              <div className="flex flex-col space-y-3">
+                <Button onClick={handleOpenDataRoom} className="w-full">
+                  <Eye className="mr-2 h-4 w-4" />
+                  Preview Data Room
                 </Button>
                 
-                <div className="flex items-center space-x-2">
-                  <input 
-                    type="text" 
-                    readOnly
-                    value={`${window.location.origin}/sprint/data-room/${dataRoomUserId}`}
-                    className="flex-1 p-2 rounded border text-sm"
-                  />
-                  <Button
-                    size="sm"
-                    onClick={() => {
-                      navigator.clipboard.writeText(`${window.location.origin}/sprint/data-room/${dataRoomUserId}`);
-                      toast({
-                        title: "Link copied",
-                        description: "Data room link copied to clipboard"
-                      });
-                    }}
-                  >
-                    Copy
-                  </Button>
-                </div>
+                {isPublic && (
+                  <div className="flex items-center space-x-2">
+                    <input 
+                      type="text" 
+                      readOnly
+                      value={`${window.location.origin}/sprint/data-room/${dataRoomUserId}`}
+                      className="flex-1 p-2 rounded border text-sm bg-gray-50"
+                    />
+                    <Button size="sm" onClick={handleCopyLink}>
+                      Copy Link
+                    </Button>
+                  </div>
+                )}
+                
+                {!isPublic && (
+                  <div className="text-center p-3 bg-gray-50 rounded border border-dashed">
+                    <p className="text-sm text-gray-500">
+                      Make your data room public to generate a shareable link
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           </TabsContent>

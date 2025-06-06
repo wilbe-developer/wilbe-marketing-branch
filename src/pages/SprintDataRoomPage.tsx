@@ -1,10 +1,9 @@
-
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, Download, File, Edit } from "lucide-react";
+import { ChevronLeft, Download, File, Edit, Lock } from "lucide-react";
 import { DataRoomSection } from "@/components/sprint/data-room/DataRoomSection";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/hooks/use-toast";
@@ -74,6 +73,7 @@ const SprintDataRoomPage = () => {
   const [loading, setLoading] = useState(true);
   const [dataRoomData, setDataRoomData] = useState<DataRoomData | null>(null);
   const [owner, setOwner] = useState<OwnerData | null>(null);
+  const [hasAccess, setHasAccess] = useState<boolean>(true);
   const { user } = useAuth();
 
   const isOwnDataRoom = user?.id === sprintId;
@@ -84,6 +84,26 @@ const SprintDataRoomPage = () => {
       
       setLoading(true);
       try {
+        // First check if we have access to this data room
+        const { data: accessCheck, error: accessError } = await supabase
+          .rpc('can_access_data_room', { 
+            p_sprint_owner_id: sprintId, 
+            p_requesting_user_id: user?.id || null 
+          });
+
+        if (accessError) {
+          console.error("Error checking access:", accessError);
+          setHasAccess(false);
+          setLoading(false);
+          return;
+        }
+
+        if (!accessCheck) {
+          setHasAccess(false);
+          setLoading(false);
+          return;
+        }
+
         // Fetch owner profile first to identify the sprint owner
         const { data: ownerData, error: ownerError } = await supabase
           .from("profiles")
@@ -209,7 +229,7 @@ const SprintDataRoomPage = () => {
     };
     
     fetchDataRoomData();
-  }, [sprintId]);
+  }, [sprintId, user?.id]);
 
   if (loading) {
     return (
@@ -222,6 +242,22 @@ const SprintDataRoomPage = () => {
             <Skeleton className="h-[200px] w-full" />
           </div>
         </div>
+      </div>
+    );
+  }
+
+  if (!hasAccess) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 py-8 text-center">
+        <Lock className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+        <h1 className="text-2xl font-bold mb-4">Private Data Room</h1>
+        <p className="text-gray-600 mb-6">
+          This data room is private and not accessible to the public. 
+          {!user && " Please log in if you have been granted access."}
+        </p>
+        <Button asChild>
+          <Link to="/sprint/dashboard">Return to Dashboard</Link>
+        </Button>
       </div>
     );
   }

@@ -587,6 +587,7 @@ export type Database = {
           customer_evidence: boolean | null
           cv_url: string | null
           dashboard_access_enabled: boolean | null
+          data_room_public: boolean
           deck_feedback: boolean | null
           email: string | null
           experiment_validated: boolean | null
@@ -642,6 +643,7 @@ export type Database = {
           customer_evidence?: boolean | null
           cv_url?: string | null
           dashboard_access_enabled?: boolean | null
+          data_room_public?: boolean
           deck_feedback?: boolean | null
           email?: string | null
           experiment_validated?: boolean | null
@@ -697,6 +699,7 @@ export type Database = {
           customer_evidence?: boolean | null
           cv_url?: string | null
           dashboard_access_enabled?: boolean | null
+          data_room_public?: boolean
           deck_feedback?: boolean | null
           email?: string | null
           experiment_validated?: boolean | null
@@ -1399,6 +1402,10 @@ export type Database = {
       calculate_thread_score: {
         Args: { p_thread_id: string; p_sort_type?: string }
         Returns: number
+      }
+      can_access_data_room: {
+        Args: { p_sprint_owner_id: string; p_requesting_user_id?: string }
+        Returns: boolean
       }
       create_sprint_profile: {
         Args:
