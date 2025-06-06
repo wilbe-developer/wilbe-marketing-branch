@@ -11,7 +11,7 @@ const transporter = nodemailer.createTransporter({
   },
 });
 
-// HTML email template for waitlist confirmation
+// HTML email template for waitlist confirmation.
 const createEmailHtml = (name: string, referralLink: string) => `
 <!DOCTYPE html>
 <html>
