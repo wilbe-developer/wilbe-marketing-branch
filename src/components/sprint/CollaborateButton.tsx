@@ -31,8 +31,17 @@ export const CollaborateButton = () => {
   const dataRoomUserId = currentSprintOwnerId || user?.id;
 
   const handleOpenDataRoom = () => {
-    if (!dataRoomUserId) return;
+    if (!dataRoomUserId) {
+      console.error("No data room user ID available");
+      toast({
+        title: "Error",
+        description: "Unable to determine data room owner",
+        variant: "destructive"
+      });
+      return;
+    }
     
+    console.log("Opening data room for user:", dataRoomUserId);
     navigate(`/sprint/data-room/${dataRoomUserId}`);
     setIsDialogOpen(false);
   };
@@ -47,7 +56,19 @@ export const CollaborateButton = () => {
       return;
     }
 
-    navigator.clipboard.writeText(`${window.location.origin}/sprint/data-room/${dataRoomUserId}`);
+    if (!dataRoomUserId) {
+      toast({
+        title: "Error",
+        description: "Unable to determine data room owner",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const dataRoomUrl = `${window.location.origin}/sprint/data-room/${dataRoomUserId}`;
+    console.log("Copying data room link:", dataRoomUrl);
+    
+    navigator.clipboard.writeText(dataRoomUrl);
     toast({
       title: "Link copied",
       description: "Data room link copied to clipboard"
@@ -108,6 +129,12 @@ export const CollaborateButton = () => {
                     disabled={isLoading}
                   />
                 </div>
+                
+                {isLoading && (
+                  <div className="text-sm text-gray-500 mt-2">
+                    Updating privacy setting...
+                  </div>
+                )}
               </div>
 
               {/* Data Room Description */}
