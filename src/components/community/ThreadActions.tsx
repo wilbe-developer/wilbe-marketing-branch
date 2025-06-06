@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -9,6 +8,7 @@ import { useCommunityThreads } from '@/hooks/useCommunityThreads';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ThreadActionsProps {
   thread: Thread;
@@ -26,7 +26,7 @@ export const ThreadActions = ({ thread, onEdit, onDeleted }: ThreadActionsProps)
   const [isAdmin, setIsAdmin] = useState(false);
   
   // Check admin status
-  React.useEffect(() => {
+  useEffect(() => {
     const checkAdminStatus = async () => {
       if (!user) return;
       
