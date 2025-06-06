@@ -173,7 +173,7 @@ export const CollaboratorsManagement = () => {
           <span>Team Access</span>
         </CardTitle>
         <CardDescription>
-          Invite team members to work on your BSF projects
+          Invite team members to work on your BSF
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -331,7 +331,7 @@ export const CollaboratorsManagement = () => {
                 <span>Remove Access</span>
               </DialogTitle>
               <DialogDescription>
-                Are you sure you want to remove this team member? They will no longer be able to access your BSF projects.
+                Are you sure you want to remove this team member? They will no longer be able to access your BSF.
               </DialogDescription>
             </DialogHeader>
             {selectedCollaborator && (
