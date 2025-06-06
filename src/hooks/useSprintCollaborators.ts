@@ -83,9 +83,9 @@ export const useSprintCollaborators = () => {
       
       setCollaborators(collaboratorsWithProfiles);
     } catch (error: any) {
-      console.error("Error fetching collaborators:", error);
+      console.error("Error fetching team members:", error);
       showToast({
-        title: "Error fetching collaborators",
+        title: "Error fetching team members",
         description: error.message || "Please try again later",
         variant: "destructive"
       });
@@ -128,7 +128,7 @@ export const useSprintCollaborators = () => {
       if (existingError && existingError.code !== "PGRST116") throw existingError;
 
       if (existingCollaborator) {
-        throw new Error("This user is already a collaborator on your BSF.");
+        throw new Error("This user is already a team member on your BSF.");
       }
 
       // Add as collaborator - always use sprintOwnerId as created_by to maintain ownership
@@ -144,16 +144,16 @@ export const useSprintCollaborators = () => {
       if (insertError) throw insertError;
 
       showToast({
-        title: "Collaborator added",
-        description: "Successfully added collaborator to your BSF."
+        title: "Member access added",
+        description: "Successfully added team member to your BSF."
       });
 
       // Refresh the list
       await fetchCollaborators();
     } catch (error: any) {
-      console.error("Error adding collaborator:", error);
+      console.error("Error adding member:", error);
       showToast({
-        title: "Error adding collaborator",
+        title: "Error adding member",
         description: error.message || "Please try again later",
         variant: "destructive"
       });
@@ -177,7 +177,7 @@ export const useSprintCollaborators = () => {
 
       showToast({
         title: "Access level updated",
-        description: "Successfully updated collaborator access level."
+        description: "Successfully updated team member access level."
       });
 
       // Update state by updating the changed collaborator
@@ -188,7 +188,7 @@ export const useSprintCollaborators = () => {
         )
       );
     } catch (error: any) {
-      console.error("Error updating collaborator access:", error);
+      console.error("Error updating team access:", error);
       showToast({
         title: "Error updating access",
         description: error.message || "Please try again later",
@@ -213,16 +213,16 @@ export const useSprintCollaborators = () => {
       if (error) throw error;
 
       showToast({
-        title: "Collaborator removed",
-        description: "Successfully removed collaborator from your BSF."
+        title: "Access removed",
+        description: "Successfully removed team member access from your BSF."
       });
 
       // Update state by filtering out the removed collaborator
       setCollaborators(prev => prev.filter(c => c.id !== collaboratorId));
     } catch (error: any) {
-      console.error("Error removing collaborator:", error);
+      console.error("Error removing member:", error);
       showToast({
-        title: "Error removing collaborator",
+        title: "Error removing member",
         description: error.message || "Please try again later",
         variant: "destructive"
       });

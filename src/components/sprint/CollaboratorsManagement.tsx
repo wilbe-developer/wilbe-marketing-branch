@@ -113,23 +113,23 @@ export const CollaboratorsManagement = () => {
         <CardHeader>
           <CardTitle className="flex items-center">
             <Users className="mr-2 h-5 w-5" /> 
-            <span>BSF Collaborators</span>
+            <span>Team Access</span>
           </CardTitle>
           <CardDescription>
-            You can view collaborators but don't have permission to manage them
+            You can view team access but don't have permission to manage them
           </CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
             <div className="py-8 text-center">
               <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
-              <p className="mt-2 text-sm text-gray-500">Loading collaborators...</p>
+              <p className="mt-2 text-sm text-gray-500">Loading access...</p>
             </div>
           ) : collaborators.length === 0 ? (
             <div className="py-8 text-center border border-dashed rounded-lg">
               <Users className="h-12 w-12 mx-auto text-gray-400" />
               <p className="mt-2 text-sm text-gray-500">
-                No collaborators to display
+                No team access to display
               </p>
             </div>
           ) : (
@@ -170,23 +170,23 @@ export const CollaboratorsManagement = () => {
       <CardHeader>
         <CardTitle className="flex items-center">
           <Users className="mr-2 h-5 w-5" /> 
-          <span>BSF Collaborators</span>
+          <span>Team Access</span>
         </CardTitle>
         <CardDescription>
-          Invite team members to collaborate on your BSF projects
+          Invite team members to work on your BSF projects
         </CardDescription>
       </CardHeader>
       <CardContent>
         {isLoading ? (
           <div className="py-8 text-center">
             <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
-            <p className="mt-2 text-sm text-gray-500">Loading collaborators...</p>
+            <p className="mt-2 text-sm text-gray-500">Loading access...</p>
           </div>
         ) : collaborators.length === 0 ? (
           <div className="py-8 text-center border border-dashed rounded-lg">
             <Users className="h-12 w-12 mx-auto text-gray-400" />
             <p className="mt-2 text-sm text-gray-500">
-              You haven't added any collaborators yet
+              You haven't added any access yet
             </p>
           </div>
         ) : (
@@ -251,7 +251,7 @@ export const CollaboratorsManagement = () => {
             <DialogHeader>
               <DialogTitle>Add Member</DialogTitle>
               <DialogDescription>
-                Enter the email address of the person you want to collaborate with.
+                Enter the email address of the person you want to work with.
               </DialogDescription>
             </DialogHeader>
             <div className="py-4 space-y-4">
@@ -259,7 +259,7 @@ export const CollaboratorsManagement = () => {
                 <label className="text-sm font-medium mb-1 block">Email</label>
                 <Input
                   type="email"
-                  placeholder="collaborator@example.com"
+                  placeholder="teammember@example.com"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                 />
@@ -298,7 +298,7 @@ export const CollaboratorsManagement = () => {
                         <ShieldCheck className="h-4 w-4 text-green-500 mr-2" />
                         <div>
                           <p>Can manage</p>
-                          <p className="text-xs text-gray-500">Can view, edit, and manage collaborators</p>
+                          <p className="text-xs text-gray-500">Can view, edit, and manage access</p>
                         </div>
                       </div>
                     </SelectItem>
@@ -328,10 +328,10 @@ export const CollaboratorsManagement = () => {
             <DialogHeader>
               <DialogTitle className="flex items-center">
                 <AlertTriangle className="mr-2 h-5 w-5 text-yellow-500" />
-                <span>Remove Collaborator</span>
+                <span>Remove Access</span>
               </DialogTitle>
               <DialogDescription>
-                Are you sure you want to remove this collaborator? They will no longer be able to access your BSF projects.
+                Are you sure you want to remove this team member? They will no longer be able to access your BSF projects.
               </DialogDescription>
             </DialogHeader>
             {selectedCollaborator && (
