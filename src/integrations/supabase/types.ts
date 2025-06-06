@@ -1794,6 +1794,16 @@ export type Database = {
           has_profile: boolean
         }[]
       }
+      get_public_data_room_files: {
+        Args: { p_sprint_owner_id: string; p_requesting_user_id?: string }
+        Returns: {
+          task_id: string
+          task_name: string
+          task_description: string
+          task_order_index: number
+          files: Json
+        }[]
+      }
       get_sorted_community_threads: {
         Args: {
           p_sort_type?: string

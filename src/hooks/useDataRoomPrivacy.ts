@@ -7,13 +7,11 @@ import { toast } from "@/hooks/use-toast";
 export const useDataRoomPrivacy = (targetUserId?: string) => {
   const [isPublic, setIsPublic] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [canManagePrivacy, setCanManagePrivacy] = useState(false);
   const { user } = useAuth();
 
   // Use targetUserId if provided, otherwise fall back to current user
   const userId = targetUserId || user?.id;
-  
-  // Check if current user can manage the target user's privacy settings
-  const canManagePrivacy = user?.id === userId;
 
   const fetchPrivacySetting = async () => {
     if (!userId) {
@@ -61,6 +59,33 @@ export const useDataRoomPrivacy = (targetUserId?: string) => {
     }
   };
 
+  const checkManageAccess = async () => {
+    if (!user?.id || !userId) {
+      setCanManagePrivacy(false);
+      return;
+    }
+
+    try {
+      // Use the existing is_sprint_manager RPC function
+      const { data, error } = await supabase
+        .rpc('is_sprint_manager', {
+          p_user_id: user.id,
+          p_sprint_owner_id: userId
+        });
+
+      if (error) {
+        console.error("Error checking manage access:", error);
+        setCanManagePrivacy(false);
+        return;
+      }
+
+      setCanManagePrivacy(data || false);
+    } catch (error) {
+      console.error("Unexpected error checking manage access:", error);
+      setCanManagePrivacy(false);
+    }
+  };
+
   const updatePrivacySetting = async (newIsPublic: boolean) => {
     if (!user?.id) {
       console.error("No user ID available for updating privacy setting");
@@ -76,7 +101,7 @@ export const useDataRoomPrivacy = (targetUserId?: string) => {
       console.error("User cannot manage this data room's privacy settings");
       toast({
         title: "Permission denied",
-        description: "You can only manage your own data room privacy settings",
+        description: "You don't have permission to manage this data room's privacy settings",
         variant: "destructive"
       });
       return;
@@ -125,8 +150,8 @@ export const useDataRoomPrivacy = (targetUserId?: string) => {
       toast({
         title: newIsPublic ? "Data room published" : "Data room made private",
         description: newIsPublic 
-          ? "Your data room is now publicly accessible via link" 
-          : "Your data room is now private and only accessible to you and your team"
+          ? "The data room is now publicly accessible via link" 
+          : "The data room is now private and only accessible to team members"
       });
     } catch (error: any) {
       console.error("Unexpected error updating privacy setting:", error);
@@ -139,6 +164,10 @@ export const useDataRoomPrivacy = (targetUserId?: string) => {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    checkManageAccess();
+  }, [user?.id, userId]);
 
   useEffect(() => {
     fetchPrivacySetting();

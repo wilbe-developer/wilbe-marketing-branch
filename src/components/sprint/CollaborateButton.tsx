@@ -106,7 +106,7 @@ export const CollaborateButton = () => {
           
           <TabsContent value="dataroom">
             <div className="space-y-6 p-2">
-              {/* Privacy Toggle Section - Only show if user can manage privacy */}
+              {/* Privacy Toggle Section - Show if user can manage privacy */}
               {canManagePrivacy && (
                 <div className="border rounded-lg p-4">
                   <div className="flex items-center justify-between mb-3">
@@ -118,8 +118,8 @@ export const CollaborateButton = () => {
                         </h4>
                         <p className="text-sm text-gray-500">
                           {isPublic 
-                            ? "Anyone with the link can view your data room" 
-                            : "Only you and your team members can access your data room"
+                            ? "Anyone with the link can view this data room" 
+                            : "Only team members can access this data room"
                           }
                         </p>
                       </div>
@@ -139,7 +139,7 @@ export const CollaborateButton = () => {
                 </div>
               )}
 
-              {/* Read-only privacy status for non-owners */}
+              {/* Read-only privacy status for non-managers */}
               {!canManagePrivacy && (
                 <div className="border rounded-lg p-4 bg-gray-50">
                   <div className="flex items-center space-x-2">
@@ -192,7 +192,7 @@ export const CollaborateButton = () => {
                   <div className="text-center p-3 bg-gray-50 rounded border border-dashed">
                     <p className="text-sm text-gray-500">
                       {canManagePrivacy 
-                        ? "Make your data room public to generate a shareable link"
+                        ? "Make the data room public to generate a shareable link"
                         : "This data room is private"
                       }
                     </p>

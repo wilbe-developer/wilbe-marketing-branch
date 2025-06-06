@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -14,14 +15,13 @@ interface FileData {
   file_name: string;
   download_url: string;
   uploaded_at: string;
-  task_id?: string;
 }
 
 interface TaskData {
-  id: string;
-  title: string;
-  description: string;
-  order_index: number;
+  task_id: string;
+  task_name: string;
+  task_description: string;
+  task_order_index: number;
   files: FileData[];
 }
 
@@ -37,36 +37,6 @@ interface DataRoomData {
   profile: any;
   tasks: TaskData[];
 }
-
-// Helper function to recursively search for file objects in JSON
-const extractFilesFromJSON = (obj: any, taskId: string): FileData[] => {
-  const files: FileData[] = [];
-  
-  const searchObject = (item: any) => {
-    if (item && typeof item === 'object') {
-      // Check if this object looks like a file (has fileId, fileName, uploadedAt)
-      if (item.fileId && item.fileName && item.uploadedAt) {
-        files.push({
-          id: item.fileId,
-          file_name: item.fileName,
-          download_url: '', // Will be filled later from user_files
-          uploaded_at: item.uploadedAt,
-          task_id: taskId
-        });
-      }
-      
-      // Recursively search in arrays and objects
-      if (Array.isArray(item)) {
-        item.forEach(searchObject);
-      } else {
-        Object.values(item).forEach(searchObject);
-      }
-    }
-  };
-  
-  searchObject(obj);
-  return files;
-};
 
 const SprintDataRoomPage = () => {
   const { sprintId } = useParams<{ sprintId: string }>();
@@ -123,94 +93,26 @@ const SprintDataRoomPage = () => {
         
         if (profileError && profileError.code !== 'PGRST116') throw profileError;
         
-        // Fetch all sprint task definitions
-        const { data: tasksData, error: tasksError } = await supabase
-          .from("sprint_task_definitions")
-          .select("id, name, description, definition")
-          .order("definition->order_index");
-        
-        if (tasksError) throw tasksError;
-        
-        // Fetch user progress with task_answers
-        const { data: progressData, error: progressError } = await supabase
-          .from("user_sprint_progress")
-          .select("task_id, task_answers")
-          .eq("user_id", sprintId)
-          .not("task_answers", "is", null);
-        
-        if (progressError) throw progressError;
-        
-        // Extract files from task_answers JSON
-        const filesFromProgress: FileData[] = [];
-        const taskFileMap = new Map<string, FileData[]>();
-        
-        progressData.forEach(progress => {
-          if (progress.task_answers) {
-            const extractedFiles = extractFilesFromJSON(progress.task_answers, progress.task_id);
-            extractedFiles.forEach(file => {
-              filesFromProgress.push(file);
-              if (!taskFileMap.has(progress.task_id)) {
-                taskFileMap.set(progress.task_id, []);
-              }
-              taskFileMap.get(progress.task_id)!.push(file);
-            });
-          }
-        });
-        
-        // Get unique file IDs and fetch actual file data
-        const fileIds = [...new Set(filesFromProgress.map(f => f.id))];
-        let actualFilesData: any[] = [];
-        
-        if (fileIds.length > 0) {
-          const { data: filesData, error: filesError } = await supabase
-            .from("user_files")
-            .select("id, file_name, download_url, uploaded_at")
-            .eq("user_id", sprintId)
-            .in("id", fileIds);
-          
-          if (filesError) throw filesError;
-          actualFilesData = filesData || [];
+        // Use the new RPC function to get task data with files
+        const { data: taskFileData, error: taskFileError } = await supabase
+          .rpc('get_public_data_room_files', {
+            p_sprint_owner_id: sprintId,
+            p_requesting_user_id: user?.id || null
+          });
+
+        if (taskFileError) {
+          console.error("Error fetching task files:", taskFileError);
+          throw taskFileError;
         }
-        
-        // Merge file data with progress data
-        const mergedFiles = new Map<string, FileData[]>();
-        
-        taskFileMap.forEach((taskFiles, taskId) => {
-          const updatedFiles = taskFiles.map(progressFile => {
-            const actualFile = actualFilesData.find(f => f.id === progressFile.id);
-            return actualFile ? {
-              ...progressFile,
-              file_name: actualFile.file_name,
-              download_url: actualFile.download_url,
-              uploaded_at: actualFile.uploaded_at
-            } : progressFile;
-          }).filter(file => file.download_url); // Only include files with download URLs
-          
-          if (updatedFiles.length > 0) {
-            mergedFiles.set(taskId, updatedFiles);
-          }
-        });
-        
-        // Only include tasks that have files and format them properly
-        const tasksWithFiles: TaskData[] = tasksData
-          .filter(task => mergedFiles.has(task.id))
-          .map(task => {
-            // Parse definition to get order_index
-            let orderIndex = 0;
-            if (task.definition && typeof task.definition === 'object') {
-              const def = task.definition as any;
-              orderIndex = def.order_index || 0;
-            }
-            
-            return {
-              id: task.id,
-              title: task.name,
-              description: task.description || "",
-              order_index: orderIndex,
-              files: mergedFiles.get(task.id) || []
-            };
-          })
-          .sort((a, b) => a.order_index - b.order_index);
+
+        // Process the RPC response into the expected format
+        const tasksWithFiles: TaskData[] = (taskFileData || []).map((taskData: any) => ({
+          task_id: taskData.task_id,
+          task_name: taskData.task_name,
+          task_description: taskData.task_description || "",
+          task_order_index: taskData.task_order_index || 0,
+          files: Array.isArray(taskData.files) ? taskData.files.filter((file: any) => file && file.id) : []
+        })).filter((task: TaskData) => task.files.length > 0);
         
         setDataRoomData({
           profile: profileData || null,
@@ -316,9 +218,9 @@ const SprintDataRoomPage = () => {
         <DataRoomSection title="BSF Challenges & Documents">
           <div className="space-y-6">
             {dataRoomData.tasks.map((task) => (
-              <div key={task.id} className="border rounded-lg p-4">
-                <h3 className="font-semibold text-lg mb-2">{task.title}</h3>
-                <p className="text-gray-600 text-sm mb-4">{task.description}</p>
+              <div key={task.task_id} className="border rounded-lg p-4">
+                <h3 className="font-semibold text-lg mb-2">{task.task_name}</h3>
+                <p className="text-gray-600 text-sm mb-4">{task.task_description}</p>
                 
                 <div className="grid gap-3 sm:grid-cols-2">
                   {task.files.map((file) => (
