@@ -12,6 +12,7 @@ interface TutorialContextType {
   startTutorial: () => void;
   nextStep: () => void;
   prevStep: () => void;
+  closeTutorial: () => void;
   skipTutorial: () => void;
   restartTutorial: () => void;
   currentStepData: any;

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,6 +13,7 @@ export const TutorialTooltip: React.FC = () => {
     positions,
     nextStep,
     prevStep,
+    closeTutorial,
     skipTutorial,
     isFirstStep,
     isLastStep,
@@ -43,7 +43,7 @@ export const TutorialTooltip: React.FC = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={skipTutorial}
+                onClick={closeTutorial}
                 className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600"
               >
                 <X className="h-4 w-4" />
@@ -83,7 +83,7 @@ export const TutorialTooltip: React.FC = () => {
                   className="text-xs text-gray-500 hover:text-gray-700"
                 >
                   <SkipForward className="h-3 w-3 mr-1" />
-                  Skip
+                  Skip All
                 </Button>
                 
                 <Button
@@ -177,7 +177,7 @@ export const TutorialTooltip: React.FC = () => {
           <Button
             variant="ghost"
             size="sm"
-            onClick={skipTutorial}
+            onClick={closeTutorial}
             className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600"
           >
             <X className="h-4 w-4" />
@@ -217,7 +217,7 @@ export const TutorialTooltip: React.FC = () => {
               className="text-xs text-gray-500 hover:text-gray-700"
             >
               <SkipForward className="h-3 w-3 mr-1" />
-              Skip
+              Skip All
             </Button>
             
             <Button
