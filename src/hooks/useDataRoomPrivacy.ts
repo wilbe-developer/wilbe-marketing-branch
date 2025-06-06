@@ -66,6 +66,7 @@ export const useDataRoomPrivacy = () => {
     
     setIsLoading(true);
     try {
+      // Use upsert with the correct conflict resolution now that we have the unique constraint
       const { error } = await supabase
         .from("sprint_profiles")
         .upsert({ 
@@ -78,11 +79,17 @@ export const useDataRoomPrivacy = () => {
       if (error) {
         console.error("Error updating privacy setting:", error);
         
-        // Check for common RLS policy violations
-        if (error.message?.includes('row-level security policy')) {
+        // Handle specific error types
+        if (error.code === '42501') {
           toast({
             title: "Permission denied",
             description: "You don't have permission to update this data room setting",
+            variant: "destructive"
+          });
+        } else if (error.code === '23505') {
+          toast({
+            title: "Duplicate entry",
+            description: "There was a conflict updating your privacy setting. Please try again.",
             variant: "destructive"
           });
         } else {

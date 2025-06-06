@@ -1,295 +1,255 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { useToast } from "@/components/ui/use-toast";
-import { useAuth } from "@/hooks/useAuth";
-import { UserProfile } from "@/types";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useIsMobile } from "@/hooks/use-mobile";
+
+interface User {
+  id: string;
+  email?: string;
+}
 
 interface ProfileFormProps {
-  user: UserProfile;
+  user: User;
 }
 
 export const ProfileForm = ({ user }: ProfileFormProps) => {
-  const { updateProfile } = useAuth();
   const { toast } = useToast();
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(user?.avatar || null);
-  const [uploading, setUploading] = useState(false);
-
+  const isMobile = useIsMobile();
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    firstName: user?.firstName || "",
-    lastName: user?.lastName || "",
-    email: user?.email || "",
-    linkedIn: user?.linkedIn || "",
-    institution: user?.institution || "",
-    location: user?.location || "",
-    expertise: user?.expertise || "",
-    about: user?.about || "",
-    twitterHandle: user?.twitterHandle || "",
+    first_name: "",
+    last_name: "",
+    institution: "",
+    location: "",
+    bio: "",
+    about: "",
+    expertise: "",
+    linked_in: "",
+    twitter_handle: "",
   });
 
-  const [isUpdating, setIsUpdating] = useState(false);
+  // Load existing profile data
+  useState(() => {
+    const loadProfile = async () => {
+      if (!user?.id) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", user.id)
+          .maybeSingle();
 
-  useEffect(() => {
-    if (user) {
-      setFormData({
-        firstName: user.firstName || "",
-        lastName: user.lastName || "",
-        email: user.email || "",
-        linkedIn: user.linkedIn || "",
-        institution: user.institution || "",
-        location: user.location || "",
-        expertise: user.expertise || "",
-        about: user.about || "",
-        twitterHandle: user.twitterHandle || "",
-      });
-      setAvatarUrl(user.avatar || null);
-    }
-  }, [user]);
+        if (error && error.code !== 'PGRST116') {
+          console.error("Error loading profile:", error);
+          return;
+        }
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+        if (data) {
+          setFormData({
+            first_name: data.first_name || "",
+            last_name: data.last_name || "",
+            institution: data.institution || "",
+            location: data.location || "",
+            bio: data.bio || "",
+            about: data.about || "",
+            expertise: data.expertise || "",
+            linked_in: data.linked_in || "",
+            twitter_handle: data.twitter_handle || "",
+          });
+        }
+      } catch (error) {
+        console.error("Error loading profile:", error);
+      }
+    };
+
+    loadProfile();
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsUpdating(true);
-
-    try {
-      await updateProfile({
-        ...formData,
-        avatar: avatarUrl,
-      });
+    
+    if (!user?.id) {
       toast({
-        title: "Profile updated",
-        description: "Your profile has been successfully updated.",
+        title: "Authentication required",
+        description: "Please log in to update your profile",
+        variant: "destructive"
       });
-    } catch (error) {
-      toast({
-        title: "Update failed",
-        description: "There was an error updating your profile. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsUpdating(false);
-    }
-  };
-
-  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (!event.target.files || event.target.files.length === 0) {
       return;
     }
-    
-    const file = event.target.files[0];
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${user?.id}-${Math.random().toString(36).slice(2)}.${fileExt}`;
-    const filePath = `${fileName}`;
-    
-    setUploading(true);
-    
+
+    setIsLoading(true);
+
     try {
-      // Create the avatars bucket if it doesn't exist
-      const { data: buckets } = await supabase.storage.listBuckets();
-      const avatarBucketExists = buckets?.some(bucket => bucket.name === 'avatars');
-      
-      if (!avatarBucketExists) {
-        // Create the avatars bucket if it doesn't exist
-        const { error: createBucketError } = await supabase.storage.createBucket('avatars', {
-          public: true
+      // Use upsert to handle both insert and update cases
+      const { error } = await supabase
+        .from("profiles")
+        .upsert({
+          id: user.id,
+          email: user.email,
+          ...formData,
+        }, {
+          onConflict: 'id'
         });
+
+      if (error) {
+        console.error("Error updating profile:", error);
         
-        if (createBucketError) {
-          console.error('Error creating avatars bucket:', createBucketError);
-          throw createBucketError;
+        // Handle specific error types
+        if (error.code === '42501') {
+          toast({
+            title: "Permission denied",
+            description: "You don't have permission to update your profile",
+            variant: "destructive"
+          });
+        } else if (error.code === '23505') {
+          toast({
+            title: "Duplicate entry",
+            description: "There was a conflict updating your profile. Please try again.",
+            variant: "destructive"
+          });
+        } else {
+          toast({
+            title: "Error updating profile",
+            description: error.message || "Please try again later",
+            variant: "destructive"
+          });
         }
+        return;
       }
-      
-      // Upload the file
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, file);
-        
-      if (uploadError) {
-        throw uploadError;
-      }
-      
-      const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
-      
-      if (data) {
-        setAvatarUrl(data.publicUrl);
-        await updateProfile({ avatar: data.publicUrl });
-        
-        toast({
-          title: "Avatar updated",
-          description: "Your profile picture has been updated successfully."
-        });
-      }
-    } catch (error) {
-      console.error('Error uploading avatar:', error);
+
       toast({
-        title: "Upload failed",
-        description: "There was an error uploading your profile picture. Please try again.",
+        title: "Profile updated",
+        description: "Your profile has been successfully updated",
+      });
+    } catch (error: any) {
+      console.error("Error updating profile:", error);
+      toast({
+        title: "Error updating profile",
+        description: error.message || "An unexpected error occurred",
         variant: "destructive"
       });
     } finally {
-      setUploading(false);
+      setIsLoading(false);
     }
   };
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Edit Profile</CardTitle>
-        <CardDescription>
-          Update your personal information
-        </CardDescription>
+        <CardTitle className={isMobile ? "text-lg" : "text-xl"}>Personal Information</CardTitle>
       </CardHeader>
-      <form onSubmit={handleSubmit}>
-        <CardContent className="space-y-4">
-          <div className="flex items-center gap-4 mb-6">
-            <Avatar className="h-20 w-20">
-              <AvatarImage src={avatarUrl || undefined} alt={user.firstName} />
-              <AvatarFallback>{user.firstName?.charAt(0)}{user.lastName?.charAt(0)}</AvatarFallback>
-            </Avatar>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className={`grid gap-4 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
             <div>
-              <input
-                type="file"
-                id="avatar"
-                className="hidden"
-                accept="image/*"
-                onChange={handleAvatarUpload}
-                disabled={uploading}
-              />
-              <Label htmlFor="avatar" className="cursor-pointer">
-                <Button 
-                  variant="outline" 
-                  type="button" 
-                  className="relative" 
-                  disabled={uploading}
-                  onClick={() => document.getElementById('avatar')?.click()}
-                >
-                  {uploading ? "Uploading..." : "Change Avatar"}
-                </Button>
-              </Label>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="firstName">First Name</Label>
+              <Label htmlFor="first_name">First Name</Label>
               <Input
-                id="firstName"
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleInputChange}
+                id="first_name"
+                value={formData.first_name}
+                onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
+                className={isMobile ? "text-base" : ""}
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="lastName">Last Name</Label>
+            <div>
+              <Label htmlFor="last_name">Last Name</Label>
               <Input
-                id="lastName"
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleInputChange}
+                id="last_name"
+                value={formData.last_name}
+                onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
+                className={isMobile ? "text-base" : ""}
               />
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              value={formData.email}
-              onChange={handleInputChange}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="linkedIn">LinkedIn Profile</Label>
-            <Input
-              id="linkedIn"
-              name="linkedIn"
-              value={formData.linkedIn}
-              onChange={handleInputChange}
-              placeholder="https://linkedin.com/in/yourusername"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="twitterHandle">X (Twitter) Handle</Label>
-            <Input
-              id="twitterHandle"
-              name="twitterHandle"
-              value={formData.twitterHandle}
-              onChange={handleInputChange}
-              placeholder="@yourusername"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="institution">Institution / University</Label>
+          <div>
+            <Label htmlFor="institution">Institution/Organization</Label>
             <Input
               id="institution"
-              name="institution"
               value={formData.institution}
-              onChange={handleInputChange}
+              onChange={(e) => setFormData({ ...formData, institution: e.target.value })}
+              className={isMobile ? "text-base" : ""}
             />
           </div>
 
-          <div className="space-y-2">
+          <div>
             <Label htmlFor="location">Location</Label>
             <Input
               id="location"
-              name="location"
               value={formData.location}
-              onChange={handleInputChange}
-              placeholder="City, Country"
+              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+              className={isMobile ? "text-base" : ""}
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="expertise">Expertise</Label>
-            <Input
-              id="expertise"
-              name="expertise"
-              value={formData.expertise}
-              onChange={handleInputChange}
-              placeholder="Your area of expertise"
+          <div>
+            <Label htmlFor="bio">Bio</Label>
+            <Textarea
+              id="bio"
+              value={formData.bio}
+              onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+              placeholder="A brief bio about yourself"
+              className={isMobile ? "text-base min-h-[100px]" : ""}
             />
           </div>
 
-          <div className="space-y-2">
+          <div>
             <Label htmlFor="about">About</Label>
-            <textarea
+            <Textarea
               id="about"
-              name="about"
               value={formData.about}
-              onChange={handleInputChange}
-              placeholder="Tell us about yourself, your research, and your interests..."
-              className="w-full min-h-[120px] px-3 py-2 border rounded-md resize-y"
+              onChange={(e) => setFormData({ ...formData, about: e.target.value })}
+              placeholder="Tell us more about your background and interests"
+              className={isMobile ? "text-base min-h-[100px]" : ""}
             />
           </div>
-        </CardContent>
-        <CardFooter>
-          <Button type="submit" disabled={isUpdating}>
-            {isUpdating ? "Saving..." : "Save Changes"}
+
+          <div>
+            <Label htmlFor="expertise">Expertise</Label>
+            <Textarea
+              id="expertise"
+              value={formData.expertise}
+              onChange={(e) => setFormData({ ...formData, expertise: e.target.value })}
+              placeholder="Your areas of expertise and skills"
+              className={isMobile ? "text-base min-h-[100px]" : ""}
+            />
+          </div>
+
+          <div className={`grid gap-4 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+            <div>
+              <Label htmlFor="linked_in">LinkedIn URL</Label>
+              <Input
+                id="linked_in"
+                type="url"
+                value={formData.linked_in}
+                onChange={(e) => setFormData({ ...formData, linked_in: e.target.value })}
+                placeholder="https://linkedin.com/in/yourprofile"
+                className={isMobile ? "text-base" : ""}
+              />
+            </div>
+            <div>
+              <Label htmlFor="twitter_handle">Twitter Handle</Label>
+              <Input
+                id="twitter_handle"
+                value={formData.twitter_handle}
+                onChange={(e) => setFormData({ ...formData, twitter_handle: e.target.value })}
+                placeholder="@yourusername"
+                className={isMobile ? "text-base" : ""}
+              />
+            </div>
+          </div>
+
+          <Button type="submit" disabled={isLoading} className="w-full">
+            {isLoading ? "Updating..." : "Update Profile"}
           </Button>
-        </CardFooter>
-      </form>
+        </form>
+      </CardContent>
     </Card>
   );
 };
