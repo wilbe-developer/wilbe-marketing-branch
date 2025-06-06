@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { useSprintTaskDefinitions } from "@/hooks/useSprintTaskDefinitions";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -41,7 +40,7 @@ const SprintDashboardPage = () => {
   const pageTitle = isSharedSprint ? `${sprintOwnerName}'s BSF` : "Your BSF Journey";
 
   return (
-    <div>
+    <div data-tutorial-id="dashboard-container">
       <div className={isMobile ? "mb-4" : "mb-8"}>
         <div className="flex justify-between items-start mb-4">
           <div className="flex-1">
@@ -53,7 +52,7 @@ const SprintDashboardPage = () => {
           
           {/* Data Room Button - prominently placed */}
           {!isMobile && dataRoomUserId && (
-            <div className="ml-4">
+            <div className="ml-4" data-tutorial-id="data-room-button">
               <Button asChild variant="outline" size="lg">
                 <Link to={`/sprint/data-room/${dataRoomUserId}`}>
                   <FileText className="mr-2 h-5 w-5" />
@@ -66,7 +65,7 @@ const SprintDashboardPage = () => {
         
         {/* Mobile Data Room Button */}
         {isMobile && dataRoomUserId && (
-          <div className="mb-4">
+          <div className="mb-4" data-tutorial-id="data-room-button">
             <Button asChild variant="outline" className="w-full" size="lg">
               <Link to={`/sprint/data-room/${dataRoomUserId}`}>
                 <FileText className="mr-2 h-5 w-5" />
@@ -78,13 +77,17 @@ const SprintDashboardPage = () => {
         
         {/* Action buttons - show for non-shared sprints OR for users with manage access */}
         {(!isSharedSprint || canManage) && user?.id && (
-          <div className={`${isMobile ? 'mb-4' : 'mb-6'}`}>
+          <div className={`${isMobile ? 'mb-4' : 'mb-6'}`} data-tutorial-id="quick-actions">
             <h3 className="text-sm font-medium text-gray-700 mb-2">Quick Actions</h3>
             <div className={`flex ${isMobile ? 'flex-wrap' : ''} gap-2`}>
               <ImStuckButton />
               <RequestCallButton />
-              <AssessmentButton />
-              <CollaborateButton />
+              <div data-tutorial-id="assessment-button">
+                <AssessmentButton />
+              </div>
+              <div data-tutorial-id="collaborate-button">
+                <CollaborateButton />
+              </div>
             </div>
           </div>
         )}
@@ -96,15 +99,19 @@ const SprintDashboardPage = () => {
         
         {/* Sprint Countdown Timer - show for non-shared sprints OR for users with manage access */}
         {(!isSharedSprint || canManage) && (
-          <div className="mb-6">
+          <div className="mb-6" data-tutorial-id="sprint-countdown">
             <SprintCountdown />
           </div>
         )}
         
-        <ProgressDisplay completedTasks={completedTasks} totalTasks={totalTasks} />
+        <div data-tutorial-id="progress-display">
+          <ProgressDisplay completedTasks={completedTasks} totalTasks={totalTasks} />
+        </div>
       </div>
 
-      <MySprintsList tasks={tasksWithProgress} />
+      <div data-tutorial-id="task-list">
+        <MySprintsList tasks={tasksWithProgress} />
+      </div>
     </div>
   );
 };

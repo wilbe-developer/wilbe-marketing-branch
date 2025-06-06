@@ -4,38 +4,44 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
-export const useDataRoomPrivacy = () => {
+export const useDataRoomPrivacy = (targetUserId?: string) => {
   const [isPublic, setIsPublic] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [canManagePrivacy, setCanManagePrivacy] = useState(false);
   const { user } = useAuth();
 
+  // Use targetUserId if provided, otherwise fall back to current user
+  const userId = targetUserId || user?.id;
+
   const fetchPrivacySetting = async () => {
-    if (!user?.id) {
+    if (!userId) {
       console.log("No user ID available for fetching privacy setting");
       return;
     }
     
-    console.log("Fetching privacy setting for user:", user.id);
+    console.log("Fetching privacy setting for user:", userId);
     
     try {
       const { data, error } = await supabase
         .from("sprint_profiles")
         .select("data_room_public")
-        .eq("user_id", user.id)
+        .eq("user_id", userId)
         .single();
 
       if (error) {
         if (error.code === 'PGRST116') {
-          console.log("No sprint profile found for user:", user.id);
+          console.log("No sprint profile found for user:", userId);
           setIsPublic(false);
           return;
         }
         console.error("Error fetching privacy setting:", error);
-        toast({
-          title: "Error loading privacy setting",
-          description: error.message || "Unable to load data room privacy setting",
-          variant: "destructive"
-        });
+        if (canManagePrivacy) {
+          toast({
+            title: "Error loading privacy setting",
+            description: error.message || "Unable to load data room privacy setting",
+            variant: "destructive"
+          });
+        }
         return;
       }
       
@@ -43,11 +49,40 @@ export const useDataRoomPrivacy = () => {
       setIsPublic(data?.data_room_public || false);
     } catch (error: any) {
       console.error("Unexpected error fetching privacy setting:", error);
-      toast({
-        title: "Error loading privacy setting",
-        description: "An unexpected error occurred",
-        variant: "destructive"
-      });
+      if (canManagePrivacy) {
+        toast({
+          title: "Error loading privacy setting",
+          description: "An unexpected error occurred",
+          variant: "destructive"
+        });
+      }
+    }
+  };
+
+  const checkManageAccess = async () => {
+    if (!user?.id || !userId) {
+      setCanManagePrivacy(false);
+      return;
+    }
+
+    try {
+      // Use the existing is_sprint_manager RPC function
+      const { data, error } = await supabase
+        .rpc('is_sprint_manager', {
+          p_user_id: user.id,
+          p_sprint_owner_id: userId
+        });
+
+      if (error) {
+        console.error("Error checking manage access:", error);
+        setCanManagePrivacy(false);
+        return;
+      }
+
+      setCanManagePrivacy(data || false);
+    } catch (error) {
+      console.error("Unexpected error checking manage access:", error);
+      setCanManagePrivacy(false);
     }
   };
 
@@ -61,16 +96,25 @@ export const useDataRoomPrivacy = () => {
       });
       return;
     }
+
+    if (!canManagePrivacy) {
+      console.error("User cannot manage this data room's privacy settings");
+      toast({
+        title: "Permission denied",
+        description: "You don't have permission to manage this data room's privacy settings",
+        variant: "destructive"
+      });
+      return;
+    }
     
-    console.log("Updating privacy setting to:", newIsPublic, "for user:", user.id);
+    console.log("Updating privacy setting to:", newIsPublic, "for user:", userId);
     
     setIsLoading(true);
     try {
-      // Use upsert with the correct conflict resolution now that we have the unique constraint
       const { error } = await supabase
         .from("sprint_profiles")
         .upsert({ 
-          user_id: user.id, 
+          user_id: userId, 
           data_room_public: newIsPublic 
         }, { 
           onConflict: 'user_id' 
@@ -79,7 +123,6 @@ export const useDataRoomPrivacy = () => {
       if (error) {
         console.error("Error updating privacy setting:", error);
         
-        // Handle specific error types
         if (error.code === '42501') {
           toast({
             title: "Permission denied",
@@ -107,8 +150,8 @@ export const useDataRoomPrivacy = () => {
       toast({
         title: newIsPublic ? "Data room published" : "Data room made private",
         description: newIsPublic 
-          ? "Your data room is now publicly accessible via link" 
-          : "Your data room is now private and only accessible to you and your team"
+          ? "The data room is now publicly accessible via link" 
+          : "The data room is now private and only accessible to team members"
       });
     } catch (error: any) {
       console.error("Unexpected error updating privacy setting:", error);
@@ -123,13 +166,18 @@ export const useDataRoomPrivacy = () => {
   };
 
   useEffect(() => {
+    checkManageAccess();
+  }, [user?.id, userId]);
+
+  useEffect(() => {
     fetchPrivacySetting();
-  }, [user?.id]);
+  }, [userId]);
 
   return {
     isPublic,
     isLoading,
     updatePrivacySetting,
-    refetch: fetchPrivacySetting
+    refetch: fetchPrivacySetting,
+    canManagePrivacy
   };
 };

@@ -623,6 +623,9 @@ export type Database = {
           success_vision_1yr: boolean | null
           team_status: string | null
           tto_engaged: boolean | null
+          tutorial_completed: boolean | null
+          tutorial_dismissed_at: string | null
+          tutorial_last_step: number | null
           university_ip: boolean | null
           updated_at: string
           user_id: string
@@ -679,6 +682,9 @@ export type Database = {
           success_vision_1yr?: boolean | null
           team_status?: string | null
           tto_engaged?: boolean | null
+          tutorial_completed?: boolean | null
+          tutorial_dismissed_at?: string | null
+          tutorial_last_step?: number | null
           university_ip?: boolean | null
           updated_at?: string
           user_id: string
@@ -735,6 +741,9 @@ export type Database = {
           success_vision_1yr?: boolean | null
           team_status?: string | null
           tto_engaged?: boolean | null
+          tutorial_completed?: boolean | null
+          tutorial_dismissed_at?: string | null
+          tutorial_last_step?: number | null
           university_ip?: boolean | null
           updated_at?: string
           user_id?: string
@@ -1792,6 +1801,16 @@ export type Database = {
           last_login_date: string
           has_sprint_profile: boolean
           has_profile: boolean
+        }[]
+      }
+      get_public_data_room_files: {
+        Args: { p_sprint_owner_id: string; p_requesting_user_id?: string }
+        Returns: {
+          task_id: string
+          task_name: string
+          task_description: string
+          task_order_index: number
+          files: Json
         }[]
       }
       get_sorted_community_threads: {
