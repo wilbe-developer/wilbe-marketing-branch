@@ -17,34 +17,34 @@ export default function ContentSearchBar() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
 
-  console.log("ContentSearchBar is rendering"); // Debug log
+  console.log("ContentSearchBar is rendering with query:", searchQuery); // Debug log
 
   return (
-    <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 w-full mt-8">
+    <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-8 w-full mt-12 min-h-[200px]">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-6">
-          <h3 className="text-xl font-bold text-gray-900 mb-2">
+          <h3 className="text-2xl font-bold text-gray-900 mb-3">
             Search Our Content Library
           </h3>
-          <p className="text-gray-600 text-sm">
+          <p className="text-gray-700 text-base">
             Find videos, podcasts, articles, tutorials, and templates from our founder stories
           </p>
         </div>
 
         {/* Search Input */}
-        <div className="relative mb-4">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+        <div className="relative mb-6">
+          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
           <Input
             type="text"
             placeholder="Search videos, podcasts, articles, tutorials, templates..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 pr-4 py-3 text-base border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-full"
+            className="pl-12 pr-4 py-4 text-lg border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-full bg-white"
           />
         </div>
 
         {/* Content Type Filters */}
-        <div className="flex flex-wrap gap-2 justify-center">
+        <div className="flex flex-wrap gap-3 justify-center mb-6">
           {contentTypes.map((type) => {
             const IconComponent = type.icon;
             const isActive = activeFilter === type.id;
@@ -55,13 +55,13 @@ export default function ContentSearchBar() {
                 variant={isActive ? "default" : "outline"}
                 size="sm"
                 onClick={() => setActiveFilter(type.id)}
-                className={`flex items-center gap-2 px-3 py-2 text-xs rounded-full transition-all ${
+                className={`flex items-center gap-2 px-4 py-3 text-sm rounded-full transition-all ${
                   isActive 
                     ? "bg-gray-900 text-white hover:bg-gray-800" 
-                    : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                    : "bg-white text-gray-700 border-2 border-gray-300 hover:bg-gray-50"
                 }`}
               >
-                {IconComponent && <IconComponent className="h-3 w-3" />}
+                {IconComponent && <IconComponent className="h-4 w-4" />}
                 {type.name}
               </Button>
             );
@@ -70,9 +70,9 @@ export default function ContentSearchBar() {
 
         {/* Placeholder Results Message */}
         {searchQuery && (
-          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-blue-800 text-sm text-center">
-              <span className="font-medium">Search functionality coming soon!</span> 
+          <div className="mt-6 p-6 bg-blue-100 border-2 border-blue-300 rounded-lg">
+            <p className="text-blue-900 text-base text-center">
+              <span className="font-semibold">Search functionality coming soon!</span> 
               <br />
               You searched for "{searchQuery}" in {contentTypes.find(t => t.id === activeFilter)?.name || 'All content'}
             </p>

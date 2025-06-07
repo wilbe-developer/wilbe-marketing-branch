@@ -157,8 +157,8 @@ export default function FoundersStories() {
           <CarouselNext className="hidden md:flex" />
         </Carousel>
 
-        {/* Search Bar - should be visible here */}
-        <div className="border-t border-gray-200 pt-8">
+        {/* Search Bar - highly visible with blue background */}
+        <div className="border-t-4 border-gray-300 pt-12 mt-8">
           <ContentSearchBar />
         </div>
       </div>
