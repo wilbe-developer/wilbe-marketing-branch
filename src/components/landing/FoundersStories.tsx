@@ -47,7 +47,7 @@ export default function FoundersStories() {
 
   if (loading) {
     return (
-      <div className="py-12">
+      <div className="py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-4xl font-bold uppercase tracking-wide text-gray-900 mb-8">FROM THE TRENCHES: THE LEADERS</h2>
           <div className="flex space-x-6">
@@ -61,6 +61,11 @@ export default function FoundersStories() {
               </div>
             ))}
           </div>
+          
+          {/* Search Bar in loading state */}
+          <div className="mt-8">
+            <ContentSearchBar />
+          </div>
         </div>
       </div>
     );
@@ -68,19 +73,22 @@ export default function FoundersStories() {
 
   if (error || videos.length === 0) {
     return (
-      <div className="py-12">
+      <div className="py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-4xl font-bold uppercase tracking-wide text-gray-900 mb-8">FROM THE TRENCHES: THE LEADERS</h2>
-          <p className="text-gray-600">
+          <p className="text-gray-600 mb-8">
             {error || "No videos available at the moment."}
           </p>
+          
+          {/* Search Bar in error state */}
+          <ContentSearchBar />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="py-12">
+    <div className="py-12 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-4xl font-bold uppercase tracking-wide text-gray-900">FROM THE TRENCHES: THE LEADERS</h2>
@@ -96,7 +104,7 @@ export default function FoundersStories() {
             duration: 20,
             inViewThreshold: 0.7,
           }}
-          className="w-full select-none touch-pan-x"
+          className="w-full select-none touch-pan-x mb-8"
         >
           <CarouselContent className="-ml-2 md:-ml-4" style={{ touchAction: 'pan-x' }}>
             {videos.map((video) => (
@@ -149,7 +157,7 @@ export default function FoundersStories() {
           <CarouselNext className="hidden md:flex" />
         </Carousel>
 
-        {/* Search Bar */}
+        {/* Search Bar - now properly positioned */}
         <ContentSearchBar />
       </div>
     </div>

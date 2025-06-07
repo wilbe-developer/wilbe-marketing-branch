@@ -18,7 +18,7 @@ export default function ContentSearchBar() {
   const [activeFilter, setActiveFilter] = useState("all");
 
   return (
-    <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 mt-8">
+    <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 w-full">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-6">
           <h3 className="text-xl font-bold text-gray-900 mb-2">
@@ -37,7 +37,7 @@ export default function ContentSearchBar() {
             placeholder="Search videos, podcasts, articles, tutorials, templates..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 pr-4 py-3 text-base border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="pl-10 pr-4 py-3 text-base border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-full"
           />
         </div>
 
