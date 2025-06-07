@@ -17,8 +17,10 @@ export default function ContentSearchBar() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
 
+  console.log("ContentSearchBar is rendering"); // Debug log
+
   return (
-    <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 w-full">
+    <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 w-full mt-8">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-6">
           <h3 className="text-xl font-bold text-gray-900 mb-2">

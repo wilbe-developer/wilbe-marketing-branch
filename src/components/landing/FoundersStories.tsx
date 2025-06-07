@@ -45,12 +45,14 @@ export default function FoundersStories() {
     loadVideos();
   }, []);
 
+  console.log("FoundersStories rendering, videos length:", videos.length); // Debug log
+
   if (loading) {
     return (
       <div className="py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-4xl font-bold uppercase tracking-wide text-gray-900 mb-8">FROM THE TRENCHES: THE LEADERS</h2>
-          <div className="flex space-x-6">
+          <div className="flex space-x-6 mb-8">
             {[...Array(3)].map((_, i) => (
               <div key={i} className="flex-shrink-0 w-80 bg-gray-200 animate-pulse">
                 <div className="aspect-video bg-gray-300"></div>
@@ -63,9 +65,7 @@ export default function FoundersStories() {
           </div>
           
           {/* Search Bar in loading state */}
-          <div className="mt-8">
-            <ContentSearchBar />
-          </div>
+          <ContentSearchBar />
         </div>
       </div>
     );
@@ -157,8 +157,10 @@ export default function FoundersStories() {
           <CarouselNext className="hidden md:flex" />
         </Carousel>
 
-        {/* Search Bar - now properly positioned */}
-        <ContentSearchBar />
+        {/* Search Bar - should be visible here */}
+        <div className="border-t border-gray-200 pt-8">
+          <ContentSearchBar />
+        </div>
       </div>
     </div>
   );
