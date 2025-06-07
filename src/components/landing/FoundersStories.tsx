@@ -6,6 +6,7 @@ import { ArrowRight, Play, Clock } from "lucide-react";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import { fetchVideos } from "@/services/videoService";
 import { formatDistanceToNow } from "date-fns";
+import ContentSearchBar from "./ContentSearchBar";
 
 interface Video {
   id: string;
@@ -147,6 +148,9 @@ export default function FoundersStories() {
           <CarouselPrevious className="hidden md:flex" />
           <CarouselNext className="hidden md:flex" />
         </Carousel>
+
+        {/* Search Bar */}
+        <ContentSearchBar />
       </div>
     </div>
   );
