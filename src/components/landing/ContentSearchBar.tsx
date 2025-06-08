@@ -22,10 +22,10 @@ export default function ContentSearchBar() {
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-6">
           <h3 className="text-2xl font-bold text-gray-900 mb-2">
-            Search Our Content Library
+            Know-how for scientist founders
           </h3>
           <p className="text-gray-600">
-            Find videos, podcasts, articles, tutorials, and templates from our founder stories
+            Find material for all stages from exploring to growing a venture
           </p>
         </div>
 
