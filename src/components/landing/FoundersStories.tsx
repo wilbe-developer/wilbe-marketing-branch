@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -43,9 +44,6 @@ export default function FoundersStories() {
 
     loadVideos();
   }, []);
-
-  console.log("=== FOUNDERS STORIES RENDERING ==="); // Debug log
-  console.log("Videos length:", videos.length);
 
   if (loading) {
     return (
@@ -157,11 +155,8 @@ export default function FoundersStories() {
           <CarouselNext className="hidden md:flex" />
         </Carousel>
 
-        {/* Search Bar - EXTREMELY VISIBLE with red background */}
-        <div className="mt-16 pt-16 border-t-8 border-black">
-          <div className="text-center mb-8">
-            <h2 className="text-4xl font-bold text-black">⬇️ SEARCH BAR SHOULD BE BELOW ⬇️</h2>
-          </div>
+        {/* Search Bar - now subtle and integrated */}
+        <div className="mt-12">
           <ContentSearchBar />
         </div>
       </div>
