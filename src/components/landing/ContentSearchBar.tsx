@@ -17,34 +17,44 @@ export default function ContentSearchBar() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
 
-  console.log("ContentSearchBar is rendering with query:", searchQuery); // Debug log
+  console.log("=== CONTENT SEARCH BAR IS RENDERING ==="); // Very visible debug log
+  console.log("Search query:", searchQuery);
 
   return (
-    <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-8 w-full mt-12 min-h-[200px]">
+    <div 
+      className="bg-red-500 border-4 border-black rounded-lg p-12 w-full mt-16 min-h-[300px] relative z-50"
+      style={{ 
+        backgroundColor: '#ff0000', 
+        border: '4px solid #000000',
+        minHeight: '300px',
+        display: 'block',
+        visibility: 'visible'
+      }}
+    >
       <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-6">
-          <h3 className="text-2xl font-bold text-gray-900 mb-3">
-            Search Our Content Library
+        <div className="text-center mb-8">
+          <h3 className="text-3xl font-bold text-white mb-4">
+            🔍 SEARCH OUR CONTENT LIBRARY 🔍
           </h3>
-          <p className="text-gray-700 text-base">
+          <p className="text-white text-lg font-semibold">
             Find videos, podcasts, articles, tutorials, and templates from our founder stories
           </p>
         </div>
 
         {/* Search Input */}
-        <div className="relative mb-6">
-          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+        <div className="relative mb-8">
+          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-6 w-6 text-gray-600" />
           <Input
             type="text"
             placeholder="Search videos, podcasts, articles, tutorials, templates..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-12 pr-4 py-4 text-lg border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-full bg-white"
+            className="pl-14 pr-4 py-6 text-xl border-4 border-black rounded-lg focus:ring-4 focus:ring-yellow-500 focus:border-yellow-500 w-full bg-white text-black font-semibold"
           />
         </div>
 
         {/* Content Type Filters */}
-        <div className="flex flex-wrap gap-3 justify-center mb-6">
+        <div className="flex flex-wrap gap-4 justify-center mb-8">
           {contentTypes.map((type) => {
             const IconComponent = type.icon;
             const isActive = activeFilter === type.id;
@@ -53,15 +63,15 @@ export default function ContentSearchBar() {
               <Button
                 key={type.id}
                 variant={isActive ? "default" : "outline"}
-                size="sm"
+                size="lg"
                 onClick={() => setActiveFilter(type.id)}
-                className={`flex items-center gap-2 px-4 py-3 text-sm rounded-full transition-all ${
+                className={`flex items-center gap-3 px-6 py-4 text-base rounded-full transition-all font-semibold ${
                   isActive 
-                    ? "bg-gray-900 text-white hover:bg-gray-800" 
-                    : "bg-white text-gray-700 border-2 border-gray-300 hover:bg-gray-50"
+                    ? "bg-yellow-500 text-black hover:bg-yellow-400 border-2 border-black" 
+                    : "bg-white text-black border-4 border-black hover:bg-yellow-100"
                 }`}
               >
-                {IconComponent && <IconComponent className="h-4 w-4" />}
+                {IconComponent && <IconComponent className="h-5 w-5" />}
                 {type.name}
               </Button>
             );
@@ -70,9 +80,10 @@ export default function ContentSearchBar() {
 
         {/* Placeholder Results Message */}
         {searchQuery && (
-          <div className="mt-6 p-6 bg-blue-100 border-2 border-blue-300 rounded-lg">
-            <p className="text-blue-900 text-base text-center">
-              <span className="font-semibold">Search functionality coming soon!</span> 
+          <div className="mt-8 p-8 bg-yellow-300 border-4 border-black rounded-lg">
+            <p className="text-black text-lg text-center font-bold">
+              <span className="text-2xl">🚧 Search functionality coming soon! 🚧</span> 
+              <br />
               <br />
               You searched for "{searchQuery}" in {contentTypes.find(t => t.id === activeFilter)?.name || 'All content'}
             </p>
