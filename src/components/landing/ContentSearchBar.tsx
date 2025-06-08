@@ -6,11 +6,9 @@ import { Button } from "@/components/ui/button";
 
 const contentTypes = [
   { id: 'all', name: 'All', icon: null },
-  { id: 'videos', name: 'Videos', icon: Video },
-  { id: 'podcasts', name: 'Podcasts', icon: Headphones },
-  { id: 'articles', name: 'Articles', icon: FileText },
-  { id: 'tutorials', name: 'Tutorials', icon: BookOpen },
-  { id: 'templates', name: 'Templates', icon: Layout },
+  { id: 'exploring', name: 'Exploring', icon: null },
+  { id: 'kick-off', name: 'Kick-off', icon: null },
+  { id: 'growth', name: 'Growth', icon: null },
 ];
 
 export default function ContentSearchBar() {
@@ -34,7 +32,7 @@ export default function ContentSearchBar() {
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
           <Input
             type="text"
-            placeholder="Search videos, podcasts, articles, tutorials, templates..."
+            placeholder="Search content for your journey stage..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10 pr-4 py-3 text-base border border-gray-200 rounded-md focus:ring-2 focus:ring-primary focus:border-primary w-full bg-white"
@@ -44,7 +42,6 @@ export default function ContentSearchBar() {
         {/* Content Type Filters */}
         <div className="flex flex-wrap gap-2 justify-center mb-6">
           {contentTypes.map((type) => {
-            const IconComponent = type.icon;
             const isActive = activeFilter === type.id;
             
             return (
@@ -59,7 +56,6 @@ export default function ContentSearchBar() {
                     : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
                 }`}
               >
-                {IconComponent && <IconComponent className="h-4 w-4" />}
                 {type.name}
               </Button>
             );
@@ -72,7 +68,7 @@ export default function ContentSearchBar() {
             <p className="text-blue-800 text-center">
               <span className="font-medium">Search functionality coming soon!</span> 
               <br />
-              You searched for "{searchQuery}" in {contentTypes.find(t => t.id === activeFilter)?.name || 'All content'}
+              You searched for "{searchQuery}" in {contentTypes.find(t => t.id === activeFilter)?.name || 'All stages'}
             </p>
           </div>
         )}
