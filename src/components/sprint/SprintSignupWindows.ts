@@ -204,8 +204,10 @@ export const windows: Window[] = [
         question: 'Have you recently tested out the idea of this venture in some way?',
         type: 'select',
         options: [
-          { value: 'yes', label: 'Yes' },
-          { value: 'no', label: 'No' }
+          { value: 'prototype_data', label: 'Yes, we have a prototype and or data from a key experiment' },
+          { value: 'validated_customers', label: 'Yes, we have validated the idea with key customers and experts in the field' },
+          { value: 'conceptual', label: 'No not as yet, it is purely conceptual' },
+          { value: 'working_on_it', label: 'No not as yet, we are working on it' }
         ]
       }
     ]
