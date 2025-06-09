@@ -1,3 +1,4 @@
+
 import { Construction } from "lucide-react";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 
@@ -58,7 +59,7 @@ export default function LabGallery({ labs }: LabGalleryProps) {
       
       <div className="hidden md:block">
         {/* Desktop: Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 max-w-5xl">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 max-w-5xl mx-auto">
           {labs.map((lab, labIndex) => (
             <div key={labIndex} className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow relative">
               <div className="aspect-video relative">
