@@ -1,4 +1,3 @@
-
 import { Construction } from "lucide-react";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 
@@ -20,7 +19,7 @@ export default function LabGallery({ labs }: LabGalleryProps) {
         <Carousel
           opts={{
             align: "start",
-            loop: false,
+            loop: true,
             dragFree: true,
             containScroll: "trimSnaps",
           }}
