@@ -61,6 +61,21 @@ const SprintSignupForm: React.FC<SprintSignupFormProps> = ({ utmParams = {} }) =
     // File uploads remain optional
     if (question.type === 'file') return false;
     
+    // Special handling for LinkedIn opt-out checkbox
+    if (question.type === 'checkbox' && question.id === 'linkedin_opt_out') {
+      // Check if LinkedIn field has a valid value
+      const linkedinValue = answers['linkedin'];
+      const hasValidLinkedin = linkedinValue && 
+        typeof linkedinValue === 'string' && 
+        linkedinValue.trim() !== '' &&
+        fieldValidation['linkedin']?.isValid;
+      
+      // If LinkedIn is valid, the checkbox is not required
+      if (hasValidLinkedin) {
+        return false;
+      }
+    }
+    
     // Check if field is opted out
     const isOptedOut = question.optOutField && answers[question.optOutField];
     if (isOptedOut) return false;
