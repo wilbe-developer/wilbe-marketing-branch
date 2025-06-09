@@ -1,7 +1,5 @@
-
 import { SprintTaskDefinition, StepNode, Condition } from "@/types/task-builder";
 import { getTaskWorkload } from "@/utils/workloadCalculation";
-import { parseMarkdown } from "@/utils/markdownUtils";
 
 // Function to generate a summary of a task definition for display
 export const generateTaskSummary = (taskDef: SprintTaskDefinition) => {
@@ -10,11 +8,8 @@ export const generateTaskSummary = (taskDef: SprintTaskDefinition) => {
   // Get the main title from the task name
   const title = definition.taskName || taskDef.name;
   
-  // Get the description from the definition, prioritizing description_markdown
-  let description = definition.description || taskDef.description;
-  if (definition.description_markdown) {
-    description = parseMarkdown(definition.description_markdown);
-  }
+  // Get the description from the definition or use the taskDef description
+  const description = definition.description || taskDef.description;
   
   // Determine if this task requires a file upload
   const requiresUpload = definition.steps.some(step => 
@@ -33,11 +28,8 @@ export const generateTaskSummary = (taskDef: SprintTaskDefinition) => {
     }
   }
   
-  // Use the dedicated summary field if available, with markdown parsing
-  let content = definition.summary || '';
-  if (content) {
-    content = parseMarkdown(content);
-  }
+  // Use only the dedicated summary field if available
+  const content = definition.summary || '';
   
   // Get the order index if available
   const order_index = definition.order_index || 0;
