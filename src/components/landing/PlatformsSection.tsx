@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Construction } from "lucide-react";
 import LumaEventsEmbed from "./LumaEventsEmbed";
@@ -119,10 +120,11 @@ export default function PlatformsSection() {
                   </div>
                 )}
 
-                {/* Lab Gallery - Responsive: Carousel on mobile, Grid on desktop */}
+                {/* Lab Gallery - Always use carousel on mobile, grid on desktop */}
                 {platform.showLabGallery && (
                   <div className="mb-4 sm:mb-6">
-                    {isMobile ? (
+                    <div className="block md:hidden">
+                      {/* Mobile: Horizontal Carousel */}
                       <Carousel
                         opts={{
                           align: "start",
@@ -134,7 +136,7 @@ export default function PlatformsSection() {
                       >
                         <CarouselContent className="-ml-2">
                           {labGallery.map((lab, labIndex) => (
-                            <CarouselItem key={labIndex} className="pl-2 basis-72">
+                            <CarouselItem key={labIndex} className="pl-2 basis-64">
                               <div className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow relative">
                                 <div className="aspect-video relative">
                                   <img
@@ -152,7 +154,7 @@ export default function PlatformsSection() {
                                     </div>
                                   )}
                                 </div>
-                                <div className="p-3 sm:p-4">
+                                <div className="p-3">
                                   <h4 className="font-bold text-gray-900 text-sm mb-1">{lab.name}</h4>
                                   <p className="text-xs text-gray-600">{lab.location}</p>
                                 </div>
@@ -161,7 +163,10 @@ export default function PlatformsSection() {
                           ))}
                         </CarouselContent>
                       </Carousel>
-                    ) : (
+                    </div>
+                    
+                    <div className="hidden md:block">
+                      {/* Desktop: Grid */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 max-w-5xl">
                         {labGallery.map((lab, labIndex) => (
                           <div key={labIndex} className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow relative">
@@ -188,7 +193,7 @@ export default function PlatformsSection() {
                           </div>
                         ))}
                       </div>
-                    )}
+                    </div>
                   </div>
                 )}
                 
