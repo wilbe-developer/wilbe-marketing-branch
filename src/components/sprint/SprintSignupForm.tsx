@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, ArrowLeft, AlertCircle, Mail } from "lucide-react";
@@ -130,7 +129,28 @@ const SprintSignupForm: React.FC<SprintSignupFormProps> = ({ utmParams = {} }) =
         continue;
       }
       
-      // Check validation for fields with validation rules (email/linkedin)
+      // Special handling for LinkedIn field with opt-out
+      if (question.id === 'linkedin' && question.optOutField) {
+        const hasValue = answers[question.id] && typeof answers[question.id] === 'string' && answers[question.id].trim() !== '';
+        const isOptedOut = answers[question.optOutField];
+        
+        // Can proceed if: 
+        // 1. Has valid LinkedIn URL (regardless of checkbox), OR
+        // 2. Opted out and field is empty
+        if (hasValue) {
+          // If there's a value, it must be valid
+          const validation = fieldValidation[question.id];
+          if (!validation || !validation.isValid) {
+            return false;
+          }
+        } else if (!isOptedOut) {
+          // If no value and not opted out, it's required
+          return false;
+        }
+        continue;
+      }
+      
+      // Check validation for other fields with validation rules
       if (question.validation && answers[question.id]) {
         const validation = fieldValidation[question.id];
         if (!validation || !validation.isValid) {
