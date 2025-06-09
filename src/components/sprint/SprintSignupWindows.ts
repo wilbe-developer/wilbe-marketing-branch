@@ -8,18 +8,30 @@ export const windows: Window[] = [
       {
         id: 'name',
         question: 'What is your name?',
-        type: 'text'
+        type: 'text',
+        required: true
       },
       {
         id: 'email',
         question: 'What is your email address?',
-        type: 'email'
+        type: 'email',
+        required: true,
+        validation: 'email'
       },
       {
         id: 'linkedin',
         question: 'What is your LinkedIn URL?',
         description: 'This helps us understand your background and experience.',
-        type: 'text'
+        type: 'text',
+        required: true,
+        validation: 'linkedin',
+        optOutField: 'linkedin_opt_out',
+        placeholder: 'https://www.linkedin.com/in/yourprofile'
+      },
+      {
+        id: 'linkedin_opt_out',
+        question: 'I don\'t have a LinkedIn profile',
+        type: 'checkbox'
       },
       {
         id: 'cv',

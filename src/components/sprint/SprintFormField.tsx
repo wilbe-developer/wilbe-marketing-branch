@@ -1,38 +1,83 @@
-
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { Check } from "lucide-react";
+import { Check, AlertCircle } from "lucide-react";
 import { Step } from "@/types/sprint-signup";
+import { validateEmail, validateLinkedInUrl } from "@/utils/validation";
 
 interface SprintFormFieldProps {
   step: Step;
   value: any;
-  formValues: any; // Add this to access all form values
+  formValues: any;
   onChange: (field: string, value: any) => void;
   onFileUpload: (file: File | null) => void;
   toggleMultiSelect: (field: string, value: string) => void;
   uploadedFile: File | null;
+  validationErrors?: Record<string, string>;
+  onValidationChange?: (field: string, isValid: boolean, canonicalValue?: string) => void;
 }
 
 export const SprintFormField: React.FC<SprintFormFieldProps> = ({
   step,
   value,
-  formValues, // Add this to access all form values
+  formValues,
   onChange,
   onFileUpload,
   toggleMultiSelect,
-  uploadedFile
+  uploadedFile,
+  validationErrors = {},
+  onValidationChange
 }) => {
-  // Handle input change for text and textarea
+  const [localError, setLocalError] = useState<string>('');
+  const [isValidating, setIsValidating] = useState(false);
+
+  // Check if field is required (considering opt-out)
+  const isFieldRequired = () => {
+    if (!step.required) return false;
+    if (step.optOutField && formValues[step.optOutField]) return false;
+    return true;
+  };
+
+  // Real-time validation for email and LinkedIn
+  useEffect(() => {
+    if (!value || !step.validation) return;
+
+    const validateField = async () => {
+      setIsValidating(true);
+      let result;
+      
+      if (step.validation === 'email') {
+        result = validateEmail(value);
+      } else if (step.validation === 'linkedin') {
+        // Skip validation if opted out
+        if (step.optOutField && formValues[step.optOutField]) {
+          result = { isValid: true };
+        } else {
+          result = validateLinkedInUrl(value);
+        }
+      } else {
+        result = { isValid: true };
+      }
+
+      setLocalError(result.error || '');
+      setIsValidating(false);
+      
+      if (onValidationChange) {
+        onValidationChange(step.id, result.isValid, result.canonicalValue);
+      }
+    };
+
+    const timeoutId = setTimeout(validateField, 300);
+    return () => clearTimeout(timeoutId);
+  }, [value, step.validation, step.id, step.optOutField, formValues, onValidationChange]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     onChange(step.id, e.target.value);
   };
 
-  // Handle file upload
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
@@ -42,33 +87,56 @@ export const SprintFormField: React.FC<SprintFormFieldProps> = ({
     }
   };
 
+  const hasError = localError || validationErrors[step.id];
+  const isOptedOut = step.optOutField && formValues[step.optOutField];
+
   switch (step.type) {
     case 'text':
-      return (
-        <Input 
-          value={value || ''} 
-          onChange={handleInputChange} 
-          placeholder="Your answer" 
-        />
-      );
-    
     case 'email':
       return (
-        <Input 
-          type="email" 
-          value={value || ''} 
-          onChange={handleInputChange} 
-          placeholder="Your email" 
-        />
+        <div className="space-y-2">
+          <Input 
+            value={value || ''} 
+            onChange={handleInputChange} 
+            placeholder={step.placeholder || "Your answer"}
+            disabled={isOptedOut}
+            className={hasError ? "border-red-500" : ""}
+            type={step.type === 'email' ? 'email' : 'text'}
+          />
+          {step.validation === 'linkedin' && !isOptedOut && (
+            <p className="text-xs text-gray-500">
+              Example: https://www.linkedin.com/in/yourprofile
+            </p>
+          )}
+          {hasError && (
+            <div className="flex items-center gap-2 text-red-600 text-sm">
+              <AlertCircle className="h-4 w-4" />
+              <span>{hasError}</span>
+            </div>
+          )}
+          {isValidating && (
+            <p className="text-xs text-gray-500">Validating...</p>
+          )}
+        </div>
       );
     
     case 'textarea':
       return (
-        <Textarea 
-          value={value || ''} 
-          onChange={handleInputChange} 
-          placeholder="Your answer" 
-        />
+        <div className="space-y-2">
+          <Textarea 
+            value={value || ''} 
+            onChange={handleInputChange} 
+            placeholder="Your answer"
+            disabled={isOptedOut}
+            className={hasError ? "border-red-500" : ""}
+          />
+          {hasError && (
+            <div className="flex items-center gap-2 text-red-600 text-sm">
+              <AlertCircle className="h-4 w-4" />
+              <span>{hasError}</span>
+            </div>
+          )}
+        </div>
       );
     
     case 'file':
@@ -107,40 +175,51 @@ export const SprintFormField: React.FC<SprintFormFieldProps> = ({
       ) : null;
     
     case 'checkbox':
-      return step.options ? (
-        <div className="space-y-3">
-          {step.options.map((option) => (
-            <div key={option.value} className="flex items-center space-x-2">
-              <Checkbox 
-                checked={(value || []).includes(option.value)}
-                onCheckedChange={() => toggleMultiSelect(step.id, option.value)}
-                id={`${step.id}-${option.value}`} 
-              />
-              <Label htmlFor={`${step.id}-${option.value}`} className="cursor-pointer">
-                {option.label}
-              </Label>
-            </div>
-          ))}
-        </div>
-      ) : null;
+      if (step.options) {
+        // Multiple checkbox options
+        return (
+          <div className="space-y-3">
+            {step.options.map((option) => (
+              <div key={option.value} className="flex items-center space-x-2">
+                <Checkbox 
+                  checked={(value || []).includes(option.value)}
+                  onCheckedChange={() => toggleMultiSelect(step.id, option.value)}
+                  id={`${step.id}-${option.value}`} 
+                />
+                <Label htmlFor={`${step.id}-${option.value}`} className="cursor-pointer">
+                  {option.label}
+                </Label>
+              </div>
+            ))}
+          </div>
+        );
+      } else {
+        // Single checkbox (like opt-out)
+        return (
+          <div className="flex items-center space-x-2">
+            <Checkbox 
+              checked={value || false}
+              onCheckedChange={(checked) => onChange(step.id, checked)}
+              id={step.id}
+            />
+            <Label htmlFor={step.id} className="cursor-pointer">
+              {step.question}
+            </Label>
+          </div>
+        );
+      }
     
     case 'conditional':
       if (!step.conditional) return null;
       
-      // Find the matching condition based on the formValues instead of value
       const matchedCondition = step.conditional.find(condition => {
-        // Extract the condition field and value
         const conditionField = condition.field;
         const conditionValue = condition.value;
-        
-        // Check if the condition is met in the entire form values
         return formValues[conditionField] === conditionValue;
       });
       
-      // If no condition matches, don't render anything
       if (!matchedCondition) return null;
       
-      // Render the appropriate component based on the condition
       const { componentType, componentProps = {} } = matchedCondition;
       
       if (componentType === 'textarea') {

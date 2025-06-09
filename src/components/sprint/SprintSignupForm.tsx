@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, ArrowLeft, AlertCircle, Mail } from "lucide-react";
 import { useSprintSignup } from "@/hooks/useSprintSignup";
@@ -21,6 +21,9 @@ interface SprintSignupFormProps {
 }
 
 const SprintSignupForm: React.FC<SprintSignupFormProps> = ({ utmParams = {} }) => {
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [fieldValidation, setFieldValidation] = useState<Record<string, { isValid: boolean; canonicalValue?: string }>>({});
+  
   const {
     currentWindow,
     answers,
@@ -40,11 +43,26 @@ const SprintSignupForm: React.FC<SprintSignupFormProps> = ({ utmParams = {} }) =
   
   const { isAuthenticated, user } = useAuth();
 
+  const handleValidationChange = (field: string, isValid: boolean, canonicalValue?: string) => {
+    setFieldValidation(prev => ({
+      ...prev,
+      [field]: { isValid, canonicalValue }
+    }));
+    
+    // Clear validation error if field becomes valid
+    if (isValid && validationErrors[field]) {
+      setValidationErrors(prev => {
+        const { [field]: removed, ...rest } = prev;
+        return rest;
+      });
+    }
+  };
+
   const isCurrentWindowAnswered = () => {
     const currentWindowData = windows[currentWindow];
     if (!currentWindowData) return false;
     
-    // Check if all required fields in the current window are answered
+    // Check if all required fields in the current window are answered and valid
     for (const question of currentWindowData.questions) {
       // Skip file type questions
       if (question.type === 'file') continue;
@@ -63,17 +81,28 @@ const SprintSignupForm: React.FC<SprintSignupFormProps> = ({ utmParams = {} }) =
         continue;
       }
       
-      // For checkbox type questions, ensure at least one option is selected.
-      if (question.type === 'checkbox') {
+      // Check if field is required (considering opt-out)
+      const isOptedOut = question.optOutField && answers[question.optOutField];
+      const isRequired = question.required && !isOptedOut;
+      
+      if (isRequired && !answers[question.id]) {
+        return false;
+      }
+      
+      // Check validation for fields with validation rules
+      if (question.validation && answers[question.id] && !isOptedOut) {
+        const validation = fieldValidation[question.id];
+        if (!validation || !validation.isValid) {
+          return false;
+        }
+      }
+      
+      // For checkbox type questions, ensure at least one option is selected
+      if (question.type === 'checkbox' && question.options) {
         if (!Array.isArray(answers[question.id]) || answers[question.id].length === 0) {
           return false;
         }
         continue;
-      }
-      
-      // For all other question types, ensure they have a value
-      if (!answers[question.id]) {
-        return false;
       }
     }
     
@@ -89,9 +118,17 @@ const SprintSignupForm: React.FC<SprintSignupFormProps> = ({ utmParams = {} }) =
     return isCurrentWindowAnswered() && !!answers.email;
   };
 
-  // Handle form submission with UTM parameters
+  // Handle form submission with UTM parameters and canonical LinkedIn
   const handleSubmit = () => {
-    silentSignup(answers, utmParams);
+    // Use canonical LinkedIn value if available
+    const linkedinValidation = fieldValidation['linkedin'];
+    const submissionAnswers = { ...answers };
+    
+    if (linkedinValidation?.canonicalValue) {
+      submissionAnswers.linkedin = linkedinValidation.canonicalValue;
+    }
+    
+    silentSignup(submissionAnswers, utmParams);
   };
 
   const isLastWindow = currentWindow === windows.length - 1;
@@ -161,6 +198,8 @@ const SprintSignupForm: React.FC<SprintSignupFormProps> = ({ utmParams = {} }) =
           onFileUpload={handleFileUpload}
           toggleMultiSelect={toggleMultiSelect}
           uploadedFile={uploadedFile}
+          validationErrors={validationErrors}
+          onValidationChange={handleValidationChange}
         />
       )}
       

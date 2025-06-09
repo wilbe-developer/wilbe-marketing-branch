@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Window } from "@/types/sprint-signup";
 import { Card, CardContent } from "@/components/ui/card";
 import { SprintFormField } from "./SprintFormField";
@@ -11,6 +11,8 @@ interface WindowFormFieldsProps {
   onFileUpload: (file: File | null) => void;
   toggleMultiSelect: (field: string, value: string) => void;
   uploadedFile: File | null;
+  validationErrors?: Record<string, string>;
+  onValidationChange?: (field: string, isValid: boolean, canonicalValue?: string) => void;
 }
 
 export const WindowFormFields: React.FC<WindowFormFieldsProps> = ({
@@ -19,28 +21,10 @@ export const WindowFormFields: React.FC<WindowFormFieldsProps> = ({
   onChange,
   onFileUpload,
   toggleMultiSelect,
-  uploadedFile
+  uploadedFile,
+  validationErrors = {},
+  onValidationChange
 }) => {
-  // Determine if all required questions in this window are answered
-  const areAllQuestionsAnswered = () => {
-    for (const question of window.questions) {
-      if (question.type === 'conditional') {
-        if (question.conditional) {
-          const conditionMet = question.conditional.some(cond => 
-            values[cond.field] === cond.value
-          );
-          
-          if (conditionMet && !values[question.id]) {
-            return false;
-          }
-        }
-      } else if (question.type !== 'file' && !values[question.id]) {
-        return false;
-      }
-    }
-    return true;
-  };
-
   return (
     <Card className="mb-6">
       <CardContent className="p-6">
@@ -49,7 +33,6 @@ export const WindowFormFields: React.FC<WindowFormFieldsProps> = ({
           {window.questions.map((question, index) => {
             // For conditional questions, check if we should render them
             if (question.type === 'conditional' && question.conditional) {
-              // Check if any condition is met
               const shouldRender = question.conditional.some(cond => {
                 return values[cond.field] === cond.value;
               });
@@ -61,18 +44,22 @@ export const WindowFormFields: React.FC<WindowFormFieldsProps> = ({
             
             return (
               <div key={question.id} className="mb-4">
-                <h3 className="text-lg font-medium mb-2">{question.question}</h3>
+                {question.type !== 'checkbox' || question.options ? (
+                  <h3 className="text-lg font-medium mb-2">{question.question}</h3>
+                ) : null}
                 {question.description && (
                   <p className="text-muted-foreground mb-2">{question.description}</p>
                 )}
                 <SprintFormField
                   step={question}
                   value={values[question.id]}
-                  formValues={values} // Pass the entire values object
+                  formValues={values}
                   onChange={onChange}
                   onFileUpload={onFileUpload}
                   toggleMultiSelect={toggleMultiSelect}
                   uploadedFile={uploadedFile}
+                  validationErrors={validationErrors}
+                  onValidationChange={onValidationChange}
                 />
               </div>
             );

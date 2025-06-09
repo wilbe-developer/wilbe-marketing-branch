@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -126,36 +127,36 @@ export const useSprintSubmission = () => {
 
       console.log("Adding UTM parameters to sprint profile:", { utmSource, utmMedium });
 
-      // Create/update the profile in Supabase - accurately map fields from SprintSignupWindows.ts
+      // Create/update the profile in Supabase - note that LinkedIn URL is now canonical
       const { error: profileError } = await supabase.rpc('create_sprint_profile', {
         p_user_id: userId,
         p_name: answers.name || '',
         p_email: answers.email || '',
-        p_linkedin_url: answers.linkedin || '',
+        p_linkedin_url: answers.linkedin || '', // This is now the canonical LinkedIn URL
         p_cv_url: cvUrl,
         p_current_job: answers.job || '',
         p_company_incorporated: getBooleanValue(answers.incorporated),
         p_received_funding: getBooleanValue(answers.funding_received),
-        p_funding_details: '', // No longer used in the form, passing empty string
+        p_funding_details: '',
         p_has_deck: getBooleanValue(answers.deck),
         p_team_status: answers.team || '',
-        p_commercializing_invention: getBooleanValue(answers.invention), // This is the actual "is your company reliant on university invention" field
-        p_university_ip: getBooleanValue(answers.invention), // Fixed mapping: invention field answers university IP question
-        p_tto_engaged: false, // No longer used in form
-        p_problem_defined: false, // No longer used in form
+        p_commercializing_invention: getBooleanValue(answers.invention),
+        p_university_ip: getBooleanValue(answers.invention),
+        p_tto_engaged: false,
+        p_problem_defined: false,
         p_customer_engagement: answers.customers || '',
         p_market_known: getBooleanValue(answers.market_known),
-        p_market_gap_reason: '', // No longer used in form
-        p_funding_amount: '', // No longer used in form
-        p_has_financial_plan: false, // No longer used in form
-        p_funding_sources: [], // No longer used in form
+        p_market_gap_reason: '',
+        p_funding_amount: '',
+        p_has_financial_plan: false,
+        p_funding_sources: [],
         p_experiment_validated: getBooleanValue(answers.experiment),
-        p_industry_changing_vision: false, // No longer used in form
+        p_industry_changing_vision: false,
         
         // Field mapping for fields in SprintSignupWindows.ts
         p_is_scientist_engineer: getBooleanValue(answers.is_scientist_engineer),
         p_job_type: answers.job_type || '',
-        p_ip_concerns: getBooleanValue(answers.ip_concerns), // Correctly mapped field for IP concerns
+        p_ip_concerns: getBooleanValue(answers.ip_concerns),
         p_potential_beneficiaries: getBooleanValue(answers.potential_beneficiaries),
         p_specific_customers: getBooleanValue(answers.specific_customers),
         p_customer_evidence: getBooleanValue(answers.customer_evidence),
@@ -179,13 +180,8 @@ export const useSprintSubmission = () => {
         p_utm_term: utmTerm,
         p_utm_content: utmContent,
         
-        // Add the missing ambitious_version parameter
         p_ambitious_version: answers.ambitious_version || '',
-        
-        // Add the missing minimal_success_version parameter  
         p_minimal_success_version: answers.minimal_success_version || '',
-        
-        // Add the missing dashboard_access_enabled parameter
         p_dashboard_access_enabled: false
       });
 
