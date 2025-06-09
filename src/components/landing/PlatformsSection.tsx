@@ -1,8 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Construction } from "lucide-react";
 import LumaEventsEmbed from "./LumaEventsEmbed";
+import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function PlatformsSection() {
+  const isMobile = useIsMobile();
+  
   const platforms = [{
     number: 1,
     title: "Wilbe Sandbox: framing your journey and connecting with peers",
@@ -115,35 +119,76 @@ export default function PlatformsSection() {
                   </div>
                 )}
 
-                {/* Lab Gallery - only show for Wilbe Labs */}
+                {/* Lab Gallery - Responsive: Carousel on mobile, Grid on desktop */}
                 {platform.showLabGallery && (
                   <div className="mb-4 sm:mb-6">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 max-w-5xl">
-                      {labGallery.map((lab, labIndex) => (
-                        <div key={labIndex} className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow relative">
-                          <div className="aspect-video relative">
-                            <img
-                              src={lab.image}
-                              alt={`${lab.name} laboratory facility`}
-                              className="w-full h-full object-cover"
-                              loading="lazy"
-                            />
-                            {lab.name === "Dinura" && (
-                              <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                                <div className="bg-yellow-400 text-black px-3 py-1 rounded-full flex items-center gap-2 font-bold text-sm">
-                                  <Construction className="h-4 w-4" />
-                                  Under Construction
+                    {isMobile ? (
+                      <Carousel
+                        opts={{
+                          align: "start",
+                          loop: false,
+                          dragFree: true,
+                          containScroll: "trimSnaps",
+                        }}
+                        className="w-full"
+                      >
+                        <CarouselContent className="-ml-2">
+                          {labGallery.map((lab, labIndex) => (
+                            <CarouselItem key={labIndex} className="pl-2 basis-72">
+                              <div className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow relative">
+                                <div className="aspect-video relative">
+                                  <img
+                                    src={lab.image}
+                                    alt={`${lab.name} laboratory facility`}
+                                    className="w-full h-full object-cover"
+                                    loading="lazy"
+                                  />
+                                  {lab.name === "Dinura" && (
+                                    <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                                      <div className="bg-yellow-400 text-black px-3 py-1 rounded-full flex items-center gap-2 font-bold text-sm">
+                                        <Construction className="h-4 w-4" />
+                                        Under Construction
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="p-3 sm:p-4">
+                                  <h4 className="font-bold text-gray-900 text-sm mb-1">{lab.name}</h4>
+                                  <p className="text-xs text-gray-600">{lab.location}</p>
                                 </div>
                               </div>
-                            )}
+                            </CarouselItem>
+                          ))}
+                        </CarouselContent>
+                      </Carousel>
+                    ) : (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 max-w-5xl">
+                        {labGallery.map((lab, labIndex) => (
+                          <div key={labIndex} className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow relative">
+                            <div className="aspect-video relative">
+                              <img
+                                src={lab.image}
+                                alt={`${lab.name} laboratory facility`}
+                                className="w-full h-full object-cover"
+                                loading="lazy"
+                              />
+                              {lab.name === "Dinura" && (
+                                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                                  <div className="bg-yellow-400 text-black px-3 py-1 rounded-full flex items-center gap-2 font-bold text-sm">
+                                    <Construction className="h-4 w-4" />
+                                    Under Construction
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                            <div className="p-3 sm:p-4">
+                              <h4 className="font-bold text-gray-900 text-sm mb-1">{lab.name}</h4>
+                              <p className="text-xs text-gray-600">{lab.location}</p>
+                            </div>
                           </div>
-                          <div className="p-3 sm:p-4">
-                            <h4 className="font-bold text-gray-900 text-sm mb-1">{lab.name}</h4>
-                            <p className="text-xs text-gray-600">{lab.location}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
                 
