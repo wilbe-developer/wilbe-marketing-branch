@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Play, Clock } from "lucide-react";
+import { ArrowRight, Play } from "lucide-react";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import { fetchVideos } from "@/services/videoService";
 import { formatDistanceToNow } from "date-fns";
@@ -124,14 +124,6 @@ export default function FoundersStories() {
                       draggable={false}
                     />
                     <div className="absolute inset-0 bg-black/40" />
-                    {video.duration && (
-                      <div className="absolute top-4 left-4">
-                        <Badge className="bg-gray-900 text-white text-xs flex items-center">
-                          <Clock className="h-3 w-3 mr-1" />
-                          {video.duration}
-                        </Badge>
-                      </div>
-                    )}
                   </div>
                   <div className="p-4 flex-1 flex flex-col h-32">
                     <h4 className="font-bold text-gray-900 text-sm mb-2 line-clamp-2 flex-shrink-0">{video.title}</h4>
