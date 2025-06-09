@@ -87,6 +87,15 @@ export const SprintFormField: React.FC<SprintFormFieldProps> = ({
     }
   };
 
+  const handleCheckboxChange = (checked: boolean) => {
+    onChange(step.id, checked);
+    
+    // Clear linked field when checkbox is checked (opting out)
+    if (checked && step.id === 'linkedin_opt_out') {
+      onChange('linkedin', '');
+    }
+  };
+
   const hasError = localError || validationErrors[step.id];
   const isOptedOut = step.optOutField && formValues[step.optOutField];
 
@@ -199,7 +208,7 @@ export const SprintFormField: React.FC<SprintFormFieldProps> = ({
           <div className="flex items-center space-x-2">
             <Checkbox 
               checked={value || false}
-              onCheckedChange={(checked) => onChange(step.id, checked)}
+              onCheckedChange={handleCheckboxChange}
               id={step.id}
             />
             <Label htmlFor={step.id} className="cursor-pointer">
