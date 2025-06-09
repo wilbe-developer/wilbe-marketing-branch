@@ -58,43 +58,49 @@ const SprintSignupForm: React.FC<SprintSignupFormProps> = ({ utmParams = {} }) =
     }
   };
 
+  const isQuestionRequired = (question: any) => {
+    // File uploads remain optional
+    if (question.type === 'file') return false;
+    
+    // Check if field is opted out
+    const isOptedOut = question.optOutField && answers[question.optOutField];
+    if (isOptedOut) return false;
+    
+    // Return the required status
+    return question.required !== false; // Default to required unless explicitly set to false
+  };
+
+  const isConditionalQuestionVisible = (question: any) => {
+    if (question.type !== 'conditional' || !question.conditional) return false;
+    
+    return question.conditional.some(condition => 
+      answers[condition.field] === condition.value
+    );
+  };
+
   const isCurrentWindowAnswered = () => {
     const currentWindowData = windows[currentWindow];
     if (!currentWindowData) return false;
     
     // Check if all required fields in the current window are answered and valid
     for (const question of currentWindowData.questions) {
-      // Skip file type questions
-      if (question.type === 'file') continue;
-      
       // For conditional questions, check if they should be answered
       if (question.type === 'conditional') {
-        if (question.conditional) {
-          const conditionMet = question.conditional.some(condition => 
-            answers[condition.field] === condition.value
-          );
-          
-          if (conditionMet && !answers[question.id]) {
-            return false;
-          }
+        const shouldShow = isConditionalQuestionVisible(question);
+        if (shouldShow && isQuestionRequired(question) && !answers[question.id]) {
+          return false;
         }
         continue;
       }
       
-      // Check if field is required (considering opt-out)
-      const isOptedOut = question.optOutField && answers[question.optOutField];
-      const isRequired = question.required && !isOptedOut;
-      
-      if (isRequired && !answers[question.id]) {
-        return false;
+      // Check if field is required
+      if (!isQuestionRequired(question)) {
+        continue;
       }
       
-      // Check validation for fields with validation rules
-      if (question.validation && answers[question.id] && !isOptedOut) {
-        const validation = fieldValidation[question.id];
-        if (!validation || !validation.isValid) {
-          return false;
-        }
+      // Check if the field has an answer
+      if (!answers[question.id]) {
+        return false;
       }
       
       // For checkbox type questions, ensure at least one option is selected
@@ -103,6 +109,33 @@ const SprintSignupForm: React.FC<SprintSignupFormProps> = ({ utmParams = {} }) =
           return false;
         }
         continue;
+      }
+      
+      // For select type questions, ensure a valid option is selected
+      if (question.type === 'select' && question.options) {
+        const selectedValue = answers[question.id];
+        const validOptions = question.options.map(opt => opt.value);
+        if (!validOptions.includes(selectedValue)) {
+          return false;
+        }
+        continue;
+      }
+      
+      // For text/textarea, ensure non-empty string
+      if ((question.type === 'text' || question.type === 'textarea' || question.type === 'email') && question.id !== 'email' && question.id !== 'linkedin') {
+        const value = answers[question.id];
+        if (!value || (typeof value === 'string' && value.trim() === '')) {
+          return false;
+        }
+        continue;
+      }
+      
+      // Check validation for fields with validation rules (email/linkedin)
+      if (question.validation && answers[question.id]) {
+        const validation = fieldValidation[question.id];
+        if (!validation || !validation.isValid) {
+          return false;
+        }
       }
     }
     
