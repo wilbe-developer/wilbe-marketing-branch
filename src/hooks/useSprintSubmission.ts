@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -117,11 +118,6 @@ export const useSprintSubmission = () => {
       // Process boolean values
       const getBooleanValue = (value: string | undefined | null) => value === 'yes';
 
-      // Map experiment values to boolean for backward compatibility
-      const getExperimentValidated = (value: string | undefined | null) => {
-        return value === 'prototype_data' || value === 'validated_customers';
-      };
-
       // Extract and clean UTM parameters
       const utmSource = utmParams.utm_source || null;
       const utmMedium = utmParams.utm_medium || null;
@@ -154,7 +150,7 @@ export const useSprintSubmission = () => {
         p_funding_amount: '',
         p_has_financial_plan: false,
         p_funding_sources: [],
-        p_experiment_validated: getExperimentValidated(answers.experiment),
+        p_experiment_validated: answers.experiment || 'conceptual', // Now using string value directly
         p_industry_changing_vision: false,
         
         // Field mapping for fields in SprintSignupWindows.ts
