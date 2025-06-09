@@ -62,20 +62,7 @@ const SprintSignupForm: React.FC<SprintSignupFormProps> = ({ utmParams = {} }) =
     // File uploads remain optional
     if (question.type === 'file') return false;
     
-    // Special handling for LinkedIn: if they have a valid URL, don't require even if opted out
-    if (question.id === 'linkedin') {
-      const isOptedOut = question.optOutField && answers[question.optOutField];
-      const hasLinkedInUrl = answers[question.id] && answers[question.id].trim();
-      
-      // If opted out but has a URL, still validate the URL
-      if (isOptedOut && !hasLinkedInUrl) {
-        return false; // Opted out and no URL provided - not required
-      }
-      // If has URL or not opted out, treat as required
-      return question.required !== false;
-    }
-    
-    // Check if field is opted out (for other fields)
+    // Check if field is opted out
     const isOptedOut = question.optOutField && answers[question.optOutField];
     if (isOptedOut) return false;
     
