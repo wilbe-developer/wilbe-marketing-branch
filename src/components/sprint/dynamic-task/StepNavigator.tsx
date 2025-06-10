@@ -1,76 +1,50 @@
 
-import React from "react";
-import { Button } from "@/components/ui/button";
-import type { SaveStatus } from "@/hooks/useAutoSaveManager";
+import React from 'react';
+import { Button } from '@/components/ui/button';
 
 interface StepNavigatorProps {
-  currentStepIndex: number;
+  currentStep: number;
   totalSteps: number;
-  canProceed: boolean;
-  onPrevious: () => void;
-  onNext: () => void;
-  onComplete: () => void;
-  autoSaveManager?: {
-    handleFieldChange: (fieldId: string, value: any, isTyping: boolean, saveCallback: (value: any) => Promise<void>) => void;
-    startTyping: (fieldId: string) => void;
-    stopTyping: (fieldId: string) => void;
-    getSaveStatus: (fieldId: string) => SaveStatus;
-    subscribeToStatus: (fieldId: string, callback: (status: SaveStatus) => void) => () => void;
-    forceSave: (fieldId: string) => void;
-  };
-  currentStepId?: string;
+  handlePrevious: () => void;
+  handleNext: () => void;
+  isNextDisabled: boolean;
+  isLastStep: boolean;
+  handleComplete?: () => void;
 }
 
-export const StepNavigator: React.FC<StepNavigatorProps> = ({
-  currentStepIndex,
+const StepNavigator: React.FC<StepNavigatorProps> = ({
+  currentStep,
   totalSteps,
-  canProceed,
-  onPrevious,
-  onNext,
-  onComplete,
-  autoSaveManager,
-  currentStepId,
+  handlePrevious,
+  handleNext,
+  isNextDisabled,
+  isLastStep,
+  handleComplete
 }) => {
-  const handleNext = () => {
-    // Force save current step before navigating
-    if (autoSaveManager && currentStepId) {
-      autoSaveManager.forceSave(currentStepId);
-    }
-    onNext();
-  };
-
-  const handleComplete = () => {
-    // Force save current step before completing
-    if (autoSaveManager && currentStepId) {
-      autoSaveManager.forceSave(currentStepId);
-    }
-    onComplete();
-  };
-
-  const isLastStep = currentStepIndex === totalSteps - 1;
-
   return (
     <div className="flex justify-between pt-4">
       <Button
         variant="outline"
-        onClick={onPrevious}
-        disabled={currentStepIndex === 0}
+        onClick={handlePrevious}
+        disabled={currentStep === 0}
       >
         Previous
       </Button>
       
-      {isLastStep ? (
+      {isLastStep && handleComplete ? (
         <Button onClick={handleComplete}>
           Complete Task
         </Button>
       ) : (
-        <Button 
+        <Button
           onClick={handleNext}
-          disabled={!canProceed}
+          disabled={isNextDisabled}
         >
-          Next
+          {isLastStep ? 'Complete' : 'Next'}
         </Button>
       )}
     </div>
   );
 };
+
+export default StepNavigator;

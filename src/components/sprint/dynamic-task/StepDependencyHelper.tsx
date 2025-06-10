@@ -1,26 +1,17 @@
 
 import React from "react";
-import { StepNode } from "@/types/task-builder";
 import { SprintProfileShowOrAsk } from "@/components/sprint/SprintProfileShowOrAsk";
-import DynamicTaskStep from "@/components/sprint/task-builder/DynamicTaskStep";
-import type { SaveStatus } from "@/hooks/useAutoSaveManager";
+import { getProfileFieldMapping } from "@/utils/profileFieldMappings";
+import DynamicTaskStep from "../task-builder/DynamicTaskStep";
+import { StepNode } from "@/types/task-builder";
 
 interface StepDependencyHelperProps {
   step: StepNode;
   sprintProfile: any;
   answer: any;
-  handleAnswer: (value: any) => void;
-  handleFileUpload: (file: File) => void;
+  handleAnswer: (value: any) => Promise<void>;
+  handleFileUpload: (file: File) => Promise<void>;
   taskDefinition: any;
-  autoSaveManager?: {
-    handleFieldChange: (fieldId: string, value: any, isTyping: boolean, saveCallback: (value: any) => Promise<void>) => void;
-    startTyping: (fieldId: string) => void;
-    stopTyping: (fieldId: string) => void;
-    getSaveStatus: (fieldId: string) => SaveStatus;
-    subscribeToStatus: (fieldId: string, callback: (status: SaveStatus) => void) => () => void;
-    forceSave: (fieldId: string) => void;
-  };
-  onAutoSaveField?: (fieldId: string, value: any) => Promise<void>;
 }
 
 export const StepDependencyHelper: React.FC<StepDependencyHelperProps> = ({
@@ -29,11 +20,9 @@ export const StepDependencyHelper: React.FC<StepDependencyHelperProps> = ({
   answer,
   handleAnswer,
   handleFileUpload,
-  taskDefinition,
-  autoSaveManager,
-  onAutoSaveField,
+  taskDefinition
 }) => {
-  // Check if this step has profile dependencies
+  // Get profile dependencies for the step
   const profileDependencies = getStepProfileDependencies(step);
   
   const stepContent = (
@@ -42,19 +31,28 @@ export const StepDependencyHelper: React.FC<StepDependencyHelperProps> = ({
       answer={answer}
       onAnswer={handleAnswer}
       onFileUpload={handleFileUpload}
-      autoSaveManager={autoSaveManager}
-      onAutoSaveField={onAutoSaveField}
     />
   );
   
   // If this step has profile dependencies, wrap it with SprintProfileShowOrAsk
   if (profileDependencies.length > 0) {
     const dependency = profileDependencies[0]; // Use the first dependency for now
+    const fieldMapping = getProfileFieldMapping(dependency.profileKey);
+
+    // Find the profile question to get its text
+    const profileQuestion = taskDefinition.profileQuestions?.find(
+      (q: any) => q.key === dependency.profileKey
+    );
+    
+    // Use the profile question text as the label if available
+    const questionLabel = profileQuestion?.text || fieldMapping.label;
+    
     return (
       <SprintProfileShowOrAsk
         profileKey={dependency.profileKey}
-        label={dependency.profileKey} // This should be improved to use a proper label
-        type="boolean" // This should be determined dynamically based on the profile field
+        label={questionLabel}
+        type={fieldMapping.type}
+        options={fieldMapping.options}
       >
         {stepContent}
       </SprintProfileShowOrAsk>
@@ -64,14 +62,15 @@ export const StepDependencyHelper: React.FC<StepDependencyHelperProps> = ({
   return stepContent;
 };
 
-export const getStepProfileDependencies = (step: StepNode) => {
+// Helper function to get profile dependencies for a step
+export function getStepProfileDependencies(step: any) {
   if (!step.conditions) return [];
   
   return step.conditions
-    .filter((condition: any) => condition.source.profileKey)
+    .filter((condition: any) => condition.source && condition.source.profileKey)
     .map((condition: any) => ({
       profileKey: condition.source.profileKey,
       operator: condition.operator,
       value: condition.value
     }));
-};
+}

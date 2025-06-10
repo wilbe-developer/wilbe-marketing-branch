@@ -1,64 +1,146 @@
 
-import React from "react";
-import { SprintProfileShowOrAsk } from "@/components/sprint/SprintProfileShowOrAsk";
-import DynamicTaskStep from "@/components/sprint/task-builder/DynamicTaskStep";
-import type { SaveStatus } from "@/hooks/useAutoSaveManager";
+import React from 'react';
+import { StepNode } from '@/types/task-builder';
+import { 
+  ContentStepRenderer, 
+  QuestionStepRenderer,
+  FileUploadRenderer,
+  ExerciseRenderer,
+  CollaborationRenderer,
+  TeamMemberStepRenderer
+} from './StepRenderers';
+import { SprintProfileShowOrAsk } from '@/components/sprint/SprintProfileShowOrAsk';
+import { getProfileFieldMapping } from '@/utils/profileFieldMappings';
+import { FormStepRenderer } from './FormStepRenderer';
+import { ConditionalQuestionRenderer } from './ConditionalQuestionRenderer';
+import { normalizeStepType } from '@/utils/taskStepUtils';
+import { StepType } from '@/components/sprint/StepBasedTaskLogic';
 
 interface CurrentStepProps {
-  step: any;
+  step: StepNode;
   answer: any;
-  onAnswer: (value: any) => void;
-  onFileUpload: (file: File) => void;
-  sprintProfile: any;
-  getStepProfileDependencies: (step: any) => any[];
-  autoSaveManager?: {
-    handleFieldChange: (fieldId: string, value: any, isTyping: boolean, saveCallback: (value: any) => Promise<void>) => void;
-    startTyping: (fieldId: string) => void;
-    stopTyping: (fieldId: string) => void;
-    getSaveStatus: (fieldId: string) => SaveStatus;
-    subscribeToStatus: (fieldId: string, callback: (status: SaveStatus) => void) => () => void;
-    forceSave: (fieldId: string) => void;
-  };
-  onAutoSaveField?: (fieldId: string, value: any) => Promise<void>;
+  handleAnswer: (stepId: string, value: any) => void;
 }
 
-export const CurrentStep: React.FC<CurrentStepProps> = ({
-  step,
-  answer,
-  onAnswer,
-  onFileUpload,
-  sprintProfile,
-  getStepProfileDependencies,
-  autoSaveManager,
-  onAutoSaveField,
+const CurrentStep: React.FC<CurrentStepProps> = ({ 
+  step, 
+  answer, 
+  handleAnswer 
 }) => {
+  console.log("CurrentStep rendering step with type:", step.type);
+  
+  // Normalize step type for consistent handling
+  // Cast the normalized type to StepType to satisfy TypeScript
+  const normalizedType = normalizeStepType(step.type) as StepType;
+  console.log("Normalized step type in CurrentStep:", normalizedType);
+  
   // Check if this step has profile dependencies
   const profileDependencies = getStepProfileDependencies(step);
   
-  const stepContent = (
-    <DynamicTaskStep
-      step={step}
-      answer={answer}
-      onAnswer={onAnswer}
-      onFileUpload={onFileUpload}
-      autoSaveManager={autoSaveManager}
-      onAutoSaveField={onAutoSaveField}
-    />
+  const renderStepContent = () => (
+    <div className="border rounded-lg p-6">
+      <h3 className="text-lg font-medium mb-4">{step.text}</h3>
+      
+      {/* Step content based on normalized type */}
+      <div className="mb-6">
+        {normalizedType === 'content' && (
+          <ContentStepRenderer 
+            step={step} 
+            answer={answer} 
+            handleAnswer={(value) => handleAnswer(step.id, value)} 
+          />
+        )}
+        
+        {normalizedType === 'question' && (
+          <QuestionStepRenderer 
+            step={step} 
+            answer={answer} 
+            handleAnswer={(value) => handleAnswer(step.id, value)} 
+          />
+        )}
+        
+        {normalizedType === 'upload' && (
+          <FileUploadRenderer 
+            step={step} 
+            answer={answer} 
+            handleAnswer={(value) => handleAnswer(step.id, value)} 
+          />
+        )}
+        
+        {normalizedType === 'exercise' && (
+          <ExerciseRenderer 
+            step={step} 
+            answer={answer} 
+            handleAnswer={(value) => handleAnswer(step.id, value)} 
+          />
+        )}
+        
+        {normalizedType === 'collaboration' && (
+          <CollaborationRenderer
+            step={step}
+            answer={answer}
+            handleAnswer={(value) => handleAnswer(step.id, value)}
+          />
+        )}
+        
+        {normalizedType === 'team-members' && (
+          <TeamMemberStepRenderer
+            step={step}
+            answer={answer}
+            handleAnswer={(value) => handleAnswer(step.id, value)}
+          />
+        )}
+        
+        {step.type === 'form' && (
+          <FormStepRenderer
+            step={step}
+            answer={answer}
+            handleAnswer={(value) => handleAnswer(step.id, value)}
+          />
+        )}
+
+        {step.type === 'conditionalQuestion' && (
+          <ConditionalQuestionRenderer
+            step={step}
+            answer={answer}
+            handleAnswer={(value) => handleAnswer(step.id, value)}
+          />
+        )}
+      </div>
+    </div>
   );
   
   // If this step has profile dependencies, wrap it with SprintProfileShowOrAsk
   if (profileDependencies.length > 0) {
     const dependency = profileDependencies[0]; // Use the first dependency for now
+    const fieldMapping = getProfileFieldMapping(dependency.profileKey);
+    
     return (
       <SprintProfileShowOrAsk
         profileKey={dependency.profileKey}
-        label={dependency.profileKey} // This should be improved to use a proper label
-        type="boolean" // This should be determined dynamically based on the profile field
+        label={fieldMapping.label}
+        type={fieldMapping.type}
+        options={fieldMapping.options}
       >
-        {stepContent}
+        {renderStepContent()}
       </SprintProfileShowOrAsk>
     );
   }
   
-  return stepContent;
+  return renderStepContent();
 };
+
+// Helper function to get profile dependencies for a step
+function getStepProfileDependencies(step: any) {
+  if (!step.conditions) return [];
+  
+  return step.conditions
+    .filter((condition: any) => condition.source.profileKey)
+    .map((condition: any) => ({
+      profileKey: condition.source.profileKey,
+      operator: condition.operator,
+      value: condition.value
+    }));
+}
+
+export default CurrentStep;

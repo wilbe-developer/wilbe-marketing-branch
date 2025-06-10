@@ -1,37 +1,25 @@
 
 import React from "react";
+import DynamicTaskStep from "../task-builder/DynamicTaskStep";
+import StaticPanels from "../task-builder/StaticPanels";
 import { Button } from "@/components/ui/button";
-import { CurrentStep } from "./CurrentStep";
-import { TaskProgress } from "./TaskProgress";
-import { TaskCompleted } from "./TaskCompleted";
-import { StepNavigator } from "./StepNavigator";
-import StaticPanels from "@/components/sprint/task-builder/StaticPanels";
-import type { SaveStatus } from "@/hooks/useAutoSaveManager";
+import { StepNode } from "@/types/task-builder";
 
 interface TaskContentProps {
   currentStepIndex: number;
-  visibleSteps: any[];
-  currentStep: any;
+  visibleSteps: StepNode[];
+  currentStep: StepNode | undefined;
   answers: Record<string, any>;
   sprintProfile: any;
   taskDefinition: any;
-  handleAnswer: (value: any) => void;
-  handleFileUpload: (file: File) => void;
+  handleAnswer: (value: any) => Promise<void>;
+  handleFileUpload: (file: File) => Promise<void>;
   goToStep: (index: number) => void;
-  handleComplete: () => void;
+  handleComplete: () => Promise<void>;
   getStepProfileDependencies: (step: any) => any[];
   renderCurrentStepWithDependencies: () => React.ReactNode;
-  isAdmin: boolean;
-  taskId: string;
-  autoSaveManager?: {
-    handleFieldChange: (fieldId: string, value: any, isTyping: boolean, saveCallback: (value: any) => Promise<void>) => void;
-    startTyping: (fieldId: string) => void;
-    stopTyping: (fieldId: string) => void;
-    getSaveStatus: (fieldId: string) => SaveStatus;
-    subscribeToStatus: (fieldId: string, callback: (status: SaveStatus) => void) => () => void;
-    forceSave: (fieldId: string) => void;
-  };
-  onAutoSaveField?: (fieldId: string, value: any) => Promise<void>;
+  isAdmin?: boolean;
+  taskId?: string;
 }
 
 export const TaskContent: React.FC<TaskContentProps> = ({
@@ -47,34 +35,51 @@ export const TaskContent: React.FC<TaskContentProps> = ({
   handleComplete,
   getStepProfileDependencies,
   renderCurrentStepWithDependencies,
-  isAdmin,
-  taskId,
-  autoSaveManager,
-  onAutoSaveField,
+  isAdmin = false,
+  taskId
 }) => {
   return (
     <div className="space-y-6">
       {/* Progress indicator */}
-      <TaskProgress 
-        currentStepIndex={currentStepIndex}
-        totalSteps={visibleSteps.length}
-      />
+      <div className="flex justify-between text-sm text-gray-500">
+        <div>
+          Step {currentStepIndex + 1} of {visibleSteps.length}
+        </div>
+        <div>
+          {Math.round(((currentStepIndex + 1) / visibleSteps.length) * 100)}% complete
+        </div>
+      </div>
       
       {/* Current step */}
-      {currentStep && (
-        <CurrentStep
-          step={currentStep}
-          answer={answers[currentStep.id]}
-          onAnswer={handleAnswer}
-          onFileUpload={handleFileUpload}
-          sprintProfile={sprintProfile}
-          getStepProfileDependencies={getStepProfileDependencies}
-          autoSaveManager={autoSaveManager}
-          onAutoSaveField={onAutoSaveField}
-        />
-      )}
+      {currentStep && renderCurrentStepWithDependencies()}
       
-      {/* Static panels if any */}
+      {/* Navigation buttons - moved here to be right after the step */}
+      <div className="flex justify-between pt-4">
+        <Button
+          variant="outline"
+          onClick={() => goToStep(currentStepIndex - 1)}
+          disabled={currentStepIndex === 0}
+        >
+          Previous
+        </Button>
+        
+        {currentStepIndex === visibleSteps.length - 1 ? (
+          <Button onClick={handleComplete}>
+            Complete Task
+          </Button>
+        ) : (
+          <Button 
+            onClick={() => goToStep(currentStepIndex + 1)}
+            disabled={
+              (!answers[currentStep?.id] && currentStep?.type === "question")
+            }
+          >
+            Next
+          </Button>
+        )}
+      </div>
+      
+      {/* Static panels with admin support */}
       {taskDefinition.staticPanels && taskDefinition.staticPanels.length > 0 && (
         <StaticPanels
           panels={taskDefinition.staticPanels}
@@ -84,18 +89,6 @@ export const TaskContent: React.FC<TaskContentProps> = ({
           taskId={taskId}
         />
       )}
-      
-      {/* Navigation */}
-      <StepNavigator
-        currentStepIndex={currentStepIndex}
-        totalSteps={visibleSteps.length}
-        canProceed={!!answers[currentStep?.id] || currentStep?.type !== "question"}
-        onPrevious={() => goToStep(currentStepIndex - 1)}
-        onNext={() => goToStep(currentStepIndex + 1)}
-        onComplete={handleComplete}
-        autoSaveManager={autoSaveManager}
-        currentStepId={currentStep?.id}
-      />
     </div>
   );
 };
