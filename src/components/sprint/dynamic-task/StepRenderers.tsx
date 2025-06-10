@@ -11,8 +11,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { TeamMember } from '@/hooks/team-members/types';
-import TeamMemberForm from '@/components/sprint/step-types/TeamMemberForm';
 import { CollaborationStepRenderer } from '@/components/sprint/task-builder/dynamic-step/CollaborationStepRenderer';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -531,78 +529,6 @@ export const ExerciseRenderer: React.FC<StepRendererProps> = ({
         placeholder="Enter your answer here..."
       />
     </div>
-  );
-};
-
-export const TeamMemberStepRenderer: React.FC<StepRendererProps> = ({
-  step,
-  answer,
-  handleAnswer,
-}) => {
-  // Initialize team members state
-  const [teamMembers, setTeamMembers] = useState<TeamMember[]>(
-    Array.isArray(answer) ? answer : [
-      {
-        id: crypto.randomUUID(),
-        name: "",
-        profile_description: "",
-        employment_status: "",
-        trigger_points: "",
-        relationship_description: "",
-      }
-    ]
-  );
-
-  // Update team members when answer changes
-  useEffect(() => {
-    if (Array.isArray(answer) && answer.length > 0) {
-      setTeamMembers(answer);
-    }
-  }, [answer]);
-
-  // Add a new team member
-  const handleAddMember = () => {
-    const newMember: TeamMember = {
-      id: crypto.randomUUID(),
-      name: "",
-      profile_description: "",
-      employment_status: "",
-      trigger_points: "",
-      relationship_description: "",
-    };
-    
-    const updatedMembers = [...teamMembers, newMember];
-    setTeamMembers(updatedMembers);
-    handleAnswer(updatedMembers);
-  };
-
-  // Remove a team member
-  const handleRemoveMember = (index: number) => {
-    const updatedMembers = [...teamMembers];
-    updatedMembers.splice(index, 1);
-    setTeamMembers(updatedMembers);
-    handleAnswer(updatedMembers);
-  };
-
-  // Update a team member
-  const handleUpdateMember = (index: number, field: keyof TeamMember, value: string) => {
-    const updatedMembers = [...teamMembers];
-    updatedMembers[index] = {
-      ...updatedMembers[index],
-      [field]: value,
-    };
-    setTeamMembers(updatedMembers);
-    handleAnswer(updatedMembers);
-  };
-
-  return (
-    <TeamMemberForm
-      teamMembers={teamMembers}
-      memberType={step.memberType || "Co-founder"} // Default to "Co-founder" if not specified
-      onAdd={handleAddMember}
-      onRemove={handleRemoveMember}
-      onUpdate={handleUpdateMember}
-    />
   );
 };
 

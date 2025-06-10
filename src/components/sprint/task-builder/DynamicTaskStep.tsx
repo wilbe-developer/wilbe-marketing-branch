@@ -1,4 +1,3 @@
-
 import React from "react";
 import { StepNode } from "@/types/task-builder";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,7 +9,7 @@ import { CollaborationStepRenderer } from "./dynamic-step/CollaborationStepRende
 import { FormStepRenderer } from "@/components/sprint/dynamic-task/FormStepRenderer";
 import { ConditionalQuestionRenderer } from "@/components/sprint/dynamic-task/ConditionalQuestionRenderer";
 import { normalizeStepType } from "@/utils/taskStepUtils";
-import { TeamMemberStepRenderer } from "@/components/sprint/dynamic-task/StepRenderers";
+import { TeamMemberStepRenderer } from "./dynamic-step/TeamMemberStepRenderer";
 import { parseMarkdown } from "@/utils/markdownUtils";
 import type { SaveStatus } from "@/hooks/useAutoSaveManager";
 
@@ -44,7 +43,7 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
   console.log("Normalized step type:", normalizedType);
 
   // Render description with markdown support
-  const renderDescription = () => {
+  function renderDescription() {
     if (step.description_markdown) {
       return (
         <div 
@@ -56,7 +55,7 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
       return <p className="text-gray-600">{step.description}</p>;
     }
     return null;
-  };
+  }
 
   // Handle form step type
   if (step.type === 'form') {
@@ -125,7 +124,7 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
             <TeamMemberStepRenderer 
               step={step} 
               answer={answer} 
-              handleAnswer={onAnswer} 
+              onAnswer={onAnswer} 
             />
           </div>
         </CardContent>
