@@ -1,4 +1,3 @@
-
 import React from "react";
 import { EnhancedStep } from "./types";
 import { TeamMember } from "../team-members/types";
@@ -33,9 +32,6 @@ export const getTeamSteps = (
   onFullTimeTriggerChange: (text: string) => void,
   onFileUpload: (fileId: string) => void,
   onHiringPlanStepChange: (step: 'download' | 'upload') => void,
-  // Add new optional parameters for typing control
-  onTeamMemberStartTyping?: (index: number, field: keyof TeamMember) => void,
-  onTeamMemberStopTyping?: (index: number, field: keyof TeamMember) => void,
   getTeamMemberFieldStatus?: (index: number, field: keyof TeamMember) => any
 ): EnhancedStep[] => {
   if (teamStatus === undefined) {
@@ -197,8 +193,6 @@ export const getTeamSteps = (
             onRemove={onTeamMemberRemove}
             onUpdate={onTeamMemberUpdate}
             getFieldStatus={getTeamMemberFieldStatus}
-            startTyping={onTeamMemberStartTyping}
-            stopTyping={onTeamMemberStopTyping}
           />
         ]
       }

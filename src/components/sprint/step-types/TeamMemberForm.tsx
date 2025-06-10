@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -13,10 +12,8 @@ interface TeamMemberFormProps {
   memberType: string;
   onAdd: () => void;
   onRemove: (index: number) => void;
-  onUpdate: (index: number, field: keyof TeamMember, value: string) => void;
+  onUpdate: (index: number, field: keyof TeamMember, value: string, isTyping?: boolean) => void;
   getFieldStatus?: (index: number, field: keyof TeamMember) => TeamMemberSaveStatus;
-  startTyping?: (index: number, field: keyof TeamMember) => void;
-  stopTyping?: (index: number, field: keyof TeamMember) => void;
 }
 
 const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
@@ -26,8 +23,6 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
   onRemove,
   onUpdate,
   getFieldStatus,
-  startTyping,
-  stopTyping,
 }) => {
   const isMobile = useIsMobile();
 
@@ -109,12 +104,12 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
     }
   };
 
-  // Create input handlers - focus/blur handle typing state, onChange only updates value
+  // Create input handlers with isTyping parameter
   const createInputHandlers = (index: number, field: keyof TeamMember) => ({
-    onFocus: () => startTyping?.(index, field),
-    onBlur: () => stopTyping?.(index, field),
     onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => 
-      onUpdate(index, field, e.target.value) // No isTyping parameter
+      onUpdate(index, field, e.target.value, true), // isTyping: true for onChange
+    onBlur: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => 
+      onUpdate(index, field, e.target.value, false) // isTyping: false for onBlur (immediate save)
   });
 
   return (

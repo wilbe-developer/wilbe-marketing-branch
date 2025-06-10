@@ -34,9 +34,7 @@ export const TeamMemberStepRenderer: React.FC<TeamMemberStepRendererProps> = ({
     handleAddMember,
     handleRemoveMember,
     getFieldStatus,
-    forceSaveAll,
-    startTyping,
-    stopTyping
+    forceSaveAll
   } = useTeamMemberAutoSave({
     initialMembers,
     onSave: async (updatedMembers: TeamMember[]) => {
@@ -65,8 +63,6 @@ export const TeamMemberStepRenderer: React.FC<TeamMemberStepRendererProps> = ({
       onRemove={handleRemoveMember}
       onUpdate={handleFieldChange}
       getFieldStatus={getFieldStatus}
-      startTyping={startTyping}
-      stopTyping={stopTyping}
     />
   );
 };
