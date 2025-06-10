@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { StepNode, FormField } from "@/types/task-builder";
 import { Card, CardContent } from "@/components/ui/card";
@@ -14,12 +15,14 @@ interface QuestionStepRendererProps {
   step: StepNode;
   answer: any;
   onAnswer: (value: any) => void;
+  onAutoSave?: (value: any) => Promise<void>;
 }
 
 export const QuestionStepRenderer: React.FC<QuestionStepRendererProps> = ({
   step,
   answer,
   onAnswer,
+  onAutoSave,
 }) => {
   // For handling form-type answers with multiple fields
   const [formValues, setFormValues] = useState<Record<string, any>>(answer || {});
@@ -77,6 +80,7 @@ export const QuestionStepRenderer: React.FC<QuestionStepRendererProps> = ({
               field={field}
               value={formValues[field.id]}
               onChange={(value) => updateFormField(field.id, value)}
+              onAutoSave={onAutoSave}
             />
           );
         })}
@@ -120,6 +124,7 @@ export const QuestionStepRenderer: React.FC<QuestionStepRendererProps> = ({
                   step={question}
                   answer={formValues[question.id]}
                   onAnswer={(value) => updateFormField(question.id, value)}
+                  onAutoSave={onAutoSave}
                 />
               </CardContent>
             </Card>
@@ -145,6 +150,7 @@ export const QuestionStepRenderer: React.FC<QuestionStepRendererProps> = ({
                 field={field}
                 value={formValues[field.id]}
                 onChange={(value) => updateFormField(field.id, value)}
+                onAutoSave={onAutoSave}
               />
             ))}
           </div>
@@ -207,6 +213,7 @@ export const QuestionStepRenderer: React.FC<QuestionStepRendererProps> = ({
             value={answer || ""}
             type="textarea"
             onChange={onAnswer}
+            onAutoSave={onAutoSave}
           />
         );
 
@@ -218,6 +225,7 @@ export const QuestionStepRenderer: React.FC<QuestionStepRendererProps> = ({
             value={answer || ""}
             type="text"
             onChange={onAnswer}
+            onAutoSave={onAutoSave}
           />
         );
     }
