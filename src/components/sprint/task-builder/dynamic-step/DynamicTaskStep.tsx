@@ -112,7 +112,7 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
             <TeamMemberStepRenderer 
               step={step} 
               answer={answer} 
-              handleAnswer={onAnswer} 
+              onAnswer={onAnswer} 
             />
           </div>
         </CardContent>
