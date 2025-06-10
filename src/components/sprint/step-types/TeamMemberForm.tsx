@@ -36,7 +36,7 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
   const isMobile = useIsMobile();
 
   // Get field labels and placeholders based on member type
-  const getFieldConfig = (field: keyof TeamMember) => {
+  function getFieldConfig(field: keyof TeamMember) {
     if (memberType.toLowerCase() === "co-founder") {
       switch(field) {
         case "relationship_description":
@@ -95,10 +95,10 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
           };
       }
     }
-  };
+  }
 
   // Create AutoSave handler for a specific field
-  const createAutoSaveHandler = (index: number, field: keyof TeamMember) => {
+  function createAutoSaveHandler(index: number, field: keyof TeamMember) {
     if (!autoSaveManager || !onAutoSaveField) return undefined;
     
     const fieldId = `team_member_${index}_${field}`;
@@ -111,7 +111,7 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
       };
       await onAutoSaveField(fieldId, updatedMembers);
     };
-  };
+  }
 
   return (
     <div className="space-y-4">
@@ -383,5 +383,3 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
 };
 
 export default TeamMemberForm;
-
-</edits_to_apply>
