@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useDynamicTask } from "@/hooks/task-builder/useDynamicTask";
 import { useSprintProfileQuickEdit } from "@/hooks/useSprintProfileQuickEdit";
@@ -171,5 +172,3 @@ const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
 };
 
 export default DynamicTaskLogic;
-
-</edits_to_apply>
