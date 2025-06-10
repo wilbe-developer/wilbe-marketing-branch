@@ -13,7 +13,7 @@ interface TeamMemberFormProps {
   memberType: string;
   onAdd: () => void;
   onRemove: (index: number) => void;
-  onUpdate: (index: number, field: keyof TeamMember, value: string, isTyping?: boolean) => void;
+  onUpdate: (index: number, field: keyof TeamMember, value: string) => void;
   getFieldStatus?: (index: number, field: keyof TeamMember) => TeamMemberSaveStatus;
   startTyping?: (index: number, field: keyof TeamMember) => void;
   stopTyping?: (index: number, field: keyof TeamMember) => void;
@@ -109,12 +109,12 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
     }
   };
 
-  // Create input handlers - only onChange updates value, focus/blur handle typing state
+  // Create input handlers - focus/blur handle typing state, onChange only updates value
   const createInputHandlers = (index: number, field: keyof TeamMember) => ({
     onFocus: () => startTyping?.(index, field),
     onBlur: () => stopTyping?.(index, field),
     onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => 
-      onUpdate(index, field, e.target.value, false) // Don't trigger typing state on change
+      onUpdate(index, field, e.target.value) // No isTyping parameter
   });
 
   return (

@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { TeamMember } from '@/hooks/team-members/types';
 
@@ -118,15 +117,15 @@ export const useTeamMemberAutoSave = ({
   // Start typing for a field
   const startTyping = useCallback((memberIndex: number, fieldName: keyof TeamMember) => {
     const fieldId = createFieldId(memberIndex, fieldName);
-    if (!typingFields.current.has(fieldId)) {
-      typingFields.current.add(fieldId);
-      updateFieldStatus(fieldId, 'typing');
-    }
+    console.log(`Starting typing for field: ${fieldId}`);
+    typingFields.current.add(fieldId);
+    updateFieldStatus(fieldId, 'typing');
   }, [updateFieldStatus]);
 
   // Stop typing for a field
   const stopTyping = useCallback((memberIndex: number, fieldName: keyof TeamMember) => {
     const fieldId = createFieldId(memberIndex, fieldName);
+    console.log(`Stopping typing for field: ${fieldId}`);
     typingFields.current.delete(fieldId);
     
     // If there's a pending save, execute it immediately
@@ -144,16 +143,15 @@ export const useTeamMemberAutoSave = ({
     }
   }, [updateFieldStatus, executeSave]);
   
-  // Handle field changes - simplified to just update value and manage timers
+  // Handle field changes - simplified to just update value and manage debounce
   const handleFieldChange = useCallback((
     memberIndex: number,
     fieldName: keyof TeamMember,
-    value: string,
-    isTyping: boolean = true
+    value: string
   ) => {
     const fieldId = createFieldId(memberIndex, fieldName);
     
-    console.log(`Field change: ${fieldId} = ${value}, isTyping: ${isTyping}, currentlyTyping: ${typingFields.current.has(fieldId)}`);
+    console.log(`Field change: ${fieldId} = ${value}`);
     
     // Update UI immediately for responsiveness
     setMembers(prev => {
@@ -179,9 +177,8 @@ export const useTeamMemberAutoSave = ({
       timestamp: Date.now()
     });
 
-    // Only set up debounced save if we're typing and not already executing a save
-    if (isTyping && typingFields.current.has(fieldId)) {
-      // Set debounced save timer
+    // Set up debounced save timer only if field is in typing mode
+    if (typingFields.current.has(fieldId)) {
       const timer = setTimeout(() => {
         if (pendingSaves.current.has(fieldId)) {
           const pending = pendingSaves.current.get(fieldId)!;
@@ -190,9 +187,6 @@ export const useTeamMemberAutoSave = ({
       }, debounceMs);
       
       saveTimers.current.set(fieldId, timer);
-    } else if (!isTyping) {
-      // Immediate save on blur (handled by stopTyping)
-      // Don't execute here, let stopTyping handle it
     }
   }, [executeSave, debounceMs]);
   
