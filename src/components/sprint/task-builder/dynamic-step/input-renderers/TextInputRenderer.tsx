@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useRef, useCallback, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -25,72 +25,81 @@ export const TextInputRenderer: React.FC<TextInputRendererProps> = ({
   onChange,
   onAutoSave,
 }) => {
-  const [localValue, setLocalValue] = useState(value || "");
-  const [saveError, setSaveError] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
+  const lastSavedValueRef = useRef(value);
+  const isTypingRef = useRef(false);
 
-  // Update local value when prop value changes (from external sources)
-  useEffect(() => {
-    setLocalValue(value || "");
-  }, [value]);
-
-  const { debouncedSave, saveImmediately, isSaving, lastSaved } = useDebouncedAutoSave({
-    delay: 500,
+  const { debouncedSave, isSaving, lastSaved } = useDebouncedAutoSave({
+    delay: 1000, // Increased delay to reduce conflicts
     onSave: async (saveValue: string) => {
-      if (onAutoSave) {
+      if (onAutoSave && saveValue !== lastSavedValueRef.current) {
         try {
           await onAutoSave(saveValue);
-          setSaveError(null);
+          lastSavedValueRef.current = saveValue;
         } catch (error) {
-          setSaveError("Failed to save");
+          console.error("Auto-save failed:", error);
           throw error;
         }
       }
     }
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const newValue = e.target.value;
-    setLocalValue(newValue);
-    onChange(newValue); // Update parent immediately for UI responsiveness
+    isTypingRef.current = true;
     
+    // Update parent immediately for UI responsiveness
+    onChange(newValue);
+    
+    // Trigger auto-save if enabled
     if (onAutoSave) {
       debouncedSave(newValue);
     }
-  };
+  }, [onChange, onAutoSave, debouncedSave]);
 
-  const handleBlur = () => {
-    // Save immediately on blur to ensure no data loss
-    if (onAutoSave && localValue !== value) {
-      saveImmediately(localValue);
+  const handleBlur = useCallback(() => {
+    isTypingRef.current = false;
+    // Force save on blur if there are unsaved changes
+    if (onAutoSave && value !== lastSavedValueRef.current) {
+      onAutoSave(value).then(() => {
+        lastSavedValueRef.current = value;
+      }).catch(error => {
+        console.error("Blur save failed:", error);
+      });
     }
-  };
+  }, [onAutoSave, value]);
+
+  const handleFocus = useCallback(() => {
+    isTypingRef.current = true;
+  }, []);
+
+  // Memoize the input component to prevent unnecessary re-renders
+  const inputComponent = useMemo(() => {
+    const commonProps = {
+      id,
+      value: value || "",
+      onChange: handleChange,
+      onBlur: handleBlur,
+      onFocus: handleFocus,
+      placeholder: placeholder || "Enter your answer...",
+      ref: inputRef,
+    };
+
+    return type === "textarea" ? (
+      <Textarea {...commonProps} rows={4} />
+    ) : (
+      <Input {...commonProps} />
+    );
+  }, [id, value, type, placeholder, handleChange, handleBlur, handleFocus]);
 
   return (
     <div className="space-y-2 mb-4">
       {label && <Label htmlFor={id}>{label}</Label>}
-      {type === "textarea" ? (
-        <Textarea
-          id={id}
-          value={localValue}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          placeholder={placeholder || "Enter your answer..."}
-          rows={4}
-        />
-      ) : (
-        <Input
-          id={id}
-          value={localValue}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          placeholder={placeholder || "Enter your answer..."}
-        />
-      )}
+      {inputComponent}
       {onAutoSave && (
         <SaveStatus 
           isSaving={isSaving} 
           lastSaved={lastSaved} 
-          error={saveError}
           className="mt-1"
         />
       )}
