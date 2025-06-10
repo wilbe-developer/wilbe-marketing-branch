@@ -25,12 +25,13 @@ export const TextInputRenderer: React.FC<TextInputRendererProps> = ({
   onChange,
   onAutoSave,
 }) => {
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const lastSavedValueRef = useRef(value);
   const isTypingRef = useRef(false);
 
   const { debouncedSave, isSaving, lastSaved } = useDebouncedAutoSave({
-    delay: 1000, // Increased delay to reduce conflicts
+    delay: 1000,
     onSave: async (saveValue: string) => {
       if (onAutoSave && saveValue !== lastSavedValueRef.current) {
         try {
@@ -82,13 +83,12 @@ export const TextInputRenderer: React.FC<TextInputRendererProps> = ({
       onBlur: handleBlur,
       onFocus: handleFocus,
       placeholder: placeholder || "Enter your answer...",
-      ref: inputRef,
     };
 
     return type === "textarea" ? (
-      <Textarea {...commonProps} rows={4} />
+      <Textarea {...commonProps} rows={4} ref={textareaRef} />
     ) : (
-      <Input {...commonProps} />
+      <Input {...commonProps} ref={inputRef} />
     );
   }, [id, value, type, placeholder, handleChange, handleBlur, handleFocus]);
 
