@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useDynamicTask } from "@/hooks/task-builder/useDynamicTask";
 import { useSprintProfileQuickEdit } from "@/hooks/useSprintProfileQuickEdit";
@@ -48,15 +47,20 @@ const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
     if (!currentStep) return;
     
     try {
+      // For team-members steps, save the value directly (it's already the full array)
       // For simple question steps (non-form types), save the value directly to the step
       // For form steps, wrap the value in the field structure
+      const isTeamMembersStep = currentStep.type === "team-members";
       const isSimpleQuestion = currentStep.type === "question" || 
                               currentStep.type === "exercise" ||
                               currentStep.type === "conditionalQuestion" ||
                               (currentStep.type === "form" && currentStep.fields && currentStep.fields.length === 1);
       
       let updatedAnswer;
-      if (isSimpleQuestion && fieldId === currentStep.id) {
+      if (isTeamMembersStep) {
+        // For team-members, the value is already the complete array
+        updatedAnswer = value;
+      } else if (isSimpleQuestion && fieldId === currentStep.id) {
         // For simple questions where fieldId matches stepId, save value directly
         updatedAnswer = value;
       } else {

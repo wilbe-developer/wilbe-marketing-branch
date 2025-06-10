@@ -5,6 +5,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Trash2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { TeamMember } from "@/hooks/team-members/types";
+import { TextInputRenderer } from "@/components/sprint/task-builder/dynamic-step/input-renderers/TextInputRenderer";
+import type { SaveStatus } from "@/hooks/useAutoSaveManager";
 
 interface TeamMemberFormProps {
   teamMembers: TeamMember[];
@@ -12,6 +14,14 @@ interface TeamMemberFormProps {
   onAdd: () => void;
   onRemove: (index: number) => void;
   onUpdate: (index: number, field: keyof TeamMember, value: string) => void;
+  autoSaveManager?: {
+    handleFieldChange: (fieldId: string, value: any, isTyping: boolean, saveCallback: (value: any) => Promise<void>) => void;
+    startTyping: (fieldId: string) => void;
+    stopTyping: (fieldId: string) => void;
+    getSaveStatus: (fieldId: string) => SaveStatus;
+    subscribeToStatus: (fieldId: string, callback: (status: SaveStatus) => void) => () => void;
+  };
+  onAutoSaveField?: (fieldId: string, value: any) => Promise<void>;
 }
 
 const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
@@ -20,6 +30,8 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
   onAdd,
   onRemove,
   onUpdate,
+  autoSaveManager,
+  onAutoSaveField,
 }) => {
   const isMobile = useIsMobile();
 
@@ -29,7 +41,7 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
       switch(field) {
         case "relationship_description":
           return {
-            label: "Your origin story: How did you meet? How long have you known each other? Have you been through a “stress project” with each other?",
+            label: "Your origin story: How did you meet? How long have you known each other? Have you been through a "stress project" with each other?",
             placeholder: "Describe your relationship and how long you've known each other"
           };
         case "employment_status":
@@ -44,7 +56,7 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
           };
         case "trigger_points":
           return {
-            label: "If they are not full-time, what will trigger them to be full-time and why? Be specific and detailed. If it’s money, make the case as to why a certain amount would be enough. If it’s something else, please explain in detail.",
+            label: "If they are not full-time, what will trigger them to be full-time and why? Be specific and detailed. If it's money, make the case as to why a certain amount would be enough. If it's something else, please explain in detail.",
             placeholder: "E.g., Securing funding, reaching X paying customers, etc."
           };
         default:
@@ -68,7 +80,7 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
           };
         case "trigger_points":
           return {
-            label: "If they are not full-time, what will trigger them to be full-time and why? Be specific and detailed. If it’s money, make the case as to why a certain amount would be enough. If it’s something else, please explain in detail.",
+            label: "If they are not full-time, what will trigger them to be full-time and why? Be specific and detailed. If it's money, make the case as to why a certain amount would be enough. If it's something else, please explain in detail.",
             placeholder: "Trigger points for going full-time"
           };
         case "profile_description":
@@ -83,6 +95,22 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
           };
       }
     }
+  };
+
+  // Create AutoSave handler for a specific field
+  const createAutoSaveHandler = (index: number, field: keyof TeamMember) => {
+    if (!autoSaveManager || !onAutoSaveField) return undefined;
+    
+    const fieldId = `team_member_${index}_${field}`;
+    return async (value: string) => {
+      // Update the specific field in the team member
+      const updatedMembers = [...teamMembers];
+      updatedMembers[index] = {
+        ...updatedMembers[index],
+        [field]: value,
+      };
+      await onAutoSaveField(fieldId, updatedMembers);
+    };
   };
 
   return (
@@ -107,76 +135,132 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
             )}
           </div>
           <div className="grid gap-3">
+            {/* Name field - use AutoSave if available */}
             <div className="space-y-1">
               <label htmlFor={`name-${index}`} className="text-sm font-medium">Name</label>
-              <Input
-                id={`name-${index}`}
-                placeholder="Name"
-                value={member.name}
-                onChange={(e) => onUpdate(index, 'name', e.target.value)}
-                className={isMobile ? "h-9 text-sm" : ""}
-              />
+              {autoSaveManager ? (
+                <TextInputRenderer
+                  id={`team_member_${index}_name`}
+                  value={member.name}
+                  type="text"
+                  placeholder="Name"
+                  onChange={(value) => onUpdate(index, 'name', value)}
+                  onAutoSave={createAutoSaveHandler(index, 'name')}
+                  autoSaveManager={autoSaveManager}
+                />
+              ) : (
+                <Input
+                  id={`name-${index}`}
+                  placeholder="Name"
+                  value={member.name}
+                  onChange={(e) => onUpdate(index, 'name', e.target.value)}
+                  className={isMobile ? "h-9 text-sm" : ""}
+                />
+              )}
             </div>
             
-            {/* Field order for co-founders: 
-                1. relationship_description (How do you know them?)
-                2. employment_status (What job do they or will they have?)
-                3. profile_description (Why are they the best person?)
-                4. trigger_points (What will trigger them being full-time?) */}
-            
+            {/* Field order for co-founders and team members */}
             {memberType.toLowerCase() === "co-founder" ? (
               <>
                 <div className="space-y-1">
                   <label htmlFor={`relationship-${index}`} className="text-sm font-medium">
                     {getFieldConfig("relationship_description").label}
                   </label>
-                  <Textarea
-                    id={`relationship-${index}`}
-                    placeholder={getFieldConfig("relationship_description").placeholder}
-                    value={member.relationship_description || ''}
-                    onChange={(e) => onUpdate(index, 'relationship_description', e.target.value)}
-                    rows={isMobile ? 3 : 4}
-                    className={isMobile ? "text-sm" : ""}
-                  />
+                  {autoSaveManager ? (
+                    <TextInputRenderer
+                      id={`team_member_${index}_relationship_description`}
+                      value={member.relationship_description || ''}
+                      type="textarea"
+                      placeholder={getFieldConfig("relationship_description").placeholder}
+                      onChange={(value) => onUpdate(index, 'relationship_description', value)}
+                      onAutoSave={createAutoSaveHandler(index, 'relationship_description')}
+                      autoSaveManager={autoSaveManager}
+                    />
+                  ) : (
+                    <Textarea
+                      id={`relationship-${index}`}
+                      placeholder={getFieldConfig("relationship_description").placeholder}
+                      value={member.relationship_description || ''}
+                      onChange={(e) => onUpdate(index, 'relationship_description', e.target.value)}
+                      rows={isMobile ? 3 : 4}
+                      className={isMobile ? "text-sm" : ""}
+                    />
+                  )}
                 </div>
                 <div className="space-y-1">
                   <label htmlFor={`status-${index}`} className="text-sm font-medium">
                     {getFieldConfig("employment_status").label}
                   </label>
-                  <Textarea
-                    id={`status-${index}`}
-                    placeholder={getFieldConfig("employment_status").placeholder}
-                    value={member.employment_status}
-                    onChange={(e) => onUpdate(index, 'employment_status', e.target.value)}
-                    rows={isMobile ? 3 : 4}
-                    className={isMobile ? "text-sm" : ""}
-                  />
+                  {autoSaveManager ? (
+                    <TextInputRenderer
+                      id={`team_member_${index}_employment_status`}
+                      value={member.employment_status}
+                      type="textarea"
+                      placeholder={getFieldConfig("employment_status").placeholder}
+                      onChange={(value) => onUpdate(index, 'employment_status', value)}
+                      onAutoSave={createAutoSaveHandler(index, 'employment_status')}
+                      autoSaveManager={autoSaveManager}
+                    />
+                  ) : (
+                    <Textarea
+                      id={`status-${index}`}
+                      placeholder={getFieldConfig("employment_status").placeholder}
+                      value={member.employment_status}
+                      onChange={(e) => onUpdate(index, 'employment_status', e.target.value)}
+                      rows={isMobile ? 3 : 4}
+                      className={isMobile ? "text-sm" : ""}
+                    />
+                  )}
                 </div>
                 <div className="space-y-1">
                   <label htmlFor={`profile-${index}`} className="text-sm font-medium">
                     {getFieldConfig("profile_description").label}
                   </label>
-                  <Textarea
-                    id={`profile-${index}`}
-                    placeholder={getFieldConfig("profile_description").placeholder}
-                    value={member.profile_description}
-                    onChange={(e) => onUpdate(index, 'profile_description', e.target.value)}
-                    rows={isMobile ? 3 : 4}
-                    className={isMobile ? "text-sm" : ""}
-                  />
+                  {autoSaveManager ? (
+                    <TextInputRenderer
+                      id={`team_member_${index}_profile_description`}
+                      value={member.profile_description}
+                      type="textarea"
+                      placeholder={getFieldConfig("profile_description").placeholder}
+                      onChange={(value) => onUpdate(index, 'profile_description', value)}
+                      onAutoSave={createAutoSaveHandler(index, 'profile_description')}
+                      autoSaveManager={autoSaveManager}
+                    />
+                  ) : (
+                    <Textarea
+                      id={`profile-${index}`}
+                      placeholder={getFieldConfig("profile_description").placeholder}
+                      value={member.profile_description}
+                      onChange={(e) => onUpdate(index, 'profile_description', e.target.value)}
+                      rows={isMobile ? 3 : 4}
+                      className={isMobile ? "text-sm" : ""}
+                    />
+                  )}
                 </div>
                 <div className="space-y-1">
                   <label htmlFor={`triggers-${index}`} className="text-sm font-medium">
                     {getFieldConfig("trigger_points").label}
                   </label>
-                  <Textarea
-                    id={`triggers-${index}`}
-                    placeholder={getFieldConfig("trigger_points").placeholder}
-                    value={member.trigger_points || ''}
-                    onChange={(e) => onUpdate(index, 'trigger_points', e.target.value)}
-                    rows={isMobile ? 3 : 4}
-                    className={isMobile ? "text-sm" : ""}
-                  />
+                  {autoSaveManager ? (
+                    <TextInputRenderer
+                      id={`team_member_${index}_trigger_points`}
+                      value={member.trigger_points || ''}
+                      type="textarea"
+                      placeholder={getFieldConfig("trigger_points").placeholder}
+                      onChange={(value) => onUpdate(index, 'trigger_points', value)}
+                      onAutoSave={createAutoSaveHandler(index, 'trigger_points')}
+                      autoSaveManager={autoSaveManager}
+                    />
+                  ) : (
+                    <Textarea
+                      id={`triggers-${index}`}
+                      placeholder={getFieldConfig("trigger_points").placeholder}
+                      value={member.trigger_points || ''}
+                      onChange={(e) => onUpdate(index, 'trigger_points', e.target.value)}
+                      rows={isMobile ? 3 : 4}
+                      className={isMobile ? "text-sm" : ""}
+                    />
+                  )}
                 </div>
               </>
             ) : (
@@ -186,51 +270,99 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
                   <label htmlFor={`profile-${index}`} className="text-sm font-medium">
                     {getFieldConfig("profile_description").label}
                   </label>
-                  <Textarea
-                    id={`profile-${index}`}
-                    placeholder={getFieldConfig("profile_description").placeholder}
-                    value={member.profile_description}
-                    onChange={(e) => onUpdate(index, 'profile_description', e.target.value)}
-                    rows={isMobile ? 3 : 4}
-                    className={isMobile ? "text-sm" : ""}
-                  />
+                  {autoSaveManager ? (
+                    <TextInputRenderer
+                      id={`team_member_${index}_profile_description`}
+                      value={member.profile_description}
+                      type="textarea"
+                      placeholder={getFieldConfig("profile_description").placeholder}
+                      onChange={(value) => onUpdate(index, 'profile_description', value)}
+                      onAutoSave={createAutoSaveHandler(index, 'profile_description')}
+                      autoSaveManager={autoSaveManager}
+                    />
+                  ) : (
+                    <Textarea
+                      id={`profile-${index}`}
+                      placeholder={getFieldConfig("profile_description").placeholder}
+                      value={member.profile_description}
+                      onChange={(e) => onUpdate(index, 'profile_description', e.target.value)}
+                      rows={isMobile ? 3 : 4}
+                      className={isMobile ? "text-sm" : ""}
+                    />
+                  )}
                 </div>
                 <div className="space-y-1">
                   <label htmlFor={`relationship-${index}`} className="text-sm font-medium">
                     {getFieldConfig("relationship_description").label}
                   </label>
-                  <Textarea
-                    id={`relationship-${index}`}
-                    placeholder={getFieldConfig("relationship_description").placeholder}
-                    value={member.relationship_description || ''}
-                    onChange={(e) => onUpdate(index, 'relationship_description', e.target.value)}
-                    rows={isMobile ? 3 : 4}
-                    className={isMobile ? "text-sm" : ""}
-                  />
+                  {autoSaveManager ? (
+                    <TextInputRenderer
+                      id={`team_member_${index}_relationship_description`}
+                      value={member.relationship_description || ''}
+                      type="textarea"
+                      placeholder={getFieldConfig("relationship_description").placeholder}
+                      onChange={(value) => onUpdate(index, 'relationship_description', value)}
+                      onAutoSave={createAutoSaveHandler(index, 'relationship_description')}
+                      autoSaveManager={autoSaveManager}
+                    />
+                  ) : (
+                    <Textarea
+                      id={`relationship-${index}`}
+                      placeholder={getFieldConfig("relationship_description").placeholder}
+                      value={member.relationship_description || ''}
+                      onChange={(e) => onUpdate(index, 'relationship_description', e.target.value)}
+                      rows={isMobile ? 3 : 4}
+                      className={isMobile ? "text-sm" : ""}
+                    />
+                  )}
                 </div>
                 <div className="space-y-1">
                   <label htmlFor={`status-${index}`} className="text-sm font-medium">
                     {getFieldConfig("employment_status").label}
                   </label>
-                  <Input
-                    id={`status-${index}`}
-                    placeholder={getFieldConfig("employment_status").placeholder}
-                    value={member.employment_status}
-                    onChange={(e) => onUpdate(index, 'employment_status', e.target.value)}
-                    className={isMobile ? "h-9 text-sm" : ""}
-                  />
+                  {autoSaveManager ? (
+                    <TextInputRenderer
+                      id={`team_member_${index}_employment_status`}
+                      value={member.employment_status}
+                      type="text"
+                      placeholder={getFieldConfig("employment_status").placeholder}
+                      onChange={(value) => onUpdate(index, 'employment_status', value)}
+                      onAutoSave={createAutoSaveHandler(index, 'employment_status')}
+                      autoSaveManager={autoSaveManager}
+                    />
+                  ) : (
+                    <Input
+                      id={`status-${index}`}
+                      placeholder={getFieldConfig("employment_status").placeholder}
+                      value={member.employment_status}
+                      onChange={(e) => onUpdate(index, 'employment_status', e.target.value)}
+                      className={isMobile ? "h-9 text-sm" : ""}
+                    />
+                  )}
                 </div>
                 <div className="space-y-1">
                   <label htmlFor={`triggers-${index}`} className="text-sm font-medium">
                     {getFieldConfig("trigger_points").label}
                   </label>
-                  <Input
-                    id={`triggers-${index}`}
-                    placeholder={getFieldConfig("trigger_points").placeholder}
-                    value={member.trigger_points || ''}
-                    onChange={(e) => onUpdate(index, 'trigger_points', e.target.value)}
-                    className={isMobile ? "h-9 text-sm" : ""}
-                  />
+                  {autoSaveManager ? (
+                    <TextInputRenderer
+                      id={`team_member_${index}_trigger_points`}
+                      value={member.trigger_points || ''}
+                      type="text"
+                      placeholder={getFieldConfig("trigger_points").placeholder}
+                      onChange={(value) => onUpdate(index, 'trigger_points', value)}
+                      onAutoSave={createAutoSaveHandler(index, 'trigger_points')}
+                      autoSaveManager={autoSaveManager}
+                    />
+                  ) : (
+                    <Input
+                      id={`triggers-${index}`}
+                      placeholder={getFieldConfig("trigger_points").placeholder}
+                      value={member.trigger_points || ''}
+                      onChange={(e) => onUpdate(index, 'trigger_points', e.target.value)}
+                      className={isMobile ? "h-9 text-sm" : ""}
+                    />
+                  )}
                 </div>
               </>
             )}
