@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Trash2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { TeamMember } from "@/hooks/team-members/types";
+import { TeamMemberSaveStatus } from "@/hooks/useTeamMemberAutoSave";
 
 interface TeamMemberFormProps {
   teamMembers: TeamMember[];
@@ -12,6 +13,7 @@ interface TeamMemberFormProps {
   onAdd: () => void;
   onRemove: (index: number) => void;
   onUpdate: (index: number, field: keyof TeamMember, value: string) => void;
+  getFieldStatus?: (index: number, field: keyof TeamMember) => TeamMemberSaveStatus;
 }
 
 const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
@@ -20,6 +22,7 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
   onAdd,
   onRemove,
   onUpdate,
+  getFieldStatus,
 }) => {
   const isMobile = useIsMobile();
 
@@ -85,6 +88,22 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
     }
   };
 
+  // Helper to get status indicator
+  const getStatusIndicator = (status: TeamMemberSaveStatus) => {
+    switch (status) {
+      case 'typing':
+        return <span className="text-xs text-gray-500">typing...</span>;
+      case 'saving':
+        return <span className="text-xs text-blue-500">saving...</span>;
+      case 'saved':
+        return <span className="text-xs text-green-500">saved</span>;
+      case 'error':
+        return <span className="text-xs text-red-500">error</span>;
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="space-y-4">
       {memberType.toLowerCase() === "co-founder" && (
@@ -108,7 +127,10 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
           </div>
           <div className="grid gap-3">
             <div className="space-y-1">
-              <label htmlFor={`name-${index}`} className="text-sm font-medium">Name</label>
+              <div className="flex justify-between items-center">
+                <label htmlFor={`name-${index}`} className="text-sm font-medium">Name</label>
+                {getFieldStatus && getStatusIndicator(getFieldStatus(index, 'name'))}
+              </div>
               <Input
                 id={`name-${index}`}
                 placeholder="Name"
@@ -127,9 +149,12 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
             {memberType.toLowerCase() === "co-founder" ? (
               <>
                 <div className="space-y-1">
-                  <label htmlFor={`relationship-${index}`} className="text-sm font-medium">
-                    {getFieldConfig("relationship_description").label}
-                  </label>
+                  <div className="flex justify-between items-center">
+                    <label htmlFor={`relationship-${index}`} className="text-sm font-medium">
+                      {getFieldConfig("relationship_description").label}
+                    </label>
+                    {getFieldStatus && getStatusIndicator(getFieldStatus(index, 'relationship_description'))}
+                  </div>
                   <Textarea
                     id={`relationship-${index}`}
                     placeholder={getFieldConfig("relationship_description").placeholder}
@@ -140,9 +165,12 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
                   />
                 </div>
                 <div className="space-y-1">
-                  <label htmlFor={`status-${index}`} className="text-sm font-medium">
-                    {getFieldConfig("employment_status").label}
-                  </label>
+                  <div className="flex justify-between items-center">
+                    <label htmlFor={`status-${index}`} className="text-sm font-medium">
+                      {getFieldConfig("employment_status").label}
+                    </label>
+                    {getFieldStatus && getStatusIndicator(getFieldStatus(index, 'employment_status'))}
+                  </div>
                   <Textarea
                     id={`status-${index}`}
                     placeholder={getFieldConfig("employment_status").placeholder}
@@ -153,9 +181,12 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
                   />
                 </div>
                 <div className="space-y-1">
-                  <label htmlFor={`profile-${index}`} className="text-sm font-medium">
-                    {getFieldConfig("profile_description").label}
-                  </label>
+                  <div className="flex justify-between items-center">
+                    <label htmlFor={`profile-${index}`} className="text-sm font-medium">
+                      {getFieldConfig("profile_description").label}
+                    </label>
+                    {getFieldStatus && getStatusIndicator(getFieldStatus(index, 'profile_description'))}
+                  </div>
                   <Textarea
                     id={`profile-${index}`}
                     placeholder={getFieldConfig("profile_description").placeholder}
@@ -166,9 +197,12 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
                   />
                 </div>
                 <div className="space-y-1">
-                  <label htmlFor={`triggers-${index}`} className="text-sm font-medium">
-                    {getFieldConfig("trigger_points").label}
-                  </label>
+                  <div className="flex justify-between items-center">
+                    <label htmlFor={`triggers-${index}`} className="text-sm font-medium">
+                      {getFieldConfig("trigger_points").label}
+                    </label>
+                    {getFieldStatus && getStatusIndicator(getFieldStatus(index, 'trigger_points'))}
+                  </div>
                   <Textarea
                     id={`triggers-${index}`}
                     placeholder={getFieldConfig("trigger_points").placeholder}
@@ -183,9 +217,12 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
               // Keep the original order for regular team members
               <>
                 <div className="space-y-1">
-                  <label htmlFor={`profile-${index}`} className="text-sm font-medium">
-                    {getFieldConfig("profile_description").label}
-                  </label>
+                  <div className="flex justify-between items-center">
+                    <label htmlFor={`profile-${index}`} className="text-sm font-medium">
+                      {getFieldConfig("profile_description").label}
+                    </label>
+                    {getFieldStatus && getStatusIndicator(getFieldStatus(index, 'profile_description'))}
+                  </div>
                   <Textarea
                     id={`profile-${index}`}
                     placeholder={getFieldConfig("profile_description").placeholder}
@@ -196,9 +233,12 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
                   />
                 </div>
                 <div className="space-y-1">
-                  <label htmlFor={`relationship-${index}`} className="text-sm font-medium">
-                    {getFieldConfig("relationship_description").label}
-                  </label>
+                  <div className="flex justify-between items-center">
+                    <label htmlFor={`relationship-${index}`} className="text-sm font-medium">
+                      {getFieldConfig("relationship_description").label}
+                    </label>
+                    {getFieldStatus && getStatusIndicator(getFieldStatus(index, 'relationship_description'))}
+                  </div>
                   <Textarea
                     id={`relationship-${index}`}
                     placeholder={getFieldConfig("relationship_description").placeholder}
@@ -209,9 +249,12 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
                   />
                 </div>
                 <div className="space-y-1">
-                  <label htmlFor={`status-${index}`} className="text-sm font-medium">
-                    {getFieldConfig("employment_status").label}
-                  </label>
+                  <div className="flex justify-between items-center">
+                    <label htmlFor={`status-${index}`} className="text-sm font-medium">
+                      {getFieldConfig("employment_status").label}
+                    </label>
+                    {getFieldStatus && getStatusIndicator(getFieldStatus(index, 'employment_status'))}
+                  </div>
                   <Input
                     id={`status-${index}`}
                     placeholder={getFieldConfig("employment_status").placeholder}
@@ -221,9 +264,12 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
                   />
                 </div>
                 <div className="space-y-1">
-                  <label htmlFor={`triggers-${index}`} className="text-sm font-medium">
-                    {getFieldConfig("trigger_points").label}
-                  </label>
+                  <div className="flex justify-between items-center">
+                    <label htmlFor={`triggers-${index}`} className="text-sm font-medium">
+                      {getFieldConfig("trigger_points").label}
+                    </label>
+                    {getFieldStatus && getStatusIndicator(getFieldStatus(index, 'trigger_points'))}
+                  </div>
                   <Input
                     id={`triggers-${index}`}
                     placeholder={getFieldConfig("trigger_points").placeholder}
@@ -251,3 +297,5 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
 };
 
 export default TeamMemberForm;
+
+</edits_to_apply>
