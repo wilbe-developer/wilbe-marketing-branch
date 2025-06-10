@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { StepNode, FormField } from '@/types/task-builder';
 import { Input } from '@/components/ui/input';
@@ -23,8 +24,6 @@ import {
 } from '@/components/ui/dialog';
 import { CollaboratorsManagement } from '@/components/sprint/CollaboratorsManagement';
 import { MultiFileUploader } from '@/components/sprint/MultiFileUploader';
-import { SaveStatus } from '@/components/ui/save-status';
-import { useDebouncedAutoSave } from '@/hooks/useDebouncedAutoSave';
 
 interface FileData {
   fileId: string;
@@ -38,68 +37,38 @@ interface FormStepRendererProps {
   step: StepNode;
   answer: Record<string, any> | null;
   handleAnswer: (value: Record<string, any>) => void;
-  onAutoSave?: (value: Record<string, any>) => Promise<void>;
+  onBlur?: (fieldId: string) => void;
+  onFocus?: (fieldId: string) => void;
 }
 
 export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
   step,
   answer,
   handleAnswer,
-  onAutoSave,
+  onBlur,
+  onFocus,
 }) => {
   const [formValues, setFormValues] = useState<Record<string, any>>(answer || {});
   const [isCollaboratorsDialogOpen, setIsCollaboratorsDialogOpen] = useState(false);
-  const lastSavedRef = useRef<Record<string, any>>(answer || {});
-  const isTypingRef = useRef<Record<string, boolean>>({});
 
-  // Update local state when answer prop changes (but only if not currently typing)
+  // Update local state when answer prop changes
   useEffect(() => {
-    if (answer && !Object.values(isTypingRef.current).some(Boolean)) {
-      setFormValues(answer);
-      lastSavedRef.current = answer;
-    }
+    setFormValues(answer || {});
   }, [answer]);
 
-  const { debouncedSave, isSaving, lastSaved } = useDebouncedAutoSave({
-    delay: 1000,
-    onSave: async (saveValue: Record<string, any>) => {
-      if (onAutoSave && JSON.stringify(saveValue) !== JSON.stringify(lastSavedRef.current)) {
-        try {
-          await onAutoSave(saveValue);
-          lastSavedRef.current = saveValue;
-        } catch (error) {
-          console.error("Auto-save failed:", error);
-          throw error;
-        }
-      }
-    }
-  });
-
-  const handleFieldChange = useCallback((fieldId: string, value: any, isTextInput = false) => {
+  const handleFieldChange = useCallback((fieldId: string, value: any) => {
     const updatedValues = { ...formValues, [fieldId]: value };
     setFormValues(updatedValues);
     handleAnswer(updatedValues);
-    
-    if (isTextInput) {
-      isTypingRef.current[fieldId] = true;
-    }
-    
-    if (onAutoSave) {
-      debouncedSave(updatedValues);
-    }
-  }, [formValues, handleAnswer, onAutoSave, debouncedSave]);
+  }, [formValues, handleAnswer]);
 
   const handleTextBlur = useCallback((fieldId: string) => {
-    isTypingRef.current[fieldId] = false;
-    // Force save on blur if there are unsaved changes
-    if (onAutoSave && JSON.stringify(formValues) !== JSON.stringify(lastSavedRef.current)) {
-      onAutoSave(formValues).then(() => {
-        lastSavedRef.current = formValues;
-      }).catch(error => {
-        console.error("Blur save failed:", error);
-      });
-    }
-  }, [onAutoSave, formValues]);
+    onBlur?.(fieldId);
+  }, [onBlur]);
+
+  const handleTextFocus = useCallback((fieldId: string) => {
+    onFocus?.(fieldId);
+  }, [onFocus]);
 
   const handleMultiFileUpload = useCallback((fieldId: string, files: FileData[]) => {
     handleFieldChange(fieldId, files);
@@ -191,9 +160,9 @@ export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
                 <Input
                   id={field.id}
                   value={formValues[field.id] || ''}
-                  onChange={(e) => handleFieldChange(field.id, e.target.value, true)}
+                  onChange={(e) => handleFieldChange(field.id, e.target.value)}
                   onBlur={() => handleTextBlur(field.id)}
-                  onFocus={() => isTypingRef.current[field.id] = true}
+                  onFocus={() => handleTextFocus(field.id)}
                   placeholder={field.placeholder || ''}
                 />
               )}
@@ -202,9 +171,9 @@ export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
                 <Textarea
                   id={field.id}
                   value={formValues[field.id] || ''}
-                  onChange={(e) => handleFieldChange(field.id, e.target.value, true)}
+                  onChange={(e) => handleFieldChange(field.id, e.target.value)}
                   onBlur={() => handleTextBlur(field.id)}
-                  onFocus={() => isTypingRef.current[field.id] = true}
+                  onFocus={() => handleTextFocus(field.id)}
                   placeholder={field.placeholder || ''}
                   rows={4}
                 />
@@ -320,14 +289,6 @@ export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
           );
         })}
       </div>
-      
-      {onAutoSave && (
-        <SaveStatus 
-          isSaving={isSaving} 
-          lastSaved={lastSaved} 
-          className="mt-4"
-        />
-      )}
     </div>
   );
 };

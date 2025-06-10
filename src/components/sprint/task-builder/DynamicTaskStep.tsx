@@ -1,24 +1,22 @@
 
 import React from "react";
 import { StepNode } from "@/types/task-builder";
-import { Card, CardContent } from "@/components/ui/card";
-import { QuestionStepRenderer } from "./dynamic-step/QuestionStepRenderer";
-import { ContentStepRenderer } from "./dynamic-step/ContentStepRenderer";
-import { UploadStepRenderer } from "./dynamic-step/UploadStepRenderer";
-import { ExerciseStepRenderer } from "./dynamic-step/ExerciseStepRenderer";
-import { CollaborationStepRenderer } from "./dynamic-step/CollaborationStepRenderer";
-import { FormStepRenderer } from "@/components/sprint/dynamic-task/FormStepRenderer";
-import { ConditionalQuestionRenderer } from "@/components/sprint/dynamic-task/ConditionalQuestionRenderer";
-import { normalizeStepType } from "@/utils/taskStepUtils";
-import { TeamMemberStepRenderer } from "@/components/sprint/dynamic-task/StepRenderers";
-import { parseMarkdown } from "@/utils/markdownUtils";
+import {
+  QuestionStepRenderer,
+  ContentStepRenderer,
+  UploadStepRenderer,
+  ExerciseStepRenderer,
+  CollaborationStepRenderer,
+  TeamMemberStepRenderer
+} from "./dynamic-step";
 
 interface DynamicTaskStepProps {
   step: StepNode;
   answer: any;
   onAnswer: (value: any) => void;
   onFileUpload?: (file: File) => void;
-  onAutoSave?: (value: any) => Promise<void>;
+  onBlur?: (fieldId?: string) => void;
+  onFocus?: (fieldId?: string) => void;
 }
 
 const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
@@ -26,172 +24,70 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
   answer,
   onAnswer,
   onFileUpload,
-  onAutoSave,
+  onBlur,
+  onFocus,
 }) => {
-  console.log("DynamicTaskStep rendering step with type:", step.type);
-  
-  // Normalize step type to ensure consistent handling across the application
-  const normalizedType = normalizeStepType(step.type);
-  console.log("Normalized step type:", normalizedType);
+  console.log("DynamicTaskStep rendering:", { stepType: step.type, stepId: step.id, answer });
 
-  // Render description with markdown support
-  const renderDescription = () => {
-    if (step.description_markdown) {
+  switch (step.type) {
+    case "question":
+    case "form":
+    case "conditionalQuestion":
+    case "groupedQuestions":
       return (
-        <div 
-          className="text-gray-600 prose prose-sm max-w-none"
-          dangerouslySetInnerHTML={{ __html: parseMarkdown(step.description_markdown) }}
+        <QuestionStepRenderer
+          step={step}
+          answer={answer}
+          onAnswer={onAnswer}
+          onBlur={onBlur}
+          onFocus={onFocus}
         />
       );
-    } else if (step.description) {
-      return <p className="text-gray-600">{step.description}</p>;
-    }
-    return null;
-  };
 
-  // Handle form step type
-  if (step.type === 'form') {
-    return (
-      <Card>
-        <CardContent className="pt-6">
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium">{step.text}</h3>
-            {renderDescription()}
-            <FormStepRenderer
-              step={step}
-              answer={answer}
-              handleAnswer={onAnswer}
-              onAutoSave={onAutoSave}
-            />
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  // Handle conditionalQuestion step type
-  if (step.type === 'conditionalQuestion') {
-    return (
-      <Card>
-        <CardContent className="pt-6">
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium">{step.text}</h3>
-            {renderDescription()}
-            <ConditionalQuestionRenderer
-              step={step}
-              answer={answer}
-              handleAnswer={onAnswer}
-            />
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  // Handle collaboration step type
-  if (normalizedType === 'collaboration') {
-    console.log("Rendering collaboration step:", step);
-    return (
-      <Card>
-        <CardContent className="pt-6">
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium">{step.text || step.description}</h3>
-            {renderDescription()}
-            <CollaborationStepRenderer step={step} answer={answer} handleAnswer={onAnswer} />
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-  
-  // Handle team-members step type
-  if (normalizedType === 'team-members') {
-    return (
-      <Card>
-        <CardContent className="pt-6">
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium">{step.text}</h3>
-            {renderDescription()}
-            <TeamMemberStepRenderer 
-              step={step} 
-              answer={answer} 
-              handleAnswer={onAnswer} 
-            />
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  // Now handle the rest of the step types based on normalized step type
-  switch (normalizedType) {
-    case "question":
-      return (
-        <Card>
-          <CardContent className="pt-6">
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">{step.text}</h3>
-              {renderDescription()}
-              <QuestionStepRenderer
-                step={step}
-                answer={answer}
-                onAnswer={onAnswer}
-                onAutoSave={onAutoSave}
-              />
-            </div>
-          </CardContent>
-        </Card>
-      );
-      
     case "content":
-      return <ContentStepRenderer step={step} answer={answer} handleAnswer={onAnswer} />;
+      return <ContentStepRenderer step={step} />;
 
     case "upload":
+    case "file":
       return (
-        <Card>
-          <CardContent className="pt-6">
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">{step.text}</h3>
-              {renderDescription()}
-              <UploadStepRenderer
-                step={step}
-                answer={answer}
-                onAnswer={onAnswer}
-                onFileUpload={onFileUpload}
-              />
-            </div>
-          </CardContent>
-        </Card>
+        <UploadStepRenderer
+          step={step}
+          answer={answer}
+          onAnswer={onAnswer}
+          onFileUpload={onFileUpload}
+        />
       );
 
     case "exercise":
       return (
-        <Card>
-          <CardContent className="pt-6">
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">{step.text}</h3>
-              {renderDescription()}
-              <ExerciseStepRenderer
-                step={step}
-                answer={answer}
-                onAnswer={onAnswer}
-              />
-            </div>
-          </CardContent>
-        </Card>
+        <ExerciseStepRenderer
+          step={step}
+          answer={answer}
+          onAnswer={onAnswer}
+        />
+      );
+
+    case "collaboration":
+      return <CollaborationStepRenderer step={step} />;
+
+    case "team-members":
+      return (
+        <TeamMemberStepRenderer
+          step={step}
+          answer={answer}
+          onAnswer={onAnswer}
+        />
       );
 
     default:
-      console.warn(`Unhandled step type in DynamicTaskStep: ${step.type} -> ${normalizedType}`);
+      console.warn(`Unknown step type: ${step.type}`);
       return (
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-gray-500">
-              <p>Unknown step type: {step.type}</p>
-              <p className="text-sm text-red-500 mt-2">This step type is not supported yet.</p>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="p-4 border border-red-200 rounded-md">
+          <p className="text-red-600">Unknown step type: {step.type}</p>
+          <pre className="mt-2 text-sm bg-gray-100 p-2 rounded">
+            {JSON.stringify(step, null, 2)}
+          </pre>
+        </div>
       );
   }
 };
