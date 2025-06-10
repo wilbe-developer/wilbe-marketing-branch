@@ -227,7 +227,6 @@ export const QuestionStepRenderer: React.FC<QuestionStepRendererProps> = ({
             id={step.id}
             value={answer || ""}
             type="textarea"
-            onChange={onAnswer}
             onAutoSave={onAutoSaveField ? (value) => onAutoSaveField(step.id, value) : undefined}
             autoSaveManager={autoSaveManager}
           />
@@ -240,7 +239,6 @@ export const QuestionStepRenderer: React.FC<QuestionStepRendererProps> = ({
             id={step.id}
             value={answer || ""}
             type="text"
-            onChange={onAnswer}
             onAutoSave={onAutoSaveField ? (value) => onAutoSaveField(step.id, value) : undefined}
             autoSaveManager={autoSaveManager}
           />
