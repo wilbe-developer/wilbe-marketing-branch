@@ -12,7 +12,7 @@ interface TextInputRendererProps {
   value: string;
   type: "text" | "textarea";
   placeholder?: string;
-  onChange: (value: string) => void;
+  onChange?: (value: string) => void; // Made optional
   onAutoSave?: (value: string) => Promise<void>;
   autoSaveManager?: {
     handleFieldChange: (fieldId: string, value: any, isTyping: boolean, saveCallback: (value: any) => Promise<void>) => void;
@@ -57,8 +57,10 @@ export const TextInputRenderer: React.FC<TextInputRendererProps> = ({
     const newValue = e.target.value;
     setLocalValue(newValue);
     
-    // Always update parent immediately for UI responsiveness
-    onChange(newValue);
+    // Always update parent immediately for UI responsiveness (if onChange provided)
+    if (onChange) {
+      onChange(newValue);
+    }
     
     // Handle auto-save if manager is provided
     if (autoSaveManager && onAutoSave) {
