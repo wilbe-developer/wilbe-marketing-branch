@@ -50,14 +50,16 @@ const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
     try {
       // For simple question steps (non-form types), save the value directly to the step
       // For form steps, wrap the value in the field structure
+      // For team-members, save the array directly (no nesting)
       const isSimpleQuestion = currentStep.type === "question" || 
                               currentStep.type === "exercise" ||
                               currentStep.type === "conditionalQuestion" ||
+                              currentStep.type === "team-members" ||
                               (currentStep.type === "form" && currentStep.fields && currentStep.fields.length === 1);
       
       let updatedAnswer;
-      if (isSimpleQuestion && fieldId === currentStep.id) {
-        // For simple questions where fieldId matches stepId, save value directly
+      if (isSimpleQuestion && (fieldId === currentStep.id || fieldId.startsWith('team_member_'))) {
+        // For simple questions where fieldId matches stepId, or team-members, save value directly
         updatedAnswer = value;
       } else {
         // For form steps or multi-field steps, maintain field structure
