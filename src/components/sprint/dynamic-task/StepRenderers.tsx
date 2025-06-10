@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { StepNode, FormField } from '@/types/task-builder';
 import {
@@ -61,11 +60,6 @@ export const QuestionStepRenderer: React.FC<StepRendererProps> = ({
     const newValues = { ...formValues, [fieldId]: value };
     setFormValues(newValues);
     handleAnswer(newValues);
-  };
-
-  // Handle text input changes - save immediately without debounce
-  const handleTextInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    handleAnswer(e.target.value);
   };
 
   // Check if a field should be visible based on conditions
@@ -334,7 +328,9 @@ export const QuestionStepRenderer: React.FC<StepRendererProps> = ({
           <input
             type="text"
             value={answer || ''}
-            onChange={handleTextInputChange}
+            onChange={(e) => {
+              // Note: Removed immediate handleAnswer call - let AutoSaveManager handle this
+            }}
             className="w-full p-2 border rounded"
             placeholder="Your answer..."
           />
@@ -344,7 +340,9 @@ export const QuestionStepRenderer: React.FC<StepRendererProps> = ({
         return (
           <textarea
             value={answer || ''}
-            onChange={handleTextInputChange}
+            onChange={(e) => {
+              // Note: Removed immediate handleAnswer call - let AutoSaveManager handle this
+            }}
             className="w-full p-2 border rounded"
             rows={5}
             placeholder="Your answer..."
