@@ -34,6 +34,7 @@ export const useTeamMemberAutoSave = ({
   const membersRef = useRef<TeamMember[]>(initialMembers);
   const saveTimers = useRef<Map<string, NodeJS.Timeout>>(new Map());
   const pendingSaves = useRef<Map<string, PendingSave>>(new Map());
+  const typingFields = useRef<Set<string>>(new Set());
   
   // Keep refs in sync with initial data
   useEffect(() => {
@@ -41,6 +42,7 @@ export const useTeamMemberAutoSave = ({
     membersRef.current = initialMembers;
     // Clear any pending changes when initial data changes
     pendingSaves.current.clear();
+    typingFields.current.clear();
   }, [initialMembers]);
   
   // Helper to create field ID
@@ -54,6 +56,23 @@ export const useTeamMemberAutoSave = ({
       ...prev,
       [fieldId]: { status, error }
     }));
+  }, []);
+
+  // Start typing state
+  const startTyping = useCallback((fieldId: string) => {
+    typingFields.current.add(fieldId);
+    updateFieldStatus(fieldId, 'typing');
+  }, [updateFieldStatus]);
+
+  // Stop typing state
+  const stopTyping = useCallback((fieldId: string) => {
+    typingFields.current.delete(fieldId);
+    
+    // If there's a pending save, execute it immediately
+    if (pendingSaves.current.has(fieldId)) {
+      const pending = pendingSaves.current.get(fieldId)!;
+      executeSave(fieldId, pending.memberIndex, pending.fieldName, pending.value);
+    }
   }, []);
 
   // Execute save operation
@@ -142,11 +161,12 @@ export const useTeamMemberAutoSave = ({
     });
 
     if (isTyping) {
-      // Set typing status and debounced save
-      updateFieldStatus(fieldId, 'typing');
+      // Start typing state and set debounced save
+      startTyping(fieldId);
       
       const timer = setTimeout(() => {
-        if (pendingSaves.current.has(fieldId)) {
+        // Only save if the field is still in typing state
+        if (typingFields.current.has(fieldId) && pendingSaves.current.has(fieldId)) {
           const pending = pendingSaves.current.get(fieldId)!;
           executeSave(fieldId, pending.memberIndex, pending.fieldName, pending.value);
         }
@@ -154,13 +174,10 @@ export const useTeamMemberAutoSave = ({
       
       saveTimers.current.set(fieldId, timer);
     } else {
-      // Immediate save (blur event)
-      if (pendingSaves.current.has(fieldId)) {
-        const pending = pendingSaves.current.get(fieldId)!;
-        executeSave(fieldId, pending.memberIndex, pending.fieldName, pending.value);
-      }
+      // Stop typing (blur event) - immediate save
+      stopTyping(fieldId);
     }
-  }, [executeSave, debounceMs, updateFieldStatus]);
+  }, [executeSave, debounceMs, startTyping, stopTyping]);
   
   // Handle adding a new member (immediate save)
   const handleAddMember = useCallback(async () => {
@@ -203,6 +220,7 @@ export const useTeamMemberAutoSave = ({
         clearTimeout(timer);
         saveTimers.current.delete(fieldId);
         pendingSaves.current.delete(fieldId);
+        typingFields.current.delete(fieldId);
       }
     });
     

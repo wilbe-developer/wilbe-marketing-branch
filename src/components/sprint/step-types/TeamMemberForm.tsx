@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -104,7 +105,7 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
     }
   };
 
-  // Create input handlers with isTyping parameter
+  // Create input handlers with proper isTyping parameter
   const createInputHandlers = (index: number, field: keyof TeamMember) => ({
     onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => 
       onUpdate(index, field, e.target.value, true), // isTyping: true for onChange

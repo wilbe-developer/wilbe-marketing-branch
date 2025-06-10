@@ -1,5 +1,5 @@
 
-import React, { useEffect } from "react";
+import React from "react";
 import { StepNode } from "@/types/task-builder";
 import TeamMemberForm from "@/components/sprint/step-types/TeamMemberForm";
 import { TeamMember } from "@/hooks/team-members/types";
@@ -33,8 +33,7 @@ export const TeamMemberStepRenderer: React.FC<TeamMemberStepRendererProps> = ({
     handleFieldChange,
     handleAddMember,
     handleRemoveMember,
-    getFieldStatus,
-    forceSaveAll
+    getFieldStatus
   } = useTeamMemberAutoSave({
     initialMembers,
     onSave: async (updatedMembers: TeamMember[]) => {
@@ -42,18 +41,6 @@ export const TeamMemberStepRenderer: React.FC<TeamMemberStepRendererProps> = ({
     },
     debounceMs: 2000
   });
-
-  // Update members when answer changes from parent
-  useEffect(() => {
-    if (Array.isArray(answer) && answer.length > 0) {
-      // Only update if the answer is actually different
-      const answersMatch = JSON.stringify(answer) === JSON.stringify(members);
-      if (!answersMatch) {
-        // Force save any pending changes before updating
-        forceSaveAll();
-      }
-    }
-  }, [answer, members, forceSaveAll]);
 
   return (
     <TeamMemberForm
