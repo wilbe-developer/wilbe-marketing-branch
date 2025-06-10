@@ -22,13 +22,19 @@ export const useTeamMemberAutoSave = ({
   const [members, setMembers] = useState<TeamMember[]>(initialMembers);
   const [fieldStatuses, setFieldStatuses] = useState<Record<string, FieldStatus>>({});
   
-  // Keep track of pending saves and timeouts
+  // Use refs to track current state without stale closures
+  const membersRef = useRef<TeamMember[]>(initialMembers);
   const pendingSaves = useRef<Record<string, NodeJS.Timeout>>({});
-  const pendingChanges = useRef<Record<string, any>>({});
+  
+  // Keep refs in sync with state
+  useEffect(() => {
+    membersRef.current = members;
+  }, [members]);
   
   // Update members when initialMembers changes
   useEffect(() => {
     setMembers(initialMembers);
+    membersRef.current = initialMembers;
   }, [initialMembers]);
   
   // Helper to create field ID
@@ -52,6 +58,8 @@ export const useTeamMemberAutoSave = ({
   ) => {
     const fieldId = createFieldId(memberIndex, fieldName);
     
+    console.log(`Field change: ${fieldId} = ${value}`);
+    
     // Update local state immediately
     setMembers(prev => {
       const updated = [...prev];
@@ -62,33 +70,34 @@ export const useTeamMemberAutoSave = ({
       return updated;
     });
     
-    // Store the pending change
-    pendingChanges.current[fieldId] = { memberIndex, fieldName, value };
-    
-    // Clear existing timeout
+    // Clear existing timeout for this field
     if (pendingSaves.current[fieldId]) {
       clearTimeout(pendingSaves.current[fieldId]);
+      delete pendingSaves.current[fieldId];
     }
     
-    // Set status to typing
+    // Set status to typing immediately
     updateFieldStatus(fieldId, 'typing');
     
-    // Set up debounced save
+    // Set up debounced save using the current members from ref
     pendingSaves.current[fieldId] = setTimeout(async () => {
+      console.log(`Starting save for field: ${fieldId}`);
       updateFieldStatus(fieldId, 'saving');
       
       try {
-        // Get the current members state and apply the change
-        const currentMembers = [...members];
+        // Get fresh state from ref and apply the change
+        const currentMembers = [...membersRef.current];
         currentMembers[memberIndex] = {
           ...currentMembers[memberIndex],
           [fieldName]: value
         };
         
+        console.log(`Saving members:`, currentMembers);
         await onSave(currentMembers);
+        
         updateFieldStatus(fieldId, 'saved');
         
-        // Clear saved status after a delay
+        // Clear saved status after delay
         setTimeout(() => {
           updateFieldStatus(fieldId, 'idle');
         }, 2000);
@@ -99,11 +108,10 @@ export const useTeamMemberAutoSave = ({
       } finally {
         // Clean up
         delete pendingSaves.current[fieldId];
-        delete pendingChanges.current[fieldId];
       }
     }, debounceMs);
     
-  }, [members, onSave, debounceMs, updateFieldStatus]);
+  }, [onSave, debounceMs, updateFieldStatus]);
   
   // Handle adding a new member (immediate save)
   const handleAddMember = useCallback(async () => {
@@ -116,7 +124,7 @@ export const useTeamMemberAutoSave = ({
       relationship_description: "",
     };
     
-    const updatedMembers = [...members, newMember];
+    const updatedMembers = [...membersRef.current, newMember];
     setMembers(updatedMembers);
     
     try {
@@ -124,13 +132,13 @@ export const useTeamMemberAutoSave = ({
     } catch (error) {
       console.error('Error adding team member:', error);
       // Revert on error
-      setMembers(members);
+      setMembers(membersRef.current);
     }
-  }, [members, onSave]);
+  }, [onSave]);
   
   // Handle removing a member (immediate save)
   const handleRemoveMember = useCallback(async (index: number) => {
-    const updatedMembers = [...members];
+    const updatedMembers = [...membersRef.current];
     updatedMembers.splice(index, 1);
     setMembers(updatedMembers);
     
@@ -139,7 +147,6 @@ export const useTeamMemberAutoSave = ({
       if (fieldId.startsWith(`team_member_${index}_`)) {
         clearTimeout(pendingSaves.current[fieldId]);
         delete pendingSaves.current[fieldId];
-        delete pendingChanges.current[fieldId];
       }
     });
     
@@ -148,9 +155,9 @@ export const useTeamMemberAutoSave = ({
     } catch (error) {
       console.error('Error removing team member:', error);
       // Revert on error
-      setMembers(members);
+      setMembers(membersRef.current);
     }
-  }, [members, onSave]);
+  }, [onSave]);
   
   // Get field status
   const getFieldStatus = useCallback((memberIndex: number, fieldName: keyof TeamMember): TeamMemberSaveStatus => {
@@ -162,6 +169,8 @@ export const useTeamMemberAutoSave = ({
   const forceSaveAll = useCallback(async () => {
     const pendingFieldIds = Object.keys(pendingSaves.current);
     
+    console.log(`Force saving ${pendingFieldIds.length} pending changes`);
+    
     // Clear all timeouts and execute saves immediately
     await Promise.all(
       pendingFieldIds.map(async (fieldId) => {
@@ -170,27 +179,16 @@ export const useTeamMemberAutoSave = ({
           delete pendingSaves.current[fieldId];
         }
         
-        const change = pendingChanges.current[fieldId];
-        if (change) {
-          updateFieldStatus(fieldId, 'saving');
-          try {
-            const currentMembers = [...members];
-            currentMembers[change.memberIndex] = {
-              ...currentMembers[change.memberIndex],
-              [change.fieldName]: change.value
-            };
-            
-            await onSave(currentMembers);
-            updateFieldStatus(fieldId, 'saved');
-          } catch (error) {
-            updateFieldStatus(fieldId, 'error');
-          }
-          
-          delete pendingChanges.current[fieldId];
+        updateFieldStatus(fieldId, 'saving');
+        try {
+          await onSave(membersRef.current);
+          updateFieldStatus(fieldId, 'saved');
+        } catch (error) {
+          updateFieldStatus(fieldId, 'error');
         }
       })
     );
-  }, [members, onSave, updateFieldStatus]);
+  }, [onSave, updateFieldStatus]);
   
   // Cleanup on unmount
   useEffect(() => {
