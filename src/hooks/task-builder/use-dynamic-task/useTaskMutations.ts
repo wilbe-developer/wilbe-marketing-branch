@@ -10,14 +10,13 @@ export const useTaskMutations = (taskId: string, answers: Record<string, any>, s
   const { currentSprintOwnerId } = useSprintContext();
   const queryClient = useQueryClient();
 
-  // Save user's answer for a step - auto-save immediately
+  // Save user's answer for a step with optimistic updates
   const answerNode = useMutation({
     mutationFn: async ({ stepId, value }: { stepId: string; value: any }) => {
       if (!user?.id) throw new Error("User not authenticated");
       if (!currentSprintOwnerId) throw new Error("Sprint owner ID not available");
 
       const newAnswers = { ...answers, [stepId]: value };
-      setAnswers(newAnswers);
 
       // First check if a record already exists
       const { data: existingProgress, error: checkError } = await supabase
@@ -64,14 +63,32 @@ export const useTaskMutations = (taskId: string, answers: Record<string, any>, s
         }
       }
 
-      return { stepId, value };
+      return { stepId, value, newAnswers };
     },
-    onSuccess: () => {
+    onMutate: async ({ stepId, value }) => {
+      // Optimistic update - immediately update local state
+      const newAnswers = { ...answers, [stepId]: value };
+      setAnswers(newAnswers);
+      
+      // Return context for potential rollback
+      return { previousAnswers: answers };
+    },
+    onError: (error, variables, context) => {
+      // Rollback on error
+      if (context?.previousAnswers) {
+        setAnswers(context.previousAnswers);
+      }
+      console.error("Auto-save failed:", error);
+      // Don't show toast here - let AutoSaveManager handle it
+    },
+    onSuccess: ({ newAnswers }) => {
+      // Ensure local state matches what was saved
+      setAnswers(newAnswers);
       queryClient.invalidateQueries({ queryKey: ["userSprintProgress", taskId, currentSprintOwnerId] });
     },
-    onError: (error) => {
-      toast.error(`Failed to save answer: ${error.message}`);
-    }
+    // Add retry configuration
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
   });
 
   // Upload a file for a step
@@ -210,8 +227,8 @@ export const useTaskMutations = (taskId: string, answers: Record<string, any>, s
             completed: true,
             completed_at: new Date().toISOString(),
             task_answers: answers,
-            answers: null, // Ensure this is properly initialized
-            profile_updates: {} // Initialize empty profile updates
+            answers: null,
+            profile_updates: {}
           });
 
         if (error) {
@@ -223,6 +240,7 @@ export const useTaskMutations = (taskId: string, answers: Record<string, any>, s
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["userSprintProgress", taskId, currentSprintOwnerId] });
+      queryClient.invalidateQueries({ queryKey: ["sprintTaskDefinitions"] });
     },
     onError: (error) => {
       toast.error(`Failed to complete task: ${error.message}`);

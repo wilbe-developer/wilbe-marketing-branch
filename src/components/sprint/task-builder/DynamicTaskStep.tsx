@@ -12,12 +12,21 @@ import { ConditionalQuestionRenderer } from "@/components/sprint/dynamic-task/Co
 import { normalizeStepType } from "@/utils/taskStepUtils";
 import { TeamMemberStepRenderer } from "@/components/sprint/dynamic-task/StepRenderers";
 import { parseMarkdown } from "@/utils/markdownUtils";
+import type { SaveStatus } from "@/hooks/useAutoSaveManager";
 
 interface DynamicTaskStepProps {
   step: StepNode;
   answer: any;
   onAnswer: (value: any) => void;
   onFileUpload?: (file: File) => void;
+  autoSaveManager?: {
+    handleFieldChange: (fieldId: string, value: any, isTyping: boolean, saveCallback: (value: any) => Promise<void>) => void;
+    startTyping: (fieldId: string) => void;
+    stopTyping: (fieldId: string) => void;
+    getSaveStatus: (fieldId: string) => SaveStatus;
+    subscribeToStatus: (fieldId: string, callback: (status: SaveStatus) => void) => () => void;
+  };
+  onAutoSaveField?: (fieldId: string, value: any) => Promise<void>;
 }
 
 const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
@@ -25,6 +34,8 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
   answer,
   onAnswer,
   onFileUpload,
+  autoSaveManager,
+  onAutoSaveField,
 }) => {
   console.log("DynamicTaskStep rendering step with type:", step.type);
   
@@ -59,6 +70,8 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
               step={step}
               answer={answer}
               handleAnswer={onAnswer}
+              autoSaveManager={autoSaveManager}
+              onAutoSaveField={onAutoSaveField}
             />
           </div>
         </CardContent>
@@ -133,6 +146,8 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
                 step={step}
                 answer={answer}
                 onAnswer={onAnswer}
+                autoSaveManager={autoSaveManager}
+                onAutoSaveField={onAutoSaveField}
               />
             </div>
           </CardContent>

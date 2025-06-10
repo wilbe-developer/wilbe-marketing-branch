@@ -1,9 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { StepNode, FormField } from '@/types/task-builder';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { SaveStatusIndicator } from '@/components/ui/save-status-indicator';
 import { 
   Select,
   SelectContent,
@@ -24,6 +24,7 @@ import {
 } from '@/components/ui/dialog';
 import { CollaboratorsManagement } from '@/components/sprint/CollaboratorsManagement';
 import { MultiFileUploader } from '@/components/sprint/MultiFileUploader';
+import type { SaveStatus } from '@/hooks/useAutoSaveManager';
 
 interface FileData {
   fileId: string;
@@ -37,29 +38,74 @@ interface FormStepRendererProps {
   step: StepNode;
   answer: Record<string, any> | null;
   handleAnswer: (value: Record<string, any>) => void;
+  autoSaveManager?: {
+    handleFieldChange: (fieldId: string, value: any, isTyping: boolean, saveCallback: (value: any) => Promise<void>) => void;
+    startTyping: (fieldId: string) => void;
+    stopTyping: (fieldId: string) => void;
+    getSaveStatus: (fieldId: string) => SaveStatus;
+    subscribeToStatus: (fieldId: string, callback: (status: SaveStatus) => void) => () => void;
+  };
+  onAutoSaveField?: (fieldId: string, value: any) => Promise<void>;
 }
 
 export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
   step,
   answer,
   handleAnswer,
+  autoSaveManager,
+  onAutoSaveField,
 }) => {
   // Initialize form state with existing answers or empty object
   const [formValues, setFormValues] = useState<Record<string, any>>(answer || {});
   const [isCollaboratorsDialogOpen, setIsCollaboratorsDialogOpen] = useState(false);
+  const [fieldSaveStatuses, setFieldSaveStatuses] = useState<Record<string, SaveStatus>>({});
 
   // Update local state when answer prop changes
   useEffect(() => {
     if (answer) {
-      setFormValues(answer);
+      // Only update if not currently typing in any field
+      const hasTypingFields = step.fields?.some(field => 
+        autoSaveManager && autoSaveManager.getSaveStatus(field.id) === 'typing'
+      );
+      
+      if (!hasTypingFields) {
+        setFormValues(answer);
+      }
     }
-  }, [answer]);
+  }, [answer, autoSaveManager, step.fields]);
+
+  // Subscribe to field save statuses
+  useEffect(() => {
+    if (!autoSaveManager || !step.fields) return;
+
+    const unsubscribeFunctions: (() => void)[] = [];
+
+    step.fields.forEach(field => {
+      const unsubscribe = autoSaveManager.subscribeToStatus(field.id, (status) => {
+        setFieldSaveStatuses(prev => ({ ...prev, [field.id]: status }));
+      });
+      unsubscribeFunctions.push(unsubscribe);
+    });
+
+    return () => {
+      unsubscribeFunctions.forEach(unsub => unsub());
+    };
+  }, [autoSaveManager, step.fields]);
 
   // Handle field value change
-  const handleFieldChange = (fieldId: string, value: any) => {
+  const handleFieldChange = (fieldId: string, value: any, isTyping: boolean = false) => {
     const updatedValues = { ...formValues, [fieldId]: value };
     setFormValues(updatedValues);
+    
+    // Always update parent immediately for UI responsiveness
     handleAnswer(updatedValues);
+    
+    // Handle auto-save if manager is provided
+    if (autoSaveManager && onAutoSaveField) {
+      autoSaveManager.handleFieldChange(fieldId, value, isTyping, async (fieldValue) => {
+        await onAutoSaveField(fieldId, fieldValue);
+      });
+    }
   };
 
   // Handle multi-file upload
@@ -146,14 +192,21 @@ export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
           
           return (
             <div key={field.id} className="space-y-2">
-              {field.label && <Label htmlFor={field.id}>{field.label}</Label>}
+              <div className="flex justify-between items-center">
+                {field.label && <Label htmlFor={field.id}>{field.label}</Label>}
+                {autoSaveManager && (
+                  <SaveStatusIndicator status={fieldSaveStatuses[field.id] || 'idle'} />
+                )}
+              </div>
               
               {/* Render different input types based on field type */}
               {fieldType === 'text' && (
                 <Input
                   id={field.id}
                   value={formValues[field.id] || ''}
-                  onChange={(e) => handleFieldChange(field.id, e.target.value)}
+                  onChange={(e) => handleFieldChange(field.id, e.target.value, true)}
+                  onFocus={() => autoSaveManager?.startTyping(field.id)}
+                  onBlur={() => autoSaveManager?.stopTyping(field.id)}
                   placeholder={field.placeholder || ''}
                 />
               )}
@@ -162,7 +215,9 @@ export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
                 <Textarea
                   id={field.id}
                   value={formValues[field.id] || ''}
-                  onChange={(e) => handleFieldChange(field.id, e.target.value)}
+                  onChange={(e) => handleFieldChange(field.id, e.target.value, true)}
+                  onFocus={() => autoSaveManager?.startTyping(field.id)}
+                  onBlur={() => autoSaveManager?.stopTyping(field.id)}
                   placeholder={field.placeholder || ''}
                   rows={4}
                 />

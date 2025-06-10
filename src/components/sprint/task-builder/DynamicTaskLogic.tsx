@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDynamicTask } from "@/hooks/task-builder/useDynamicTask";
 import { useSprintProfileQuickEdit } from "@/hooks/useSprintProfileQuickEdit";
 import { useAuth } from "@/hooks/useAuth";
+import { useAutoSaveManager } from "@/hooks/useAutoSaveManager";
 import { SprintProfileShowOrAsk } from "@/components/sprint/SprintProfileShowOrAsk";
 import DynamicTaskStep from "./DynamicTaskStep";
 import StaticPanels from "./StaticPanels";
@@ -22,6 +23,7 @@ const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
   const { sprintProfile } = useSprintProfileQuickEdit();
   const { isAdmin } = useAuth();
   const [editMode, setEditMode] = useState(false);
+  const { manager: autoSaveManager } = useAutoSaveManager();
   
   const {
     taskDefinition,
@@ -40,6 +42,22 @@ const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
     taskId: task.id,
     sprintProfile,
   });
+
+  // Auto-save handler for individual fields
+  const handleAutoSaveField = async (fieldId: string, value: any) => {
+    if (!currentStep) return;
+    
+    try {
+      // Update the current step's answer with the specific field
+      const currentAnswer = answers[currentStep.id] || {};
+      const updatedAnswer = { ...currentAnswer, [fieldId]: value };
+      
+      await answerNode(currentStep.id, updatedAnswer);
+    } catch (error) {
+      console.error("Error auto-saving field:", error);
+      throw error; // Re-throw to trigger error handling in AutoSaveManager
+    }
+  };
 
   const handleAnswer = async (value: any) => {
     if (!currentStep) return;
@@ -65,6 +83,11 @@ const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
 
   const handleComplete = async () => {
     try {
+      // Force save any pending changes before completing
+      if (currentStep) {
+        autoSaveManager.forceSave(currentStep.id);
+      }
+      
       await completeTask();
       onComplete();
       setEditMode(false);
@@ -76,6 +99,11 @@ const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
 
   const handleSaveChanges = async () => {
     try {
+      // Force save any pending changes
+      if (currentStep) {
+        autoSaveManager.forceSave(currentStep.id);
+      }
+      
       await completeTask();
       toast.success("Your changes have been saved");
       setEditMode(false);
@@ -84,6 +112,13 @@ const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
       toast.error("Failed to save changes. Please try again.");
     }
   };
+
+  // Cleanup auto-save manager on unmount
+  useEffect(() => {
+    return () => {
+      autoSaveManager.cleanup();
+    };
+  }, [autoSaveManager]);
 
   if (isLoading) {
     return (
@@ -296,6 +331,8 @@ const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
         answer={answers[currentStep.id]}
         onAnswer={handleAnswer}
         onFileUpload={handleFileUpload}
+        autoSaveManager={autoSaveManager}
+        onAutoSaveField={handleAutoSaveField}
       />
     );
     
