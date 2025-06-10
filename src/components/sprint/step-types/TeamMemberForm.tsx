@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -12,8 +13,10 @@ interface TeamMemberFormProps {
   memberType: string;
   onAdd: () => void;
   onRemove: (index: number) => void;
-  onUpdate: (index: number, field: keyof TeamMember, value: string) => void;
+  onUpdate: (index: number, field: keyof TeamMember, value: string, isTyping?: boolean) => void;
   getFieldStatus?: (index: number, field: keyof TeamMember) => TeamMemberSaveStatus;
+  startTyping?: (index: number, field: keyof TeamMember) => void;
+  stopTyping?: (index: number, field: keyof TeamMember) => void;
 }
 
 const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
@@ -23,6 +26,8 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
   onRemove,
   onUpdate,
   getFieldStatus,
+  startTyping,
+  stopTyping,
 }) => {
   const isMobile = useIsMobile();
 
@@ -32,7 +37,7 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
       switch(field) {
         case "relationship_description":
           return {
-            label: "Your origin story: How did you meet? How long have you known each other? Have you been through a “stress project” with each other?",
+            label: "Your origin story: How did you meet? How long have you known each other? Have you been through a "stress project" with each other?",
             placeholder: "Describe your relationship and how long you've known each other"
           };
         case "employment_status":
@@ -47,7 +52,7 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
           };
         case "trigger_points":
           return {
-            label: "If they are not full-time, what will trigger them to be full-time and why? Be specific and detailed. If it’s money, make the case as to why a certain amount would be enough. If it’s something else, please explain in detail.",
+            label: "If they are not full-time, what will trigger them to be full-time and why? Be specific and detailed. If it's money, make the case as to why a certain amount would be enough. If it's something else, please explain in detail.",
             placeholder: "E.g., Securing funding, reaching X paying customers, etc."
           };
         default:
@@ -71,7 +76,7 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
           };
         case "trigger_points":
           return {
-            label: "If they are not full-time, what will trigger them to be full-time and why? Be specific and detailed. If it’s money, make the case as to why a certain amount would be enough. If it’s something else, please explain in detail.",
+            label: "If they are not full-time, what will trigger them to be full-time and why? Be specific and detailed. If it's money, make the case as to why a certain amount would be enough. If it's something else, please explain in detail.",
             placeholder: "Trigger points for going full-time"
           };
         case "profile_description":
@@ -104,6 +109,14 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
     }
   };
 
+  // Create input handlers with explicit typing control
+  const createInputHandlers = (index: number, field: keyof TeamMember) => ({
+    onFocus: () => startTyping?.(index, field),
+    onBlur: () => stopTyping?.(index, field),
+    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => 
+      onUpdate(index, field, e.target.value, true)
+  });
+
   return (
     <div className="space-y-4">
       {memberType.toLowerCase() === "co-founder" && (
@@ -135,16 +148,10 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
                 id={`name-${index}`}
                 placeholder="Name"
                 value={member.name}
-                onChange={(e) => onUpdate(index, 'name', e.target.value)}
+                {...createInputHandlers(index, 'name')}
                 className={isMobile ? "h-9 text-sm" : ""}
               />
             </div>
-            
-            {/* Field order for co-founders: 
-                1. relationship_description (How do you know them?)
-                2. employment_status (What job do they or will they have?)
-                3. profile_description (Why are they the best person?)
-                4. trigger_points (What will trigger them being full-time?) */}
             
             {memberType.toLowerCase() === "co-founder" ? (
               <>
@@ -159,7 +166,7 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
                     id={`relationship-${index}`}
                     placeholder={getFieldConfig("relationship_description").placeholder}
                     value={member.relationship_description || ''}
-                    onChange={(e) => onUpdate(index, 'relationship_description', e.target.value)}
+                    {...createInputHandlers(index, 'relationship_description')}
                     rows={isMobile ? 3 : 4}
                     className={isMobile ? "text-sm" : ""}
                   />
@@ -175,7 +182,7 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
                     id={`status-${index}`}
                     placeholder={getFieldConfig("employment_status").placeholder}
                     value={member.employment_status}
-                    onChange={(e) => onUpdate(index, 'employment_status', e.target.value)}
+                    {...createInputHandlers(index, 'employment_status')}
                     rows={isMobile ? 3 : 4}
                     className={isMobile ? "text-sm" : ""}
                   />
@@ -191,7 +198,7 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
                     id={`profile-${index}`}
                     placeholder={getFieldConfig("profile_description").placeholder}
                     value={member.profile_description}
-                    onChange={(e) => onUpdate(index, 'profile_description', e.target.value)}
+                    {...createInputHandlers(index, 'profile_description')}
                     rows={isMobile ? 3 : 4}
                     className={isMobile ? "text-sm" : ""}
                   />
@@ -207,7 +214,7 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
                     id={`triggers-${index}`}
                     placeholder={getFieldConfig("trigger_points").placeholder}
                     value={member.trigger_points || ''}
-                    onChange={(e) => onUpdate(index, 'trigger_points', e.target.value)}
+                    {...createInputHandlers(index, 'trigger_points')}
                     rows={isMobile ? 3 : 4}
                     className={isMobile ? "text-sm" : ""}
                   />
@@ -227,7 +234,7 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
                     id={`profile-${index}`}
                     placeholder={getFieldConfig("profile_description").placeholder}
                     value={member.profile_description}
-                    onChange={(e) => onUpdate(index, 'profile_description', e.target.value)}
+                    {...createInputHandlers(index, 'profile_description')}
                     rows={isMobile ? 3 : 4}
                     className={isMobile ? "text-sm" : ""}
                   />
@@ -243,7 +250,7 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
                     id={`relationship-${index}`}
                     placeholder={getFieldConfig("relationship_description").placeholder}
                     value={member.relationship_description || ''}
-                    onChange={(e) => onUpdate(index, 'relationship_description', e.target.value)}
+                    {...createInputHandlers(index, 'relationship_description')}
                     rows={isMobile ? 3 : 4}
                     className={isMobile ? "text-sm" : ""}
                   />
@@ -259,7 +266,7 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
                     id={`status-${index}`}
                     placeholder={getFieldConfig("employment_status").placeholder}
                     value={member.employment_status}
-                    onChange={(e) => onUpdate(index, 'employment_status', e.target.value)}
+                    {...createInputHandlers(index, 'employment_status')}
                     className={isMobile ? "h-9 text-sm" : ""}
                   />
                 </div>
@@ -274,7 +281,7 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
                     id={`triggers-${index}`}
                     placeholder={getFieldConfig("trigger_points").placeholder}
                     value={member.trigger_points || ''}
-                    onChange={(e) => onUpdate(index, 'trigger_points', e.target.value)}
+                    {...createInputHandlers(index, 'trigger_points')}
                     className={isMobile ? "h-9 text-sm" : ""}
                   />
                 </div>

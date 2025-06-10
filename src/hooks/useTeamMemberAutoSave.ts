@@ -8,6 +8,13 @@ interface FieldStatus {
   error?: string;
 }
 
+interface PendingSave {
+  memberIndex: number;
+  fieldName: keyof TeamMember;
+  value: string;
+  timestamp: number;
+}
+
 interface UseTeamMemberAutoSaveProps {
   initialMembers: TeamMember[];
   onSave: (members: TeamMember[]) => Promise<void>;
@@ -17,7 +24,7 @@ interface UseTeamMemberAutoSaveProps {
 export const useTeamMemberAutoSave = ({
   initialMembers,
   onSave,
-  debounceMs = 1000
+  debounceMs = 2000
 }: UseTeamMemberAutoSaveProps) => {
   // Local state for UI display only
   const [members, setMembers] = useState<TeamMember[]>(initialMembers);
@@ -25,16 +32,16 @@ export const useTeamMemberAutoSave = ({
   
   // Refs for managing state without stale closures
   const membersRef = useRef<TeamMember[]>(initialMembers);
-  const pendingChanges = useRef<Record<string, any>>({});
-  const saveTimeouts = useRef<Record<string, NodeJS.Timeout>>({});
-  const typingTimeouts = useRef<Record<string, NodeJS.Timeout>>({});
+  const saveTimers = useRef<Map<string, NodeJS.Timeout>>(new Map());
+  const typingFields = useRef<Set<string>>(new Set());
+  const pendingSaves = useRef<Map<string, PendingSave>>(new Map());
   
   // Keep refs in sync with initial data
   useEffect(() => {
     setMembers(initialMembers);
     membersRef.current = initialMembers;
     // Clear any pending changes when initial data changes
-    pendingChanges.current = {};
+    pendingSaves.current.clear();
   }, [initialMembers]);
   
   // Helper to create field ID
@@ -49,26 +56,82 @@ export const useTeamMemberAutoSave = ({
       [fieldId]: { status, error }
     }));
   }, []);
-  
-  // Apply a pending change to the members array
-  const applyPendingChange = useCallback((memberIndex: number, fieldName: keyof TeamMember, value: string) => {
-    const currentMembers = [...membersRef.current];
-    currentMembers[memberIndex] = {
-      ...currentMembers[memberIndex],
-      [fieldName]: value
-    };
-    return currentMembers;
-  }, []);
+
+  // Execute save operation
+  const executeSave = useCallback(async (fieldId: string, memberIndex: number, fieldName: keyof TeamMember, value: string) => {
+    try {
+      updateFieldStatus(fieldId, 'saving');
+      
+      // Apply the change to get updated members array
+      const updatedMembers = [...membersRef.current];
+      updatedMembers[memberIndex] = {
+        ...updatedMembers[memberIndex],
+        [fieldName]: value
+      };
+      
+      console.log(`Saving members for field ${fieldId}:`, updatedMembers);
+      await onSave(updatedMembers);
+      
+      // Update the ref with the saved state
+      membersRef.current = updatedMembers;
+      
+      // Clear the pending save
+      pendingSaves.current.delete(fieldId);
+      
+      updateFieldStatus(fieldId, 'saved');
+      
+      // Auto-clear saved status after 2 seconds
+      setTimeout(() => {
+        if (fieldStatuses[fieldId]?.status === 'saved') {
+          updateFieldStatus(fieldId, 'idle');
+        }
+      }, 2000);
+      
+    } catch (error) {
+      console.error('Auto-save failed:', error);
+      updateFieldStatus(fieldId, 'error', error instanceof Error ? error.message : 'Save failed');
+      
+      // Retry after 5 seconds
+      setTimeout(() => {
+        if (pendingSaves.current.has(fieldId)) {
+          const pending = pendingSaves.current.get(fieldId)!;
+          executeSave(fieldId, pending.memberIndex, pending.fieldName, pending.value);
+        }
+      }, 5000);
+    }
+  }, [onSave, updateFieldStatus, fieldStatuses]);
+
+  // Start typing for a field
+  const startTyping = useCallback((memberIndex: number, fieldName: keyof TeamMember) => {
+    const fieldId = createFieldId(memberIndex, fieldName);
+    typingFields.current.add(fieldId);
+    updateFieldStatus(fieldId, 'typing');
+  }, [updateFieldStatus]);
+
+  // Stop typing for a field
+  const stopTyping = useCallback((memberIndex: number, fieldName: keyof TeamMember) => {
+    const fieldId = createFieldId(memberIndex, fieldName);
+    typingFields.current.delete(fieldId);
+    
+    // If there's a pending save, execute it immediately
+    if (pendingSaves.current.has(fieldId)) {
+      const pending = pendingSaves.current.get(fieldId)!;
+      executeSave(fieldId, pending.memberIndex, pending.fieldName, pending.value);
+    } else {
+      updateFieldStatus(fieldId, 'idle');
+    }
+  }, [updateFieldStatus, executeSave]);
   
   // Handle field changes with proper debouncing
   const handleFieldChange = useCallback((
     memberIndex: number,
     fieldName: keyof TeamMember,
-    value: string
+    value: string,
+    isTyping: boolean = true
   ) => {
     const fieldId = createFieldId(memberIndex, fieldName);
     
-    console.log(`Field change: ${fieldId} = ${value}`);
+    console.log(`Field change: ${fieldId} = ${value}, isTyping: ${isTyping}`);
     
     // Update UI immediately for responsiveness
     setMembers(prev => {
@@ -80,81 +143,37 @@ export const useTeamMemberAutoSave = ({
       return updated;
     });
     
-    // Store the pending change
-    pendingChanges.current[fieldId] = { memberIndex, fieldName, value };
-    
-    // Clear existing timeouts for this field
-    if (saveTimeouts.current[fieldId]) {
-      clearTimeout(saveTimeouts.current[fieldId]);
-      delete saveTimeouts.current[fieldId];
+    // Clear any existing timer
+    const existingTimer = saveTimers.current.get(fieldId);
+    if (existingTimer) {
+      clearTimeout(existingTimer);
     }
-    if (typingTimeouts.current[fieldId]) {
-      clearTimeout(typingTimeouts.current[fieldId]);
-      delete typingTimeouts.current[fieldId];
+
+    // Store the pending save
+    pendingSaves.current.set(fieldId, {
+      memberIndex,
+      fieldName,
+      value,
+      timestamp: Date.now()
+    });
+
+    if (isTyping) {
+      startTyping(memberIndex, fieldName);
+      
+      // Set debounced save timer
+      const timer = setTimeout(() => {
+        if (pendingSaves.current.has(fieldId) && typingFields.current.has(fieldId)) {
+          const pending = pendingSaves.current.get(fieldId)!;
+          executeSave(fieldId, pending.memberIndex, pending.fieldName, pending.value);
+        }
+      }, debounceMs);
+      
+      saveTimers.current.set(fieldId, timer);
+    } else {
+      // Immediate save on blur
+      executeSave(fieldId, memberIndex, fieldName, value);
     }
-    
-    // Set status to typing immediately
-    updateFieldStatus(fieldId, 'typing');
-    
-    // Set timeout to clear typing status if no more changes
-    typingTimeouts.current[fieldId] = setTimeout(() => {
-      const currentStatus = fieldStatuses[fieldId]?.status;
-      if (currentStatus === 'typing') {
-        updateFieldStatus(fieldId, 'idle');
-      }
-      delete typingTimeouts.current[fieldId];
-    }, debounceMs + 500); // Clear typing status after debounce + buffer
-    
-    // Set up debounced save
-    saveTimeouts.current[fieldId] = setTimeout(async () => {
-      console.log(`Starting save for field: ${fieldId}`);
-      
-      // Check if we still have a pending change for this field
-      const pendingChange = pendingChanges.current[fieldId];
-      if (!pendingChange) {
-        console.log(`No pending change for ${fieldId}, skipping save`);
-        return;
-      }
-      
-      updateFieldStatus(fieldId, 'saving');
-      
-      try {
-        // Apply the pending change to get the updated members array
-        const updatedMembers = applyPendingChange(
-          pendingChange.memberIndex,
-          pendingChange.fieldName,
-          pendingChange.value
-        );
-        
-        console.log(`Saving members for field ${fieldId}:`, updatedMembers);
-        await onSave(updatedMembers);
-        
-        // Update the ref with the saved state
-        membersRef.current = updatedMembers;
-        
-        // Clear the pending change
-        delete pendingChanges.current[fieldId];
-        
-        updateFieldStatus(fieldId, 'saved');
-        
-        // Clear saved status after delay
-        setTimeout(() => {
-          updateFieldStatus(fieldId, 'idle');
-        }, 2000);
-        
-      } catch (error) {
-        console.error('Error saving team member field:', error);
-        updateFieldStatus(fieldId, 'error', error instanceof Error ? error.message : 'Save failed');
-        
-        // Keep the pending change for retry
-        // User can try again by typing
-      } finally {
-        // Clean up timeout
-        delete saveTimeouts.current[fieldId];
-      }
-    }, debounceMs);
-    
-  }, [onSave, debounceMs, updateFieldStatus, applyPendingChange, fieldStatuses]);
+  }, [startTyping, executeSave, debounceMs]);
   
   // Handle adding a new member (immediate save)
   const handleAddMember = useCallback(async () => {
@@ -192,19 +211,12 @@ export const useTeamMemberAutoSave = ({
     setMembers(updatedMembers);
     
     // Clear any pending saves for this member
-    Object.keys(saveTimeouts.current).forEach(fieldId => {
+    saveTimers.current.forEach((timer, fieldId) => {
       if (fieldId.startsWith(`team_member_${index}_`)) {
-        clearTimeout(saveTimeouts.current[fieldId]);
-        delete saveTimeouts.current[fieldId];
-        delete pendingChanges.current[fieldId];
-      }
-    });
-    
-    // Clear typing timeouts too
-    Object.keys(typingTimeouts.current).forEach(fieldId => {
-      if (fieldId.startsWith(`team_member_${index}_`)) {
-        clearTimeout(typingTimeouts.current[fieldId]);
-        delete typingTimeouts.current[fieldId];
+        clearTimeout(timer);
+        saveTimers.current.delete(fieldId);
+        pendingSaves.current.delete(fieldId);
+        typingFields.current.delete(fieldId);
       }
     });
     
@@ -227,7 +239,7 @@ export const useTeamMemberAutoSave = ({
   
   // Force save all pending changes
   const forceSaveAll = useCallback(async () => {
-    const pendingFieldIds = Object.keys(pendingChanges.current);
+    const pendingFieldIds = Array.from(pendingSaves.current.keys());
     
     if (pendingFieldIds.length === 0) {
       console.log('No pending changes to save');
@@ -236,24 +248,17 @@ export const useTeamMemberAutoSave = ({
     
     console.log(`Force saving ${pendingFieldIds.length} pending changes`);
     
-    // Clear all timeouts
-    pendingFieldIds.forEach(fieldId => {
-      if (saveTimeouts.current[fieldId]) {
-        clearTimeout(saveTimeouts.current[fieldId]);
-        delete saveTimeouts.current[fieldId];
-      }
-      if (typingTimeouts.current[fieldId]) {
-        clearTimeout(typingTimeouts.current[fieldId]);
-        delete typingTimeouts.current[fieldId];
-      }
-    });
+    // Clear all timers
+    saveTimers.current.forEach(timer => clearTimeout(timer));
+    saveTimers.current.clear();
+    typingFields.current.clear();
     
     // Apply all pending changes
     let updatedMembers = [...membersRef.current];
-    Object.entries(pendingChanges.current).forEach(([fieldId, change]) => {
-      updatedMembers[change.memberIndex] = {
-        ...updatedMembers[change.memberIndex],
-        [change.fieldName]: change.value
+    pendingSaves.current.forEach((pendingSave, fieldId) => {
+      updatedMembers[pendingSave.memberIndex] = {
+        ...updatedMembers[pendingSave.memberIndex],
+        [pendingSave.fieldName]: pendingSave.value
       };
       updateFieldStatus(fieldId, 'saving');
     });
@@ -263,7 +268,7 @@ export const useTeamMemberAutoSave = ({
       
       // Update ref and clear pending changes
       membersRef.current = updatedMembers;
-      pendingChanges.current = {};
+      pendingSaves.current.clear();
       
       // Set all to saved
       pendingFieldIds.forEach(fieldId => {
@@ -284,12 +289,8 @@ export const useTeamMemberAutoSave = ({
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      Object.values(saveTimeouts.current).forEach(timeout => {
-        clearTimeout(timeout);
-      });
-      Object.values(typingTimeouts.current).forEach(timeout => {
-        clearTimeout(timeout);
-      });
+      saveTimers.current.forEach(timer => clearTimeout(timer));
+      saveTimers.current.clear();
     };
   }, []);
   
@@ -299,6 +300,8 @@ export const useTeamMemberAutoSave = ({
     handleAddMember,
     handleRemoveMember,
     getFieldStatus,
-    forceSaveAll
+    forceSaveAll,
+    startTyping,
+    stopTyping
   };
 };
