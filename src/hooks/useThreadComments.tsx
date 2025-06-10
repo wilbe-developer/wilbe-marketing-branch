@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -32,12 +31,9 @@ export const useThreadComments = (threadId?: string, commentSort: string = 'chro
 
       if (error) throw error;
 
-      // Get author profile
+      // Get unified author profile
       const { data: profileData } = await supabase
-        .from('profiles')
-        .select('first_name, last_name, avatar')
-        .eq('id', data.author_id)
-        .maybeSingle();
+        .rpc('get_unified_profile', { p_user_id: data.author_id });
 
       // Get author role - using maybeSingle to handle no results gracefully
       const { data: roleData } = await supabase
@@ -70,10 +66,7 @@ export const useThreadComments = (threadId?: string, commentSort: string = 'chro
       let recipientProfile = null;
       if (data.is_private && data.recipient_id) {
         const { data: recipient } = await supabase
-          .from('profiles')
-          .select('first_name, last_name, avatar')
-          .eq('id', data.recipient_id)
-          .maybeSingle();
+          .rpc('get_unified_profile', { p_user_id: data.recipient_id });
         
         recipientProfile = recipient;
       }
@@ -103,15 +96,12 @@ export const useThreadComments = (threadId?: string, commentSort: string = 'chro
 
       if (error) throw error;
 
-      // For each comment, get the author profile and role
+      // For each comment, get the unified author profile and role
       const commentsWithAuthor = await Promise.all(
         data.map(async (comment) => {
-          // Get author profile
+          // Get unified author profile
           const { data: profileData } = await supabase
-            .from('profiles')
-            .select('first_name, last_name, avatar')
-            .eq('id', comment.author_id)
-            .maybeSingle();
+            .rpc('get_unified_profile', { p_user_id: comment.author_id });
 
           // Get author role
           const { data: roleData } = await supabase

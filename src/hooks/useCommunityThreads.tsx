@@ -37,15 +37,12 @@ export const useCommunityThreads = (params: UseCommunityThreadsParams = {}) => {
 
       if (threadsError) throw threadsError;
       
-      // For each thread, get the author profile, role, and comment count
+      // For each thread, get the unified author profile, role, and comment count
       const threadsWithDetails = await Promise.all(
         threadsData.map(async (thread) => {
-          // Get author profile
+          // Get unified author profile
           const { data: profileData } = await supabase
-            .from('profiles')
-            .select('first_name, last_name, avatar')
-            .eq('id', thread.author_id)
-            .maybeSingle();
+            .rpc('get_unified_profile', { p_user_id: thread.author_id });
 
           // Get author role - using maybeSingle instead of single to handle no results gracefully
           const { data: roleData } = await supabase
@@ -85,10 +82,7 @@ export const useCommunityThreads = (params: UseCommunityThreadsParams = {}) => {
           let recipientProfile = null;
           if (thread.is_private && thread.recipient_id) {
             const { data: recipient } = await supabase
-              .from('profiles')
-              .select('first_name, last_name, avatar')
-              .eq('id', thread.recipient_id)
-              .maybeSingle();
+              .rpc('get_unified_profile', { p_user_id: thread.recipient_id });
             
             recipientProfile = recipient;
           }
@@ -145,19 +139,17 @@ export const useCommunityThreads = (params: UseCommunityThreadsParams = {}) => {
         const adminUserIds = adminRoles.map(role => role.user_id);
         console.log("Admin user IDs:", adminUserIds);
         
-        // Then fetch the profiles for these users
-        const { data: adminProfiles, error: profilesError } = await supabase
-          .from('profiles')
-          .select('id, first_name, last_name, avatar')
-          .in('id', adminUserIds);
-        
-        if (profilesError) {
-          console.error("Error fetching admin profiles:", profilesError);
-          throw profilesError;
-        }
+        // Then fetch the unified profiles for these users
+        const adminProfiles = await Promise.all(
+          adminUserIds.map(async (userId) => {
+            const { data: profile } = await supabase
+              .rpc('get_unified_profile', { p_user_id: userId });
+            return profile;
+          })
+        );
         
         console.log("Admin profiles:", adminProfiles);
-        return adminProfiles || [];
+        return adminProfiles.filter(profile => profile !== null) || [];
       } catch (error) {
         console.error("Error in admin users query:", error);
         return [];
