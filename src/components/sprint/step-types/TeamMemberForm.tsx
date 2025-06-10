@@ -297,5 +297,3 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
 };
 
 export default TeamMemberForm;
-
-</edits_to_apply>
