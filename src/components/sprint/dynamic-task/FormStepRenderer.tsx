@@ -24,6 +24,8 @@ import {
 } from '@/components/ui/dialog';
 import { CollaboratorsManagement } from '@/components/sprint/CollaboratorsManagement';
 import { MultiFileUploader } from '@/components/sprint/MultiFileUploader';
+import { SaveStatus } from '@/components/ui/save-status';
+import { useDebouncedAutoSave } from '@/hooks/useDebouncedAutoSave';
 
 interface FileData {
   fileId: string;
@@ -37,16 +39,19 @@ interface FormStepRendererProps {
   step: StepNode;
   answer: Record<string, any> | null;
   handleAnswer: (value: Record<string, any>) => void;
+  onAutoSave?: (value: Record<string, any>) => Promise<void>;
 }
 
 export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
   step,
   answer,
   handleAnswer,
+  onAutoSave,
 }) => {
   // Initialize form state with existing answers or empty object
   const [formValues, setFormValues] = useState<Record<string, any>>(answer || {});
   const [isCollaboratorsDialogOpen, setIsCollaboratorsDialogOpen] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   // Update local state when answer prop changes
   useEffect(() => {
@@ -55,11 +60,30 @@ export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
     }
   }, [answer]);
 
+  const { debouncedSave, saveImmediately, isSaving, lastSaved } = useDebouncedAutoSave({
+    delay: 500,
+    onSave: async (saveValue: Record<string, any>) => {
+      if (onAutoSave) {
+        try {
+          await onAutoSave(saveValue);
+          setSaveError(null);
+        } catch (error) {
+          setSaveError("Failed to save");
+          throw error;
+        }
+      }
+    }
+  });
+
   // Handle field value change
   const handleFieldChange = (fieldId: string, value: any) => {
     const updatedValues = { ...formValues, [fieldId]: value };
     setFormValues(updatedValues);
     handleAnswer(updatedValues);
+    
+    if (onAutoSave) {
+      debouncedSave(updatedValues);
+    }
   };
 
   // Handle multi-file upload
@@ -278,6 +302,15 @@ export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
           );
         })}
       </div>
+      
+      {onAutoSave && (
+        <SaveStatus 
+          isSaving={isSaving} 
+          lastSaved={lastSaved} 
+          error={saveError}
+          className="mt-4"
+        />
+      )}
     </div>
   );
 };
