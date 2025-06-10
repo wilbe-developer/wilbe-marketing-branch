@@ -5,7 +5,7 @@ import { SprintProfileShowOrAsk } from "@/components/sprint/SprintProfileShowOrA
 import { 
   QuestionStepRenderer,
   TeamMemberStepRenderer,
-  FileUploadStepRenderer 
+  UploadStepRenderer 
 } from "@/components/sprint/task-builder/dynamic-step";
 import type { SaveStatus } from "@/hooks/useAutoSaveManager";
 
@@ -69,7 +69,7 @@ export const StepDependencyHelper: React.FC<StepDependencyHelperProps> = ({
       case "file":
       case "upload":
         return (
-          <FileUploadStepRenderer
+          <UploadStepRenderer
             step={step}
             answer={answer}
             onAnswer={handleAnswer}
