@@ -15,16 +15,12 @@ interface QuestionStepRendererProps {
   step: StepNode;
   answer: any;
   onAnswer: (value: any) => void;
-  onBlur?: (fieldId?: string) => void;
-  onFocus?: (fieldId?: string) => void;
 }
 
 export const QuestionStepRenderer: React.FC<QuestionStepRendererProps> = ({
   step,
   answer,
   onAnswer,
-  onBlur,
-  onFocus,
 }) => {
   // For handling form-type answers with multiple fields
   const [formValues, setFormValues] = useState<Record<string, any>>(answer || {});
@@ -82,8 +78,6 @@ export const QuestionStepRenderer: React.FC<QuestionStepRendererProps> = ({
               field={field}
               value={formValues[field.id]}
               onChange={(value) => updateFormField(field.id, value)}
-              onBlur={() => onBlur?.(field.id)}
-              onFocus={() => onFocus?.(field.id)}
             />
           );
         })}
@@ -127,8 +121,6 @@ export const QuestionStepRenderer: React.FC<QuestionStepRendererProps> = ({
                   step={question}
                   answer={formValues[question.id]}
                   onAnswer={(value) => updateFormField(question.id, value)}
-                  onBlur={onBlur}
-                  onFocus={onFocus}
                 />
               </CardContent>
             </Card>
@@ -154,8 +146,6 @@ export const QuestionStepRenderer: React.FC<QuestionStepRendererProps> = ({
                 field={field}
                 value={formValues[field.id]}
                 onChange={(value) => updateFormField(field.id, value)}
-                onBlur={() => onBlur?.(field.id)}
-                onFocus={() => onFocus?.(field.id)}
               />
             ))}
           </div>
@@ -218,8 +208,6 @@ export const QuestionStepRenderer: React.FC<QuestionStepRendererProps> = ({
             value={answer || ""}
             type="textarea"
             onChange={onAnswer}
-            onBlur={() => onBlur?.()}
-            onFocus={() => onFocus?.()}
           />
         );
 
@@ -231,8 +219,6 @@ export const QuestionStepRenderer: React.FC<QuestionStepRendererProps> = ({
             value={answer || ""}
             type="text"
             onChange={onAnswer}
-            onBlur={() => onBlur?.()}
-            onFocus={() => onFocus?.()}
           />
         );
     }

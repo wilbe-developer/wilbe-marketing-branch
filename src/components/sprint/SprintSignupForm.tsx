@@ -40,7 +40,7 @@ const SprintSignupForm: React.FC<SprintSignupFormProps> = ({ utmParams = {} }) =
     handleSendMagicLink
   } = useSprintSignup();
   
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
 
   const handleValidationChange = (field: string, isValid: boolean, canonicalValue?: string) => {
     setFieldValidation(prev => ({
@@ -211,6 +211,17 @@ const SprintSignupForm: React.FC<SprintSignupFormProps> = ({ utmParams = {} }) =
       <div className="mb-8">
         <h1 className="text-3xl font-bold">⚡ BSF Sign-Up</h1>
         <p className="text-muted-foreground">Turn your breakthrough into a high-performance startup - in 10 days. </p>
+        
+        {isAuthenticated && user && (
+          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-md text-blue-800">
+            <p className="font-medium">Welcome back, {user.firstName}!</p>
+            <p className="mt-1">
+              {hasSprintProfile 
+                ? "You can update your sprint profile below." 
+                : "Please complete your sprint profile to get started."}
+            </p>
+          </div>
+        )}
       </div>
       
       {/* Email exists alert - only show when on first window and email exists */}

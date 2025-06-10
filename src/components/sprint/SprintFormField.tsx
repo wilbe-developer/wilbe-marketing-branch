@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -33,7 +33,6 @@ export const SprintFormField: React.FC<SprintFormFieldProps> = ({
 }) => {
   const [localError, setLocalError] = useState<string>('');
   const [isValidating, setIsValidating] = useState(false);
-  const isTypingRef = useRef(false);
 
   // Check if field is required (considering opt-out)
   const isFieldRequired = () => {
@@ -44,7 +43,7 @@ export const SprintFormField: React.FC<SprintFormFieldProps> = ({
 
   // Real-time validation for email and LinkedIn
   useEffect(() => {
-    if (!value || !step.validation || isTypingRef.current) return;
+    if (!value || !step.validation) return;
 
     const validateField = async () => {
       setIsValidating(true);
@@ -75,37 +74,27 @@ export const SprintFormField: React.FC<SprintFormFieldProps> = ({
     return () => clearTimeout(timeoutId);
   }, [value, step.validation, step.id, step.optOutField, formValues, onValidationChange]);
 
-  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    isTypingRef.current = true;
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     onChange(step.id, e.target.value);
-    
-    // Reset typing flag after a delay
-    setTimeout(() => {
-      isTypingRef.current = false;
-    }, 500);
-  }, [onChange, step.id]);
+  };
 
-  const handleInputBlur = useCallback(() => {
-    isTypingRef.current = false;
-  }, []);
-
-  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
       onFileUpload(files[0]);
     } else {
       onFileUpload(null);
     }
-  }, [onFileUpload]);
+  };
 
-  const handleCheckboxChange = useCallback((checked: boolean) => {
+  const handleCheckboxChange = (checked: boolean) => {
     onChange(step.id, checked);
     
     // Clear linked field when checkbox is checked (opting out)
     if (checked && step.id === 'linkedin_opt_out') {
       onChange('linkedin', '');
     }
-  }, [onChange, step.id]);
+  };
 
   const hasError = localError || validationErrors[step.id];
   const isOptedOut = step.optOutField && formValues[step.optOutField];
@@ -117,8 +106,7 @@ export const SprintFormField: React.FC<SprintFormFieldProps> = ({
         <div className="space-y-2">
           <Input 
             value={value || ''} 
-            onChange={handleInputChange}
-            onBlur={handleInputBlur}
+            onChange={handleInputChange} 
             placeholder={step.placeholder || "Your answer"}
             disabled={isOptedOut}
             className={hasError ? "border-red-500" : ""}
@@ -146,8 +134,7 @@ export const SprintFormField: React.FC<SprintFormFieldProps> = ({
         <div className="space-y-2">
           <Textarea 
             value={value || ''} 
-            onChange={handleInputChange}
-            onBlur={handleInputBlur}
+            onChange={handleInputChange} 
             placeholder="Your answer"
             disabled={isOptedOut}
             className={hasError ? "border-red-500" : ""}
@@ -249,7 +236,6 @@ export const SprintFormField: React.FC<SprintFormFieldProps> = ({
           <Textarea
             value={value || ''}
             onChange={(e) => onChange(step.id, e.target.value)}
-            onBlur={handleInputBlur}
             placeholder={componentProps.placeholder || "Your answer"}
           />
         );
@@ -258,7 +244,6 @@ export const SprintFormField: React.FC<SprintFormFieldProps> = ({
           <Input
             value={value || ''}
             onChange={(e) => onChange(step.id, e.target.value)}
-            onBlur={handleInputBlur}
             placeholder={componentProps.placeholder || "Your answer"}
             type={componentProps.type || "text"}
           />

@@ -10,16 +10,12 @@ interface FormFieldRendererProps {
   field: FormField;
   value: any;
   onChange: (value: any) => void;
-  onBlur?: () => void;
-  onFocus?: () => void;
 }
 
 export const FormFieldRenderer: React.FC<FormFieldRendererProps> = ({
   field,
   value,
   onChange,
-  onBlur,
-  onFocus,
 }) => {
   switch (field.type) {
     case "text":
@@ -31,8 +27,6 @@ export const FormFieldRenderer: React.FC<FormFieldRendererProps> = ({
           type="text"
           placeholder={field.placeholder}
           onChange={onChange}
-          onBlur={onBlur}
-          onFocus={onFocus}
         />
       );
 
@@ -45,8 +39,6 @@ export const FormFieldRenderer: React.FC<FormFieldRendererProps> = ({
           type="textarea"
           placeholder={field.placeholder}
           onChange={onChange}
-          onBlur={onBlur}
-          onFocus={onFocus}
         />
       );
 

@@ -1,14 +1,11 @@
-
 import React, { useState } from "react";
 import { useDynamicTask } from "@/hooks/task-builder/useDynamicTask";
 import { useSprintProfileQuickEdit } from "@/hooks/useSprintProfileQuickEdit";
 import { useAuth } from "@/hooks/useAuth";
-import { useDebouncedAutoSave } from "@/hooks/useDebouncedAutoSave";
 import { SprintProfileShowOrAsk } from "@/components/sprint/SprintProfileShowOrAsk";
 import DynamicTaskStep from "./DynamicTaskStep";
 import StaticPanels from "./StaticPanels";
 import { Button } from "@/components/ui/button";
-import { SaveStatus } from "@/components/ui/save-status";
 import { toast } from "sonner";
 
 interface DynamicTaskLogicProps {
@@ -25,7 +22,6 @@ const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
   const { sprintProfile } = useSprintProfileQuickEdit();
   const { isAdmin } = useAuth();
   const [editMode, setEditMode] = useState(false);
-  const [typingFields, setTypingFields] = useState<Record<string, boolean>>({});
   
   const {
     taskDefinition,
@@ -45,65 +41,14 @@ const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
     sprintProfile,
   });
 
-  // Unified auto-save functionality
-  const { debouncedSave, isSaving, lastSaved } = useDebouncedAutoSave({
-    delay: 1500, // Longer delay to reduce conflicts
-    onSave: async (value: any) => {
-      // Only save if not currently typing
-      const isCurrentlyTyping = Object.values(typingFields).some(Boolean);
-      if (isCurrentlyTyping) {
-        console.log("Skipping auto-save, user is typing");
-        return;
-      }
-      
-      if (!currentStep) return;
-      
-      try {
-        await answerNode(currentStep.id, value);
-      } catch (error) {
-        console.error("Auto-save failed:", error);
-        throw error;
-      }
-    }
-  });
-
   const handleAnswer = async (value: any) => {
     if (!currentStep) return;
     
     try {
-      // For immediate saves (non-text inputs)
       await answerNode(currentStep.id, value);
     } catch (error) {
       console.error("Error saving answer:", error);
       toast.error("Failed to save your answer. Please try again.");
-    }
-  };
-
-  const handleTextAnswer = (value: any) => {
-    if (!currentStep) return;
-    
-    // Trigger debounced auto-save for text inputs
-    debouncedSave(value);
-  };
-
-  const handleTextFocus = (fieldId?: string) => {
-    const key = fieldId || 'main';
-    setTypingFields(prev => ({ ...prev, [key]: true }));
-  };
-
-  const handleTextBlur = async (fieldId?: string) => {
-    const key = fieldId || 'main';
-    setTypingFields(prev => ({ ...prev, [key]: false }));
-    
-    // Force save on blur if there are unsaved changes
-    if (currentStep) {
-      try {
-        const currentAnswer = answers[currentStep.id];
-        await answerNode(currentStep.id, currentAnswer);
-      } catch (error) {
-        console.error("Blur save failed:", error);
-        toast.error("Failed to save your answer.");
-      }
     }
   };
 
@@ -293,13 +238,6 @@ const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
         {/* Current step */}
         {currentStep && renderCurrentStepWithDependencies()}
         
-        {/* Auto-save status */}
-        <SaveStatus 
-          isSaving={isSaving} 
-          lastSaved={lastSaved} 
-          className="text-center"
-        />
-        
         {/* Static panels if any - NOW WITH ADMIN SUPPORT */}
         {taskDefinition.staticPanels && taskDefinition.staticPanels.length > 0 && (
           <StaticPanels
@@ -356,10 +294,8 @@ const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
       <DynamicTaskStep
         step={currentStep}
         answer={answers[currentStep.id]}
-        onAnswer={currentStep.inputType === "text" || currentStep.inputType === "textarea" ? handleTextAnswer : handleAnswer}
+        onAnswer={handleAnswer}
         onFileUpload={handleFileUpload}
-        onBlur={handleTextBlur}
-        onFocus={handleTextFocus}
       />
     );
     

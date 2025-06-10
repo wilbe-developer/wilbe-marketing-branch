@@ -2,11 +2,11 @@
 import React from "react";
 import { StepNode } from "@/types/task-builder";
 import { Card, CardContent } from "@/components/ui/card";
-import { QuestionStepRenderer } from "./dynamic-step/QuestionStepRenderer";
-import { ContentStepRenderer } from "./dynamic-step/ContentStepRenderer";
-import { UploadStepRenderer } from "./dynamic-step/UploadStepRenderer";
-import { ExerciseStepRenderer } from "./dynamic-step/ExerciseStepRenderer";
-import { CollaborationStepRenderer } from "./dynamic-step/CollaborationStepRenderer";
+import { QuestionStepRenderer } from "./QuestionStepRenderer";
+import { ContentStepRenderer } from "./ContentStepRenderer";
+import { UploadStepRenderer } from "./UploadStepRenderer";
+import { ExerciseStepRenderer } from "./ExerciseStepRenderer";
+import { CollaborationStepRenderer } from "./CollaborationStepRenderer";
 import { FormStepRenderer } from "@/components/sprint/dynamic-task/FormStepRenderer";
 import { ConditionalQuestionRenderer } from "@/components/sprint/dynamic-task/ConditionalQuestionRenderer";
 import { normalizeStepType } from "@/utils/taskStepUtils";
@@ -143,6 +143,7 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
       return <ContentStepRenderer step={step} answer={answer} handleAnswer={onAnswer} />;
 
     case "upload":
+    case "file":
       return (
         <Card>
           <CardContent className="pt-6">

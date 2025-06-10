@@ -1,5 +1,5 @@
 
-import React, { useRef, useCallback, useMemo } from "react";
+import React from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -11,8 +11,6 @@ interface TextInputRendererProps {
   type: "text" | "textarea";
   placeholder?: string;
   onChange: (value: string) => void;
-  onBlur?: () => void;
-  onFocus?: () => void;
 }
 
 export const TextInputRenderer: React.FC<TextInputRendererProps> = ({
@@ -22,47 +20,30 @@ export const TextInputRenderer: React.FC<TextInputRendererProps> = ({
   type,
   placeholder,
   onChange,
-  onBlur,
-  onFocus,
 }) => {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const newValue = e.target.value;
-    onChange(newValue);
-  }, [onChange]);
-
-  const handleBlur = useCallback(() => {
-    onBlur?.();
-  }, [onBlur]);
-
-  const handleFocus = useCallback(() => {
-    onFocus?.();
-  }, [onFocus]);
-
-  // Memoize the input component to prevent unnecessary re-renders
-  const inputComponent = useMemo(() => {
-    const commonProps = {
-      id,
-      value: value || "",
-      onChange: handleChange,
-      onBlur: handleBlur,
-      onFocus: handleFocus,
-      placeholder: placeholder || "Enter your answer...",
-    };
-
-    return type === "textarea" ? (
-      <Textarea {...commonProps} rows={4} ref={textareaRef} />
-    ) : (
-      <Input {...commonProps} ref={inputRef} />
-    );
-  }, [id, value, type, placeholder, handleChange, handleBlur, handleFocus]);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    onChange(e.target.value);
+  };
 
   return (
     <div className="space-y-2 mb-4">
       {label && <Label htmlFor={id}>{label}</Label>}
-      {inputComponent}
+      {type === "textarea" ? (
+        <Textarea
+          id={id}
+          value={value || ""}
+          onChange={handleChange}
+          placeholder={placeholder || "Enter your answer..."}
+          rows={4}
+        />
+      ) : (
+        <Input
+          id={id}
+          value={value || ""}
+          onChange={handleChange}
+          placeholder={placeholder || "Enter your answer..."}
+        />
+      )}
     </div>
   );
 };

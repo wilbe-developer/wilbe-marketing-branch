@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StepNode, FormField } from '@/types/task-builder';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -37,42 +37,35 @@ interface FormStepRendererProps {
   step: StepNode;
   answer: Record<string, any> | null;
   handleAnswer: (value: Record<string, any>) => void;
-  onBlur?: (fieldId: string) => void;
-  onFocus?: (fieldId: string) => void;
 }
 
 export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
   step,
   answer,
   handleAnswer,
-  onBlur,
-  onFocus,
 }) => {
+  // Initialize form state with existing answers or empty object
   const [formValues, setFormValues] = useState<Record<string, any>>(answer || {});
   const [isCollaboratorsDialogOpen, setIsCollaboratorsDialogOpen] = useState(false);
 
   // Update local state when answer prop changes
   useEffect(() => {
-    setFormValues(answer || {});
+    if (answer) {
+      setFormValues(answer);
+    }
   }, [answer]);
 
-  const handleFieldChange = useCallback((fieldId: string, value: any) => {
+  // Handle field value change
+  const handleFieldChange = (fieldId: string, value: any) => {
     const updatedValues = { ...formValues, [fieldId]: value };
     setFormValues(updatedValues);
     handleAnswer(updatedValues);
-  }, [formValues, handleAnswer]);
+  };
 
-  const handleTextBlur = useCallback((fieldId: string) => {
-    onBlur?.(fieldId);
-  }, [onBlur]);
-
-  const handleTextFocus = useCallback((fieldId: string) => {
-    onFocus?.(fieldId);
-  }, [onFocus]);
-
-  const handleMultiFileUpload = useCallback((fieldId: string, files: FileData[]) => {
+  // Handle multi-file upload
+  const handleMultiFileUpload = (fieldId: string, files: FileData[]) => {
     handleFieldChange(fieldId, files);
-  }, [handleFieldChange]);
+  };
 
   // Normalize field properties (handle both type and inputType)
   const normalizeFieldType = (field: any) => {
@@ -161,8 +154,6 @@ export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
                   id={field.id}
                   value={formValues[field.id] || ''}
                   onChange={(e) => handleFieldChange(field.id, e.target.value)}
-                  onBlur={() => handleTextBlur(field.id)}
-                  onFocus={() => handleTextFocus(field.id)}
                   placeholder={field.placeholder || ''}
                 />
               )}
@@ -172,8 +163,6 @@ export const FormStepRenderer: React.FC<FormStepRendererProps> = ({
                   id={field.id}
                   value={formValues[field.id] || ''}
                   onChange={(e) => handleFieldChange(field.id, e.target.value)}
-                  onBlur={() => handleTextBlur(field.id)}
-                  onFocus={() => handleTextFocus(field.id)}
                   placeholder={field.placeholder || ''}
                   rows={4}
                 />

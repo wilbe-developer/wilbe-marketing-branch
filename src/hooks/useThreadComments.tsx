@@ -32,9 +32,12 @@ export const useThreadComments = (threadId?: string, commentSort: string = 'chro
 
       if (error) throw error;
 
-      // Get unified author profile
+      // Get author profile
       const { data: profileData } = await supabase
-        .rpc('get_unified_profile', { p_user_id: data.author_id });
+        .from('profiles')
+        .select('first_name, last_name, avatar')
+        .eq('id', data.author_id)
+        .maybeSingle();
 
       // Get author role - using maybeSingle to handle no results gracefully
       const { data: roleData } = await supabase
@@ -67,25 +70,17 @@ export const useThreadComments = (threadId?: string, commentSort: string = 'chro
       let recipientProfile = null;
       if (data.is_private && data.recipient_id) {
         const { data: recipient } = await supabase
-          .rpc('get_unified_profile', { p_user_id: data.recipient_id });
+          .from('profiles')
+          .select('first_name, last_name, avatar')
+          .eq('id', data.recipient_id)
+          .maybeSingle();
         
-        // Extract only the fields needed for the Thread type
-        if (recipient && recipient[0]) {
-          recipientProfile = {
-            first_name: recipient[0].first_name,
-            last_name: recipient[0].last_name,
-            avatar: recipient[0].avatar
-          };
-        }
+        recipientProfile = recipient;
       }
 
       return {
         ...data,
-        author_profile: profileData && profileData[0] ? {
-          first_name: profileData[0].first_name,
-          last_name: profileData[0].last_name,
-          avatar: profileData[0].avatar
-        } : null,
+        author_profile: profileData || null,
         author_role: roleData || null,
         challenge_name: challengeName,
         recipient_profile: recipientProfile
@@ -108,12 +103,15 @@ export const useThreadComments = (threadId?: string, commentSort: string = 'chro
 
       if (error) throw error;
 
-      // For each comment, get the unified author profile and role
+      // For each comment, get the author profile and role
       const commentsWithAuthor = await Promise.all(
         data.map(async (comment) => {
-          // Get unified author profile
+          // Get author profile
           const { data: profileData } = await supabase
-            .rpc('get_unified_profile', { p_user_id: comment.author_id });
+            .from('profiles')
+            .select('first_name, last_name, avatar')
+            .eq('id', comment.author_id)
+            .maybeSingle();
 
           // Get author role
           const { data: roleData } = await supabase
@@ -124,11 +122,7 @@ export const useThreadComments = (threadId?: string, commentSort: string = 'chro
 
           return {
             ...comment,
-            author_profile: profileData && profileData[0] ? {
-              first_name: profileData[0].first_name,
-              last_name: profileData[0].last_name,
-              avatar: profileData[0].avatar
-            } : null,
+            author_profile: profileData || null,
             author_role: roleData || null,
           };
         })
