@@ -37,7 +37,7 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
       switch(field) {
         case "relationship_description":
           return {
-            label: "Your origin story: How did you meet? How long have you known each other? Have you been through a "stress project" with each other?",
+            label: "Your origin story: How did you meet? How long have you known each other? Have you been through a 'stress project' with each other?",
             placeholder: "Describe your relationship and how long you've known each other"
           };
         case "employment_status":
