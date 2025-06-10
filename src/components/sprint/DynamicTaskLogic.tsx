@@ -3,6 +3,7 @@ import React from "react";
 import { useDynamicTask } from "@/hooks/task-builder/useDynamicTask";
 import { useSprintProfileQuickEdit } from "@/hooks/useSprintProfileQuickEdit";
 import { useAuth } from "@/hooks/useAuth";
+import { useAutoSaveManager } from "@/hooks/useAutoSaveManager";
 import { ProfileQuestionsRenderer } from "./dynamic-task/ProfileQuestionsRenderer";
 import { TaskContent } from "./dynamic-task/TaskContent";
 import { StepDependencyHelper, getStepProfileDependencies } from "./dynamic-task/StepDependencyHelper";
@@ -23,6 +24,7 @@ const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
 }) => {
   const { sprintProfile } = useSprintProfileQuickEdit();
   const { isAdmin } = useAuth();
+  const { manager: autoSaveManager } = useAutoSaveManager();
   
   const {
     taskDefinition,
@@ -40,6 +42,22 @@ const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
     taskId: task.id,
     sprintProfile,
   });
+
+  // Auto-save handler for individual fields
+  const handleAutoSaveField = async (fieldId: string, value: any) => {
+    if (!currentStep) return;
+    
+    try {
+      // Update the current step's answer with the specific field
+      const currentAnswer = answers[currentStep.id] || {};
+      const updatedAnswer = { ...currentAnswer, [fieldId]: value };
+      
+      await answerNode(currentStep.id, updatedAnswer);
+    } catch (error) {
+      console.error("Error auto-saving field:", error);
+      throw error; // Re-throw to trigger error handling in AutoSaveManager
+    }
+  };
 
   const handleAnswer = async (value: any) => {
     if (!currentStep) return;
@@ -65,6 +83,11 @@ const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
 
   const handleComplete = async () => {
     try {
+      // Force save any pending changes before completing
+      if (currentStep) {
+        autoSaveManager.forceSave(currentStep.id);
+      }
+      
       await completeTask();
       onComplete();
       toast.success("Task completed successfully!");
@@ -86,6 +109,8 @@ const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
         handleAnswer={handleAnswer}
         handleFileUpload={handleFileUpload}
         taskDefinition={taskDefinition}
+        autoSaveManager={autoSaveManager}
+        onAutoSaveField={handleAutoSaveField}
       />
     );
   };
@@ -126,6 +151,8 @@ const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
         renderCurrentStepWithDependencies={renderCurrentStepWithDependencies}
         isAdmin={isAdmin}
         taskId={task.id}
+        autoSaveManager={autoSaveManager}
+        onAutoSaveField={handleAutoSaveField}
       />
     </ProfileQuestionsRenderer>
   );

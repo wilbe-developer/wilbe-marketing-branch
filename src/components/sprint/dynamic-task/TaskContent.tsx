@@ -4,6 +4,7 @@ import DynamicTaskStep from "../task-builder/DynamicTaskStep";
 import StaticPanels from "../task-builder/StaticPanels";
 import { Button } from "@/components/ui/button";
 import { StepNode } from "@/types/task-builder";
+import type { SaveStatus } from "@/hooks/useAutoSaveManager";
 
 interface TaskContentProps {
   currentStepIndex: number;
@@ -20,6 +21,15 @@ interface TaskContentProps {
   renderCurrentStepWithDependencies: () => React.ReactNode;
   isAdmin?: boolean;
   taskId?: string;
+  autoSaveManager?: {
+    handleFieldChange: (fieldId: string, value: any, isTyping: boolean, saveCallback: (value: any) => Promise<void>) => void;
+    startTyping: (fieldId: string) => void;
+    stopTyping: (fieldId: string) => void;
+    getSaveStatus: (fieldId: string) => SaveStatus;
+    subscribeToStatus: (fieldId: string, callback: (status: SaveStatus) => void) => () => void;
+    forceSave: (fieldId: string) => void;
+  };
+  onAutoSaveField?: (fieldId: string, value: any) => Promise<void>;
 }
 
 export const TaskContent: React.FC<TaskContentProps> = ({
@@ -36,8 +46,23 @@ export const TaskContent: React.FC<TaskContentProps> = ({
   getStepProfileDependencies,
   renderCurrentStepWithDependencies,
   isAdmin = false,
-  taskId
+  taskId,
+  autoSaveManager,
+  onAutoSaveField
 }) => {
+  const handleNavigation = async (direction: 'next' | 'previous') => {
+    // Force save any pending changes before navigation
+    if (currentStep && autoSaveManager) {
+      autoSaveManager.forceSave(currentStep.id);
+    }
+    
+    if (direction === 'next') {
+      goToStep(currentStepIndex + 1);
+    } else {
+      goToStep(currentStepIndex - 1);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Progress indicator */}
@@ -57,7 +82,7 @@ export const TaskContent: React.FC<TaskContentProps> = ({
       <div className="flex justify-between pt-4">
         <Button
           variant="outline"
-          onClick={() => goToStep(currentStepIndex - 1)}
+          onClick={() => handleNavigation('previous')}
           disabled={currentStepIndex === 0}
         >
           Previous
@@ -69,7 +94,7 @@ export const TaskContent: React.FC<TaskContentProps> = ({
           </Button>
         ) : (
           <Button 
-            onClick={() => goToStep(currentStepIndex + 1)}
+            onClick={() => handleNavigation('next')}
             disabled={
               (!answers[currentStep?.id] && currentStep?.type === "question")
             }
