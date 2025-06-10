@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -69,21 +70,21 @@ export const useThreadComments = (threadId?: string, commentSort: string = 'chro
           .rpc('get_unified_profile', { p_user_id: data.recipient_id });
         
         // Extract only the fields needed for the Thread type
-        if (recipient) {
+        if (recipient && recipient[0]) {
           recipientProfile = {
-            first_name: recipient.first_name,
-            last_name: recipient.last_name,
-            avatar: recipient.avatar
+            first_name: recipient[0].first_name,
+            last_name: recipient[0].last_name,
+            avatar: recipient[0].avatar
           };
         }
       }
 
       return {
         ...data,
-        author_profile: profileData ? {
-          first_name: profileData.first_name,
-          last_name: profileData.last_name,
-          avatar: profileData.avatar
+        author_profile: profileData && profileData[0] ? {
+          first_name: profileData[0].first_name,
+          last_name: profileData[0].last_name,
+          avatar: profileData[0].avatar
         } : null,
         author_role: roleData || null,
         challenge_name: challengeName,
@@ -123,10 +124,10 @@ export const useThreadComments = (threadId?: string, commentSort: string = 'chro
 
           return {
             ...comment,
-            author_profile: profileData ? {
-              first_name: profileData.first_name,
-              last_name: profileData.last_name,
-              avatar: profileData.avatar
+            author_profile: profileData && profileData[0] ? {
+              first_name: profileData[0].first_name,
+              last_name: profileData[0].last_name,
+              avatar: profileData[0].avatar
             } : null,
             author_role: roleData || null,
           };
