@@ -45,7 +45,13 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
       );
 
     case "content":
-      return <ContentStepRenderer step={step} />;
+      return (
+        <ContentStepRenderer
+          step={step}
+          answer={answer}
+          handleAnswer={onAnswer}
+        />
+      );
 
     case "upload":
     case "file":
@@ -68,14 +74,20 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
       );
 
     case "collaboration":
-      return <CollaborationStepRenderer step={step} />;
+      return (
+        <CollaborationStepRenderer
+          step={step}
+          answer={answer}
+          handleAnswer={onAnswer}
+        />
+      );
 
     case "team-members":
       return (
         <TeamMemberStepRenderer
           step={step}
           answer={answer}
-          onAnswer={onAnswer}
+          handleAnswer={onAnswer}
         />
       );
 
