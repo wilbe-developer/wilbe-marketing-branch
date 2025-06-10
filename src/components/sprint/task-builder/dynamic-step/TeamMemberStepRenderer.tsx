@@ -3,28 +3,17 @@ import React, { useState, useEffect } from "react";
 import { StepNode } from "@/types/task-builder";
 import TeamMemberForm from "@/components/sprint/step-types/TeamMemberForm";
 import { TeamMember } from "@/hooks/team-members/types";
-import type { SaveStatus } from "@/hooks/useAutoSaveManager";
 
 interface TeamMemberStepRendererProps {
   step: StepNode;
   answer: TeamMember[] | null;
   onAnswer: (value: TeamMember[]) => void;
-  autoSaveManager?: {
-    handleFieldChange: (fieldId: string, value: any, isTyping: boolean, saveCallback: (value: any) => Promise<void>) => void;
-    startTyping: (fieldId: string) => void;
-    stopTyping: (fieldId: string) => void;
-    getSaveStatus: (fieldId: string) => SaveStatus;
-    subscribeToStatus: (fieldId: string, callback: (status: SaveStatus) => void) => () => void;
-  };
-  onAutoSaveField?: (fieldId: string, value: any) => Promise<void>;
 }
 
 export const TeamMemberStepRenderer: React.FC<TeamMemberStepRendererProps> = ({
   step,
   answer,
   onAnswer,
-  autoSaveManager,
-  onAutoSaveField,
 }) => {
   // Initialize with empty array if no answer, or ensure answer is array
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>(
@@ -71,7 +60,7 @@ export const TeamMemberStepRenderer: React.FC<TeamMemberStepRendererProps> = ({
     onAnswer(updatedMembers);
   };
 
-  // Update a team member with AutoSave support
+  // Update a team member
   const handleUpdateMember = (index: number, field: keyof TeamMember, value: string) => {
     const updatedMembers = [...teamMembers];
     updatedMembers[index] = {
@@ -79,31 +68,16 @@ export const TeamMemberStepRenderer: React.FC<TeamMemberStepRendererProps> = ({
       [field]: value,
     };
     setTeamMembers(updatedMembers);
-
-    // If AutoSave is available, use it for individual field updates
-    if (autoSaveManager && onAutoSaveField) {
-      const fieldId = `team_member_${index}_${field}`;
-      autoSaveManager.handleFieldChange(
-        fieldId,
-        updatedMembers,
-        true, // isTyping = true for text fields
-        onAutoSaveField
-      );
-    } else {
-      // Fallback to immediate save
-      onAnswer(updatedMembers);
-    }
+    onAnswer(updatedMembers);
   };
 
   return (
     <TeamMemberForm
       teamMembers={teamMembers}
-      memberType={step.memberType || "Co-founder"}
+      memberType={step.memberType || "Co-founder"} // Default to "Co-founder" if not specified
       onAdd={handleAddMember}
       onRemove={handleRemoveMember}
       onUpdate={handleUpdateMember}
-      autoSaveManager={autoSaveManager}
-      onAutoSaveField={onAutoSaveField}
     />
   );
 };
