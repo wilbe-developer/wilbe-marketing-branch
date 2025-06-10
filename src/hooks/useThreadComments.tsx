@@ -68,12 +68,23 @@ export const useThreadComments = (threadId?: string, commentSort: string = 'chro
         const { data: recipient } = await supabase
           .rpc('get_unified_profile', { p_user_id: data.recipient_id });
         
-        recipientProfile = recipient;
+        // Extract only the fields needed for the Thread type
+        if (recipient) {
+          recipientProfile = {
+            first_name: recipient.first_name,
+            last_name: recipient.last_name,
+            avatar: recipient.avatar
+          };
+        }
       }
 
       return {
         ...data,
-        author_profile: profileData || null,
+        author_profile: profileData ? {
+          first_name: profileData.first_name,
+          last_name: profileData.last_name,
+          avatar: profileData.avatar
+        } : null,
         author_role: roleData || null,
         challenge_name: challengeName,
         recipient_profile: recipientProfile
@@ -112,7 +123,11 @@ export const useThreadComments = (threadId?: string, commentSort: string = 'chro
 
           return {
             ...comment,
-            author_profile: profileData || null,
+            author_profile: profileData ? {
+              first_name: profileData.first_name,
+              last_name: profileData.last_name,
+              avatar: profileData.avatar
+            } : null,
             author_role: roleData || null,
           };
         })

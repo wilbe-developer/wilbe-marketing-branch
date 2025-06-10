@@ -84,12 +84,23 @@ export const useCommunityThreads = (params: UseCommunityThreadsParams = {}) => {
             const { data: recipient } = await supabase
               .rpc('get_unified_profile', { p_user_id: thread.recipient_id });
             
-            recipientProfile = recipient;
+            // Extract only the fields needed for the Thread type
+            if (recipient) {
+              recipientProfile = {
+                first_name: recipient.first_name,
+                last_name: recipient.last_name,
+                avatar: recipient.avatar
+              };
+            }
           }
 
           return {
             ...thread,
-            author_profile: profileData || null,
+            author_profile: profileData ? {
+              first_name: profileData.first_name,
+              last_name: profileData.last_name,
+              avatar: profileData.avatar
+            } : null,
             author_role: roleData || null,
             recipient_profile: recipientProfile,
             comment_count: count ? [{ count }] : [{ count: 0 }],
