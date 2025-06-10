@@ -109,12 +109,12 @@ const TeamMemberForm: React.FC<TeamMemberFormProps> = ({
     }
   };
 
-  // Create input handlers with explicit typing control
+  // Create input handlers - only onChange updates value, focus/blur handle typing state
   const createInputHandlers = (index: number, field: keyof TeamMember) => ({
     onFocus: () => startTyping?.(index, field),
     onBlur: () => stopTyping?.(index, field),
     onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => 
-      onUpdate(index, field, e.target.value, true)
+      onUpdate(index, field, e.target.value, false) // Don't trigger typing state on change
   });
 
   return (
