@@ -10,12 +10,14 @@ interface FormFieldRendererProps {
   field: FormField;
   value: any;
   onChange: (value: any) => void;
+  onAutoSave?: (value: any) => Promise<void>;
 }
 
 export const FormFieldRenderer: React.FC<FormFieldRendererProps> = ({
   field,
   value,
   onChange,
+  onAutoSave,
 }) => {
   switch (field.type) {
     case "text":
@@ -27,6 +29,7 @@ export const FormFieldRenderer: React.FC<FormFieldRendererProps> = ({
           type="text"
           placeholder={field.placeholder}
           onChange={onChange}
+          onAutoSave={onAutoSave}
         />
       );
 
@@ -39,6 +42,7 @@ export const FormFieldRenderer: React.FC<FormFieldRendererProps> = ({
           type="textarea"
           placeholder={field.placeholder}
           onChange={onChange}
+          onAutoSave={onAutoSave}
         />
       );
 

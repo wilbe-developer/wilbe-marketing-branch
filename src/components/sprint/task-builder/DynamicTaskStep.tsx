@@ -18,6 +18,7 @@ interface DynamicTaskStepProps {
   answer: any;
   onAnswer: (value: any) => void;
   onFileUpload?: (file: File) => void;
+  onAutoSave?: (value: any) => Promise<void>;
 }
 
 const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
@@ -25,6 +26,7 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
   answer,
   onAnswer,
   onFileUpload,
+  onAutoSave,
 }) => {
   console.log("DynamicTaskStep rendering step with type:", step.type);
   
@@ -59,6 +61,7 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
               step={step}
               answer={answer}
               handleAnswer={onAnswer}
+              onAutoSave={onAutoSave}
             />
           </div>
         </CardContent>
@@ -133,6 +136,7 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
                 step={step}
                 answer={answer}
                 onAnswer={onAnswer}
+                onAutoSave={onAutoSave}
               />
             </div>
           </CardContent>

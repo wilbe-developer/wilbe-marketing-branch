@@ -52,6 +52,18 @@ const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
     }
   };
 
+  // Create auto-save function for text inputs
+  const handleAutoSave = async (value: any) => {
+    if (!currentStep) return;
+    
+    try {
+      await answerNode(currentStep.id, value);
+    } catch (error) {
+      console.error("Auto-save failed:", error);
+      throw error; // Re-throw to show error in SaveStatus component
+    }
+  };
+
   const handleFileUpload = async (file: File) => {
     if (!currentStep) return;
     
@@ -296,6 +308,7 @@ const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
         answer={answers[currentStep.id]}
         onAnswer={handleAnswer}
         onFileUpload={handleFileUpload}
+        onAutoSave={handleAutoSave}
       />
     );
     
