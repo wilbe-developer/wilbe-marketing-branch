@@ -2,10 +2,11 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Play, Clock } from "lucide-react";
+import { ArrowRight, Play } from "lucide-react";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import { fetchVideos } from "@/services/videoService";
 import { formatDistanceToNow } from "date-fns";
+import ContentSearchBar from "./ContentSearchBar";
 
 interface Video {
   id: string;
@@ -46,10 +47,10 @@ export default function FoundersStories() {
 
   if (loading) {
     return (
-      <div className="py-12">
+      <div className="py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-4xl font-bold uppercase tracking-wide text-gray-900 mb-8">FROM THE TRENCHES: THE LEADERS</h2>
-          <div className="flex space-x-6">
+          <div className="flex space-x-6 mb-8">
             {[...Array(3)].map((_, i) => (
               <div key={i} className="flex-shrink-0 w-80 bg-gray-200 animate-pulse">
                 <div className="aspect-video bg-gray-300"></div>
@@ -60,6 +61,9 @@ export default function FoundersStories() {
               </div>
             ))}
           </div>
+          
+          {/* Search Bar in loading state */}
+          <ContentSearchBar />
         </div>
       </div>
     );
@@ -67,19 +71,22 @@ export default function FoundersStories() {
 
   if (error || videos.length === 0) {
     return (
-      <div className="py-12">
+      <div className="py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-4xl font-bold uppercase tracking-wide text-gray-900 mb-8">FROM THE TRENCHES: THE LEADERS</h2>
-          <p className="text-gray-600">
+          <p className="text-gray-600 mb-8">
             {error || "No videos available at the moment."}
           </p>
+          
+          {/* Search Bar in error state */}
+          <ContentSearchBar />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="py-12">
+    <div className="py-12 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-4xl font-bold uppercase tracking-wide text-gray-900">FROM THE TRENCHES: THE LEADERS</h2>
@@ -95,7 +102,7 @@ export default function FoundersStories() {
             duration: 20,
             inViewThreshold: 0.7,
           }}
-          className="w-full select-none touch-pan-x"
+          className="w-full select-none touch-pan-x mb-8"
         >
           <CarouselContent className="-ml-2 md:-ml-4" style={{ touchAction: 'pan-x' }}>
             {videos.map((video) => (
@@ -117,14 +124,6 @@ export default function FoundersStories() {
                       draggable={false}
                     />
                     <div className="absolute inset-0 bg-black/40" />
-                    {video.duration && (
-                      <div className="absolute top-4 left-4">
-                        <Badge className="bg-gray-900 text-white text-xs flex items-center">
-                          <Clock className="h-3 w-3 mr-1" />
-                          {video.duration}
-                        </Badge>
-                      </div>
-                    )}
                   </div>
                   <div className="p-4 flex-1 flex flex-col h-32">
                     <h4 className="font-bold text-gray-900 text-sm mb-2 line-clamp-2 flex-shrink-0">{video.title}</h4>
@@ -147,6 +146,11 @@ export default function FoundersStories() {
           <CarouselPrevious className="hidden md:flex" />
           <CarouselNext className="hidden md:flex" />
         </Carousel>
+
+        {/* Search Bar - now subtle and integrated */}
+        <div className="mt-12">
+          <ContentSearchBar />
+        </div>
       </div>
     </div>
   );
