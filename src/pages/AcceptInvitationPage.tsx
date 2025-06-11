@@ -14,6 +14,7 @@ const AcceptInvitationPage = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated, loading: authLoading } = useAuth();
   const [invitation, setInvitation] = useState<any>(null);
+  const [inviterProfile, setInviterProfile] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAccepting, setIsAccepting] = useState(false);
   const [isSigningUp, setIsSigningUp] = useState(false);
@@ -49,26 +50,20 @@ const AcceptInvitationPage = () => {
     try {
       console.log('Fetching invitation for token:', token);
       
-      const { data, error } = await supabase
+      // First, get the invitation details
+      const { data: invitationData, error: invitationError } = await supabase
         .from('pending_team_invitations')
-        .select(`
-          *,
-          profiles!sprint_owner_id (
-            first_name,
-            last_name,
-            email
-          )
-        `)
+        .select('*')
         .eq('invitation_token', token)
         .is('accepted_at', null)
         .gt('expires_at', new Date().toISOString())
         .single();
 
-      console.log('Invitation query result:', { data, error });
+      console.log('Invitation query result:', { data: invitationData, error: invitationError });
 
-      if (error) {
-        console.error('Database error fetching invitation:', error);
-        if (error.code === 'PGRST116') {
+      if (invitationError) {
+        console.error('Database error fetching invitation:', invitationError);
+        if (invitationError.code === 'PGRST116') {
           setError('Invitation not found or has expired');
         } else {
           setError('Failed to load invitation');
@@ -76,8 +71,25 @@ const AcceptInvitationPage = () => {
         return;
       }
 
-      console.log('Successfully loaded invitation:', data);
-      setInvitation(data);
+      console.log('Successfully loaded invitation:', invitationData);
+      setInvitation(invitationData);
+
+      // Then, get the inviter's sprint profile
+      if (invitationData.sprint_owner_id) {
+        const { data: profileData, error: profileError } = await supabase
+          .from('sprint_profiles')
+          .select('name, email')
+          .eq('user_id', invitationData.sprint_owner_id)
+          .single();
+
+        console.log('Sprint profile query result:', { data: profileData, error: profileError });
+
+        if (profileData) {
+          setInviterProfile(profileData);
+        } else {
+          console.warn('No sprint profile found for inviter');
+        }
+      }
     } catch (error) {
       console.error('Error fetching invitation:', error);
       setError('Failed to load invitation');
@@ -267,7 +279,7 @@ const AcceptInvitationPage = () => {
               <div className="bg-gray-50 p-4 rounded-lg">
                 <h3 className="font-medium">Invitation Details:</h3>
                 <p className="text-sm text-gray-600 mt-1">
-                  From: {invitation.profiles?.first_name} {invitation.profiles?.last_name}
+                  From: {inviterProfile?.name || 'BSF Team Member'}
                 </p>
                 <p className="text-sm text-gray-600">
                   Access Level: {getAccessLevelText(invitation.access_level)}
@@ -310,7 +322,7 @@ const AcceptInvitationPage = () => {
             <div className="bg-gray-50 p-4 rounded-lg">
               <h3 className="font-medium">Invitation Details:</h3>
               <p className="text-sm text-gray-600 mt-1">
-                From: {invitation.profiles?.first_name} {invitation.profiles?.last_name}
+                From: {inviterProfile?.name || 'BSF Team Member'}
               </p>
               <p className="text-sm text-gray-600">
                 Access Level: {getAccessLevelText(invitation.access_level)}
