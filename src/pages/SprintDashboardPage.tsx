@@ -1,7 +1,10 @@
+
 import { useEffect } from "react";
 import { useSprintTaskDefinitions } from "@/hooks/useSprintTaskDefinitions";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/hooks/useAuth";
+import { useGuestUser } from "@/hooks/useGuestUser";
+import { useSharedSprints } from "@/hooks/useSharedSprints";
 import { CollaborateButton } from "@/components/sprint/CollaborateButton";
 import { AssessmentButton } from "@/components/sprint/AssessmentButton";
 import { RequestCallButton } from "@/components/sprint/RequestCallButton";
@@ -13,14 +16,25 @@ import { SharedSprintsSelector } from "@/components/sprint/SharedSprintsSelector
 import { SharedSprintBanner } from "@/components/sprint/SharedSprintBanner";
 import { useSprintContext } from "@/hooks/useSprintContext";
 import { Button } from "@/components/ui/button";
-import { Eye, FileText } from "lucide-react";
+import { Eye, FileText, Plus } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const SprintDashboardPage = () => {
   const { tasksWithProgress, isLoading } = useSprintTaskDefinitions();
   const isMobile = useIsMobile();
-  const { user } = useAuth();
-  const { isSharedSprint, sprintOwnerName, currentSprintOwnerId, canManage } = useSprintContext();
+  const { user, hasSprintProfile } = useAuth();
+  const { isSharedSprint, sprintOwnerName, currentSprintOwnerId, canManage, switchToSharedSprint } = useSprintContext();
+  const { isGuestUser, shouldShowSharedByDefault } = useGuestUser();
+  const { sharedSprints } = useSharedSprints(user?.id);
+
+  // Auto-switch guest users to shared sprint view
+  useEffect(() => {
+    if (shouldShowSharedByDefault && sharedSprints.length > 0) {
+      // Switch to the first available shared sprint
+      const firstSharedSprint = sharedSprints[0];
+      switchToSharedSprint(firstSharedSprint.owner_id, firstSharedSprint.owner_name);
+    }
+  }, [shouldShowSharedByDefault, sharedSprints, switchToSharedSprint]);
 
   // Calculate overall completion percentage
   const completedTasks = tasksWithProgress.filter(task => task.progress?.completed).length;
@@ -70,6 +84,22 @@ const SprintDashboardPage = () => {
               <Link to={`/sprint/data-room/${dataRoomUserId}`}>
                 <FileText className="mr-2 h-5 w-5" />
                 View Data Room
+              </Link>
+            </Button>
+          </div>
+        )}
+
+        {/* Guest User CTA - Show prominent call-to-action for guest users */}
+        {isGuestUser && !hasSprintProfile && (
+          <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
+            <h3 className="text-lg font-medium text-blue-900 mb-2">Ready to Start Your Own BSF?</h3>
+            <p className="text-blue-700 mb-3">
+              You're currently viewing a shared BSF. Create your own BSF to track your startup journey and access all features.
+            </p>
+            <Button asChild className="bg-blue-600 hover:bg-blue-700">
+              <Link to="/sprint/profile">
+                <Plus className="mr-2 h-4 w-4" />
+                Start Your BSF
               </Link>
             </Button>
           </div>
