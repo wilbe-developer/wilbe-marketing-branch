@@ -13,7 +13,7 @@ export const useNewsletterSubscription = () => {
     }
 
     // Basic email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^(?:(?:[a-zA-Z0-9_!#\$%&'\*\+/=\?\^`\{\|\}~\-]+(?:\.[a-zA-Z0-9_!#\$%&'\*\+/=\?\^`\{\|\}~\-]+)*)|(?:"(?:\\[\x00-\x7F]|[^\x0A\x0D"\\])*"))@(?:(?:[a-zA-Z0-9](?:[a-zA-Z0-9\-]*[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}|(?:\[(?:(?:[0-9]{1,3}\.){3}[0-9]{1,3}|IPv6:[0-9a-fA-F:\.]+)\]))$/;
     if (!emailRegex.test(email)) {
       toast.error("Please enter a valid email address");
       return false;
@@ -36,7 +36,7 @@ export const useNewsletterSubscription = () => {
         return false;
       }
 
-      toast.success("Successfully subscribed! Thank you for joining our newsletter.");
+      toast.success("Successfully subscribed! Don't forget to follow us on Linkedin/X.");
       return true;
     } catch (error) {
       console.error("Newsletter subscription error:", error);
