@@ -1,34 +1,26 @@
 
 export const PATHS = {
-  HOME: '/',
-  LOGIN: '/login',
-  ADMIN_LOGIN: '/admin-login',
-  PASSWORD_RESET: '/password-reset',
-  ADMIN: '/admin',
-  KNOWLEDGE_CENTER: '/knowledge-center',
-  MEMBER_DIRECTORY: '/member-directory',
-  VIDEO: '/video',
-  EVENTS: '/events',
-  LAB_SEARCH: '/lab-search',
-  PENDING: '/pending-approval',
-  PROFILE: '/profile',
-  ASK: '/ask',
-  BUILD_YOUR_DECK: '/build-your-deck',
-  LANDING_PAGE: '/landing-page',
-  BSF_PAGE: '/bsf',
-  ABOUT: '/about',
-  BLOG: '/blog',
-  SPRINT: '/sprint',
-  SPRINT_DASHBOARD: '/sprint/dashboard',
-  SPRINT_TASK: '/sprint/task',
-  SPRINT_SIGNUP: '/sprint-signup',
-  SPRINT_PROFILE: '/sprint/profile',
-  SPRINT_WAITING: '/sprint-waiting',
-  LEAD_GENERATOR: '/lead-generator',
-  QUIZ: '/quiz',
-  API: {
-    FIND_EMAILS: '/api/find-emails'
-  }
+  HOME: "/",
+  LOGIN: "/login",
+  REGISTER: "/register",
+  SPRINT_DASHBOARD: "/sprint/dashboard",
+  PASSWORD_RESET: "/reset-password",
+  ACCEPT_INVITATION: "/accept-invitation",
+  LANDING_PAGE: "/landing",
+  BSF_PAGE: "/bsf",
+  QUIZ: "/quiz",
+  SPRINT_WAITING: "/sprint-waiting",
+  SPRINT: "/sprint",
+  KNOWLEDGE_CENTER: "/knowledge-center",
+  MEMBER_DIRECTORY: "/member-directory",
+  VIDEO: "/video",
+  EVENTS: "/events",
+  BUILD_YOUR_DECK: "/build-your-deck",
+  PROFILE: "/profile",
+  LAB_SEARCH: "/lab-search",
+  ASK: "/ask",
+  ADMIN: "/admin",
+  SPRINT_SIGNUP: "/sprint-signup",
 } as const;
 
 export const NAV_ITEMS = [
@@ -39,4 +31,4 @@ export const NAV_ITEMS = [
   { name: "Lab Search", path: PATHS.LAB_SEARCH },
   { name: "Events", path: PATHS.EVENTS },
   { name: "Ask & Invite", path: PATHS.ASK },
-];
+] as const;
