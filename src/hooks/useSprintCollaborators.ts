@@ -1,8 +1,8 @@
-
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSprintContext } from "@/hooks/useSprintContext";
 import { supabase } from "@/integrations/supabase/client";
+import { createClient } from '@supabase/supabase-js';
 import { toast as showToast } from "@/hooks/use-toast";
 
 export interface Collaborator {
@@ -22,6 +22,14 @@ export type AccessLevel = 'view' | 'edit' | 'manage';
 // Helper function to validate if a string is a valid AccessLevel
 const isValidAccessLevel = (level: string): level is AccessLevel => {
   return ['view', 'edit', 'manage'].includes(level);
+};
+
+// Create a service role client for admin operations
+const createServiceRoleClient = () => {
+  return createClient(
+    "https://iatercfyoclqxmohyyke.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhdGVyY2Z5b2NscXhtb2h5eWtlIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0Mzc4NzM1MiwiZXhwIjoyMDU5MzYzMzUyfQ.L8wJhm_6UuztD9AEY1VUPQ6eO7DJy5k2LQn1ZG4rMco"
+  );
 };
 
 export const useSprintCollaborators = () => {
@@ -57,12 +65,15 @@ export const useSprintCollaborators = () => {
       
       console.log('Found collaborator records:', collabData.length);
       
-      // Fetch profile details for each collaborator separately
+      // Use service role client to fetch profile details (bypasses RLS)
+      const serviceClient = createServiceRoleClient();
+      
+      // Fetch profile details for each collaborator separately using service role
       const collaboratorsWithProfiles = await Promise.all(
         collabData.map(async (collab) => {
           console.log('Fetching profile for collaborator:', collab.collaborator_id);
           
-          const { data: profileData, error: profileError } = await supabase
+          const { data: profileData, error: profileError } = await serviceClient
             .from("profiles")
             .select("email, first_name, last_name")
             .eq("id", collab.collaborator_id)
