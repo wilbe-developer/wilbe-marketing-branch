@@ -167,7 +167,8 @@ export const useSprintCollaborators = () => {
             memberName,
             memberEmail: email,
             ownerName,
-            accessLevel: accessLevel === 'view' ? 'View Only' : accessLevel === 'edit' ? 'Can Edit' : 'Can Manage'
+            accessLevel: accessLevel === 'view' ? 'View Only' : accessLevel === 'edit' ? 'Can Edit' : 'Can Manage',
+            isInvitation: false
           }),
         });
       } catch (emailError) {

@@ -458,6 +458,48 @@ export type Database = {
         }
         Relationships: []
       }
+      pending_team_invitations: {
+        Row: {
+          accepted_at: string | null
+          accepted_by: string | null
+          access_level: string
+          created_at: string | null
+          email: string
+          expires_at: string
+          id: string
+          invitation_token: string
+          invited_by: string
+          sprint_owner_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          access_level: string
+          created_at?: string | null
+          email: string
+          expires_at?: string
+          id?: string
+          invitation_token: string
+          invited_by: string
+          sprint_owner_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          access_level?: string
+          created_at?: string | null
+          email?: string
+          expires_at?: string
+          id?: string
+          invitation_token?: string
+          invited_by?: string
+          sprint_owner_id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           about: string | null
@@ -1435,6 +1477,10 @@ export type Database = {
       }
     }
     Functions: {
+      accept_team_invitation: {
+        Args: { p_token: string; p_user_id: string }
+        Returns: Json
+      }
       calculate_thread_score: {
         Args: { p_thread_id: string; p_sort_type?: string }
         Returns: number
@@ -1442,6 +1488,10 @@ export type Database = {
       can_access_data_room: {
         Args: { p_sprint_owner_id: string; p_requesting_user_id?: string }
         Returns: boolean
+      }
+      cleanup_expired_invitations: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       create_sprint_profile: {
         Args:

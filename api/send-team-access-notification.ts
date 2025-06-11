@@ -12,32 +12,41 @@ const transporter = nodemailer.createTransporter({
 });
 
 // HTML email template for team access notification
-const createTeamAccessEmailHtml = (memberName: string, ownerName: string, accessLevel: string) => `
+const createTeamAccessEmailHtml = (memberName: string, ownerName: string, accessLevel: string, invitationToken?: string) => {
+  const isInvitation = !!invitationToken;
+  const acceptUrl = invitationToken ? `https://wilbe.com/accept-invitation?token=${invitationToken}` : 'https://wilbe.com/sprint/dashboard';
+  
+  return `
 <!DOCTYPE html>
 <html>
 <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
   <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-    <h2 style="color: #1a365d;">You've Been Added to a BSF Team</h2>
+    <h2 style="color: #1a365d;">${isInvitation ? 'You\'ve Been Invited to Join a BSF Team' : 'You\'ve Been Added to a BSF Team'}</h2>
     <p>Hi ${memberName},</p>
-    <p><strong>${ownerName}</strong> has added you to their BSF team with <strong>${accessLevel}</strong> access.</p>
+    <p><strong>${ownerName}</strong> has ${isInvitation ? 'invited you to join' : 'added you to'} their BSF team with <strong>${accessLevel}</strong> access.</p>
     
     <div style="background: #f7fafc; padding: 15px; border-radius: 5px; margin: 20px 0;">
       <h3 style="margin-top: 0;">What this means:</h3>
-      ${accessLevel === 'view' 
+      ${accessLevel === 'View Only' 
         ? '<p>You can view their BSF progress and data room, but cannot edit tasks.</p>'
-        : accessLevel === 'edit'
+        : accessLevel === 'Can Edit'
         ? '<p>You can view and edit their BSF tasks and progress.</p>'
         : '<p>You can view, edit, and manage team access for their BSF.</p>'
       }
-      <p>You can access their BSF by logging into your Wilbe account and navigating to the shared BSF section.</p>
+      ${isInvitation 
+        ? '<p>Click the button below to accept the invitation and access their BSF.</p>'
+        : '<p>You can access their BSF by logging into your Wilbe account and navigating to the shared BSF section.</p>'
+      }
     </div>
     
     <div style="text-align: center; margin: 30px 0;">
-      <a href="https://wilbe.com/sprint/dashboard" 
+      <a href="${acceptUrl}" 
          style="background: #3182ce; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
-        Access BSF Dashboard
+        ${isInvitation ? 'Accept Invitation' : 'Access BSF Dashboard'}
       </a>
     </div>
+    
+    ${isInvitation ? '<p style="font-size: 14px; color: #666;"><strong>Note:</strong> If you don\'t have a Wilbe account yet, you\'ll be guided through creating one when you click the link above.</p>' : ''}
     
     <p>If you have any questions about your access or the BSF process, feel free to reach out.</p>
     <p>Putting Scientists First,<br/>Team Wilbe</p>
@@ -45,11 +54,13 @@ const createTeamAccessEmailHtml = (memberName: string, ownerName: string, access
 </body>
 </html>
 `;
+};
 
 // Slack message formatter
-const createSlackMessage = (memberName: string, memberEmail: string, ownerName: string, accessLevel: string) => {
+const createSlackMessage = (memberName: string, memberEmail: string, ownerName: string, accessLevel: string, isInvitation: boolean = false) => {
+  const action = isInvitation ? 'invited to' : 'added to';
   return {
-    text: `👥 New team member added to BSF: *${memberName}* (${memberEmail})\nAdded by: ${ownerName}\nAccess level: ${accessLevel}`
+    text: `👥 Team member ${action} BSF: *${memberName}* (${memberEmail})\n${isInvitation ? 'Invited' : 'Added'} by: ${ownerName}\nAccess level: ${accessLevel}`
   };
 };
 
@@ -60,19 +71,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { memberName, memberEmail, ownerName, accessLevel } = req.body;
+    const { memberName, memberEmail, ownerName, accessLevel, invitationToken, isInvitation = false } = req.body;
 
     // Validate required fields
     if (!memberName || !memberEmail || !ownerName || !accessLevel) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    // Send email to new team member
+    // Send email to new team member or invitee
+    const emailSubject = isInvitation 
+      ? `You've been invited to join ${ownerName}'s BSF team`
+      : `You've been added to ${ownerName}'s BSF team`;
+
     await transporter.sendMail({
       from: '"Wilbe Team" <team@wilbe.com>',
       to: memberEmail,
-      subject: `You've been added to ${ownerName}'s BSF team`,
-      html: createTeamAccessEmailHtml(memberName, ownerName, accessLevel),
+      subject: emailSubject,
+      html: createTeamAccessEmailHtml(memberName, ownerName, accessLevel, invitationToken),
       replyTo: 'members@wilbe.com'
     });
 
@@ -81,7 +96,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       await fetch(process.env.SLACK_WEBHOOK_WAITLIST_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(createSlackMessage(memberName, memberEmail, ownerName, accessLevel)),
+        body: JSON.stringify(createSlackMessage(memberName, memberEmail, ownerName, accessLevel, isInvitation)),
       });
     }
 

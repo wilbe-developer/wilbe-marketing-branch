@@ -5,6 +5,7 @@ import {
   type Collaborator,
   type AccessLevel
 } from "@/hooks/useSprintCollaborators";
+import { useTeamInvitations, type PendingInvitation } from "@/hooks/useTeamInvitations";
 import { useSprintContext } from "@/hooks/useSprintContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,34 +33,47 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Users, UserPlus, AlertTriangle, Trash2, ShieldCheck } from "lucide-react";
+import { Users, UserPlus, AlertTriangle, Trash2, ShieldCheck, Send, RefreshCw, Clock } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 export const CollaboratorsManagement = () => {
   const { canManage, isSharedSprint } = useSprintContext();
   const { 
     collaborators, 
-    isLoading, 
+    isLoading: collaboratorsLoading, 
     fetchCollaborators, 
     addCollaborator, 
     updateCollaboratorAccess,
     removeCollaborator 
   } = useSprintCollaborators();
+  const {
+    invitations,
+    isLoading: invitationsLoading,
+    fetchInvitations,
+    sendInvitation,
+    resendInvitation,
+    cancelInvitation
+  } = useTeamInvitations();
+  
   const [email, setEmail] = useState("");
   const [accessLevel, setAccessLevel] = useState<AccessLevel>("edit");
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
+  const [cancelInviteDialogOpen, setCancelInviteDialogOpen] = useState(false);
   const [selectedCollaborator, setSelectedCollaborator] = useState<Collaborator | null>(null);
+  const [selectedInvitation, setSelectedInvitation] = useState<PendingInvitation | null>(null);
   const isMobile = useIsMobile();
 
   useEffect(() => {
     fetchCollaborators();
+    fetchInvitations();
   }, []);
 
-  const handleAddCollaborator = async () => {
+  const handleSendInvitation = async () => {
     if (!email) return;
-    await addCollaborator(email, accessLevel);
+    await sendInvitation(email, accessLevel);
     setEmail("");
     setAccessLevel("edit");
     setAddDialogOpen(false);
@@ -74,6 +88,17 @@ export const CollaboratorsManagement = () => {
     if (!selectedCollaborator) return;
     await removeCollaborator(selectedCollaborator.id);
     setRemoveDialogOpen(false);
+  };
+
+  const handleCancelInviteDialog = (invitation: PendingInvitation) => {
+    setSelectedInvitation(invitation);
+    setCancelInviteDialogOpen(true);
+  };
+
+  const handleCancelInvitation = async () => {
+    if (!selectedInvitation) return;
+    await cancelInvitation(selectedInvitation.id);
+    setCancelInviteDialogOpen(false);
   };
 
   const getAccessLevelText = (level: AccessLevel) => {
@@ -106,6 +131,10 @@ export const CollaboratorsManagement = () => {
     await updateCollaboratorAccess(collaboratorId, newLevel);
   };
 
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString();
+  };
+
   // Show read-only view if user doesn't have manage access
   if (!canManage && isSharedSprint) {
     return (
@@ -120,7 +149,7 @@ export const CollaboratorsManagement = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {isLoading ? (
+          {collaboratorsLoading ? (
             <div className="py-8 text-center">
               <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
               <p className="mt-2 text-sm text-gray-500">Loading access...</p>
@@ -177,81 +206,150 @@ export const CollaboratorsManagement = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {isLoading ? (
-          <div className="py-8 text-center">
-            <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
-            <p className="mt-2 text-sm text-gray-500">Loading access...</p>
-          </div>
-        ) : collaborators.length === 0 ? (
-          <div className="py-8 text-center border border-dashed rounded-lg">
-            <Users className="h-12 w-12 mx-auto text-gray-400" />
-            <p className="mt-2 text-sm text-gray-500">
-              You haven't added any access yet
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {collaborators.map((collaborator) => (
-              <div 
-                key={collaborator.id} 
-                className="flex items-center justify-between p-3 bg-gray-50 rounded-md"
-              >
-                <div className="flex-1">
-                  <p className="font-medium">
-                    {collaborator.firstName || ''} {collaborator.lastName || ''}
-                    {!collaborator.firstName && !collaborator.lastName && (
-                      <span className="italic text-gray-500">Name not available</span>
-                    )}
-                  </p>
-                  <p className="text-sm text-gray-500">{collaborator.email}</p>
-                </div>
-                
-                <div className="flex items-center gap-2">
-                  <Select 
-                    value={collaborator.access_level} 
-                    onValueChange={(value: string) => handleChangeAccess(collaborator.id, value as AccessLevel)}
+        <Tabs defaultValue="members" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="members">Team Members ({collaborators.length})</TabsTrigger>
+            <TabsTrigger value="invitations">Pending Invitations ({invitations.length})</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="members" className="mt-4">
+            {collaboratorsLoading ? (
+              <div className="py-8 text-center">
+                <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
+                <p className="mt-2 text-sm text-gray-500">Loading team members...</p>
+              </div>
+            ) : collaborators.length === 0 ? (
+              <div className="py-8 text-center border border-dashed rounded-lg">
+                <Users className="h-12 w-12 mx-auto text-gray-400" />
+                <p className="mt-2 text-sm text-gray-500">
+                  No team members yet
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {collaborators.map((collaborator) => (
+                  <div 
+                    key={collaborator.id} 
+                    className="flex items-center justify-between p-3 bg-gray-50 rounded-md"
                   >
-                    <SelectTrigger className="w-[140px]">
-                      <div className="flex items-center">
-                        {getAccessLevelIcon(collaborator.access_level as AccessLevel)}
-                        <span className="ml-2 text-sm">
-                          {getAccessLevelText(collaborator.access_level as AccessLevel)}
+                    <div className="flex-1">
+                      <p className="font-medium">
+                        {collaborator.firstName || ''} {collaborator.lastName || ''}
+                        {!collaborator.firstName && !collaborator.lastName && (
+                          <span className="italic text-gray-500">Name not available</span>
+                        )}
+                      </p>
+                      <p className="text-sm text-gray-500">{collaborator.email}</p>
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                      <Select 
+                        value={collaborator.access_level} 
+                        onValueChange={(value: string) => handleChangeAccess(collaborator.id, value as AccessLevel)}
+                      >
+                        <SelectTrigger className="w-[140px]">
+                          <div className="flex items-center">
+                            {getAccessLevelIcon(collaborator.access_level as AccessLevel)}
+                            <span className="ml-2 text-sm">
+                              {getAccessLevelText(collaborator.access_level as AccessLevel)}
+                            </span>
+                          </div>
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="view">View only</SelectItem>
+                          <SelectItem value="edit">Can edit</SelectItem>
+                          <SelectItem value="manage">Can manage</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => handleRemoveDialog(collaborator)}
+                      >
+                        <Trash2 className="h-4 w-4 text-gray-500" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+          
+          <TabsContent value="invitations" className="mt-4">
+            {invitationsLoading ? (
+              <div className="py-8 text-center">
+                <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
+                <p className="mt-2 text-sm text-gray-500">Loading invitations...</p>
+              </div>
+            ) : invitations.length === 0 ? (
+              <div className="py-8 text-center border border-dashed rounded-lg">
+                <Clock className="h-12 w-12 mx-auto text-gray-400" />
+                <p className="mt-2 text-sm text-gray-500">
+                  No pending invitations
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {invitations.map((invitation) => (
+                  <div 
+                    key={invitation.id} 
+                    className="flex items-center justify-between p-3 bg-yellow-50 border border-yellow-200 rounded-md"
+                  >
+                    <div className="flex-1">
+                      <p className="font-medium">{invitation.email}</p>
+                      <p className="text-sm text-gray-500">
+                        Invited on {formatDate(invitation.created_at)} • Expires {formatDate(invitation.expires_at)}
+                      </p>
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center text-sm">
+                        {getAccessLevelIcon(invitation.access_level as AccessLevel)}
+                        <span className="ml-1">
+                          {getAccessLevelText(invitation.access_level as AccessLevel)}
                         </span>
                       </div>
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="view">View only</SelectItem>
-                      <SelectItem value="edit">Can edit</SelectItem>
-                      <SelectItem value="manage">Can manage</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={() => handleRemoveDialog(collaborator)}
-                  >
-                    <Trash2 className="h-4 w-4 text-gray-500" />
-                  </Button>
-                </div>
+                      
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => resendInvitation(invitation.id)}
+                        disabled={invitationsLoading}
+                        title="Resend invitation"
+                      >
+                        <RefreshCw className="h-4 w-4 text-blue-500" />
+                      </Button>
+                      
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => handleCancelInviteDialog(invitation)}
+                        title="Cancel invitation"
+                      >
+                        <Trash2 className="h-4 w-4 text-gray-500" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        )}
+            )}
+          </TabsContent>
+        </Tabs>
       </CardContent>
       <CardFooter>
         <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
           <DialogTrigger asChild>
             <Button className="w-full">
               <UserPlus className="mr-2 h-4 w-4" /> 
-              Add Member
+              Send Invitation
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Add Member</DialogTitle>
+              <DialogTitle>Send Team Invitation</DialogTitle>
               <DialogDescription>
-                Enter the email address of the person you want to work with.
+                Send an invitation to join your BSF team. They'll receive an email with a link to accept.
               </DialogDescription>
             </DialogHeader>
             <div className="py-4 space-y-4">
@@ -314,15 +412,17 @@ export const CollaboratorsManagement = () => {
                 Cancel
               </Button>
               <Button 
-                onClick={handleAddCollaborator}
-                disabled={!email}
+                onClick={handleSendInvitation}
+                disabled={!email || invitationsLoading}
               >
-                Add
+                <Send className="mr-2 h-4 w-4" />
+                Send Invitation
               </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
 
+        {/* Remove collaborator dialog */}
         <Dialog open={removeDialogOpen} onOpenChange={setRemoveDialogOpen}>
           <DialogContent>
             <DialogHeader>
@@ -357,6 +457,43 @@ export const CollaboratorsManagement = () => {
                 onClick={handleRemoveCollaborator}
               >
                 Remove
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Cancel invitation dialog */}
+        <Dialog open={cancelInviteDialogOpen} onOpenChange={setCancelInviteDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle className="flex items-center">
+                <AlertTriangle className="mr-2 h-5 w-5 text-yellow-500" />
+                <span>Cancel Invitation</span>
+              </DialogTitle>
+              <DialogDescription>
+                Are you sure you want to cancel this invitation? The recipient will no longer be able to use this invitation link.
+              </DialogDescription>
+            </DialogHeader>
+            {selectedInvitation && (
+              <div className="py-4">
+                <p className="font-medium">{selectedInvitation.email}</p>
+                <p className="text-sm text-gray-500">
+                  Invited on {formatDate(selectedInvitation.created_at)}
+                </p>
+              </div>
+            )}
+            <DialogFooter>
+              <Button 
+                variant="outline" 
+                onClick={() => setCancelInviteDialogOpen(false)}
+              >
+                Keep Invitation
+              </Button>
+              <Button 
+                variant="destructive"
+                onClick={handleCancelInvitation}
+              >
+                Cancel Invitation
               </Button>
             </DialogFooter>
           </DialogContent>
