@@ -19,9 +19,8 @@ export const advocacyCards: AdvocacyCard[] = [
     icon: "FileText",
     badge: "TTO NEGOTIATION",
     stats: [
-      { label: "Stanford Reform", value: "25% → 2.5% equity" },
-      { label: "MIT Policy Change", value: "$50K → $10K fees" },
-      { label: "UC System Update", value: "2-year → 5-month terms" },
+      { label: "Terms Reform", value: "25% → 2.5% equity" },
+      { label: "Avg. Time to Close", value: "2-year → 5-month terms" },
     ],
     buttonText: "Learn More",
     buttonUrl: "https://www.wilbe.com/post/spinout-terms",
