@@ -102,7 +102,7 @@ export const useSprintCollaborators = () => {
       // First find the user by email
       const { data: userData, error: userError } = await supabase
         .from("profiles")
-        .select("id")
+        .select("id, first_name, last_name")
         .eq("email", email.trim().toLowerCase())
         .single();
 
@@ -142,6 +142,38 @@ export const useSprintCollaborators = () => {
         });
 
       if (insertError) throw insertError;
+
+      // Get owner name for email notification
+      const { data: ownerData } = await supabase
+        .from("profiles")
+        .select("first_name, last_name")
+        .eq("id", sprintOwnerId)
+        .single();
+
+      const ownerName = ownerData 
+        ? `${ownerData.first_name || ''} ${ownerData.last_name || ''}`.trim() || 'BSF Owner'
+        : 'BSF Owner';
+
+      const memberName = userData 
+        ? `${userData.first_name || ''} ${userData.last_name || ''}`.trim() || 'Team Member'
+        : 'Team Member';
+
+      // Send email notification (don't await to avoid blocking UI)
+      try {
+        await fetch('/api/send-team-access-notification', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            memberName,
+            memberEmail: email,
+            ownerName,
+            accessLevel: accessLevel === 'view' ? 'View Only' : accessLevel === 'edit' ? 'Can Edit' : 'Can Manage'
+          }),
+        });
+      } catch (emailError) {
+        console.error("Error sending email notification:", emailError);
+        // Don't throw error here - team addition was successful
+      }
 
       showToast({
         title: "Member access added",
