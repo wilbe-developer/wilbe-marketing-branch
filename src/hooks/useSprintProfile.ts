@@ -42,7 +42,7 @@ export const useSprintProfile = () => {
         p_funding_amount: answers.funding_amount_text || '',
         p_has_financial_plan: answers.funding_plan === 'yes',
         p_funding_sources: Array.isArray(answers.funding_sources) ? answers.funding_sources : [],
-        p_experiment_validated: answers.experiment === 'yes',
+        p_experiment_validated: answers.experiment || '', // Pass as text, not boolean
         p_industry_changing_vision: answers.vision === 'yes',
         p_is_scientist_engineer: answers.is_scientist_engineer === 'yes',
         p_job_type: answers.job_type || '',
@@ -69,7 +69,7 @@ export const useSprintProfile = () => {
         p_utm_content: answers.utm_content || null,
         p_minimal_success_version: answers.minimal_success_version || '',
         p_dashboard_access_enabled: false,
-        p_sprint_start_date: null // Don't auto-start the timer during signup
+        p_ambitious_version: answers.ambitious_version || null
       });
 
       if (profileError) {
