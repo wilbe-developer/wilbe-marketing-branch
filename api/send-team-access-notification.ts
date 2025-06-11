@@ -29,7 +29,7 @@ const createTeamAccessEmailHtml = (memberName: string, ownerName: string, access
         ? '<p>You can view and edit their BSF tasks and progress.</p>'
         : '<p>You can view, edit, and manage team access for their BSF.</p>'
       }
-      <p>You can access their BSF by logging into your Wilbe account and navigating to the shared sprints section.</p>
+      <p>You can access their BSF by logging into your Wilbe account and navigating to the shared BSF section.</p>
     </div>
     
     <div style="text-align: center; margin: 30px 0;">
