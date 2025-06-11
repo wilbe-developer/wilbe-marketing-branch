@@ -16,10 +16,12 @@ const AcceptInvitationPage = () => {
   const [invitation, setInvitation] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAccepting, setIsAccepting] = useState(false);
+  const [isSigningUp, setIsSigningUp] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
   const token = searchParams.get('token');
+  const email = searchParams.get('email');
 
   useEffect(() => {
     if (!token) {
@@ -36,7 +38,11 @@ const AcceptInvitationPage = () => {
     if (isAuthenticated && user && invitation && !success && !isAccepting) {
       handleAcceptInvitation();
     }
-  }, [isAuthenticated, user, invitation, success, isAccepting]);
+    // If user is not authenticated but we have email, try silent signup
+    else if (!isAuthenticated && !authLoading && invitation && email && !isSigningUp && !success) {
+      handleSilentSignup();
+    }
+  }, [isAuthenticated, user, invitation, success, isAccepting, authLoading, email, isSigningUp]);
 
   const fetchInvitation = async () => {
     try {
@@ -73,6 +79,46 @@ const AcceptInvitationPage = () => {
     }
   };
 
+  const handleSilentSignup = async () => {
+    if (!email || !token) return;
+
+    setIsSigningUp(true);
+    try {
+      console.log('Attempting silent signup for:', email);
+      
+      // Attempt to sign up the user with the email from the invitation
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+        email: email,
+        password: crypto.randomUUID(), // Generate a random password they'll never use
+        options: {
+          emailRedirectTo: `${window.location.origin}${PATHS.SPRINT_DASHBOARD}`,
+          data: {
+            skipEmailConfirmation: true
+          }
+        }
+      });
+
+      if (signUpError) {
+        console.error('Silent signup error:', signUpError);
+        // If user already exists, show manual login options
+        if (signUpError.message?.includes('already registered')) {
+          setError('An account with this email already exists. Please sign in to accept the invitation.');
+          setIsSigningUp(false);
+          return;
+        }
+        throw signUpError;
+      }
+
+      console.log('Silent signup successful:', signUpData);
+      // The auth state change will trigger invitation acceptance
+      
+    } catch (error: any) {
+      console.error('Error during silent signup:', error);
+      setError('Failed to create account. Please try signing in manually.');
+      setIsSigningUp(false);
+    }
+  };
+
   const handleAcceptInvitation = async () => {
     if (!user?.id || !token) return;
 
@@ -105,6 +151,7 @@ const AcceptInvitationPage = () => {
       toast.error('Failed to accept invitation');
     } finally {
       setIsAccepting(false);
+      setIsSigningUp(false);
     }
   };
 
@@ -142,6 +189,16 @@ const AcceptInvitationPage = () => {
             <CardDescription>{error}</CardDescription>
           </CardHeader>
           <CardContent className="text-center">
+            {error.includes('already exists') && (
+              <div className="space-y-2 mb-4">
+                <Button 
+                  onClick={() => navigate(`${PATHS.LOGIN}?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`)}
+                  className="w-full"
+                >
+                  Sign In
+                </Button>
+              </div>
+            )}
             <Button onClick={() => navigate(PATHS.HOME)} variant="outline">
               Go to Home
             </Button>
@@ -167,7 +224,23 @@ const AcceptInvitationPage = () => {
     );
   }
 
-  if (!isAuthenticated) {
+  if (isSigningUp || isAccepting) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <Loader className="h-12 w-12 animate-spin mx-auto mb-2" />
+            <CardTitle>Setting Up Your Access</CardTitle>
+            <CardDescription>
+              {isSigningUp ? 'Creating your account...' : 'Accepting invitation...'}
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated && !email) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <Card className="w-full max-w-md">

@@ -12,9 +12,11 @@ const transporter = nodemailer.createTransporter({
 });
 
 // HTML email template for team access notification
-const createTeamAccessEmailHtml = (memberName: string, ownerName: string, accessLevel: string, invitationToken?: string) => {
+const createTeamAccessEmailHtml = (memberName: string, ownerName: string, accessLevel: string, invitationToken?: string, memberEmail?: string) => {
   const isInvitation = !!invitationToken;
-  const acceptUrl = invitationToken ? `https://wilbe.com/accept-invitation?token=${invitationToken}` : 'https://wilbe.com/sprint/dashboard';
+  const acceptUrl = invitationToken && memberEmail 
+    ? `https://wilbe.com/accept-invitation?token=${invitationToken}&email=${encodeURIComponent(memberEmail)}` 
+    : 'https://wilbe.com/sprint/dashboard';
   
   return `
 <!DOCTYPE html>
@@ -46,7 +48,7 @@ const createTeamAccessEmailHtml = (memberName: string, ownerName: string, access
       </a>
     </div>
     
-    ${isInvitation ? '<p style="font-size: 14px; color: #666;"><strong>Note:</strong> If you don\'t have a Wilbe account yet, you\'ll be guided through creating one when you click the link above.</p>' : ''}
+    ${isInvitation ? '<p style="font-size: 14px; color: #666;"><strong>Note:</strong> If you don\'t have a Wilbe account yet, one will be created for you automatically when you click the link above.</p>' : ''}
     
     <p>If you have any questions about your access or the BSF process, feel free to reach out.</p>
     <p>Putting Scientists First,<br/>Team Wilbe</p>
@@ -87,7 +89,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       from: '"Wilbe Team" <team@wilbe.com>',
       to: memberEmail,
       subject: emailSubject,
-      html: createTeamAccessEmailHtml(memberName, ownerName, accessLevel, invitationToken),
+      html: createTeamAccessEmailHtml(memberName, ownerName, accessLevel, invitationToken, memberEmail),
       replyTo: 'members@wilbe.com'
     });
 
