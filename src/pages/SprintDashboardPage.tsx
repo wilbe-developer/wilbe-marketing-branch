@@ -24,17 +24,17 @@ const SprintDashboardPage = () => {
   const isMobile = useIsMobile();
   const { user, hasSprintProfile } = useAuth();
   const { isSharedSprint, sprintOwnerName, currentSprintOwnerId, canManage, switchToSharedSprint } = useSprintContext();
-  const { isGuestUser, shouldShowSharedByDefault } = useGuestUser();
+  const { isGuestUser } = useGuestUser();
   const { sharedSprints } = useSharedSprints(user?.id);
 
-  // Auto-switch guest users to shared sprint view
+  // Auto-switch guest users to shared sprint view when they land on /sprint/dashboard
   useEffect(() => {
-    if (shouldShowSharedByDefault && sharedSprints.length > 0) {
+    if (isGuestUser && !isSharedSprint && sharedSprints.length > 0) {
       // Switch to the first available shared sprint
       const firstSharedSprint = sharedSprints[0];
       switchToSharedSprint(firstSharedSprint.owner_id, firstSharedSprint.owner_name);
     }
-  }, [shouldShowSharedByDefault, sharedSprints, switchToSharedSprint]);
+  }, [isGuestUser, isSharedSprint, sharedSprints, switchToSharedSprint]);
 
   // Calculate overall completion percentage
   const completedTasks = tasksWithProgress.filter(task => task.progress?.completed).length;
@@ -89,7 +89,7 @@ const SprintDashboardPage = () => {
           </div>
         )}
 
-        {/* Guest User CTA - Show prominent call-to-action for guest users */}
+        {/* Guest User CTA - For guest users, link to sprint signup instead of switching context */}
         {isGuestUser && !hasSprintProfile && (
           <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
             <h3 className="text-lg font-medium text-blue-900 mb-2">Ready to Start Your Own BSF?</h3>

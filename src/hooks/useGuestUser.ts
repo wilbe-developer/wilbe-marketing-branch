@@ -1,4 +1,3 @@
-
 import { useAuth } from "@/hooks/useAuth";
 import { useSprintContext } from "@/hooks/useSprintContext";
 
@@ -12,11 +11,14 @@ export const useGuestUser = () => {
   // 3. Doesn't have their own sprint profile
   const isGuestUser = isAuthenticated && hasCollaboratorAccess && !hasSprintProfile;
   
-  // Guest users should see shared sprints by default
-  const shouldShowSharedByDefault = isGuestUser && !isSharedSprint;
+  // For guest users, we want them to default to shared sprints when they access /sprint/dashboard
+  // This replaces the old shouldShowSharedByDefault logic
+  const shouldAutoSwitchToShared = isGuestUser && !isSharedSprint;
   
   return {
     isGuestUser,
-    shouldShowSharedByDefault
+    shouldAutoSwitchToShared,
+    // Keep the old property for backward compatibility, but it now just mirrors shouldAutoSwitchToShared
+    shouldShowSharedByDefault: shouldAutoSwitchToShared
   };
 };
