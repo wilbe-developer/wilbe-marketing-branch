@@ -3,14 +3,18 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ArrowRight } from "lucide-react"
+import { useNewsletterSubscription } from "@/hooks/useNewsletterSubscription"
 
 export default function NewsletterSignup() {
   const [email, setEmail] = useState("")
+  const { subscribe, isLoading } = useNewsletterSubscription()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log("Newsletter signup:", email)
-    setEmail("")
+    const success = await subscribe(email)
+    if (success) {
+      setEmail("")
+    }
   }
 
   return (
@@ -33,10 +37,15 @@ export default function NewsletterSignup() {
             onChange={(e) => setEmail(e.target.value)}
             className="flex-1 bg-white text-gray-900 border-0 h-12"
             required
+            disabled={isLoading}
           />
-          <Button type="submit" className="bg-red-600 hover:bg-red-700 text-white font-medium px-8 h-12">
-            Subscribe
-            <ArrowRight className="ml-2 h-4 w-4" />
+          <Button 
+            type="submit" 
+            className="bg-red-600 hover:bg-red-700 text-white font-medium px-8 h-12"
+            disabled={isLoading}
+          >
+            {isLoading ? "Subscribing..." : "Subscribe"}
+            {!isLoading && <ArrowRight className="ml-2 h-4 w-4" />}
           </Button>
         </form>
         
