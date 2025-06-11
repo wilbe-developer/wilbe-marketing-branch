@@ -1,52 +1,56 @@
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { QueryClient } from 'react-query';
-import { AuthProvider } from './hooks/useAuth';
-import { MetaWrapper } from './components/MetaWrapper';
-import LandingPage from './pages/LandingPage';
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
-import ProfilePage from './pages/ProfilePage';
-import SprintDashboard from './pages/SprintDashboard';
-import SprintTaskPage from './pages/SprintTaskPage';
-import CommunityPage from './pages/CommunityPage';
-import PasswordResetPage from './pages/PasswordResetPage';
-import AdminDashboard from './pages/AdminDashboard';
-import MembershipApplicationPage from './pages/MembershipApplicationPage';
-import AcceptInvitationPage from "@/pages/AcceptInvitationPage";
-import { SprintContextProvider } from './hooks/useSprintContext';
 
-function App() {
-  return (
-    <div className="min-h-screen bg-background font-sans antialiased">
-      <Router>
-        <QueryClient>
-          <AuthProvider>
-            <MetaWrapper>
-              <SprintContextProvider>
-                <Routes>
-                  <Route path="/" element={<LandingPage />} />
-                  <Route path="/login" element={<LoginPage />} />
-                  <Route path="/register" element={<RegisterPage />} />
-                  <Route path="/profile" element={<ProfilePage />} />
-                  <Route path="/sprint/dashboard" element={<SprintDashboard />} />
-                  <Route path="/sprint/task/:taskId" element={<SprintTaskPage />} />
-                  <Route path="/community" element={<CommunityPage />} />
-                  <Route path="/reset-password" element={<PasswordResetPage />} />
-                  <Route path="/admin-dashboard" element={<AdminDashboard />} />
-                  <Route path="/membership-application" element={<MembershipApplicationPage />} />
-                  
-                  {/* Add the invitation acceptance route */}
-                  <Route path="/accept-invitation" element={<AcceptInvitationPage />} />
-                  
-                </Routes>
-              </SprintContextProvider>
-            </MetaWrapper>
-          </AuthProvider>
-        </QueryClient>
-      </Router>
-    </div>
-  );
-}
+import { BrowserRouter, Routes } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as SonnerToaster } from "sonner";
+import { AuthProvider } from "@/hooks/useAuth";
+import { SprintContextProvider } from "@/hooks/useSprintContext";
+import MetaWrapper from "@/components/MetaWrapper";
+
+// Import routing components
+import { Route } from "react-router-dom";
+import { ErrorBoundary } from "react-error-boundary";
+import MarketingRoutes from "@/components/routing/MarketingRoutes";
+import PublicRoutes from "@/components/routing/PublicRoutes";
+import ProtectedUserRoutes from "@/components/routing/ProtectedUserRoutes";
+import SprintRoutes from "@/components/routing/SprintRoutes";
+import AdminRoutes from "@/components/routing/AdminRoutes";
+import MiscRoutes from "@/components/routing/MiscRoutes";
+
+const queryClient = new QueryClient();
+
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <Toaster />
+    <SonnerToaster />
+    <BrowserRouter>
+      <AuthProvider>
+        <SprintContextProvider>
+          <MetaWrapper>
+            <Routes>
+              {/* Marketing Routes */}
+              {MarketingRoutes()}
+              
+              {/* Public Routes */}
+              {PublicRoutes()}
+
+              {/* Protected User Routes */}
+              {ProtectedUserRoutes()}
+
+              {/* Sprint Routes */}
+              {SprintRoutes()}
+
+              {/* Admin Routes */}
+              {AdminRoutes()}
+
+              {/* Miscellaneous Routes */}
+              {MiscRoutes()}
+            </Routes>
+          </MetaWrapper>
+        </SprintContextProvider>
+      </AuthProvider>
+    </BrowserRouter>
+  </QueryClientProvider>
+);
 
 export default App;
