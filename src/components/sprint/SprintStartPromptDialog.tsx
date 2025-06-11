@@ -39,7 +39,7 @@ export const SprintStartPromptDialog = ({ open, onOpenChange }: SprintStartPromp
     if (isSharedSprint && !canManage) {
       return `${sprintOwnerName} needs to start their 10-day BSF timer before you can access the tasks. Only the sprint owner or managers can start the timer.`;
     }
-    return "You need to start your 10-day BSF timer to begin accessing and completing tasks. Once started, you'll have exactly 10 days to complete all tasks.";
+    return "You need to start your 10-day BSF timer to begin accessing and completing tasks. Once started, you'll have 10 days to complete BSF and qualify for investment assessment.";
   };
 
   const canStartTimer = !isSharedSprint || canManage;
