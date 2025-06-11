@@ -11,7 +11,7 @@ interface SprintProfile {
   received_funding: boolean;
   created_at: string;
   market_known: boolean;
-  experiment_validated: string; // Changed from boolean to string
+  experiment_validated: string;
   job_type: string;
   is_scientist_engineer: boolean;
   utm_source: string;
@@ -111,7 +111,10 @@ export const prepareExperimentData = (profiles: SprintProfile[], adminUserIds: s
   let notValidated = 0;
   
   filteredProfiles.forEach(profile => {
-    if (profile.experiment_validated) {
+    // Check if experiment_validated has a meaningful value (not empty or 'none')
+    if (profile.experiment_validated && 
+        profile.experiment_validated !== '' && 
+        profile.experiment_validated !== 'none') {
       validated++;
     } else {
       notValidated++;
