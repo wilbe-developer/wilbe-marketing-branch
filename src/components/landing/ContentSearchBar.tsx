@@ -3,6 +3,8 @@ import { useState } from "react";
 import { Search, Video, Headphones, FileText, BookOpen, Layout } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import { useContentSearch } from "@/hooks/useContentSearch";
 
 const contentTypes = [
   { id: 'all', name: 'All', icon: null },
@@ -14,8 +16,16 @@ const contentTypes = [
 ];
 
 export default function ContentSearchBar() {
-  const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
+  const { query, results, isSearching, handleSearch } = useContentSearch();
+
+  // Filter results based on active filter
+  const filteredResults = results.filter(result => {
+    if (activeFilter === 'all') return true;
+    if (activeFilter === 'videos') return result.type === 'video';
+    // For now, only videos and pages are implemented
+    return false;
+  });
 
   return (
     <div className="bg-gray-50 rounded-lg p-8 w-full">
@@ -35,8 +45,8 @@ export default function ContentSearchBar() {
           <Input
             type="text"
             placeholder="Search videos, podcasts, articles, tutorials, templates..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            value={query}
+            onChange={(e) => handleSearch(e.target.value)}
             className="pl-10 pr-4 py-3 text-base border border-gray-200 rounded-md focus:ring-2 focus:ring-primary focus:border-primary w-full bg-white"
           />
         </div>
@@ -66,14 +76,51 @@ export default function ContentSearchBar() {
           })}
         </div>
 
-        {/* Placeholder Results Message */}
-        {searchQuery && (
+        {/* Search Results */}
+        {isSearching && (
           <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-md">
-            <p className="text-blue-800 text-center">
-              <span className="font-medium">Search functionality coming soon!</span> 
-              <br />
-              You searched for "{searchQuery}" in {contentTypes.find(t => t.id === activeFilter)?.name || 'All content'}
+            <p className="text-blue-800 text-center">Searching...</p>
+          </div>
+        )}
+
+        {!isSearching && query && filteredResults.length === 0 && (
+          <div className="mt-6 p-4 bg-gray-50 border border-gray-200 rounded-md">
+            <p className="text-gray-600 text-center">
+              No results found for "{query}" in {contentTypes.find(t => t.id === activeFilter)?.name || 'All content'}
             </p>
+          </div>
+        )}
+
+        {!isSearching && filteredResults.length > 0 && (
+          <div className="mt-6 space-y-3">
+            <h4 className="text-lg font-semibold text-gray-900">
+              Found {filteredResults.length} result{filteredResults.length !== 1 ? 's' : ''}
+            </h4>
+            <div className="space-y-2 max-h-96 overflow-y-auto">
+              {filteredResults.map((result) => (
+                <Link
+                  key={result.id}
+                  to={result.url}
+                  className="block p-4 rounded-lg hover:bg-white hover:shadow-sm transition-all border border-gray-200 bg-gray-50"
+                >
+                  <div className="flex items-start gap-3">
+                    {result.type === 'video' && <Video className="h-5 w-5 text-gray-600 mt-0.5 flex-shrink-0" />}
+                    {result.type === 'page' && <FileText className="h-5 w-5 text-gray-600 mt-0.5 flex-shrink-0" />}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium text-gray-900 truncate">
+                        {result.title}
+                      </h3>
+                      <p className="text-sm text-gray-600 line-clamp-2 mt-1">
+                        {result.description}
+                      </p>
+                      <span className="inline-block px-2 py-1 text-xs bg-white text-gray-700 rounded mt-2 capitalize border">
+                        {result.type}
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
         )}
       </div>
