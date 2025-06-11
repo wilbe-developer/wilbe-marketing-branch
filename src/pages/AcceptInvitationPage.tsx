@@ -85,7 +85,10 @@ const AcceptInvitationPage = () => {
 
       if (error) throw error;
 
-      if (data.success) {
+      // Parse the returned JSONB data
+      const result = typeof data === 'string' ? JSON.parse(data) : data;
+
+      if (result?.success) {
         setSuccess(true);
         toast.success('Successfully joined the team!');
         
@@ -94,7 +97,7 @@ const AcceptInvitationPage = () => {
           navigate(PATHS.SPRINT_DASHBOARD);
         }, 2000);
       } else {
-        setError(data.error || 'Failed to accept invitation');
+        setError(result?.error || 'Failed to accept invitation');
       }
     } catch (error: any) {
       console.error('Error accepting invitation:', error);

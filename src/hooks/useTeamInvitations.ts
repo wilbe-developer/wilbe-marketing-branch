@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSprintContext } from "@/hooks/useSprintContext";
@@ -42,7 +41,13 @@ export const useTeamInvitations = () => {
 
       if (error) throw error;
       
-      setInvitations(data || []);
+      // Type cast the access_level to ensure it matches our interface
+      const typedData = (data || []).map(invitation => ({
+        ...invitation,
+        access_level: invitation.access_level as 'view' | 'edit' | 'manage'
+      }));
+      
+      setInvitations(typedData);
     } catch (error: any) {
       console.error("Error fetching invitations:", error);
       showToast({
