@@ -1,3 +1,4 @@
+
 export const IS_DEV = process.env.NODE_ENV === "development";
 
 export const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -39,4 +40,9 @@ export const PATHS = {
   SPRINT_DASHBOARD: "/sprint/dashboard",
   PASSWORD_RESET: "/reset-password",
   ACCEPT_INVITATION: "/accept-invitation",
+  LANDING_PAGE: "/landing",
+  BSF_PAGE: "/bsf",
+  QUIZ: "/quiz",
+  SPRINT_WAITING: "/sprint-waiting",
+  SPRINT: "/sprint",
 } as const;

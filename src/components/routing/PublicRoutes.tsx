@@ -13,6 +13,7 @@ import SprintWaitingPage from "@/pages/SprintWaitingPage";
 import SprintPage from "@/pages/SprintPage";
 import SprintWaitlistPage from "@/pages/SprintWaitlistPage";
 import SprintReferralPage from "@/pages/SprintReferralPage";
+import AcceptInvitationPage from "@/pages/AcceptInvitationPage";
 
 export default function PublicRoutes() {
   return (
@@ -41,6 +42,9 @@ export default function PublicRoutes() {
       <Route path="/waitlist" element={<SprintWaitlistPage />} />
       <Route path="/referral" element={<SprintReferralPage />} />
       <Route path="/ref/:code" element={<SprintWaitlistPage />} />
+      
+      {/* Team invitation acceptance route */}
+      <Route path={PATHS.ACCEPT_INVITATION} element={<AcceptInvitationPage />} />
     </>
   );
 }
