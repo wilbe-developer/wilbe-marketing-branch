@@ -46,6 +46,7 @@ export const useSprintSignup = () => {
 
         if (!error && profile) {
           setHasSprintProfile(true);
+          
           setAnswers({
             // Basic Info
             name: profile.name || '',
@@ -81,8 +82,8 @@ export const useSprintSignup = () => {
             competition_research: profile.competition_research ? 'yes' : 'no',
             market_gap_reason: profile.market_gap_reason || '',
             
-            // Window 8
-            experiment: profile.experiment_validated ? 'yes' : 'no',
+            // Window 8 - Now using string value directly
+            experiment: profile.experiment_validated || 'conceptual',
             
             // Window 9
             success_vision_1yr: profile.success_vision_1yr ? 'yes' : 'no',

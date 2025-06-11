@@ -1,3 +1,4 @@
+
 export interface WaitlistSignup {
   id: string;
   name: string;
@@ -24,6 +25,7 @@ export interface SprintProfile {
   utm_campaign?: string | null;
   utm_term?: string | null;
   utm_content?: string | null;
+  experiment_validated?: string | null; // Changed from boolean to string
   // Add other fields as needed
 }
 

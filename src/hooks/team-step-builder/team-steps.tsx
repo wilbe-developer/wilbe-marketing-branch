@@ -1,4 +1,3 @@
-
 import React from "react";
 import { EnhancedStep } from "./types";
 import { TeamMember } from "../team-members/types";
@@ -25,14 +24,15 @@ export const getTeamSteps = (
   fullTimeTrigger: string,
   onTeamMemberAdd: () => void,
   onTeamMemberRemove: (index: number) => void,
-  onTeamMemberUpdate: (index: number, field: keyof TeamMember, value: string) => void,
+  onTeamMemberUpdate: (index: number, field: keyof TeamMember, value: string, isTyping?: boolean) => void,
   onSkillsChange: (skills: string) => void,
   onMissingSkillsChange: (skills: string) => void,
   onSkillsJustificationChange: (text: string) => void,
   onHireProfileChange: (text: string) => void,
   onFullTimeTriggerChange: (text: string) => void,
   onFileUpload: (fileId: string) => void,
-  onHiringPlanStepChange: (step: 'download' | 'upload') => void
+  onHiringPlanStepChange: (step: 'download' | 'upload') => void,
+  getTeamMemberFieldStatus?: (index: number, field: keyof TeamMember) => any
 ): EnhancedStep[] => {
   if (teamStatus === undefined) {
     return [];
@@ -192,6 +192,7 @@ export const getTeamSteps = (
             onAdd={onTeamMemberAdd}
             onRemove={onTeamMemberRemove}
             onUpdate={onTeamMemberUpdate}
+            getFieldStatus={getTeamMemberFieldStatus}
           />
         ]
       }

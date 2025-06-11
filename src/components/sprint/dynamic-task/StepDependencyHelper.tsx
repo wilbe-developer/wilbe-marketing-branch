@@ -4,6 +4,7 @@ import { SprintProfileShowOrAsk } from "@/components/sprint/SprintProfileShowOrA
 import { getProfileFieldMapping } from "@/utils/profileFieldMappings";
 import DynamicTaskStep from "../task-builder/DynamicTaskStep";
 import { StepNode } from "@/types/task-builder";
+import type { SaveStatus } from "@/hooks/useAutoSaveManager";
 
 interface StepDependencyHelperProps {
   step: StepNode;
@@ -12,6 +13,15 @@ interface StepDependencyHelperProps {
   handleAnswer: (value: any) => Promise<void>;
   handleFileUpload: (file: File) => Promise<void>;
   taskDefinition: any;
+  autoSaveManager?: {
+    handleFieldChange: (fieldId: string, value: any, isTyping: boolean, saveCallback: (value: any) => Promise<void>) => void;
+    startTyping: (fieldId: string) => void;
+    stopTyping: (fieldId: string) => void;
+    getSaveStatus: (fieldId: string) => SaveStatus;
+    subscribeToStatus: (fieldId: string, callback: (status: SaveStatus) => void) => () => void;
+    forceSave: (fieldId: string) => void;
+  };
+  onAutoSaveField?: (fieldId: string, value: any) => Promise<void>;
 }
 
 export const StepDependencyHelper: React.FC<StepDependencyHelperProps> = ({
@@ -20,7 +30,9 @@ export const StepDependencyHelper: React.FC<StepDependencyHelperProps> = ({
   answer,
   handleAnswer,
   handleFileUpload,
-  taskDefinition
+  taskDefinition,
+  autoSaveManager,
+  onAutoSaveField
 }) => {
   // Get profile dependencies for the step
   const profileDependencies = getStepProfileDependencies(step);
@@ -31,6 +43,8 @@ export const StepDependencyHelper: React.FC<StepDependencyHelperProps> = ({
       answer={answer}
       onAnswer={handleAnswer}
       onFileUpload={handleFileUpload}
+      autoSaveManager={autoSaveManager}
+      onAutoSaveField={onAutoSaveField}
     />
   );
   

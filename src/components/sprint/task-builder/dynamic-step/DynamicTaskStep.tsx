@@ -10,7 +10,7 @@ import { CollaborationStepRenderer } from "./CollaborationStepRenderer";
 import { FormStepRenderer } from "@/components/sprint/dynamic-task/FormStepRenderer";
 import { ConditionalQuestionRenderer } from "@/components/sprint/dynamic-task/ConditionalQuestionRenderer";
 import { normalizeStepType } from "@/utils/taskStepUtils";
-import { TeamMemberStepRenderer } from "@/components/sprint/dynamic-task/StepRenderers";
+import { TeamMemberStepRenderer } from "./TeamMemberStepRenderer";
 import { parseMarkdown } from "@/utils/markdownUtils";
 
 interface DynamicTaskStepProps {
@@ -112,7 +112,7 @@ const DynamicTaskStep: React.FC<DynamicTaskStepProps> = ({
             <TeamMemberStepRenderer 
               step={step} 
               answer={answer} 
-              handleAnswer={onAnswer} 
+              onAnswer={onAnswer} 
             />
           </div>
         </CardContent>

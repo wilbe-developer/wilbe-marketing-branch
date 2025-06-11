@@ -1,14 +1,14 @@
 
 import React from 'react';
 import { StepNode } from '@/types/task-builder';
-import { 
+import {
   ContentStepRenderer, 
   QuestionStepRenderer,
   FileUploadRenderer,
   ExerciseRenderer,
   CollaborationRenderer,
-  TeamMemberStepRenderer
 } from './StepRenderers';
+import { TeamMemberStepRenderer } from '@/components/sprint/task-builder/dynamic-step/TeamMemberStepRenderer';
 import { SprintProfileShowOrAsk } from '@/components/sprint/SprintProfileShowOrAsk';
 import { getProfileFieldMapping } from '@/utils/profileFieldMappings';
 import { FormStepRenderer } from './FormStepRenderer';
@@ -87,7 +87,7 @@ const CurrentStep: React.FC<CurrentStepProps> = ({
           <TeamMemberStepRenderer
             step={step}
             answer={answer}
-            handleAnswer={(value) => handleAnswer(step.id, value)}
+            onAnswer={(value) => handleAnswer(step.id, value)}
           />
         )}
         

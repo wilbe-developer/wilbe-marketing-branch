@@ -5,7 +5,7 @@ export const baseTutorialSteps: TutorialStep[] = [
   {
     id: 'welcome',
     title: 'Welcome to your BSF Dashboard! 🚀',
-    content: 'This is go time! Your BSF is where you transform your vision into reality. This is your mission control for building the future you see. Let me show you how to force that future into existence!',
+    content: 'This is go time! BSF is where you transform your vision into reality. This is your mission control for building the future you see. Let me show you how to force that future into existence!',
     targetElement: 'dashboard-container',
     position: 'bottom',
     showOn: 'both'
@@ -13,7 +13,7 @@ export const baseTutorialSteps: TutorialStep[] = [
   {
     id: 'sprint-timer',
     title: 'Your 10-Day BSF Timer ⏰',
-    content: 'This is crucial! You have exactly 10 days to complete your BSF. Start your timer now to begin the countdown and make every moment count.',
+    content: 'This is crucial! Once you press this button you have 10 days to complete BSF and qualify for investment assessment. Access to task contents is limited until you press this button.',
     targetElement: 'sprint-countdown',
     position: 'bottom',
     showOn: 'both',
@@ -38,7 +38,7 @@ export const baseTutorialSteps: TutorialStep[] = [
   {
     id: 'data-room-button',
     title: 'Your Data Room',
-    content: 'This is your public-facing data room where you can showcase your work to investors and collaborators. Click here anytime to preview how others see your progress.',
+    content: 'This is your data room where you have an overview of your uploaded docs. You can decide to publish this via the share button.',
     targetElement: 'data-room-button',
     position: 'bottom',
     showOn: 'both'
@@ -55,7 +55,7 @@ export const baseTutorialSteps: TutorialStep[] = [
   {
     id: 'assessment-ready',
     title: 'Ready for Assessment',
-    content: 'When you\'ve completed your BSF tasks and feel ready to present your project, use this button to schedule your assessment call with our team.',
+    content: 'Once you\'ve completed your BSF tasks and feel ready to present your project, use this button to schedule an online chat with our team.',
     targetElement: 'assessment-button',
     position: 'bottom',
     showOn: 'both',
@@ -63,8 +63,8 @@ export const baseTutorialSteps: TutorialStep[] = [
   },
   {
     id: 'collaboration',
-    title: 'Team Collaboration',
-    content: 'Use the Share button to invite team members to collaborate on your BSF or make your data room public to share with investors.',
+    title: 'Manage Your Team',
+    content: 'Use the Share button to invite team members to work on your BSF or make your data room public to share with others.',
     targetElement: 'collaborate-button',
     position: 'bottom',
     showOn: 'both',
@@ -89,7 +89,7 @@ export const baseTutorialSteps: TutorialStep[] = [
   {
     id: 'final-motivation',
     title: 'Time to Build the Future! 💪',
-    content: 'You now have everything you need to succeed. Remember: this BSF isn\'t just about completing tasks - it\'s about forcing the future you envision into reality. Your first task is highlighted below. Let\'s go!',
+    content: 'You now have everything you need to succeed. Remember: this BSF beyond completing tasks is about giving you the momentum to build a high-performance company. Your first task is highlighted below. Let\'s go!',
     targetElement: 'first-task-card',
     position: 'top',
     showOn: 'both'

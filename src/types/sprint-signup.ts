@@ -1,4 +1,3 @@
-
 export type Step = {
   id: string;
   question: string;
@@ -11,6 +10,10 @@ export type Step = {
     componentType: string;
     componentProps?: Record<string, string>;
   }[];
+  required?: boolean;
+  validation?: 'email' | 'linkedin';
+  optOutField?: string;
+  placeholder?: string;
 };
 
 export type Window = {
@@ -21,6 +24,7 @@ export type Window = {
 
 export type SprintSignupAnswers = {
   [key: string]: any;
+  linkedin_opt_out?: boolean;
 };
 
 export interface SprintProfile {

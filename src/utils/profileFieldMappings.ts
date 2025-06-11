@@ -1,4 +1,3 @@
-
 export type ProfileFieldMapping = {
   label: string;
   type: "string" | "boolean" | "select" | "multi-select";
@@ -48,6 +47,16 @@ export const profileFieldMappings: Record<string, ProfileFieldMapping> = {
   tto_engaged: {
     label: "Have you engaged with the technology transfer office?",
     type: "boolean"
+  },
+  experiment_validated: {
+    label: "Have you recently tested out the idea of this venture in some way?",
+    type: "select",
+    options: [
+      { value: "prototype_data", label: "Yes, we have a prototype and/or data from a key experiment" },
+      { value: "validated_customers", label: "Yes, we have validated the idea with key customers and experts in the field" },
+      { value: "conceptual", label: "No, not as yet, it is purely conceptual" },
+      { value: "working_on_it", label: "No, not as yet, we are working on it" }
+    ]
   },
   customer_engagement: {
     label: "Have you spoken with potential customers / key decision makers yet?",

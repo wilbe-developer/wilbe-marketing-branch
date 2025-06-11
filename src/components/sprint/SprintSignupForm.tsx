@@ -1,5 +1,4 @@
-
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, ArrowLeft, AlertCircle, Mail } from "lucide-react";
 import { useSprintSignup } from "@/hooks/useSprintSignup";
@@ -21,6 +20,9 @@ interface SprintSignupFormProps {
 }
 
 const SprintSignupForm: React.FC<SprintSignupFormProps> = ({ utmParams = {} }) => {
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [fieldValidation, setFieldValidation] = useState<Record<string, { isValid: boolean; canonicalValue?: string }>>({});
+  
   const {
     currentWindow,
     answers,
@@ -38,42 +40,137 @@ const SprintSignupForm: React.FC<SprintSignupFormProps> = ({ utmParams = {} }) =
     handleSendMagicLink
   } = useSprintSignup();
   
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated } = useAuth();
+
+  const handleValidationChange = (field: string, isValid: boolean, canonicalValue?: string) => {
+    setFieldValidation(prev => ({
+      ...prev,
+      [field]: { isValid, canonicalValue }
+    }));
+    
+    // Clear validation error if field becomes valid
+    if (isValid && validationErrors[field]) {
+      setValidationErrors(prev => {
+        const { [field]: removed, ...rest } = prev;
+        return rest;
+      });
+    }
+  };
+
+  const isQuestionRequired = (question: any) => {
+    // File uploads remain optional
+    if (question.type === 'file') return false;
+    
+    // Special handling for LinkedIn opt-out checkbox
+    if (question.type === 'checkbox' && question.id === 'linkedin_opt_out') {
+      // Check if LinkedIn field has a valid value
+      const linkedinValue = answers['linkedin'];
+      const hasValidLinkedin = linkedinValue && 
+        typeof linkedinValue === 'string' && 
+        linkedinValue.trim() !== '' &&
+        fieldValidation['linkedin']?.isValid;
+      
+      // If LinkedIn is valid, the checkbox is not required
+      if (hasValidLinkedin) {
+        return false;
+      }
+    }
+    
+    // Check if field is opted out
+    const isOptedOut = question.optOutField && answers[question.optOutField];
+    if (isOptedOut) return false;
+    
+    // Return the required status
+    return question.required !== false; // Default to required unless explicitly set to false
+  };
+
+  const isConditionalQuestionVisible = (question: any) => {
+    if (question.type !== 'conditional' || !question.conditional) return false;
+    
+    return question.conditional.some(condition => 
+      answers[condition.field] === condition.value
+    );
+  };
 
   const isCurrentWindowAnswered = () => {
     const currentWindowData = windows[currentWindow];
     if (!currentWindowData) return false;
     
-    // Check if all required fields in the current window are answered
+    // Check if all required fields in the current window are answered and valid
     for (const question of currentWindowData.questions) {
-      // Skip file type questions
-      if (question.type === 'file') continue;
-      
       // For conditional questions, check if they should be answered
       if (question.type === 'conditional') {
-        if (question.conditional) {
-          const conditionMet = question.conditional.some(condition => 
-            answers[condition.field] === condition.value
-          );
-          
-          if (conditionMet && !answers[question.id]) {
-            return false;
-          }
+        const shouldShow = isConditionalQuestionVisible(question);
+        if (shouldShow && isQuestionRequired(question) && !answers[question.id]) {
+          return false;
         }
         continue;
       }
       
-      // For checkbox type questions, ensure at least one option is selected.
-      if (question.type === 'checkbox') {
+      // Check if field is required
+      if (!isQuestionRequired(question)) {
+        continue;
+      }
+      
+      // Check if the field has an answer
+      if (!answers[question.id]) {
+        return false;
+      }
+      
+      // For checkbox type questions, ensure at least one option is selected
+      if (question.type === 'checkbox' && question.options) {
         if (!Array.isArray(answers[question.id]) || answers[question.id].length === 0) {
           return false;
         }
         continue;
       }
       
-      // For all other question types, ensure they have a value
-      if (!answers[question.id]) {
-        return false;
+      // For select type questions, ensure a valid option is selected
+      if (question.type === 'select' && question.options) {
+        const selectedValue = answers[question.id];
+        const validOptions = question.options.map(opt => opt.value);
+        if (!validOptions.includes(selectedValue)) {
+          return false;
+        }
+        continue;
+      }
+      
+      // For text/textarea, ensure non-empty string
+      if ((question.type === 'text' || question.type === 'textarea' || question.type === 'email') && question.id !== 'email' && question.id !== 'linkedin') {
+        const value = answers[question.id];
+        if (!value || (typeof value === 'string' && value.trim() === '')) {
+          return false;
+        }
+        continue;
+      }
+      
+      // Special handling for LinkedIn field with opt-out
+      if (question.id === 'linkedin' && question.optOutField) {
+        const hasValue = answers[question.id] && typeof answers[question.id] === 'string' && answers[question.id].trim() !== '';
+        const isOptedOut = answers[question.optOutField];
+        
+        // Can proceed if: 
+        // 1. Has valid LinkedIn URL (regardless of checkbox), OR
+        // 2. Opted out and field is empty
+        if (hasValue) {
+          // If there's a value, it must be valid
+          const validation = fieldValidation[question.id];
+          if (!validation || !validation.isValid) {
+            return false;
+          }
+        } else if (!isOptedOut) {
+          // If no value and not opted out, it's required
+          return false;
+        }
+        continue;
+      }
+      
+      // Check validation for other fields with validation rules
+      if (question.validation && answers[question.id]) {
+        const validation = fieldValidation[question.id];
+        if (!validation || !validation.isValid) {
+          return false;
+        }
       }
     }
     
@@ -89,9 +186,17 @@ const SprintSignupForm: React.FC<SprintSignupFormProps> = ({ utmParams = {} }) =
     return isCurrentWindowAnswered() && !!answers.email;
   };
 
-  // Handle form submission with UTM parameters
+  // Handle form submission with UTM parameters and canonical LinkedIn
   const handleSubmit = () => {
-    silentSignup(answers, utmParams);
+    // Use canonical LinkedIn value if available
+    const linkedinValidation = fieldValidation['linkedin'];
+    const submissionAnswers = { ...answers };
+    
+    if (linkedinValidation?.canonicalValue) {
+      submissionAnswers.linkedin = linkedinValidation.canonicalValue;
+    }
+    
+    silentSignup(submissionAnswers, utmParams);
   };
 
   const isLastWindow = currentWindow === windows.length - 1;
@@ -106,17 +211,6 @@ const SprintSignupForm: React.FC<SprintSignupFormProps> = ({ utmParams = {} }) =
       <div className="mb-8">
         <h1 className="text-3xl font-bold">⚡ BSF Sign-Up</h1>
         <p className="text-muted-foreground">Turn your breakthrough into a high-performance startup - in 10 days. </p>
-        
-        {isAuthenticated && user && (
-          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-md text-blue-800">
-            <p className="font-medium">Welcome back, {user.firstName}!</p>
-            <p className="mt-1">
-              {hasSprintProfile 
-                ? "You can update your sprint profile below." 
-                : "Please complete your sprint profile to get started."}
-            </p>
-          </div>
-        )}
       </div>
       
       {/* Email exists alert - only show when on first window and email exists */}
@@ -161,6 +255,8 @@ const SprintSignupForm: React.FC<SprintSignupFormProps> = ({ utmParams = {} }) =
           onFileUpload={handleFileUpload}
           toggleMultiSelect={toggleMultiSelect}
           uploadedFile={uploadedFile}
+          validationErrors={validationErrors}
+          onValidationChange={handleValidationChange}
         />
       )}
       

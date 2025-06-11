@@ -10,17 +10,28 @@ import {
   CheckboxInputRenderer,
   FormFieldRenderer
 } from "./input-renderers";
+import type { SaveStatus } from "@/hooks/useAutoSaveManager";
 
 interface QuestionStepRendererProps {
   step: StepNode;
   answer: any;
   onAnswer: (value: any) => void;
+  autoSaveManager?: {
+    handleFieldChange: (fieldId: string, value: any, isTyping: boolean, saveCallback: (value: any) => Promise<void>) => void;
+    startTyping: (fieldId: string) => void;
+    stopTyping: (fieldId: string) => void;
+    getSaveStatus: (fieldId: string) => SaveStatus;
+    subscribeToStatus: (fieldId: string, callback: (status: SaveStatus) => void) => () => void;
+  };
+  onAutoSaveField?: (fieldId: string, value: any) => Promise<void>;
 }
 
 export const QuestionStepRenderer: React.FC<QuestionStepRendererProps> = ({
   step,
   answer,
   onAnswer,
+  autoSaveManager,
+  onAutoSaveField,
 }) => {
   // For handling form-type answers with multiple fields
   const [formValues, setFormValues] = useState<Record<string, any>>(answer || {});
@@ -28,9 +39,16 @@ export const QuestionStepRenderer: React.FC<QuestionStepRendererProps> = ({
   // Effect to handle initialization of form values from answer
   useEffect(() => {
     if (step.type === "form" || step.type === "conditionalQuestion" || step.type === "groupedQuestions") {
-      setFormValues(answer || {});
+      // Only update if not currently typing in any field
+      const hasTypingFields = step.fields?.some(field => 
+        autoSaveManager && autoSaveManager.getSaveStatus(field.id) === 'typing'
+      );
+      
+      if (!hasTypingFields) {
+        setFormValues(answer || {});
+      }
     }
-  }, [step, answer]);
+  }, [step, answer, autoSaveManager]);
 
   // Helper to update a specific field in a form
   const updateFormField = (fieldId: string, value: any) => {
@@ -121,6 +139,8 @@ export const QuestionStepRenderer: React.FC<QuestionStepRendererProps> = ({
                   step={question}
                   answer={formValues[question.id]}
                   onAnswer={(value) => updateFormField(question.id, value)}
+                  autoSaveManager={autoSaveManager}
+                  onAutoSaveField={onAutoSaveField}
                 />
               </CardContent>
             </Card>
@@ -207,7 +227,8 @@ export const QuestionStepRenderer: React.FC<QuestionStepRendererProps> = ({
             id={step.id}
             value={answer || ""}
             type="textarea"
-            onChange={onAnswer}
+            onAutoSave={onAutoSaveField ? (value) => onAutoSaveField(step.id, value) : undefined}
+            autoSaveManager={autoSaveManager}
           />
         );
 
@@ -218,7 +239,8 @@ export const QuestionStepRenderer: React.FC<QuestionStepRendererProps> = ({
             id={step.id}
             value={answer || ""}
             type="text"
-            onChange={onAnswer}
+            onAutoSave={onAutoSaveField ? (value) => onAutoSaveField(step.id, value) : undefined}
+            autoSaveManager={autoSaveManager}
           />
         );
     }

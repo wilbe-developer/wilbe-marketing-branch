@@ -8,18 +8,30 @@ export const windows: Window[] = [
       {
         id: 'name',
         question: 'What is your name?',
-        type: 'text'
+        type: 'text',
+        required: true
       },
       {
         id: 'email',
         question: 'What is your email address?',
-        type: 'email'
+        type: 'email',
+        required: true,
+        validation: 'email'
       },
       {
         id: 'linkedin',
         question: 'What is your LinkedIn URL?',
         description: 'This helps us understand your background and experience.',
-        type: 'text'
+        type: 'text',
+        required: true,
+        validation: 'linkedin',
+        optOutField: 'linkedin_opt_out',
+        placeholder: 'https://www.linkedin.com/in/yourprofile'
+      },
+      {
+        id: 'linkedin_opt_out',
+        question: 'I don\'t have a LinkedIn profile',
+        type: 'checkbox'
       },
       {
         id: 'cv',
@@ -66,7 +78,7 @@ export const windows: Window[] = [
           { value: 'solo', label: 'I\'m solo and I plan to continue this way' },
           { value: 'looking', label: 'I\'m solo and looking for co-founders' },
           { value: 'cofounders', label: 'I have co-founders' },
-          { value: 'employees', label: 'I have a team but they\'re employees' }
+          { value: 'employees', label: 'I have a team (employees, not co-founders)' }
         ]
       }
     ]
@@ -120,7 +132,7 @@ export const windows: Window[] = [
         type: 'select',
         options: [
           { value: 'yes', label: 'Yes' },
-          { value: 'no', label: 'No' }
+          { value: 'no', label: 'No, not as yet' }
         ]
       }
     ]
@@ -130,6 +142,15 @@ export const windows: Window[] = [
     title: "Customer Research",
     questions: [
       {
+        id: 'specific_customers',
+        question: 'Can you name specific people / institutions that have the problem you are trying to solve?',
+        type: 'select',
+        options: [
+          { value: 'yes', label: 'Yes' },
+          { value: 'no', label: 'No' }
+        ]
+      },
+      {
         id: 'customers',
         question: 'Have you spoken with potential customers / key decision makers yet?',
         type: 'select',
@@ -137,15 +158,6 @@ export const windows: Window[] = [
           { value: 'yes', label: 'Yes' },
           { value: 'no', label: 'No' },
           { value: 'unknown', label: 'Do not know who they are / not applicable' }
-        ]
-      },
-      {
-        id: 'specific_customers',
-        question: 'Can you name specific people / institutions that have the problem you are trying to solve?',
-        type: 'select',
-        options: [
-          { value: 'yes', label: 'Yes' },
-          { value: 'no', label: 'No' }
         ]
       },
       {
@@ -192,8 +204,10 @@ export const windows: Window[] = [
         question: 'Have you recently tested out the idea of this venture in some way?',
         type: 'select',
         options: [
-          { value: 'yes', label: 'Yes' },
-          { value: 'no', label: 'No' }
+          { value: 'prototype_data', label: 'Yes, we have a prototype and or data from a key experiment' },
+          { value: 'validated_customers', label: 'Yes, we have validated the idea with key customers and experts in the field' },
+          { value: 'conceptual', label: 'No not as yet, it is purely conceptual' },
+          { value: 'working_on_it', label: 'No not as yet, we are working on it' }
         ]
       }
     ]
@@ -384,12 +398,12 @@ export const windows: Window[] = [
     questions: [
       {
         id: "ambitious_version",
-        question: "What is the most ambitious version of your company look like? Describe it in your own words.",
+        question: "What does the most ambitious version of your company look like? Describe it in your own words.",
         type: "textarea"
       },
       {
         id: 'minimal_success_version',
-        question: 'What is the most minimal version of the company look like that you would consider successful? Describe in your own words.',
+        question: 'What is/are the first key milestone(s) you would like to hit in the next 12-18 months? Describe it in your own words.',
         type: 'textarea'
       }
     ]

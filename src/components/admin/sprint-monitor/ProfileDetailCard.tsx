@@ -17,7 +17,7 @@ export interface SprintProfile {
   received_funding: boolean;
   created_at: string;
   market_known: boolean;
-  experiment_validated: boolean;
+  experiment_validated: string; // Changed from boolean to string
   job_type: string;
   is_scientist_engineer: boolean;
   utm_source: string;

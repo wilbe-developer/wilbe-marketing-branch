@@ -590,7 +590,7 @@ export type Database = {
           data_room_public: boolean
           deck_feedback: boolean | null
           email: string | null
-          experiment_validated: boolean | null
+          experiment_validated: string | null
           funding_amount: string | null
           funding_details: string | null
           funding_sources: string[] | null
@@ -649,7 +649,7 @@ export type Database = {
           data_room_public?: boolean
           deck_feedback?: boolean | null
           email?: string | null
-          experiment_validated?: boolean | null
+          experiment_validated?: string | null
           funding_amount?: string | null
           funding_details?: string | null
           funding_sources?: string[] | null
@@ -708,7 +708,7 @@ export type Database = {
           data_room_public?: boolean
           deck_feedback?: boolean | null
           email?: string | null
-          experiment_validated?: boolean | null
+          experiment_validated?: string | null
           funding_amount?: string | null
           funding_details?: string | null
           funding_sources?: string[] | null
