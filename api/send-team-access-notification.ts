@@ -15,8 +15,8 @@ const transporter = nodemailer.createTransport({
 const createTeamAccessEmailHtml = (memberName: string, ownerName: string, accessLevel: string, invitationToken?: string, memberEmail?: string) => {
   const isInvitation = !!invitationToken;
   const acceptUrl = invitationToken && memberEmail 
-    ? `https://wilbe.com/accept-invitation?token=${invitationToken}&email=${encodeURIComponent(memberEmail)}` 
-    : 'https://wilbe.com/sprint/dashboard';
+    ? `https://app.wilbe.com/accept-invitation?token=${invitationToken}&email=${encodeURIComponent(memberEmail)}` 
+    : 'https://app.wilbe.com/sprint/dashboard';
   
   return `
 <!DOCTYPE html>
