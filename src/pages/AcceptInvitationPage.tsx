@@ -25,6 +25,7 @@ const AcceptInvitationPage = () => {
 
   useEffect(() => {
     if (!token) {
+      console.error('No invitation token provided');
       setError('Invalid invitation link');
       setIsLoading(false);
       return;
@@ -46,11 +47,13 @@ const AcceptInvitationPage = () => {
 
   const fetchInvitation = async () => {
     try {
+      console.log('Fetching invitation for token:', token);
+      
       const { data, error } = await supabase
         .from('pending_team_invitations')
         .select(`
           *,
-          owner:sprint_owner_id (
+          profiles!sprint_owner_id (
             first_name,
             last_name,
             email
@@ -61,7 +64,10 @@ const AcceptInvitationPage = () => {
         .gt('expires_at', new Date().toISOString())
         .single();
 
+      console.log('Invitation query result:', { data, error });
+
       if (error) {
+        console.error('Database error fetching invitation:', error);
         if (error.code === 'PGRST116') {
           setError('Invitation not found or has expired');
         } else {
@@ -70,6 +76,7 @@ const AcceptInvitationPage = () => {
         return;
       }
 
+      console.log('Successfully loaded invitation:', data);
       setInvitation(data);
     } catch (error) {
       console.error('Error fetching invitation:', error);
@@ -124,10 +131,14 @@ const AcceptInvitationPage = () => {
 
     setIsAccepting(true);
     try {
+      console.log('Accepting invitation for user:', user.id, 'with token:', token);
+      
       const { data, error } = await supabase.rpc('accept_team_invitation', {
         p_token: token,
         p_user_id: user.id
       });
+
+      console.log('Accept invitation result:', { data, error });
 
       if (error) throw error;
 
@@ -256,7 +267,7 @@ const AcceptInvitationPage = () => {
               <div className="bg-gray-50 p-4 rounded-lg">
                 <h3 className="font-medium">Invitation Details:</h3>
                 <p className="text-sm text-gray-600 mt-1">
-                  From: {invitation.owner?.first_name} {invitation.owner?.last_name}
+                  From: {invitation.profiles?.first_name} {invitation.profiles?.last_name}
                 </p>
                 <p className="text-sm text-gray-600">
                   Access Level: {getAccessLevelText(invitation.access_level)}
@@ -299,7 +310,7 @@ const AcceptInvitationPage = () => {
             <div className="bg-gray-50 p-4 rounded-lg">
               <h3 className="font-medium">Invitation Details:</h3>
               <p className="text-sm text-gray-600 mt-1">
-                From: {invitation.owner?.first_name} {invitation.owner?.last_name}
+                From: {invitation.profiles?.first_name} {invitation.profiles?.last_name}
               </p>
               <p className="text-sm text-gray-600">
                 Access Level: {getAccessLevelText(invitation.access_level)}
