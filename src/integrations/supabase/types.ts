@@ -1761,6 +1761,19 @@ export type Database = {
           score: number
         }[]
       }
+      get_sprint_collaborator_profiles: {
+        Args: { p_sprint_owner_id: string; p_requesting_user_id?: string }
+        Returns: {
+          collaborator_id: string
+          collaborator_email: string
+          collaborator_first_name: string
+          collaborator_last_name: string
+          access_level: string
+          collaboration_id: string
+          created_at: string
+          created_by: string
+        }[]
+      }
       get_thread_vote_summary: {
         Args: { p_thread_id: string }
         Returns: {

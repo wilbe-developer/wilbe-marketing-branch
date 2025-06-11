@@ -1,8 +1,8 @@
+
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSprintContext } from "@/hooks/useSprintContext";
 import { supabase } from "@/integrations/supabase/client";
-import { createClient } from '@supabase/supabase-js';
 import { toast as showToast } from "@/hooks/use-toast";
 
 export interface Collaborator {
@@ -24,14 +24,6 @@ const isValidAccessLevel = (level: string): level is AccessLevel => {
   return ['view', 'edit', 'manage'].includes(level);
 };
 
-// Create a service role client for admin operations
-const createServiceRoleClient = () => {
-  return createClient(
-    "https://iatercfyoclqxmohyyke.supabase.co",
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhdGVyY2Z5b2NscXhtb2h5eWtlIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0Mzc4NzM1MiwiZXhwIjoyMDU5MzYzMzUyfQ.L8wJhm_6UuztD9AEY1VUPQ6eO7DJy5k2LQn1ZG4rMco"
-  );
-};
-
 export const useSprintCollaborators = () => {
   const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -48,62 +40,47 @@ export const useSprintCollaborators = () => {
     try {
       console.log('Fetching collaborators for sprint owner:', sprintOwnerId);
       
-      // First fetch the collaborator links
-      const { data: collabData, error: collabError } = await supabase
-        .from("sprint_collaborators")
-        .select("*")
-        .eq("sprint_owner_id", sprintOwnerId);
+      // Use the new RPC function to get collaborator profiles securely
+      const { data: collaboratorData, error } = await supabase
+        .rpc('get_sprint_collaborator_profiles', {
+          p_sprint_owner_id: sprintOwnerId,
+          p_requesting_user_id: user?.id || null
+        });
 
-      if (collabError) throw collabError;
+      if (error) throw error;
       
-      if (!collabData || collabData.length === 0) {
+      if (!collaboratorData || collaboratorData.length === 0) {
         console.log('No collaborators found for sprint owner:', sprintOwnerId);
         setCollaborators([]);
         setIsLoading(false);
         return;
       }
       
-      console.log('Found collaborator records:', collabData.length);
+      console.log('Found collaborator records:', collaboratorData.length);
       
-      // Use service role client to fetch profile details (bypasses RLS)
-      const serviceClient = createServiceRoleClient();
-      
-      // Fetch profile details for each collaborator separately using service role
-      const collaboratorsWithProfiles = await Promise.all(
-        collabData.map(async (collab) => {
-          console.log('Fetching profile for collaborator:', collab.collaborator_id);
-          
-          const { data: profileData, error: profileError } = await serviceClient
-            .from("profiles")
-            .select("email, first_name, last_name")
-            .eq("id", collab.collaborator_id)
-            .maybeSingle(); // Changed from .single() to .maybeSingle() to handle incomplete profiles
-            
-          if (profileError) {
-            console.error("Error fetching profile for collaborator:", collab.collaborator_id, profileError);
-            // Continue processing other collaborators even if one fails
-          } else {
-            console.log('Profile data for', collab.collaborator_id, ':', profileData);
-          }
+      // Transform the RPC response to match our Collaborator interface
+      const transformedCollaborators = collaboratorData.map((collab: any) => {
+        // Ensure access_level is a valid AccessLevel type
+        let accessLevel: AccessLevel = 'edit'; // Default fallback
+        if (isValidAccessLevel(collab.access_level)) {
+          accessLevel = collab.access_level;
+        }
 
-          // Ensure access_level is a valid AccessLevel type
-          let accessLevel: AccessLevel = 'edit'; // Default fallback
-          if (isValidAccessLevel(collab.access_level)) {
-            accessLevel = collab.access_level;
-          }
-
-          return {
-            ...collab,
-            access_level: accessLevel,
-            email: profileData?.email,
-            firstName: profileData?.first_name,
-            lastName: profileData?.last_name
-          } as Collaborator;
-        })
-      );
+        return {
+          id: collab.collaboration_id,
+          sprint_owner_id: sprintOwnerId,
+          collaborator_id: collab.collaborator_id,
+          access_level: accessLevel,
+          created_at: collab.created_at,
+          created_by: collab.created_by,
+          email: collab.collaborator_email,
+          firstName: collab.collaborator_first_name,
+          lastName: collab.collaborator_last_name
+        } as Collaborator;
+      });
       
-      console.log('Final collaborators with profiles:', collaboratorsWithProfiles);
-      setCollaborators(collaboratorsWithProfiles);
+      console.log('Final collaborators with profiles:', transformedCollaborators);
+      setCollaborators(transformedCollaborators);
     } catch (error: any) {
       console.error("Error fetching team members:", error);
       showToast({
