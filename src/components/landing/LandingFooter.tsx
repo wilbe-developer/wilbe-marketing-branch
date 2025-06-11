@@ -1,15 +1,15 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { CheckCircle } from "lucide-react";
 import MediaComingSoonDialog from "@/components/common/MediaComingSoonDialog";
 import { useNewsletterSubscription } from "@/hooks/useNewsletterSubscription";
 
 export default function LandingFooter() {
   const [isMediaDialogOpen, setIsMediaDialogOpen] = useState(false);
   const [email, setEmail] = useState("");
-  const { subscribe, isLoading } = useNewsletterSubscription();
+  const { subscribe, isLoading, isSuccess } = useNewsletterSubscription();
 
   const handleAboutClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -136,24 +136,32 @@ export default function LandingFooter() {
               <p className="text-gray-400 text-sm mb-4">
                 Stay up to date with the latest news, insights, and opportunities for scientist entrepreneurs.
               </p>
-              <form onSubmit={handleNewsletterSubmit} className="flex flex-col gap-2">
-                <Input 
-                  type="email" 
-                  placeholder="Your email address" 
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="bg-gray-800 border border-gray-700 py-2 px-4 text-white focus:outline-none focus:border-green-500 text-sm"
-                  required
-                  disabled={isLoading}
-                />
-                <Button 
-                  type="submit" 
-                  className="bg-green-500 hover:bg-green-600 text-black text-sm font-bold uppercase tracking-wide w-full"
-                  disabled={isLoading}
-                >
-                  {isLoading ? "Subscribing..." : "Subscribe"}
-                </Button>
-              </form>
+              
+              {isSuccess ? (
+                <div className="flex items-center gap-2 p-4 bg-green-900/30 border border-green-700 rounded text-green-300">
+                  <CheckCircle className="w-5 h-5" />
+                  <span className="text-sm">Successfully subscribed!</span>
+                </div>
+              ) : (
+                <form onSubmit={handleNewsletterSubmit} className="flex flex-col gap-2">
+                  <Input 
+                    type="email" 
+                    placeholder="Your email address" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="bg-gray-800 border border-gray-700 py-2 px-4 text-white focus:outline-none focus:border-green-500 text-sm"
+                    required
+                    disabled={isLoading}
+                  />
+                  <Button 
+                    type="submit" 
+                    className="bg-green-500 hover:bg-green-600 text-black text-sm font-bold uppercase tracking-wide w-full"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Subscribing..." : "Subscribe"}
+                  </Button>
+                </form>
+              )}
             </div>
           </div>
 

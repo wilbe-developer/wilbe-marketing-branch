@@ -2,12 +2,12 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, CheckCircle } from "lucide-react"
 import { useNewsletterSubscription } from "@/hooks/useNewsletterSubscription"
 
 export default function NewsletterSignup() {
   const [email, setEmail] = useState("")
-  const { subscribe, isLoading } = useNewsletterSubscription()
+  const { subscribe, isLoading, isSuccess } = useNewsletterSubscription()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -29,25 +29,32 @@ export default function NewsletterSignup() {
           </p>
         </div>
         
-        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto">
-          <Input
-            type="email"
-            placeholder="Enter your email address"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="flex-1 bg-white text-gray-900 border-0 h-12"
-            required
-            disabled={isLoading}
-          />
-          <Button 
-            type="submit" 
-            className="bg-red-600 hover:bg-red-700 text-white font-medium px-8 h-12"
-            disabled={isLoading}
-          >
-            {isLoading ? "Subscribing..." : "Subscribe"}
-            {!isLoading && <ArrowRight className="ml-2 h-4 w-4" />}
-          </Button>
-        </form>
+        {isSuccess ? (
+          <div className="flex items-center justify-center gap-2 p-6 bg-green-900/30 border border-green-700 rounded max-w-lg mx-auto text-green-300">
+            <CheckCircle className="w-6 h-6" />
+            <span className="text-lg font-medium">Successfully subscribed! Thank you for joining.</span>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto">
+            <Input
+              type="email"
+              placeholder="Enter your email address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="flex-1 bg-white text-gray-900 border-0 h-12"
+              required
+              disabled={isLoading}
+            />
+            <Button 
+              type="submit" 
+              className="bg-red-600 hover:bg-red-700 text-white font-medium px-8 h-12"
+              disabled={isLoading}
+            >
+              {isLoading ? "Subscribing..." : "Subscribe"}
+              {!isLoading && <ArrowRight className="ml-2 h-4 w-4" />}
+            </Button>
+          </form>
+        )}
         
         <p className="text-gray-400 text-sm mt-4 text-center">
           Weekly updates • No spam • Unsubscribe anytime

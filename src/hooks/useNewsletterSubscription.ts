@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 export const useNewsletterSubscription = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const subscribe = async (email: string) => {
     if (!email.trim()) {
@@ -20,6 +21,7 @@ export const useNewsletterSubscription = () => {
     }
 
     setIsLoading(true);
+    setIsSuccess(false);
 
     try {
       const { error } = await supabase
@@ -36,7 +38,12 @@ export const useNewsletterSubscription = () => {
         return false;
       }
 
+      setIsSuccess(true);
       toast.success("Successfully subscribed! Thank you for joining our newsletter.");
+      
+      // Reset success state after 3 seconds
+      setTimeout(() => setIsSuccess(false), 3000);
+      
       return true;
     } catch (error) {
       console.error("Newsletter subscription error:", error);
@@ -47,5 +54,7 @@ export const useNewsletterSubscription = () => {
     }
   };
 
-  return { subscribe, isLoading };
+  const resetSuccess = () => setIsSuccess(false);
+
+  return { subscribe, isLoading, isSuccess, resetSuccess };
 };
