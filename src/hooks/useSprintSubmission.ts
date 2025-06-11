@@ -150,7 +150,7 @@ export const useSprintSubmission = () => {
         p_funding_amount: '',
         p_has_financial_plan: false,
         p_funding_sources: [],
-        p_experiment_validated: answers.experiment || 'conceptual', // Now using string value directly
+        p_experiment_validated: answers.experiment || '',
         p_industry_changing_vision: false,
         
         // Field mapping for fields in SprintSignupWindows.ts
