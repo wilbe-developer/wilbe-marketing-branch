@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { 
   useSprintCollaborators, 
@@ -181,9 +180,7 @@ export const CollaboratorsManagement = () => {
                     <p className="font-medium">
                       {getCollaboratorDisplayName(collaborator)}
                     </p>
-                    {(collaborator.firstName || collaborator.lastName) && (
-                      <p className="text-sm text-gray-500">{collaborator.email}</p>
-                    )}
+                    <p className="text-sm text-gray-500">{collaborator.email}</p>
                   </div>
                   
                   <div className="flex items-center">
@@ -244,9 +241,7 @@ export const CollaboratorsManagement = () => {
                       <p className="font-medium">
                         {getCollaboratorDisplayName(collaborator)}
                       </p>
-                      {(collaborator.firstName || collaborator.lastName) && (
-                        <p className="text-sm text-gray-500">{collaborator.email}</p>
-                      )}
+                      <p className="text-sm text-gray-500">{collaborator.email}</p>
                     </div>
                     
                     <div className="flex items-center gap-2">
