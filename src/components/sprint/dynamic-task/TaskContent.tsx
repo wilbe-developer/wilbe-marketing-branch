@@ -4,6 +4,9 @@ import DynamicTaskStep from "../task-builder/DynamicTaskStep";
 import StaticPanels from "../task-builder/StaticPanels";
 import { Button } from "@/components/ui/button";
 import { StepNode } from "@/types/task-builder";
+import { useNavigate } from "react-router-dom";
+import { PATHS } from "@/lib/constants";
+import { toast } from "sonner";
 import type { SaveStatus } from "@/hooks/useAutoSaveManager";
 
 interface TaskContentProps {
@@ -50,6 +53,8 @@ export const TaskContent: React.FC<TaskContentProps> = ({
   autoSaveManager,
   onAutoSaveField
 }) => {
+  const navigate = useNavigate();
+
   const handleNavigation = async (direction: 'next' | 'previous') => {
     // Force save any pending changes before navigation
     if (currentStep && autoSaveManager) {
@@ -60,6 +65,26 @@ export const TaskContent: React.FC<TaskContentProps> = ({
       goToStep(currentStepIndex + 1);
     } else {
       goToStep(currentStepIndex - 1);
+    }
+  };
+
+  const handleTaskCompletion = async () => {
+    try {
+      // Force save any pending changes before completing
+      if (currentStep && autoSaveManager) {
+        autoSaveManager.forceSave(currentStep.id);
+      }
+      
+      await handleComplete();
+      
+      // Show success message and navigate back to dashboard
+      toast.success("Task completed successfully!");
+      setTimeout(() => {
+        navigate(PATHS.SPRINT_DASHBOARD);
+      }, 1500);
+    } catch (error) {
+      console.error("Error completing task:", error);
+      toast.error("Failed to complete the task. Please try again.");
     }
   };
 
@@ -89,7 +114,7 @@ export const TaskContent: React.FC<TaskContentProps> = ({
         </Button>
         
         {currentStepIndex === visibleSteps.length - 1 ? (
-          <Button onClick={handleComplete}>
+          <Button onClick={handleTaskCompletion}>
             Complete Task
           </Button>
         ) : (
