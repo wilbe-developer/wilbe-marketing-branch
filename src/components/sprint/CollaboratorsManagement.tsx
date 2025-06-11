@@ -135,6 +135,15 @@ export const CollaboratorsManagement = () => {
     return new Date(dateString).toLocaleDateString();
   };
 
+  // Function to display collaborator name or email
+  const getCollaboratorDisplayName = (collaborator: Collaborator) => {
+    const hasName = collaborator.firstName || collaborator.lastName;
+    if (hasName) {
+      return `${collaborator.firstName || ''} ${collaborator.lastName || ''}`.trim();
+    }
+    return collaborator.email;
+  };
+
   // Show read-only view if user doesn't have manage access
   if (!canManage && isSharedSprint) {
     return (
@@ -170,12 +179,11 @@ export const CollaboratorsManagement = () => {
                 >
                   <div className="flex-1">
                     <p className="font-medium">
-                      {collaborator.firstName || ''} {collaborator.lastName || ''}
-                      {!collaborator.firstName && !collaborator.lastName && (
-                        <span className="italic text-gray-500">Name not available</span>
-                      )}
+                      {getCollaboratorDisplayName(collaborator)}
                     </p>
-                    <p className="text-sm text-gray-500">{collaborator.email}</p>
+                    {(collaborator.firstName || collaborator.lastName) && (
+                      <p className="text-sm text-gray-500">{collaborator.email}</p>
+                    )}
                   </div>
                   
                   <div className="flex items-center">
@@ -234,12 +242,11 @@ export const CollaboratorsManagement = () => {
                   >
                     <div className="flex-1">
                       <p className="font-medium">
-                        {collaborator.firstName || ''} {collaborator.lastName || ''}
-                        {!collaborator.firstName && !collaborator.lastName && (
-                          <span className="italic text-gray-500">Name not available</span>
-                        )}
+                        {getCollaboratorDisplayName(collaborator)}
                       </p>
-                      <p className="text-sm text-gray-500">{collaborator.email}</p>
+                      {(collaborator.firstName || collaborator.lastName) && (
+                        <p className="text-sm text-gray-500">{collaborator.email}</p>
+                      )}
                     </div>
                     
                     <div className="flex items-center gap-2">

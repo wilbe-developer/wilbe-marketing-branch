@@ -88,22 +88,6 @@ const SprintDashboardPage = () => {
             </Button>
           </div>
         )}
-
-        {/* Guest User CTA - For guest users, link to sprint signup instead of switching context */}
-        {isGuestUser && !hasSprintProfile && (
-          <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
-            <h3 className="text-lg font-medium text-blue-900 mb-2">Ready to Start Your Own BSF?</h3>
-            <p className="text-blue-700 mb-3">
-              You're currently viewing a shared BSF. Create your own BSF to track your startup journey and access all features.
-            </p>
-            <Button asChild className="bg-blue-600 hover:bg-blue-700">
-              <Link to="/sprint-signup">
-                <Plus className="mr-2 h-4 w-4" />
-                Start Your BSF
-              </Link>
-            </Button>
-          </div>
-        )}
         
         {/* Action buttons - show for non-shared sprints OR for users with manage access */}
         {(!isSharedSprint || canManage) && user?.id && (
