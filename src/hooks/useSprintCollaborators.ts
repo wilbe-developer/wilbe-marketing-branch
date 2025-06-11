@@ -38,6 +38,8 @@ export const useSprintCollaborators = () => {
     
     setIsLoading(true);
     try {
+      console.log('Fetching collaborators for sprint owner:', sprintOwnerId);
+      
       // First fetch the collaborator links
       const { data: collabData, error: collabError } = await supabase
         .from("sprint_collaborators")
@@ -47,22 +49,30 @@ export const useSprintCollaborators = () => {
       if (collabError) throw collabError;
       
       if (!collabData || collabData.length === 0) {
+        console.log('No collaborators found for sprint owner:', sprintOwnerId);
         setCollaborators([]);
         setIsLoading(false);
         return;
       }
       
+      console.log('Found collaborator records:', collabData.length);
+      
       // Fetch profile details for each collaborator separately
       const collaboratorsWithProfiles = await Promise.all(
         collabData.map(async (collab) => {
+          console.log('Fetching profile for collaborator:', collab.collaborator_id);
+          
           const { data: profileData, error: profileError } = await supabase
             .from("profiles")
             .select("email, first_name, last_name")
             .eq("id", collab.collaborator_id)
-            .single();
+            .maybeSingle(); // Changed from .single() to .maybeSingle() to handle incomplete profiles
             
-          if (profileError && profileError.code !== 'PGRST116') {
-            console.error("Error fetching profile:", profileError);
+          if (profileError) {
+            console.error("Error fetching profile for collaborator:", collab.collaborator_id, profileError);
+            // Continue processing other collaborators even if one fails
+          } else {
+            console.log('Profile data for', collab.collaborator_id, ':', profileData);
           }
 
           // Ensure access_level is a valid AccessLevel type
@@ -81,6 +91,7 @@ export const useSprintCollaborators = () => {
         })
       );
       
+      console.log('Final collaborators with profiles:', collaboratorsWithProfiles);
       setCollaborators(collaboratorsWithProfiles);
     } catch (error: any) {
       console.error("Error fetching team members:", error);
@@ -104,12 +115,9 @@ export const useSprintCollaborators = () => {
         .from("profiles")
         .select("id, first_name, last_name")
         .eq("email", email.trim().toLowerCase())
-        .single();
+        .maybeSingle(); // Changed from .single() to .maybeSingle()
 
-      if (userError) {
-        if (userError.code === "PGRST116") {
-          throw new Error("User not found. Please check the email address.");
-        }
+      if (userError && userError.code !== 'PGRST116') {
         throw userError;
       }
 
@@ -148,7 +156,7 @@ export const useSprintCollaborators = () => {
         .from("profiles")
         .select("first_name, last_name")
         .eq("id", sprintOwnerId)
-        .single();
+        .maybeSingle(); // Changed from .single() to .maybeSingle()
 
       const ownerName = ownerData 
         ? `${ownerData.first_name || ''} ${ownerData.last_name || ''}`.trim() || 'BSF Owner'
