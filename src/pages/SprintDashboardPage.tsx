@@ -97,7 +97,7 @@ const SprintDashboardPage = () => {
               You're currently viewing a shared BSF. Create your own BSF to track your startup journey and access all features.
             </p>
             <Button asChild className="bg-blue-600 hover:bg-blue-700">
-              <Link to="/sprint/profile">
+              <Link to="/sprint-signup">
                 <Plus className="mr-2 h-4 w-4" />
                 Start Your BSF
               </Link>

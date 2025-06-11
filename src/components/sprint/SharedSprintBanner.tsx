@@ -22,7 +22,7 @@ export const SharedSprintBanner = () => {
         <AlertTitle className="text-blue-800 flex items-center justify-between">
           <span>Viewing {sprintOwnerName}'s BSF</span>
           <Button asChild size="sm" className="ml-4">
-            <Link to="/sprint/profile">
+            <Link to="/sprint-signup">
               <Plus className="h-3 w-3 mr-1" />
               Start Your Own
             </Link>
