@@ -11,7 +11,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// HTML email template for team access notification
+// HTML email template for team access notification.
 const createTeamAccessEmailHtml = (memberName: string, ownerName: string, accessLevel: string, invitationToken?: string, memberEmail?: string) => {
   const isInvitation = !!invitationToken;
   const acceptUrl = invitationToken && memberEmail 
