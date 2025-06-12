@@ -28,7 +28,7 @@ import { useLinkPreview } from '@/hooks/useLinkPreview';
 import { LinkPreview } from './LinkPreview';
 import { extractImages, removeImageMarkdown } from '@/utils/markdownUtils';
 import { cleanupContent } from '@/utils/contentUtils';
-import { UserSelector } from './UserSelector';
+import { SearchableUserSelector } from './SearchableUserSelector';
 
 interface NewThreadModalProps {
   open: boolean;
@@ -51,7 +51,7 @@ export const NewThreadModal = ({
   const [selectedRecipient, setSelectedRecipient] = useState<string | null>(null);
   const [uploadedImages, setUploadedImages] = useState<Array<{ id: string; url: string; name: string; path: string }>>([]);
   
-  const { createThread, updateThread, challenges, allUsers, isLoading: isLoadingChallenges } = useCommunityThreads();
+  const { createThread, updateThread, challenges, isLoading: isLoadingChallenges } = useCommunityThreads();
   const { uploadFile, isUploading, deleteFile } = useSupabaseFileUpload();
   const { linkPreviews } = useLinkPreview(content);
   const { isAdmin } = useAuth();
@@ -235,12 +235,11 @@ export const NewThreadModal = ({
                 <label htmlFor="recipient" className="block text-sm font-medium mb-1">
                   Send to <span className="text-red-500">*</span>
                 </label>
-                <UserSelector
-                  users={Array.isArray(allUsers) ? allUsers : []}
+                <SearchableUserSelector
                   value={selectedRecipient || ""}
                   onValueChange={setSelectedRecipient}
-                  placeholder="Select a user to message..."
-                  emptyMessage="No users available"
+                  placeholder="Search for a user to message..."
+                  emptyMessage="No users found"
                 />
               </div>
             )}
