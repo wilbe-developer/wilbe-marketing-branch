@@ -21,11 +21,10 @@ export const CommunityHeader = ({ pageTitle, selectedTopic, onNewThreadClick }: 
         <Button 
           onClick={onNewThreadClick}
           size={isMobile ? 'sm' : 'default'}
-          disabled={selectedTopic === 'private'}
           className={isMobile ? 'w-full' : ''}
         >
           <PlusCircle className="mr-2 h-4 w-4" />
-          {selectedTopic === 'faqs' ? 'Ask a Question' : 'New Thread'}
+          {selectedTopic === 'private' ? 'New Message' : 'New Thread'}
         </Button>
       )}
     </div>

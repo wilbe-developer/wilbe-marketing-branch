@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Thread, Challenge } from '@/types/community';
@@ -182,47 +181,25 @@ export const useCommunityThreads = (params: UseCommunityThreadsParams = {}) => {
                  challengeId ? publicThreads.filter(t => t.challenge_id === challengeId) :
                  publicThreads;
 
-  // Get admin users for the "Request Call" feature
+  // Get all users for private messaging (for admins)
   const { data: adminUsers = [], isLoading: isLoadingAdmins } = useQuery({
-    queryKey: ['admin-users'],
+    queryKey: ['all-users'],
     queryFn: async () => {
-      console.log("Fetching admin users...");
+      console.log("Fetching all users for private messaging...");
       try {
-        // First, get all user_ids with admin role
-        const { data: adminRoles, error: rolesError } = await supabase
-          .from('user_roles')
-          .select('user_id')
-          .eq('role', 'admin');
+        // Get all user profiles for private messaging
+        const { data, error } = await supabase
+          .rpc('get_all_user_profiles');
         
-        if (rolesError) {
-          console.error("Error fetching admin roles:", rolesError);
-          throw rolesError;
+        if (error) {
+          console.error("Error fetching user profiles:", error);
+          throw error;
         }
         
-        console.log("Admin roles data:", adminRoles);
-        
-        if (!adminRoles || adminRoles.length === 0) {
-          console.log("No admin roles found");
-          return [];
-        }
-        
-        // Extract user_ids
-        const adminUserIds = adminRoles.map(role => role.user_id);
-        console.log("Admin user IDs:", adminUserIds);
-        
-        // Then fetch the unified profiles for these users
-        const adminProfiles = await Promise.all(
-          adminUserIds.map(async (userId) => {
-            const { data: profile } = await supabase
-              .rpc('get_unified_profile', { p_user_id: userId });
-            return profile && profile[0] ? profile[0] : null;
-          })
-        );
-        
-        console.log("Admin profiles:", adminProfiles);
-        return adminProfiles.filter(profile => profile !== null) || [];
+        console.log("User profiles data:", data);
+        return data || [];
       } catch (error) {
-        console.error("Error in admin users query:", error);
+        console.error("Error in all users query:", error);
         return [];
       }
     },
