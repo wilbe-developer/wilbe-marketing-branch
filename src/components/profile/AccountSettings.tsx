@@ -10,45 +10,53 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { useAuth } from "@/hooks/useAuth";
+import { useState } from "react";
 
 export const AccountSettings = () => {
+  const [resetEmail, setResetEmail] = useState("");
+  const { resetPassword, loading, user } = useAuth();
+
+  const handlePasswordReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const emailToUse = resetEmail || user?.email || "";
+    
+    if (!emailToUse || !emailToUse.includes('@')) {
+      return;
+    }
+    
+    await resetPassword(emailToUse);
+    setResetEmail("");
+  };
+
   return (
     <>
       <Card>
         <CardHeader>
-          <CardTitle>Account Settings</CardTitle>
+          <CardTitle>Password Management</CardTitle>
           <CardDescription>
-            Manage your account preferences
+            Set up or reset your password for this account
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="currentPassword">Current Password</Label>
+            <Label htmlFor="resetEmail">Email Address</Label>
             <Input
-              id="currentPassword"
-              type="password"
-              placeholder="Enter your current password"
+              id="resetEmail"
+              type="email"
+              placeholder={user?.email || "Enter your email"}
+              value={resetEmail}
+              onChange={(e) => setResetEmail(e.target.value)}
             />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="newPassword">New Password</Label>
-            <Input
-              id="newPassword"
-              type="password"
-              placeholder="Enter your new password"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirm Password</Label>
-            <Input
-              id="confirmPassword"
-              type="password"
-              placeholder="Confirm your new password"
-            />
+            <p className="text-sm text-gray-600">
+              Leave blank to use your account email ({user?.email})
+            </p>
           </div>
         </CardContent>
         <CardFooter>
-          <Button>Update Password</Button>
+          <Button onClick={handlePasswordReset} disabled={loading}>
+            {loading ? "Sending reset link..." : "Send Password Reset Email"}
+          </Button>
         </CardFooter>
       </Card>
 

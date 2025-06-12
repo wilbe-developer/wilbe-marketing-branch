@@ -3,7 +3,7 @@ import { Route } from "react-router-dom";
 import { PATHS } from "@/lib/constants";
 import MerchPage from "@/pages/MerchPage";
 import LoginPage from "@/pages/LoginPage";
-import AdminLoginPage from "@/pages/AdminLoginPage";
+import PasswordLoginPage from "@/pages/PasswordLoginPage";
 import PasswordResetPage from "@/pages/PasswordResetPage";
 import LandingPageOld from "@/components/LandingPageOld";
 import BsfPage from "@/components/BsfOld";
@@ -23,7 +23,8 @@ export default function PublicRoutes() {
 
       {/* Auth routes */}
       <Route path={PATHS.LOGIN} element={<LoginPage />} />
-      <Route path="/admin-login" element={<AdminLoginPage />} />
+      <Route path="/password-login" element={<PasswordLoginPage />} />
+      <Route path="/admin-login" element={<PasswordLoginPage />} />
       <Route path="/password-reset" element={<PasswordResetPage />} />
       <Route path={PATHS.LANDING_PAGE} element={<LandingPageOld />} />
       <Route path={PATHS.BSF_PAGE} element={<BsfPage />} />

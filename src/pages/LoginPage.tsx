@@ -71,6 +71,13 @@ const LoginPage = () => {
               {loading ? "Sending magic link..." : "Send Magic Link"}
             </Button>
           </form>
+          
+          <div className="mt-4 text-center text-sm">
+            <Link to="/password-login" className="text-brand-pink hover:underline">
+              Prefer to use a password? Sign in here
+            </Link>
+          </div>
+          
           <div className="mt-4 text-center text-sm">
             Don't have an account?{" "}
             <Link to={PATHS.LOGIN} className="text-brand-pink hover:underline">
@@ -79,12 +86,6 @@ const LoginPage = () => {
           </div>
           <div className="mt-2 p-4 bg-gray-50 rounded-md text-sm text-gray-600">
             <p>You'll receive an email with a login link. No password needed!</p>
-          </div>
-          
-          <div className="mt-4 text-center text-xs text-gray-400">
-            <Link to="/admin-login" className="hover:underline">
-              Admin Login
-            </Link>
           </div>
         </CardContent>
       </Card>

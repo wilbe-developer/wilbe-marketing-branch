@@ -104,6 +104,62 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return sendMagicLinkAction(email, redirectTo);
   };
 
+  // Enhanced session refresh logic for mobile
+  useEffect(() => {
+    let refreshTimer: NodeJS.Timeout;
+
+    const refreshSession = async () => {
+      try {
+        const { data: { session: currentSession }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error("Session refresh error:", error);
+          return;
+        }
+
+        if (currentSession) {
+          setSession(currentSession);
+          console.log("Session refreshed successfully");
+        }
+      } catch (error) {
+        console.error("Session refresh failed:", error);
+      }
+    };
+
+    // Refresh session every 30 minutes
+    const startSessionRefresh = () => {
+      refreshTimer = setInterval(refreshSession, 30 * 60 * 1000);
+    };
+
+    // Handle app focus/resume for mobile
+    const handleFocus = () => {
+      console.log("App focused, checking session...");
+      refreshSession();
+    };
+
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        console.log("App became visible, checking session...");
+        refreshSession();
+      }
+    };
+
+    if (session) {
+      startSessionRefresh();
+    }
+
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      if (refreshTimer) {
+        clearInterval(refreshTimer);
+      }
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [session, setSession]);
+
   // Check for recovery mode
   useEffect(() => {
     const checkRecoveryMode = () => {
