@@ -182,35 +182,6 @@ export const useCommunityThreads = (params: UseCommunityThreadsParams = {}) => {
                  challengeId ? publicThreads.filter(t => t.challenge_id === challengeId) :
                  publicThreads;
 
-  // Get all users for admin private messaging - simplified direct query
-  const { data: allUsers = [], isLoading: isLoadingAllUsers } = useQuery({
-    queryKey: ['all-users'],
-    queryFn: async () => {
-      console.log("Fetching all users for admin private messaging...");
-      try {
-        // Direct query for all profiles using unified_profiles view
-        const { data, error } = await supabase
-          .from('unified_profiles')
-          .select('*')
-          .order('created_at', { ascending: false });
-        
-        if (error) {
-          console.error("Error fetching user profiles:", error);
-          throw error;
-        }
-        
-        console.log("All user profiles data:", data);
-        console.log("Number of users found:", data?.length || 0);
-        
-        // Ensure we return an array, even if data is null or undefined
-        return Array.isArray(data) ? data : [];
-      } catch (error) {
-        console.error("Error in all users query:", error);
-        return [];
-      }
-    },
-  });
-
   // Get admin users only for Request Call feature - simplified direct query
   const { data: adminUsers = [], isLoading: isLoadingAdmins } = useQuery({
     queryKey: ['admin-users'],
@@ -439,10 +410,9 @@ export const useCommunityThreads = (params: UseCommunityThreadsParams = {}) => {
   return {
     threads,
     privateThreads,
-    allUsers, // For admin private messaging
     adminUsers, // For Request Call feature
     challenges,
-    isLoading: isLoadingPublic || isLoadingPrivate || isLoadingChallenges || isLoadingAllUsers || isLoadingAdmins,
+    isLoading: isLoadingPublic || isLoadingPrivate || isLoadingChallenges || isLoadingAdmins,
     createThread,
     updateThread,
     deleteThread,
