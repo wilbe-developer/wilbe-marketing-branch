@@ -20,7 +20,7 @@ export default function NextLiveEvent({ timeLeft }: NextLiveEventProps) {
   const nextEvent = {
     title: "Ep 6: From PhD War Models to an AI x Defense Exit",
     speaker: "With Sean Gourley",
-    date: "2025-06-12T16:00:00Z", // 12:00 ET = 16:00 UTC
+    date: "2025-06-13T16:00:00Z", // 12:00 ET = 16:00 UTC
     description: "Join leading scientists discussing the latest breakthroughs in AI-powered drug discovery"
   };
 
@@ -28,8 +28,8 @@ export default function NextLiveEvent({ timeLeft }: NextLiveEventProps) {
   const nextEventCalendarData: CalendarEvent = {
     title: "Ep 6: From PhD War Models to an AI x Defense Exit",
     description: "Join Sean Gourley discussing breakthrough insights in AI-powered defense applications and his entrepreneurial journey from PhD research to successful exit. Learn from leading scientists about the latest developments in the intersection of AI and defense technology.",
-    startDate: new Date('2025-06-12T16:00:00Z'), // 12:00 PM ET = 16:00 UTC
-    endDate: new Date('2025-06-12T17:00:00Z'), // 1 hour duration
+    startDate: new Date('2025-06-13T16:00:00Z'), // 12:00 PM ET = 16:00 UTC
+    endDate: new Date('2025-06-13T17:00:00Z'), // 1 hour duration
     location: "Wilbe Live Stream - https://wilbe.com"
   };
 
@@ -53,11 +53,11 @@ export default function NextLiveEvent({ timeLeft }: NextLiveEventProps) {
         </a>
       </p>
       
-      {/* Event Date & Time - Updated to June 12, 2025 */}
+      {/* Event Date & Time - Updated to June 13, 2025 */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-3 sm:mb-4 text-sm text-gray-500">
         <div className="flex items-center gap-1">
           <Calendar className="h-4 w-4" />
-          <span>June 12, 2025</span>
+          <span>June 13, 2025</span>
         </div>
         <div className="flex items-center gap-1">
           <Clock className="h-4 w-4" />

@@ -458,6 +458,48 @@ export type Database = {
         }
         Relationships: []
       }
+      pending_team_invitations: {
+        Row: {
+          accepted_at: string | null
+          accepted_by: string | null
+          access_level: string
+          created_at: string | null
+          email: string
+          expires_at: string
+          id: string
+          invitation_token: string
+          invited_by: string
+          sprint_owner_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          access_level: string
+          created_at?: string | null
+          email: string
+          expires_at?: string
+          id?: string
+          invitation_token: string
+          invited_by: string
+          sprint_owner_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          access_level?: string
+          created_at?: string | null
+          email?: string
+          expires_at?: string
+          id?: string
+          invitation_token?: string
+          invited_by?: string
+          sprint_owner_id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           about: string | null
@@ -1151,13 +1193,6 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "fk_user_roles_profile_id"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "unified_profiles"
-            referencedColumns: ["user_id"]
-          },
         ]
       }
       user_sprint_progress: {
@@ -1435,6 +1470,10 @@ export type Database = {
       }
     }
     Functions: {
+      accept_team_invitation: {
+        Args: { p_token: string; p_user_id: string }
+        Returns: Json
+      }
       calculate_thread_score: {
         Args: { p_thread_id: string; p_sort_type?: string }
         Returns: number
@@ -1442,6 +1481,10 @@ export type Database = {
       can_access_data_room: {
         Args: { p_sprint_owner_id: string; p_requesting_user_id?: string }
         Returns: boolean
+      }
+      cleanup_expired_invitations: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       create_sprint_profile: {
         Args:
@@ -1469,122 +1512,6 @@ export type Database = {
               p_funding_sources: string[]
               p_experiment_validated: boolean
               p_industry_changing_vision: boolean
-            }
-          | {
-              p_user_id: string
-              p_name: string
-              p_email: string
-              p_linkedin_url: string
-              p_cv_url: string
-              p_current_job: string
-              p_company_incorporated: boolean
-              p_received_funding: boolean
-              p_funding_details: string
-              p_has_deck: boolean
-              p_team_status: string
-              p_commercializing_invention: boolean
-              p_university_ip: boolean
-              p_tto_engaged: boolean
-              p_problem_defined: boolean
-              p_customer_engagement: string
-              p_market_known: boolean
-              p_market_gap_reason: string
-              p_funding_amount: string
-              p_has_financial_plan: boolean
-              p_funding_sources: string[]
-              p_experiment_validated: boolean
-              p_industry_changing_vision: boolean
-              p_is_scientist_engineer: boolean
-              p_job_type: string
-              p_ip_concerns: boolean
-              p_potential_beneficiaries: boolean
-              p_specific_customers: boolean
-              p_customer_evidence: boolean
-              p_competition_research: boolean
-              p_success_vision_1yr: boolean
-              p_success_vision_10yr: boolean
-              p_impact_scale: string[]
-              p_prior_accelerators: boolean
-              p_prior_accelerators_details: string
-              p_planned_accelerators: boolean
-              p_planned_accelerators_details: string
-              p_lab_space_needed: boolean
-              p_lab_space_secured: boolean
-              p_lab_space_details: string
-              p_deck_feedback: boolean
-            }
-          | {
-              p_user_id: string
-              p_name: string
-              p_email: string
-              p_linkedin_url: string
-              p_cv_url: string
-              p_current_job: string
-              p_company_incorporated: boolean
-              p_received_funding: boolean
-              p_funding_details: string
-              p_has_deck: boolean
-              p_team_status: string
-              p_commercializing_invention: boolean
-              p_university_ip: boolean
-              p_tto_engaged: boolean
-              p_problem_defined: boolean
-              p_customer_engagement: string
-              p_market_known: boolean
-              p_market_gap_reason: string
-              p_funding_amount: string
-              p_has_financial_plan: boolean
-              p_funding_sources: string[]
-              p_experiment_validated: boolean
-              p_industry_changing_vision: boolean
-              p_is_scientist_engineer: boolean
-              p_job_type: string
-              p_ip_concerns: boolean
-              p_potential_beneficiaries: boolean
-              p_specific_customers: boolean
-              p_customer_evidence: boolean
-              p_competition_research: boolean
-              p_success_vision_1yr: boolean
-              p_success_vision_10yr: boolean
-              p_impact_scale: string[]
-              p_prior_accelerators: boolean
-              p_prior_accelerators_details: string
-              p_planned_accelerators: boolean
-              p_planned_accelerators_details: string
-              p_lab_space_needed: boolean
-              p_lab_space_secured: boolean
-              p_lab_space_details: string
-              p_deck_feedback: boolean
-              p_utm_source: string
-              p_utm_medium: string
-              p_utm_campaign: string
-              p_utm_term: string
-              p_utm_content: string
-            }
-          | {
-              p_user_id: string
-              p_name: string
-              p_email: string
-              p_linkedin_url: string
-              p_cv_url: string
-              p_current_job: string
-              p_company_incorporated: boolean
-              p_received_funding: boolean
-              p_funding_details: string
-              p_has_deck: boolean
-              p_team_status: string
-              p_commercializing_invention: boolean
-              p_university_ip: boolean
-              p_tto_engaged: boolean
-              p_problem_defined: boolean
-              p_customer_engagement: string
-              p_market_known: boolean
-              p_market_gap_reason: string
-              p_funding_amount: string
-              p_has_financial_plan: boolean
-              p_funding_sources: string[]
-              p_experiment_validated: boolean
-              p_industry_changing_vision: boolean
               p_is_scientist_engineer: boolean
               p_job_type: string
               p_ip_concerns: boolean
@@ -1682,7 +1609,7 @@ export type Database = {
               p_funding_amount: string
               p_has_financial_plan: boolean
               p_funding_sources: string[]
-              p_experiment_validated: boolean
+              p_experiment_validated: string
               p_industry_changing_vision: boolean
               p_is_scientist_engineer: boolean
               p_job_type: string
@@ -1710,57 +1637,6 @@ export type Database = {
               p_minimal_success_version: string
               p_dashboard_access_enabled?: boolean
               p_ambitious_version?: string
-            }
-          | {
-              p_user_id: string
-              p_name: string
-              p_email: string
-              p_linkedin_url: string
-              p_cv_url: string
-              p_current_job: string
-              p_company_incorporated: boolean
-              p_received_funding: boolean
-              p_funding_details: string
-              p_has_deck: boolean
-              p_team_status: string
-              p_commercializing_invention: boolean
-              p_university_ip: boolean
-              p_tto_engaged: boolean
-              p_problem_defined: boolean
-              p_customer_engagement: string
-              p_market_known: boolean
-              p_market_gap_reason: string
-              p_funding_amount: string
-              p_has_financial_plan: boolean
-              p_funding_sources: string[]
-              p_experiment_validated: boolean
-              p_industry_changing_vision: boolean
-              p_is_scientist_engineer: boolean
-              p_job_type: string
-              p_ip_concerns: boolean
-              p_potential_beneficiaries: boolean
-              p_specific_customers: boolean
-              p_customer_evidence: boolean
-              p_competition_research: boolean
-              p_success_vision_1yr: boolean
-              p_success_vision_10yr: boolean
-              p_impact_scale: string[]
-              p_prior_accelerators: boolean
-              p_prior_accelerators_details: string
-              p_planned_accelerators: boolean
-              p_planned_accelerators_details: string
-              p_lab_space_needed: boolean
-              p_lab_space_secured: boolean
-              p_lab_space_details: string
-              p_deck_feedback: boolean
-              p_utm_source: string
-              p_utm_medium: string
-              p_utm_campaign: string
-              p_utm_term: string
-              p_utm_content: string
-              p_minimal_success_version: string
-              p_dashboard_access_enabled?: boolean
-              p_sprint_start_date?: string
             }
         Returns: undefined
       }
@@ -1876,6 +1752,19 @@ export type Database = {
           upvotes: number
           downvotes: number
           score: number
+        }[]
+      }
+      get_sprint_collaborator_profiles: {
+        Args: { p_sprint_owner_id: string; p_requesting_user_id?: string }
+        Returns: {
+          collaborator_id: string
+          collaborator_email: string
+          collaborator_first_name: string
+          collaborator_last_name: string
+          access_level: string
+          collaboration_id: string
+          created_at: string
+          created_by: string
         }[]
       }
       get_thread_vote_summary: {
