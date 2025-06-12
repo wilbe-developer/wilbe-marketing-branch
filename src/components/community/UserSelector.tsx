@@ -28,10 +28,17 @@ export const UserSelector = ({
 }: UserSelectorProps) => {
   const [searchTerm, setSearchTerm] = useState('');
 
-  const filteredUsers = users.filter(user =>
-    `${user.first_name} ${user.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredUsers = users.filter(user => {
+    const firstName = user.first_name || '';
+    const lastName = user.last_name || '';
+    const email = user.email || '';
+    const fullName = `${firstName} ${lastName}`.toLowerCase();
+    const searchLower = searchTerm.toLowerCase();
+    
+    return fullName.includes(searchLower) || email.toLowerCase().includes(searchLower);
+  });
+
+  console.log(`UserSelector: ${users.length} total users, ${filteredUsers.length} filtered users`);
 
   return (
     <div className="space-y-2">
@@ -48,7 +55,7 @@ export const UserSelector = ({
         <SelectTrigger>
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
-        <SelectContent className="max-h-60">
+        <SelectContent className="max-h-80">
           {filteredUsers.length > 0 ? (
             filteredUsers.map((user) => (
               <SelectItem key={user.user_id} value={user.user_id}>
@@ -62,6 +69,12 @@ export const UserSelector = ({
           )}
         </SelectContent>
       </Select>
+      {filteredUsers.length > 0 && (
+        <div className="text-xs text-muted-foreground">
+          {filteredUsers.length} user{filteredUsers.length !== 1 ? 's' : ''} 
+          {searchTerm && ` found for "${searchTerm}"`}
+        </div>
+      )}
     </div>
   );
 };
