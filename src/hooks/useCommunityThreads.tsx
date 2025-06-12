@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Thread, Challenge } from '@/types/community';
@@ -182,13 +181,13 @@ export const useCommunityThreads = (params: UseCommunityThreadsParams = {}) => {
                  challengeId ? publicThreads.filter(t => t.challenge_id === challengeId) :
                  publicThreads;
 
-  // Get all users for private messaging (for admins)
-  const { data: adminUsers = [], isLoading: isLoadingAdmins } = useQuery({
+  // Get all users for admin private messaging (only for admins)
+  const { data: allUsers = [], isLoading: isLoadingAllUsers } = useQuery({
     queryKey: ['all-users'],
     queryFn: async () => {
-      console.log("Fetching all users for private messaging...");
+      console.log("Fetching all users for admin private messaging...");
       try {
-        // Get all user profiles for private messaging
+        // Get all user profiles for admin private messaging
         const { data, error } = await supabase
           .rpc('get_all_unified_profiles');
         
@@ -197,11 +196,58 @@ export const useCommunityThreads = (params: UseCommunityThreadsParams = {}) => {
           throw error;
         }
         
-        console.log("User profiles data:", data);
+        console.log("All user profiles data:", data);
         // Ensure we return an array, even if data is null or undefined
         return Array.isArray(data) ? data : [];
       } catch (error) {
         console.error("Error in all users query:", error);
+        return [];
+      }
+    },
+  });
+
+  // Get admin users only for Request Call feature
+  const { data: adminUsers = [], isLoading: isLoadingAdmins } = useQuery({
+    queryKey: ['admin-users'],
+    queryFn: async () => {
+      console.log("Fetching admin users for Request Call...");
+      try {
+        // Get all unified profiles first
+        const { data: allProfiles, error: profilesError } = await supabase
+          .rpc('get_all_unified_profiles');
+        
+        if (profilesError) {
+          console.error("Error fetching profiles:", profilesError);
+          throw profilesError;
+        }
+
+        if (!Array.isArray(allProfiles)) {
+          console.log("No profiles data or not an array");
+          return [];
+        }
+
+        // Get admin user IDs
+        const { data: adminRoles, error: rolesError } = await supabase
+          .from('user_roles')
+          .select('user_id')
+          .eq('role', 'admin');
+        
+        if (rolesError) {
+          console.error("Error fetching admin roles:", rolesError);
+          throw rolesError;
+        }
+
+        const adminUserIds = adminRoles.map(role => role.user_id);
+        
+        // Filter profiles to only include admins
+        const adminProfiles = allProfiles.filter(profile => 
+          adminUserIds.includes(profile.user_id)
+        );
+        
+        console.log("Admin profiles data:", adminProfiles);
+        return adminProfiles;
+      } catch (error) {
+        console.error("Error in admin users query:", error);
         return [];
       }
     },
@@ -406,9 +452,10 @@ export const useCommunityThreads = (params: UseCommunityThreadsParams = {}) => {
   return {
     threads,
     privateThreads,
-    adminUsers,
+    allUsers, // For admin private messaging
+    adminUsers, // For Request Call feature
     challenges,
-    isLoading: isLoadingPublic || isLoadingPrivate || isLoadingChallenges || isLoadingAdmins,
+    isLoading: isLoadingPublic || isLoadingPrivate || isLoadingChallenges || isLoadingAllUsers || isLoadingAdmins,
     createThread,
     updateThread,
     deleteThread,

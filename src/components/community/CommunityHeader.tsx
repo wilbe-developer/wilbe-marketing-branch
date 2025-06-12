@@ -2,6 +2,7 @@
 import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useAuth } from '@/hooks/useAuth';
 
 interface CommunityHeaderProps {
   pageTitle: string;
@@ -11,13 +12,18 @@ interface CommunityHeaderProps {
 
 export const CommunityHeader = ({ pageTitle, selectedTopic, onNewThreadClick }: CommunityHeaderProps) => {
   const isMobile = useIsMobile();
+  const { isAdmin } = useAuth();
+
+  // Only show the new thread/message button for appropriate cases
+  const shouldShowButton = selectedTopic !== 'faqs' && 
+    (selectedTopic !== 'private' || isAdmin);
 
   return (
     <div className={`mb-6 ${isMobile ? 'space-y-4' : 'flex justify-between items-center'}`}>
       <h1 className={`font-bold ${isMobile ? 'text-2xl' : 'text-3xl'}`}>
         {pageTitle}
       </h1>
-      {selectedTopic !== 'faqs' && (
+      {shouldShowButton && (
         <Button 
           onClick={onNewThreadClick}
           size={isMobile ? 'sm' : 'default'}

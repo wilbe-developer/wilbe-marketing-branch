@@ -15,15 +15,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
+import { UserSelector } from "@/components/community/UserSelector";
 
 export const RequestCallButton = () => {
   const { user } = useAuth();
@@ -98,28 +92,13 @@ export const RequestCallButton = () => {
               <label htmlFor="admin" className="text-sm font-medium">
                 Select Admin
               </label>
-              <Select
+              <UserSelector
+                users={Array.isArray(adminUsers) ? adminUsers : []}
                 value={selectedAdmin}
                 onValueChange={setSelectedAdmin}
-                required
-              >
-                <SelectTrigger id="admin">
-                  <SelectValue placeholder="Select an admin" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Array.isArray(adminUsers) && adminUsers.length > 0 ? (
-                    adminUsers.map((admin: any) => (
-                      <SelectItem key={admin.user_id} value={admin.user_id}>
-                        {admin.first_name} {admin.last_name}
-                      </SelectItem>
-                    ))
-                  ) : (
-                    <SelectItem value="no-admins" disabled>
-                      No admins available
-                    </SelectItem>
-                  )}
-                </SelectContent>
-              </Select>
+                placeholder="Select an admin"
+                emptyMessage="No admins available"
+              />
             </div>
             
             <div className="grid gap-2">

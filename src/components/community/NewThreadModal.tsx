@@ -28,6 +28,7 @@ import { useLinkPreview } from '@/hooks/useLinkPreview';
 import { LinkPreview } from './LinkPreview';
 import { extractImages, removeImageMarkdown } from '@/utils/markdownUtils';
 import { cleanupContent } from '@/utils/contentUtils';
+import { UserSelector } from './UserSelector';
 
 interface NewThreadModalProps {
   open: boolean;
@@ -50,7 +51,7 @@ export const NewThreadModal = ({
   const [selectedRecipient, setSelectedRecipient] = useState<string | null>(null);
   const [uploadedImages, setUploadedImages] = useState<Array<{ id: string; url: string; name: string; path: string }>>([]);
   
-  const { createThread, updateThread, challenges, adminUsers, isLoading: isLoadingChallenges } = useCommunityThreads();
+  const { createThread, updateThread, challenges, allUsers, isLoading: isLoadingChallenges } = useCommunityThreads();
   const { uploadFile, isUploading, deleteFile } = useSupabaseFileUpload();
   const { linkPreviews } = useLinkPreview(content);
   const { isAdmin } = useAuth();
@@ -234,27 +235,13 @@ export const NewThreadModal = ({
                 <label htmlFor="recipient" className="block text-sm font-medium mb-1">
                   Send to <span className="text-red-500">*</span>
                 </label>
-                <Select 
+                <UserSelector
+                  users={Array.isArray(allUsers) ? allUsers : []}
                   value={selectedRecipient || ""}
-                  onValueChange={(value) => setSelectedRecipient(value)}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select a user to message..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Array.isArray(adminUsers) && adminUsers.length > 0 ? (
-                      adminUsers.map((user: any) => (
-                        <SelectItem key={user.user_id} value={user.user_id}>
-                          {user.first_name} {user.last_name} ({user.email})
-                        </SelectItem>
-                      ))
-                    ) : (
-                      <SelectItem value="no-users" disabled>
-                        No users available
-                      </SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
+                  onValueChange={setSelectedRecipient}
+                  placeholder="Select a user to message..."
+                  emptyMessage="No users available"
+                />
               </div>
             )}
             
