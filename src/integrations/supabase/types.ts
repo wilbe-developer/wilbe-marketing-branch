@@ -1193,13 +1193,6 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "fk_user_roles_profile_id"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "unified_profiles"
-            referencedColumns: ["user_id"]
-          },
         ]
       }
       user_sprint_progress: {
