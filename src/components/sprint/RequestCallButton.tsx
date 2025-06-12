@@ -107,9 +107,9 @@ export const RequestCallButton = () => {
                   <SelectValue placeholder="Select an admin" />
                 </SelectTrigger>
                 <SelectContent>
-                  {adminUsers && adminUsers.length > 0 ? (
+                  {Array.isArray(adminUsers) && adminUsers.length > 0 ? (
                     adminUsers.map((admin: any) => (
-                      <SelectItem key={admin.id} value={admin.id}>
+                      <SelectItem key={admin.user_id} value={admin.user_id}>
                         {admin.first_name} {admin.last_name}
                       </SelectItem>
                     ))

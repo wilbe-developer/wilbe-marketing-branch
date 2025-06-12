@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useCommunityThreads } from '@/hooks/useCommunityThreads';
@@ -241,11 +242,17 @@ export const NewThreadModal = ({
                     <SelectValue placeholder="Select a user to message..." />
                   </SelectTrigger>
                   <SelectContent>
-                    {adminUsers.map(user => (
-                      <SelectItem key={user.user_id} value={user.user_id}>
-                        {user.first_name} {user.last_name} ({user.email})
+                    {Array.isArray(adminUsers) && adminUsers.length > 0 ? (
+                      adminUsers.map((user: any) => (
+                        <SelectItem key={user.user_id} value={user.user_id}>
+                          {user.first_name} {user.last_name} ({user.email})
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="no-users" disabled>
+                        No users available
                       </SelectItem>
-                    ))}
+                    )}
                   </SelectContent>
                 </Select>
               </div>

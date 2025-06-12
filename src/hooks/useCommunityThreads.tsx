@@ -1,3 +1,4 @@
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Thread, Challenge } from '@/types/community';
@@ -189,7 +190,7 @@ export const useCommunityThreads = (params: UseCommunityThreadsParams = {}) => {
       try {
         // Get all user profiles for private messaging
         const { data, error } = await supabase
-          .rpc('get_all_user_profiles');
+          .rpc('get_all_unified_profiles');
         
         if (error) {
           console.error("Error fetching user profiles:", error);
@@ -197,7 +198,8 @@ export const useCommunityThreads = (params: UseCommunityThreadsParams = {}) => {
         }
         
         console.log("User profiles data:", data);
-        return data || [];
+        // Ensure we return an array, even if data is null or undefined
+        return Array.isArray(data) ? data : [];
       } catch (error) {
         console.error("Error in all users query:", error);
         return [];
