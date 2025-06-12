@@ -1,3 +1,4 @@
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Thread, Challenge } from '@/types/community';
@@ -181,15 +182,17 @@ export const useCommunityThreads = (params: UseCommunityThreadsParams = {}) => {
                  challengeId ? publicThreads.filter(t => t.challenge_id === challengeId) :
                  publicThreads;
 
-  // Get all users for admin private messaging (only for admins)
+  // Get all users for admin private messaging - simplified direct query
   const { data: allUsers = [], isLoading: isLoadingAllUsers } = useQuery({
     queryKey: ['all-users'],
     queryFn: async () => {
       console.log("Fetching all users for admin private messaging...");
       try {
-        // Get all user profiles for admin private messaging
+        // Direct query for all profiles using unified_profiles view
         const { data, error } = await supabase
-          .rpc('get_all_unified_profiles');
+          .from('unified_profiles')
+          .select('*')
+          .order('created_at', { ascending: false });
         
         if (error) {
           console.error("Error fetching user profiles:", error);
@@ -197,6 +200,8 @@ export const useCommunityThreads = (params: UseCommunityThreadsParams = {}) => {
         }
         
         console.log("All user profiles data:", data);
+        console.log("Number of users found:", data?.length || 0);
+        
         // Ensure we return an array, even if data is null or undefined
         return Array.isArray(data) ? data : [];
       } catch (error) {
