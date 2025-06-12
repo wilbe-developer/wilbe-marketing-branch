@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
@@ -40,7 +41,7 @@ export const SearchableUserSelector = ({
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Server-side user search
+  // Server-side user search with full name support
   const { data: users = [], isLoading } = useQuery({
     queryKey: ['searchable-users', debouncedSearchTerm],
     queryFn: async () => {
@@ -54,7 +55,8 @@ export const SearchableUserSelector = ({
       // Add search filter if search term exists
       if (debouncedSearchTerm.trim()) {
         const searchPattern = `%${debouncedSearchTerm.trim()}%`;
-        query = query.or(`first_name.ilike.${searchPattern},last_name.ilike.${searchPattern},email.ilike.${searchPattern}`);
+        // Support full name search by concatenating first_name and last_name
+        query = query.or(`first_name.ilike.${searchPattern},last_name.ilike.${searchPattern},email.ilike.${searchPattern},(first_name || ' ' || last_name).ilike.${searchPattern}`);
       }
 
       // Limit results to keep UI responsive
@@ -76,23 +78,60 @@ export const SearchableUserSelector = ({
   // Find selected user
   const selectedUser = users.find(user => user.user_id === value);
 
-  // Focus input when popover opens
+  // Improved focus management for browser compatibility
   useEffect(() => {
-    if (open && inputRef.current) {
-      setTimeout(() => {
-        inputRef.current?.focus();
-      }, 100);
+    if (open) {
+      // Use requestAnimationFrame to ensure DOM is ready
+      const focusInput = () => {
+        if (inputRef.current) {
+          console.log("Attempting to focus input");
+          inputRef.current.focus();
+          // Add a small delay as fallback for Safari
+          setTimeout(() => {
+            if (inputRef.current && document.activeElement !== inputRef.current) {
+              console.log("Fallback focus attempt");
+              inputRef.current.focus();
+            }
+          }, 100);
+        }
+      };
+      
+      // Try immediate focus first
+      requestAnimationFrame(focusInput);
     }
   }, [open]);
 
   const handleUserSelect = (userId: string) => {
+    console.log("Selecting user:", userId);
     onValueChange(userId === value ? "" : userId);
     setOpen(false);
     setSearchTerm(''); // Clear search when selecting
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("Input change:", e.target.value);
+    setSearchTerm(e.target.value);
+  };
+
+  const handleOpenChange = (newOpen: boolean) => {
+    console.log("Popover open state changing to:", newOpen);
+    setOpen(newOpen);
+    if (!newOpen) {
+      setSearchTerm(''); // Clear search when closing
+    }
+  };
+
+  // Prevent event bubbling that might cause flickering
+  const handleInputKeyDown = (e: React.KeyboardEvent) => {
+    e.stopPropagation();
+  };
+
+  const handleInputClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
+
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
@@ -116,8 +155,11 @@ export const SearchableUserSelector = ({
               ref={inputRef}
               placeholder="Search users by name or email..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={handleInputChange}
+              onKeyDown={handleInputKeyDown}
+              onClick={handleInputClick}
               className="w-full"
+              autoFocus
             />
           </div>
           
