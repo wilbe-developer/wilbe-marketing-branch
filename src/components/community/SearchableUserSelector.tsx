@@ -1,4 +1,5 @@
 
+
 import { useState, useEffect, useRef } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
@@ -55,8 +56,25 @@ export const SearchableUserSelector = ({
       // Add search filter if search term exists
       if (debouncedSearchTerm.trim()) {
         const searchPattern = `%${debouncedSearchTerm.trim()}%`;
-        // Support full name search by concatenating first_name and last_name
-        query = query.or(`first_name.ilike.${searchPattern},last_name.ilike.${searchPattern},email.ilike.${searchPattern},(first_name || ' ' || last_name).ilike.${searchPattern}`);
+        
+        // Build multiple OR conditions for better compatibility
+        query = query.or([
+          `first_name.ilike.${searchPattern}`,
+          `last_name.ilike.${searchPattern}`,
+          `email.ilike.${searchPattern}`
+        ].join(','));
+        
+        // Add a separate query for full name search using textSearch or additional filter
+        // This is a workaround for the concatenation issue
+        const searchTermWords = debouncedSearchTerm.trim().split(' ');
+        if (searchTermWords.length > 1) {
+          // For multi-word searches, we'll filter results client-side after getting broader results
+          query = query.or([
+            `first_name.ilike.%${searchTermWords[0]}%`,
+            `last_name.ilike.%${searchTermWords[searchTermWords.length - 1]}%`,
+            `email.ilike.${searchPattern}`
+          ].join(','));
+        }
       }
 
       // Limit results to keep UI responsive
@@ -69,8 +87,26 @@ export const SearchableUserSelector = ({
         return [];
       }
       
-      console.log(`Found ${data?.length || 0} users for search term:`, debouncedSearchTerm);
-      return data || [];
+      let filteredData = data || [];
+      
+      // Client-side filter for full name matching when we have multiple words
+      if (debouncedSearchTerm.trim()) {
+        const searchTermLower = debouncedSearchTerm.toLowerCase();
+        filteredData = filteredData.filter(user => {
+          const fullName = `${user.first_name} ${user.last_name}`.toLowerCase();
+          const email = user.email?.toLowerCase() || '';
+          const firstName = user.first_name?.toLowerCase() || '';
+          const lastName = user.last_name?.toLowerCase() || '';
+          
+          return fullName.includes(searchTermLower) || 
+                 email.includes(searchTermLower) ||
+                 firstName.includes(searchTermLower) ||
+                 lastName.includes(searchTermLower);
+        });
+      }
+      
+      console.log(`Found ${filteredData?.length || 0} users for search term:`, debouncedSearchTerm);
+      return filteredData;
     },
     enabled: true // Always enabled, will show recent users when no search term
   });
@@ -78,26 +114,18 @@ export const SearchableUserSelector = ({
   // Find selected user
   const selectedUser = users.find(user => user.user_id === value);
 
-  // Improved focus management for browser compatibility
+  // Simplified focus management
   useEffect(() => {
     if (open) {
-      // Use requestAnimationFrame to ensure DOM is ready
-      const focusInput = () => {
+      // Simple delayed focus to avoid conflicts
+      const timer = setTimeout(() => {
         if (inputRef.current) {
-          console.log("Attempting to focus input");
+          console.log("Focusing input");
           inputRef.current.focus();
-          // Add a small delay as fallback for Safari
-          setTimeout(() => {
-            if (inputRef.current && document.activeElement !== inputRef.current) {
-              console.log("Fallback focus attempt");
-              inputRef.current.focus();
-            }
-          }, 100);
         }
-      };
+      }, 50);
       
-      // Try immediate focus first
-      requestAnimationFrame(focusInput);
+      return () => clearTimeout(timer);
     }
   }, [open]);
 
@@ -159,7 +187,6 @@ export const SearchableUserSelector = ({
               onKeyDown={handleInputKeyDown}
               onClick={handleInputClick}
               className="w-full"
-              autoFocus
             />
           </div>
           
@@ -205,3 +232,4 @@ export const SearchableUserSelector = ({
     </Popover>
   );
 };
+
