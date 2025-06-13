@@ -4,13 +4,16 @@ import { useFAQs, FAQ } from '@/hooks/useFAQs';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search, MessageCircle } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { RequestCallButton } from '@/components/sprint/RequestCallButton';
 
-export const FAQContent = () => {
+interface FAQContentProps {
+  onNewThreadClick?: () => void;
+}
+
+export const FAQContent = ({ onNewThreadClick }: FAQContentProps) => {
   const { faqsByCategory, isLoading } = useFAQs();
   const [searchQuery, setSearchQuery] = useState('');
-  const navigate = useNavigate();
   const location = useLocation();
 
   // Get taskId from URL params if available
@@ -35,10 +38,8 @@ export const FAQContent = () => {
       }, {} as Record<string, FAQ[]>);
 
   const handlePostQuestion = () => {
-    if (taskId) {
-      navigate(`/community?challenge=${taskId}`);
-    } else {
-      navigate("/community");
+    if (onNewThreadClick) {
+      onNewThreadClick();
     }
   };
 

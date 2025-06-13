@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useCommunityThreads } from '@/hooks/useCommunityThreads';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -56,6 +56,7 @@ export const NewThreadModal = ({
   const { linkPreviews } = useLinkPreview(content);
   const { isAdmin } = useAuth();
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
 
   const isEditing = !!editingThread;
   const isPrivateMode = preselectedChallengeId === 'private';
@@ -134,7 +135,7 @@ export const NewThreadModal = ({
         });
         toast.success('Thread updated successfully');
       } else {
-        await createThread.mutateAsync({ 
+        const newThread = await createThread.mutateAsync({ 
           title, 
           content: finalContent,
           challenge_id: !isPrivateMode ? (challengeId || undefined) : undefined,
@@ -142,6 +143,11 @@ export const NewThreadModal = ({
           recipient_id: isPrivateMode ? selectedRecipient || undefined : undefined
         });
         toast.success('Thread created successfully');
+        
+        // Navigate to the new thread
+        if (newThread?.id) {
+          navigate(`/community/thread/${newThread.id}`);
+        }
       }
       
       // Reset form

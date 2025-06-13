@@ -89,7 +89,7 @@ export const CommunityPageLayout = ({
         />
 
         {selectedTopic === 'faqs' ? (
-          <FAQContent />
+          <FAQContent onNewThreadClick={onNewThreadClick} />
         ) : (
           <>
             <CommunitySortControls 
