@@ -1,7 +1,7 @@
-
 export const PATHS = {
   HOME: '/',
   LOGIN: '/login',
+  REGISTER: '/register',
   ADMIN_LOGIN: '/admin-login',
   PASSWORD_RESET: '/password-reset',
   ADMIN: '/admin',
@@ -24,6 +24,7 @@ export const PATHS = {
   SPRINT_SIGNUP: '/sprint-signup',
   SPRINT_PROFILE: '/sprint/profile',
   SPRINT_WAITING: '/sprint-waiting',
+  ACCEPT_INVITATION: '/accept-invitation',
   LEAD_GENERATOR: '/lead-generator',
   QUIZ: '/quiz',
   API: {

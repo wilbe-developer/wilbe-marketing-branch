@@ -7,7 +7,11 @@ import { Search, MessageCircle } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { RequestCallButton } from '@/components/sprint/RequestCallButton';
 
-export const FAQContent = () => {
+interface FAQContentProps {
+  onNewThreadClick?: () => void;
+}
+
+export const FAQContent = ({ onNewThreadClick }: FAQContentProps) => {
   const { faqsByCategory, isLoading } = useFAQs();
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
@@ -35,10 +39,16 @@ export const FAQContent = () => {
       }, {} as Record<string, FAQ[]>);
 
   const handlePostQuestion = () => {
-    if (taskId) {
-      navigate(`/community?challenge=${taskId}`);
+    if (onNewThreadClick) {
+      // Use the modal opening function if provided
+      onNewThreadClick();
     } else {
-      navigate("/community");
+      // Fallback to navigation if modal function not available
+      if (taskId) {
+        navigate(`/community?challenge=${taskId}`);
+      } else {
+        navigate("/community");
+      }
     }
   };
 

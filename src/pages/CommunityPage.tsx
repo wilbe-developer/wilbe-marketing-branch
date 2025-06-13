@@ -39,7 +39,7 @@ const CommunityPage = () => {
     handleReplyClick
   } = useCommunityNavigation(refetch);
 
-  // Use the threads that match the current topic selection
+  // Use the appropriate threads based on current topic selection
   const displayThreads = selectedTopic === 'private' ? privateThreads : 
                         selectedTopic === 'all' ? threads :
                         selectedTopic === 'challenges' ? threads.filter(t => !!t.challenge_id) :

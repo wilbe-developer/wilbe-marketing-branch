@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -134,14 +133,24 @@ export const useAuthActions = ({
     try {
       setLoading(true);
       
+      // Improve mobile deep link handling
+      const baseUrl = window.location.origin;
       const redirectUrl = redirectTo 
-        ? `${window.location.origin}${redirectTo}`
-        : `${window.location.origin}${PATHS.HOME}`;
+        ? `${baseUrl}${redirectTo}`
+        : `${baseUrl}${PATHS.HOME}`;
+      
+      // Add URL validation to prevent redirect attacks
+      const isValidRedirect = redirectUrl.startsWith(baseUrl);
+      const finalRedirectUrl = isValidRedirect ? redirectUrl : `${baseUrl}${PATHS.HOME}`;
+      
+      console.log("Sending magic link with redirect:", finalRedirectUrl);
       
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: redirectUrl,
+          emailRedirectTo: finalRedirectUrl,
+          // Add additional options for better mobile handling
+          shouldCreateUser: true,
         },
       });
 
@@ -149,15 +158,24 @@ export const useAuthActions = ({
 
       toast({
         title: "Magic link sent!",
-        description: "Check your email for the magic link to sign in.",
+        description: "Check your email for the magic link to sign in. If you're on mobile, make sure to open it in the same browser.",
       });
 
       return { success: true };
     } catch (error: any) {
       console.error("Magic link error:", error);
+      
+      // Enhanced error handling with fallback suggestion
+      let errorMessage = error.message || "Failed to send magic link";
+      let suggestion = "";
+      
+      if (error.message?.includes("rate limit")) {
+        suggestion = " You can try password login as an alternative.";
+      }
+      
       toast({
         title: "Error",
-        description: error.message || "Failed to send magic link",
+        description: errorMessage + suggestion,
         variant: "destructive",
       });
       return { success: false };

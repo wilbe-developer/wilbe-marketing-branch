@@ -28,7 +28,14 @@ export const useCommunityNavigation = (refetch: () => void) => {
 
   const handleNewThreadClick = (selectedTopic: string) => {
     setEditingThread(null);
-    setPreselectedChallenge(selectedTopic !== 'all' && selectedTopic !== 'faqs' && selectedTopic !== 'private' ? selectedTopic : undefined);
+    // Set preselectedChallenge based on the current topic
+    if (selectedTopic === 'private') {
+      setPreselectedChallenge('private');
+    } else if (selectedTopic !== 'all' && selectedTopic !== 'faqs' && selectedTopic !== 'challenges') {
+      setPreselectedChallenge(selectedTopic);
+    } else {
+      setPreselectedChallenge(undefined);
+    }
     setNewThreadModalOpen(true);
   };
 

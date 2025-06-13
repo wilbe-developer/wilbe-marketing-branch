@@ -1,3 +1,4 @@
+
 export type Step = {
   id: string;
   question: string;
@@ -50,7 +51,7 @@ export interface SprintProfile {
   funding_amount?: string;
   has_financial_plan: boolean;
   funding_sources: string[];
-  experiment_validated: boolean;
+  experiment_validated: string;
   industry_changing_vision: boolean;
   
   // New fields

@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSprintTaskDefinitions } from '@/hooks/useSprintTaskDefinitions';
@@ -7,13 +8,15 @@ import FileUploader from '@/components/sprint/FileUploader';
 import UploadedFileView from '@/components/sprint/UploadedFileView';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
-import { MessageCircle } from 'lucide-react';
+import { MessageCircle, ArrowLeft } from 'lucide-react';
 import { ImStuckButton } from '@/components/sprint/ImStuckButton';
 import { SharedSprintBanner } from '@/components/sprint/SharedSprintBanner';
 import { WorkloadBadge } from '@/components/sprint/WorkloadBadge';
 import { supabase } from '@/integrations/supabase/client';
 import { SprintTaskDefinition } from '@/types/task-builder';
 import { generateTaskSummary, extractTaskWorkload } from '@/utils/taskDefinitionAdapter';
+import { PATHS } from '@/lib/constants';
+import { toast } from 'sonner';
 
 const SprintTaskPage = () => {
   const { taskId } = useParams<{ taskId: string }>();
@@ -98,6 +101,12 @@ const SprintTaskPage = () => {
       completed: true,
       fileId
     });
+    
+    // Show success message and navigate back to dashboard
+    toast.success("Task completed successfully!");
+    setTimeout(() => {
+      navigate(PATHS.SPRINT_DASHBOARD);
+    }, 1500);
   };
 
   const handleAnswerSubmission = async (answers: Record<string, any>) => {
@@ -106,6 +115,12 @@ const SprintTaskPage = () => {
       completed: true,
       answers
     });
+    
+    // Show success message and navigate back to dashboard
+    toast.success("Task completed successfully!");
+    setTimeout(() => {
+      navigate(PATHS.SPRINT_DASHBOARD);
+    }, 1500);
   };
 
   // Try loading a logic component for this task
@@ -121,6 +136,18 @@ const SprintTaskPage = () => {
   return (
     <div className={`mx-auto ${isMobile ? 'max-w-full' : 'max-w-4xl'}`}>
       <SharedSprintBanner />
+      
+      {/* Navigation Header */}
+      <div className="mb-4">
+        <Button
+          variant="ghost"
+          onClick={() => navigate(PATHS.SPRINT_DASHBOARD)}
+          className="text-gray-600 hover:text-gray-800 p-0 h-auto font-normal"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to Dashboard
+        </Button>
+      </div>
       
       <div className={`${isMobile ? 'flex flex-col' : 'flex justify-between items-start'}`}>
         <div className="flex-1">

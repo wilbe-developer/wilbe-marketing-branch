@@ -1,6 +1,8 @@
+
 import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useCommunityThreads } from '@/hooks/useCommunityThreads';
+import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -26,6 +28,7 @@ import { useLinkPreview } from '@/hooks/useLinkPreview';
 import { LinkPreview } from './LinkPreview';
 import { extractImages, removeImageMarkdown } from '@/utils/markdownUtils';
 import { cleanupContent } from '@/utils/contentUtils';
+import { SearchableUserSelector } from './SearchableUserSelector';
 
 interface NewThreadModalProps {
   open: boolean;
@@ -45,14 +48,18 @@ export const NewThreadModal = ({
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [challengeId, setChallengeId] = useState<string | null>(preselectedChallengeId || null);
+  const [selectedRecipient, setSelectedRecipient] = useState<string | null>(null);
   const [uploadedImages, setUploadedImages] = useState<Array<{ id: string; url: string; name: string; path: string }>>([]);
   
   const { createThread, updateThread, challenges, isLoading: isLoadingChallenges } = useCommunityThreads();
   const { uploadFile, isUploading, deleteFile } = useSupabaseFileUpload();
   const { linkPreviews } = useLinkPreview(content);
+  const { isAdmin } = useAuth();
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
 
   const isEditing = !!editingThread;
+  const isPrivateMode = preselectedChallengeId === 'private';
 
   // Priority logic: show images if any exist, otherwise show link previews
   const shouldShowImages = uploadedImages.length > 0;
@@ -69,6 +76,7 @@ export const NewThreadModal = ({
       
       setContent(cleanedContent);
       setChallengeId(editingThread.challenge_id);
+      setSelectedRecipient(editingThread.recipient_id);
       
       // Convert extracted images to uploaded images format
       const existingImages = images.map((img, index) => ({
@@ -83,6 +91,7 @@ export const NewThreadModal = ({
       setTitle('');
       setContent('');
       setChallengeId(preselectedChallengeId || null);
+      setSelectedRecipient(null);
       setUploadedImages([]);
     }
   }, [editingThread, preselectedChallengeId]);
@@ -98,6 +107,12 @@ export const NewThreadModal = ({
     e.preventDefault();
     if (!title.trim() || !content.trim()) {
       toast.error('Please fill in all required fields');
+      return;
+    }
+
+    // Validate recipient selection for private threads
+    if (isPrivateMode && isAdmin && !selectedRecipient) {
+      toast.error('Please select a recipient for the private message');
       return;
     }
     
@@ -120,19 +135,26 @@ export const NewThreadModal = ({
         });
         toast.success('Thread updated successfully');
       } else {
-        await createThread.mutateAsync({ 
+        const newThread = await createThread.mutateAsync({ 
           title, 
           content: finalContent,
-          challenge_id: challengeId || undefined,
-          is_private: false
+          challenge_id: !isPrivateMode ? (challengeId || undefined) : undefined,
+          is_private: isPrivateMode,
+          recipient_id: isPrivateMode ? selectedRecipient || undefined : undefined
         });
         toast.success('Thread created successfully');
+        
+        // Navigate to the new thread if we have the thread data
+        if (newThread && newThread.id) {
+          navigate(`/community/thread/${newThread.id}`);
+        }
       }
       
       // Reset form
       setTitle('');
       setContent('');
       setChallengeId(null);
+      setSelectedRecipient(null);
       setUploadedImages([]);
       
       onThreadCreated?.();
@@ -193,7 +215,7 @@ export const NewThreadModal = ({
       <DialogContent className={`${isMobile ? 'max-w-[95vw] max-h-[90vh] w-full' : 'max-w-2xl max-h-[80vh]'} overflow-hidden flex flex-col`}>
         <DialogHeader className="flex-shrink-0">
           <DialogTitle>
-            {isEditing ? 'Edit Discussion' : 'Start a New Discussion'}
+            {isEditing ? 'Edit Discussion' : `Start a New ${isPrivateMode ? 'Private Message' : 'Discussion'}`}
           </DialogTitle>
         </DialogHeader>
         
@@ -207,13 +229,28 @@ export const NewThreadModal = ({
                 id="title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="What would you like to discuss?"
+                placeholder={isPrivateMode ? "Message subject..." : "What would you like to discuss?"}
                 required
                 className="w-full"
               />
             </div>
+
+            {/* Recipient selector for admins in private mode */}
+            {isPrivateMode && isAdmin && !isEditing && (
+              <div>
+                <label htmlFor="recipient" className="block text-sm font-medium mb-1">
+                  Send to <span className="text-red-500">*</span>
+                </label>
+                <SearchableUserSelector
+                  value={selectedRecipient || ""}
+                  onValueChange={setSelectedRecipient}
+                  placeholder="Search for a user to message..."
+                  emptyMessage="No users found"
+                />
+              </div>
+            )}
             
-            {!isEditing && (
+            {!isEditing && !isPrivateMode && (
               <div>
                 <label htmlFor="challenge" className="block text-sm font-medium mb-1">
                   Related Challenge (optional)
@@ -248,7 +285,7 @@ export const NewThreadModal = ({
                 id="content"
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                placeholder="Share your thoughts... (URLs will automatically show previews)"
+                placeholder={isPrivateMode ? "Your private message..." : "Share your thoughts... (URLs will automatically show previews)"}
                 rows={6}
                 required
                 className="w-full resize-none"
@@ -338,7 +375,7 @@ export const NewThreadModal = ({
           >
             {isEditing 
               ? (updateThread.isPending ? 'Updating...' : 'Update Thread')
-              : (createThread.isPending ? 'Creating...' : 'Create Thread')
+              : (createThread.isPending ? 'Creating...' : `Send ${isPrivateMode ? 'Message' : 'Thread'}`)
             }
           </Button>
           <Button

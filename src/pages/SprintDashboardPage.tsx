@@ -1,7 +1,10 @@
+
 import { useEffect } from "react";
 import { useSprintTaskDefinitions } from "@/hooks/useSprintTaskDefinitions";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/hooks/useAuth";
+import { useGuestUser } from "@/hooks/useGuestUser";
+import { useSharedSprints } from "@/hooks/useSharedSprints";
 import { CollaborateButton } from "@/components/sprint/CollaborateButton";
 import { AssessmentButton } from "@/components/sprint/AssessmentButton";
 import { RequestCallButton } from "@/components/sprint/RequestCallButton";
@@ -13,14 +16,25 @@ import { SharedSprintsSelector } from "@/components/sprint/SharedSprintsSelector
 import { SharedSprintBanner } from "@/components/sprint/SharedSprintBanner";
 import { useSprintContext } from "@/hooks/useSprintContext";
 import { Button } from "@/components/ui/button";
-import { Eye, FileText } from "lucide-react";
+import { Eye, FileText, Plus } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const SprintDashboardPage = () => {
   const { tasksWithProgress, isLoading } = useSprintTaskDefinitions();
   const isMobile = useIsMobile();
-  const { user } = useAuth();
-  const { isSharedSprint, sprintOwnerName, currentSprintOwnerId, canManage } = useSprintContext();
+  const { user, hasSprintProfile } = useAuth();
+  const { isSharedSprint, sprintOwnerName, currentSprintOwnerId, canManage, switchToSharedSprint } = useSprintContext();
+  const { isGuestUser } = useGuestUser();
+  const { sharedSprints } = useSharedSprints(user?.id);
+
+  // Auto-switch guest users to shared sprint view when they land on /sprint/dashboard
+  useEffect(() => {
+    if (isGuestUser && !isSharedSprint && sharedSprints.length > 0) {
+      // Switch to the first available shared sprint
+      const firstSharedSprint = sharedSprints[0];
+      switchToSharedSprint(firstSharedSprint.owner_id, firstSharedSprint.owner_name);
+    }
+  }, [isGuestUser, isSharedSprint, sharedSprints, switchToSharedSprint]);
 
   // Calculate overall completion percentage
   const completedTasks = tasksWithProgress.filter(task => task.progress?.completed).length;

@@ -35,7 +35,7 @@ export const SprintCountdown = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-green-700">
-            Click below to officially start your 10-day BSF timer. Once started, you'll have exactly 10 days to complete all tasks and build your comprehensive project plan.
+            Click below to start your 10-day BSF timer. Once started, you have 10 days to complete BSF and qualify for investment assessment.
           </p>
           <Button 
             onClick={startSprint}

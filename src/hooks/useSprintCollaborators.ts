@@ -38,50 +38,49 @@ export const useSprintCollaborators = () => {
     
     setIsLoading(true);
     try {
-      // First fetch the collaborator links
-      const { data: collabData, error: collabError } = await supabase
-        .from("sprint_collaborators")
-        .select("*")
-        .eq("sprint_owner_id", sprintOwnerId);
-
-      if (collabError) throw collabError;
+      console.log('Fetching collaborators for sprint owner:', sprintOwnerId);
       
-      if (!collabData || collabData.length === 0) {
+      // Use the new RPC function to get collaborator profiles securely
+      const { data: collaboratorData, error } = await supabase
+        .rpc('get_sprint_collaborator_profiles', {
+          p_sprint_owner_id: sprintOwnerId,
+          p_requesting_user_id: user?.id || null
+        });
+
+      if (error) throw error;
+      
+      if (!collaboratorData || collaboratorData.length === 0) {
+        console.log('No collaborators found for sprint owner:', sprintOwnerId);
         setCollaborators([]);
         setIsLoading(false);
         return;
       }
       
-      // Fetch profile details for each collaborator separately
-      const collaboratorsWithProfiles = await Promise.all(
-        collabData.map(async (collab) => {
-          const { data: profileData, error: profileError } = await supabase
-            .from("profiles")
-            .select("email, first_name, last_name")
-            .eq("id", collab.collaborator_id)
-            .single();
-            
-          if (profileError && profileError.code !== 'PGRST116') {
-            console.error("Error fetching profile:", profileError);
-          }
-
-          // Ensure access_level is a valid AccessLevel type
-          let accessLevel: AccessLevel = 'edit'; // Default fallback
-          if (isValidAccessLevel(collab.access_level)) {
-            accessLevel = collab.access_level;
-          }
-
-          return {
-            ...collab,
-            access_level: accessLevel,
-            email: profileData?.email,
-            firstName: profileData?.first_name,
-            lastName: profileData?.last_name
-          } as Collaborator;
-        })
-      );
+      console.log('Found collaborator records:', collaboratorData.length);
       
-      setCollaborators(collaboratorsWithProfiles);
+      // Transform the RPC response to match our Collaborator interface
+      const transformedCollaborators = collaboratorData.map((collab: any) => {
+        // Ensure access_level is a valid AccessLevel type
+        let accessLevel: AccessLevel = 'edit'; // Default fallback
+        if (isValidAccessLevel(collab.access_level)) {
+          accessLevel = collab.access_level;
+        }
+
+        return {
+          id: collab.collaboration_id,
+          sprint_owner_id: sprintOwnerId,
+          collaborator_id: collab.collaborator_id,
+          access_level: accessLevel,
+          created_at: collab.created_at,
+          created_by: collab.created_by,
+          email: collab.collaborator_email,
+          firstName: collab.collaborator_first_name,
+          lastName: collab.collaborator_last_name
+        } as Collaborator;
+      });
+      
+      console.log('Final collaborators with profiles:', transformedCollaborators);
+      setCollaborators(transformedCollaborators);
     } catch (error: any) {
       console.error("Error fetching team members:", error);
       showToast({
@@ -102,14 +101,11 @@ export const useSprintCollaborators = () => {
       // First find the user by email
       const { data: userData, error: userError } = await supabase
         .from("profiles")
-        .select("id")
+        .select("id, first_name, last_name")
         .eq("email", email.trim().toLowerCase())
-        .single();
+        .maybeSingle(); // Changed from .single() to .maybeSingle()
 
-      if (userError) {
-        if (userError.code === "PGRST116") {
-          throw new Error("User not found. Please check the email address.");
-        }
+      if (userError && userError.code !== 'PGRST116') {
         throw userError;
       }
 
@@ -142,6 +138,39 @@ export const useSprintCollaborators = () => {
         });
 
       if (insertError) throw insertError;
+
+      // Get owner name for email notification
+      const { data: ownerData } = await supabase
+        .from("profiles")
+        .select("first_name, last_name")
+        .eq("id", sprintOwnerId)
+        .maybeSingle(); // Changed from .single() to .maybeSingle()
+
+      const ownerName = ownerData 
+        ? `${ownerData.first_name || ''} ${ownerData.last_name || ''}`.trim() || 'BSF Owner'
+        : 'BSF Owner';
+
+      const memberName = userData 
+        ? `${userData.first_name || ''} ${userData.last_name || ''}`.trim() || 'Team Member'
+        : 'Team Member';
+
+      // Send email notification (don't await to avoid blocking UI)
+      try {
+        await fetch('/api/send-team-access-notification', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            memberName,
+            memberEmail: email,
+            ownerName,
+            accessLevel: accessLevel === 'view' ? 'View Only' : accessLevel === 'edit' ? 'Can Edit' : 'Can Manage',
+            isInvitation: false
+          }),
+        });
+      } catch (emailError) {
+        console.error("Error sending email notification:", emailError);
+        // Don't throw error here - team addition was successful
+      }
 
       showToast({
         title: "Member access added",

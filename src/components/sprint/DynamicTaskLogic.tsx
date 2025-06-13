@@ -4,10 +4,12 @@ import { useDynamicTask } from "@/hooks/task-builder/useDynamicTask";
 import { useSprintProfileQuickEdit } from "@/hooks/useSprintProfileQuickEdit";
 import { useAuth } from "@/hooks/useAuth";
 import { useAutoSaveManager } from "@/hooks/useAutoSaveManager";
+import { useNavigate } from "react-router-dom";
 import { ProfileQuestionsRenderer } from "./dynamic-task/ProfileQuestionsRenderer";
 import { TaskContent } from "./dynamic-task/TaskContent";
 import { StepDependencyHelper, getStepProfileDependencies } from "./dynamic-task/StepDependencyHelper";
 import { toast } from "sonner";
+import { PATHS } from "@/lib/constants";
 
 interface DynamicTaskLogicProps {
   task: any;
@@ -25,6 +27,7 @@ const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
   const { sprintProfile } = useSprintProfileQuickEdit();
   const { isAdmin } = useAuth();
   const { manager: autoSaveManager } = useAutoSaveManager();
+  const navigate = useNavigate();
   
   const {
     taskDefinition,
@@ -104,6 +107,11 @@ const DynamicTaskLogic: React.FC<DynamicTaskLogicProps> = ({
       await completeTask();
       onComplete();
       toast.success("Task completed successfully!");
+      
+      // Navigate back to dashboard after a short delay
+      setTimeout(() => {
+        navigate(PATHS.SPRINT_DASHBOARD);
+      }, 1500);
     } catch (error) {
       console.error("Error completing task:", error);
       toast.error("Failed to complete the task. Please try again.");

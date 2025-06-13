@@ -15,6 +15,7 @@ interface AuthContextType {
   isAdmin: boolean;
   isMember: boolean;
   hasSprintProfile: boolean;
+  hasCollaboratorAccess: boolean;
   hasDashboardAccess: boolean;
   sendMagicLink: (email: string, redirectTo?: string) => Promise<{ success: boolean }>;
   loginWithPassword: (email: string, password: string) => Promise<void>;
@@ -42,6 +43,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   
   const [isRecoveryMode, setIsRecoveryMode] = useState(false);
   const [hasSprintProfile, setHasSprintProfile] = useState(false);
+  const [hasCollaboratorAccess, setHasCollaboratorAccess] = useState(false);
   
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -66,10 +68,97 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setHasSprintProfile
   });
 
+  // Check for collaborator access when user changes
+  useEffect(() => {
+    const checkCollaboratorAccess = async () => {
+      if (!user?.id) {
+        setHasCollaboratorAccess(false);
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from("sprint_collaborators")
+          .select("id")
+          .eq("collaborator_id", user.id)
+          .limit(1);
+
+        if (error) {
+          console.error("Error checking collaborator access:", error);
+          setHasCollaboratorAccess(false);
+          return;
+        }
+
+        setHasCollaboratorAccess(!!data && data.length > 0);
+      } catch (error) {
+        console.error("Error checking collaborator access:", error);
+        setHasCollaboratorAccess(false);
+      }
+    };
+
+    checkCollaboratorAccess();
+  }, [user?.id]);
+
   // Modified sendMagicLink function to accept custom redirect path
   const sendMagicLink = async (email: string, redirectTo?: string) => {
     return sendMagicLinkAction(email, redirectTo);
   };
+
+  // Enhanced session refresh logic for mobile
+  useEffect(() => {
+    let refreshTimer: NodeJS.Timeout;
+
+    const refreshSession = async () => {
+      try {
+        const { data: { session: currentSession }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error("Session refresh error:", error);
+          return;
+        }
+
+        if (currentSession) {
+          setSession(currentSession);
+          console.log("Session refreshed successfully");
+        }
+      } catch (error) {
+        console.error("Session refresh failed:", error);
+      }
+    };
+
+    // Refresh session every 30 minutes
+    const startSessionRefresh = () => {
+      refreshTimer = setInterval(refreshSession, 30 * 60 * 1000);
+    };
+
+    // Handle app focus/resume for mobile
+    const handleFocus = () => {
+      console.log("App focused, checking session...");
+      refreshSession();
+    };
+
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        console.log("App became visible, checking session...");
+        refreshSession();
+      }
+    };
+
+    if (session) {
+      startSessionRefresh();
+    }
+
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      if (refreshTimer) {
+        clearInterval(refreshTimer);
+      }
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [session, setSession]);
 
   // Check for recovery mode
   useEffect(() => {
@@ -164,14 +253,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const isMember = !!user?.isMember; // This will include admins since database function checks both 'member' and 'admin'
   const isAuthenticated = !!user;
   
-  // Compute dashboard access: has sprint profile AND (global flag OR individual access OR is admin)
-  const hasDashboardAccess = hasSprintProfile && (
+  // Compute dashboard access: has sprint profile OR collaborator access OR (global flag OR individual access OR is admin)
+  const hasDashboardAccess = hasSprintProfile || hasCollaboratorAccess || (
     user?.isDashboardActive || 
     user?.dashboardAccessEnabled || 
     isAdmin
   );
 
-  console.log("Auth provider state:", { isAuthenticated, isAdmin, isMember, hasSprintProfile, hasDashboardAccess, loading, isRecoveryMode });
+  console.log("Auth provider state:", { isAuthenticated, isAdmin, isMember, hasSprintProfile, hasCollaboratorAccess, hasDashboardAccess, loading, isRecoveryMode });
 
   return (
     <AuthContext.Provider
@@ -181,6 +270,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isAdmin,
         isMember,
         hasSprintProfile,
+        hasCollaboratorAccess,
         hasDashboardAccess,
         sendMagicLink,
         loginWithPassword,
