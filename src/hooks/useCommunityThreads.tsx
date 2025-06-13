@@ -1,32 +1,27 @@
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from './useAuth';
-import { Thread, Comment, Challenge } from '@/types/community';
+import { Thread, Challenge } from '@/types/community';
+import { useAuth } from '@/hooks/useAuth';
 
-interface CreateThreadData {
-  title: string;
-  content: string;
-  challenge_id?: string;
-  is_private?: boolean;
-  recipient_id?: string;
-}
+// Helper function to safely access JSON properties
+const getDefinitionProperty = (definition: any, property: string): any => {
+  if (definition && typeof definition === 'object' && !Array.isArray(definition)) {
+    return definition[property];
+  }
+  return null;
+};
 
-interface UpdateThreadData {
-  id: string;
-  title: string;
-  content: string;
-}
-
-interface UseCommunityThreadsOptions {
+interface UseCommunityThreadsParams {
   sortType?: string;
   challengeId?: string;
   isPrivate?: boolean;
 }
 
-export const useCommunityThreads = (options: UseCommunityThreadsOptions = {}) => {
-  const { user, isAdmin } = useAuth();
+export const useCommunityThreads = (params: UseCommunityThreadsParams = {}) => {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
-  const { sortType = 'hot', challengeId, isPrivate = false } = options;
+  const { sortType = 'hot', challengeId, isPrivate = false } = params;
 
   // Main threads query (public threads only)
   const { data: publicThreads = [], isLoading: isLoadingPublic, refetch: refetchPublic } = useQuery({
@@ -324,29 +319,41 @@ export const useCommunityThreads = (options: UseCommunityThreadsOptions = {}) =>
   });
 
   const createThread = useMutation({
-    mutationFn: async (data: CreateThreadData) => {
-      if (!user) throw new Error('User must be authenticated');
-
-      const { data: thread, error } = await supabase
+    mutationFn: async ({ 
+      title, 
+      content, 
+      challenge_id, 
+      is_private = false, 
+      recipient_id = null 
+    }: Partial<Thread>) => {
+      if (!user) {
+        throw new Error("User not authenticated");
+      }
+      
+      const { data, error } = await supabase
         .from('discussion_threads')
-        .insert({
-          title: data.title,
-          content: data.content,
-          author_id: user.id,
-          challenge_id: data.challenge_id,
-          is_private: data.is_private || false,
-          recipient_id: data.recipient_id
-        })
+        .insert([
+          {
+            title,
+            content,
+            challenge_id,
+            author_id: user.id,
+            is_private,
+            recipient_id
+          },
+        ])
         .select()
         .single();
 
-      if (error) throw error;
-      return thread;
+      if (error) {
+        console.error('Error creating thread:', error);
+        throw error;
+      }
+      return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['community-threads'] });
-      queryClient.invalidateQueries({ queryKey: ['community-private-threads'] });
-    }
+      queryClient.invalidateQueries({ queryKey: ['threads'] });
+    },
   });
 
   const updateThread = useMutation({
