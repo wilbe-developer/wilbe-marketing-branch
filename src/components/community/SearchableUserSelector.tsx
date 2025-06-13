@@ -1,10 +1,10 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Check, ChevronsUpDown, Loader2, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { supabase } from '@/integrations/supabase/client';
-import { useQuery } from '@tanstack/react-query';
+import { useSearchableUsers } from '@/hooks/useSearchableUsers';
 
 interface User {
   user_id: string;
@@ -40,74 +40,8 @@ export const SearchableUserSelector = ({
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Server-side user search with full name support
-  const { data: users = [], isLoading } = useQuery({
-    queryKey: ['searchable-users', debouncedSearchTerm],
-    queryFn: async () => {
-      console.log("Searching users with term:", debouncedSearchTerm);
-      
-      let query = supabase
-        .from('unified_profiles')
-        .select('user_id, first_name, last_name, email')
-        .order('created_at', { ascending: false });
-
-      // Add search filter if search term exists
-      if (debouncedSearchTerm.trim()) {
-        const searchPattern = `%${debouncedSearchTerm.trim()}%`;
-        
-        // Build multiple OR conditions for better compatibility
-        query = query.or([
-          `first_name.ilike.${searchPattern}`,
-          `last_name.ilike.${searchPattern}`,
-          `email.ilike.${searchPattern}`
-        ].join(','));
-        
-        // Add a separate query for full name search using textSearch or additional filter
-        // This is a workaround for the concatenation issue
-        const searchTermWords = debouncedSearchTerm.trim().split(' ');
-        if (searchTermWords.length > 1) {
-          // For multi-word searches, we'll filter results client-side after getting broader results
-          query = query.or([
-            `first_name.ilike.%${searchTermWords[0]}%`,
-            `last_name.ilike.%${searchTermWords[searchTermWords.length - 1]}%`,
-            `email.ilike.${searchPattern}`
-          ].join(','));
-        }
-      }
-
-      // Limit results to keep UI responsive
-      query = query.limit(50);
-
-      const { data, error } = await query;
-      
-      if (error) {
-        console.error("Error searching users:", error);
-        return [];
-      }
-      
-      let filteredData = data || [];
-      
-      // Client-side filter for full name matching when we have multiple words
-      if (debouncedSearchTerm.trim()) {
-        const searchTermLower = debouncedSearchTerm.toLowerCase();
-        filteredData = filteredData.filter(user => {
-          const fullName = `${user.first_name} ${user.last_name}`.toLowerCase();
-          const email = user.email?.toLowerCase() || '';
-          const firstName = user.first_name?.toLowerCase() || '';
-          const lastName = user.last_name?.toLowerCase() || '';
-          
-          return fullName.includes(searchTermLower) || 
-                 email.includes(searchTermLower) ||
-                 firstName.includes(searchTermLower) ||
-                 lastName.includes(searchTermLower);
-        });
-      }
-      
-      console.log(`Found ${filteredData?.length || 0} users for search term:`, debouncedSearchTerm);
-      return filteredData;
-    },
-    enabled: true // Always enabled, will show recent users when no search term
-  });
+  // Use the updated hook with fixed server-side search
+  const { data: users = [], isLoading } = useSearchableUsers(debouncedSearchTerm, true);
 
   // Find selected user
   const selectedUser = users.find(user => user.user_id === value);
