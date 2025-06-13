@@ -47,6 +47,8 @@ export interface SprintProfile {
   customer_engagement?: string;
   minimal_success_version?: string;
   ambitious_version?: string;
+  institution?: string;
+  company_role?: string;
   [key: string]: any; // For any other properties in the profile
 }
 

@@ -38,6 +38,8 @@ const ProfileDetailDialog: React.FC<ProfileDetailDialogProps> = ({
                   {key: 'email', label: 'Email'},
                   {key: 'linkedin_url', label: 'LinkedIn URL'},
                   {key: 'current_job', label: 'Current Job'},
+                  {key: 'institution', label: 'Institution'},
+                  {key: 'company_role', label: 'Company Role'},
                   {key: 'created_at', label: 'Created At'}
                 ]} 
               />
