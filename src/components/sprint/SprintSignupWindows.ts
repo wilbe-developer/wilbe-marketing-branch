@@ -46,6 +46,13 @@ export const windows: Window[] = [
     title: "Your Background",
     questions: [
       {
+        id: 'institution',
+        question: 'Which institution are you currently at / most recently at?',
+        description: 'E.g. a university, research institute, company, etc.',
+        type: 'text',
+        placeholder: 'Harvard University, Google Research, etc.'
+      },
+      {
         id: 'is_scientist_engineer',
         question: 'Are you a scientist / Engineer?',
         type: 'select',
@@ -69,6 +76,13 @@ export const windows: Window[] = [
           { value: 'student', label: 'Student (incl. PhDs)' },
           { value: 'other', label: 'Other' }
         ]
+      },
+      {
+        id: 'company_role',
+        question: 'What role do you plan to take in the company?',
+        description: 'E.g. CEO, CTO, CSO, Founder, etc.',
+        type: 'text',
+        placeholder: 'CEO, CTO, CSO, etc.'
       },
       {
         id: 'team',

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { SprintSignupAnswers } from "@/types/sprint-signup";
 import { useSprintAnswers } from "./useSprintAnswers";
@@ -55,8 +56,10 @@ export const useSprintSignup = () => {
             job: profile.current_job || '',
             
             // Window 2
+            institution: profile.institution || '',
             is_scientist_engineer: profile.is_scientist_engineer ? 'yes' : 'no',
             job_type: profile.job_type || '',
+            company_role: profile.company_role || '',
             team: profile.team_status || '',
             
             // Window 3

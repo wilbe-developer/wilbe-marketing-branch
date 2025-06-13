@@ -12,8 +12,10 @@ export const useSprintAnswers = () => {
     job: '',
     
     // Window 2
+    institution: '',
     is_scientist_engineer: '',
     job_type: '',
+    company_role: '',
     team: '',
     
     // Window 3
