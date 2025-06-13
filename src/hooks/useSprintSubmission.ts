@@ -182,7 +182,11 @@ export const useSprintSubmission = () => {
         
         p_ambitious_version: answers.ambitious_version || '',
         p_minimal_success_version: answers.minimal_success_version || '',
-        p_dashboard_access_enabled: false
+        p_dashboard_access_enabled: false,
+        
+        // New fields for institution and company_role
+        p_institution: answers.institution || '',
+        p_company_role: answers.company_role || ''
       });
 
       if (profileError) {
