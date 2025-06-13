@@ -47,10 +47,10 @@ export const windows: Window[] = [
     questions: [
       {
         id: 'institution',
-        question: 'Which institution are you currently at / most recently at?',
-        description: 'E.g. a university, research institute, company, etc.',
+        question: 'Which research institution are you currently at / were most recently at?',
+        description: 'E.g. a university, research institute, college, etc.',
         type: 'text',
-        placeholder: 'Harvard University, Google Research, etc.'
+        placeholder: 'Harvard University, CERN, etc.'
       },
       {
         id: 'is_scientist_engineer',
@@ -79,7 +79,7 @@ export const windows: Window[] = [
       },
       {
         id: 'company_role',
-        question: 'What role do you plan to take in the company?',
+        question: 'What role do you plan to take in the startup?',
         description: 'E.g. CEO, CTO, CSO, Founder, etc.',
         type: 'text',
         placeholder: 'CEO, CTO, CSO, etc.'
