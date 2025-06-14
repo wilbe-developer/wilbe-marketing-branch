@@ -30,8 +30,8 @@ export default function WilbeStreamPlayer() {
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Use the countdown timer hook for June 10, 2025 at 12:00 PM ET
-  const timeLeft = useCountdownTimer('2025-06-10T16:00:00Z');
+  // Use the countdown timer hook for June 17, 2025 at 12:00 PM ET
+  const timeLeft = useCountdownTimer('2025-06-17T16:00:00Z');
 
   // Load videos from the same source as FoundersStories but filter to specific IDs
   useEffect(() => {
