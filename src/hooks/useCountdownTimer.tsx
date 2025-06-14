@@ -17,8 +17,8 @@ export const useCountdownTimer = (targetDate: string) => {
   });
 
   const calculateTimeLeft = (): CountdownTime => {
-    // Updated target date to June 13, 2025 at 12:00 PM ET (16:00 UTC)
-    const eventDate = new Date('2025-06-13T16:00:00Z').getTime();
+    // Updated target date to June 17, 2025 at 12:00 PM ET (16:00 UTC)
+    const eventDate = new Date('2025-06-17T16:00:00Z').getTime();
     const now = new Date().getTime();
     const difference = eventDate - now;
 
