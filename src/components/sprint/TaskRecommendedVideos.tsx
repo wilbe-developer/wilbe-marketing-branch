@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -89,12 +88,12 @@ const TaskRecommendedVideos: React.FC<TaskRecommendedVideosProps> = ({ videoIds 
         {videos.map((video) => (
           <div 
             key={video.id} 
-            className="flex-shrink-0 w-64 cursor-pointer"
-            onClick={() => handleVideoClick(video)}
+            className="flex-shrink-0 w-64"
           >
             <VideoCard
               video={video}
               showModule={false}
+              onClick={handleVideoClick}
             />
           </div>
         ))}

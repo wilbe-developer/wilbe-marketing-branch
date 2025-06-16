@@ -14,6 +14,7 @@ interface VideoCardProps {
   moduleTitle?: string;
   isDeckBuilderView?: boolean;
   onNonMemberClick?: () => void;
+  onClick?: (video: Video) => void; // New prop for custom click handling
 }
 
 const VideoCard = ({ 
@@ -21,7 +22,8 @@ const VideoCard = ({
   showModule = false, 
   moduleTitle,
   isDeckBuilderView = false,
-  onNonMemberClick
+  onNonMemberClick,
+  onClick // New prop
 }: VideoCardProps) => {
   const { isMember, user } = useAuth();
   const [showProfileDialog, setShowProfileDialog] = useState(false);
@@ -94,6 +96,10 @@ const VideoCard = ({
           setShowProfileDialog(true);
         }
       }
+    } else if (onClick) {
+      // If custom onClick is provided and user is a member, use it
+      e.preventDefault();
+      onClick(video);
     }
   };
 
@@ -165,7 +171,12 @@ const VideoCard = ({
 
   return (
     <>
-      {isMember ? (
+      {/* Use custom onClick behavior if provided and member, otherwise use Link for navigation */}
+      {isMember && onClick ? (
+        <div onClick={handleVideoClick} className="cursor-pointer h-full">
+          {cardContent}
+        </div>
+      ) : isMember ? (
         <Link to={videoUrl} className="block h-full">
           {cardContent}
         </Link>
