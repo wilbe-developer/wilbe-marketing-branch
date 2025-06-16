@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSprintTaskDefinitions } from '@/hooks/useSprintTaskDefinitions';
@@ -18,6 +17,9 @@ import { SprintTaskDefinition } from '@/types/task-builder';
 import { generateTaskSummary, extractTaskWorkload } from '@/utils/taskDefinitionAdapter';
 import { PATHS } from '@/lib/constants';
 import { toast } from 'sonner';
+import { VideoPlayerProvider } from '@/contexts/VideoPlayerContext';
+import TaskVideoPlayerModal from '@/components/video-player/TaskVideoPlayerModal';
+import TaskVideoPiP from '@/components/video-player/TaskVideoPiP';
 
 const SprintTaskPage = () => {
   const { taskId } = useParams<{ taskId: string }>();
@@ -138,94 +140,100 @@ const SprintTaskPage = () => {
   );
 
   return (
-    <div className={`mx-auto ${isMobile ? 'max-w-full' : 'max-w-4xl'}`}>
-      <SharedSprintBanner />
-      
-      {/* Navigation Header */}
-      <div className="mb-4">
-        <Button
-          variant="ghost"
-          onClick={() => navigate(PATHS.SPRINT_DASHBOARD)}
-          className="text-gray-600 hover:text-gray-800 p-0 h-auto font-normal"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Dashboard
-        </Button>
-      </div>
-      
-      <div className={`${isMobile ? 'flex flex-col' : 'flex justify-between items-start'}`}>
-        <div className="flex-1">
-          <h1 className={`${isMobile ? 'text-2xl mb-2' : 'text-3xl mb-2'} font-bold`}>
-            {taskSummary.title}
-          </h1>
-          
-          {/* Workload badge under title */}
-          {workload && (
-            <div className="mb-3">
-              <WorkloadBadge workload={workload} size={isMobile ? 'sm' : 'default'} />
-            </div>
-          )}
-        </div>
+    <VideoPlayerProvider>
+      <div className={`mx-auto ${isMobile ? 'max-w-full' : 'max-w-4xl'}`}>
+        <SharedSprintBanner />
         
-        <div className={`flex gap-2 ${isMobile ? 'mb-2 mt-2' : 'ml-4'}`}>
-          <ImStuckButton taskId={currentTask.id} />
-          <Button 
-            variant="outline" 
-            size={isMobile ? "sm" : "default"}
-            onClick={() => navigate(`/community?challenge=${currentTask.id}`)}
+        {/* Navigation Header */}
+        <div className="mb-4">
+          <Button
+            variant="ghost"
+            onClick={() => navigate(PATHS.SPRINT_DASHBOARD)}
+            className="text-gray-600 hover:text-gray-800 p-0 h-auto font-normal"
           >
-            <MessageCircle className="mr-2 h-4 w-4" />
-            Discuss
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Dashboard
           </Button>
         </div>
-      </div>
-      
-      <p className={`text-gray-600 ${isMobile ? 'mb-4 text-sm' : 'mb-8'}`}>
-        {taskSummary.description}
-      </p>
-
-      {taskSummary.content && (
-        <div className={`bg-white rounded-lg shadow-sm border ${isMobile ? 'p-3 mb-4' : 'p-6 mb-8'}`}>
-          <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: taskSummary.content }} />
-        </div>
-      )}
-
-      <div className={`bg-white rounded-lg shadow-sm border ${isMobile ? 'p-3 mb-4' : 'p-6 mb-8'}`}>
-        {LogicComponent || (
-          <>
-            {currentTask.upload_required ? (
-              hasUploadedFile ? (
-                <UploadedFileView
-                  fileId={currentTask.progress?.file_id || ''}
-                  isCompleted={isCompleted}
-                />
-              ) : (
-                <FileUploader
-                  onFileUploaded={(fileId) => handleTaskCompletion(fileId)}
-                  onUploadComplete={handleTaskCompletion}
-                  isCompleted={isCompleted}
-                />
-              )
-            ) : (
-              currentTask.question && (
-                <QuestionForm
-                  task={currentTask}
-                  onSubmit={handleAnswerSubmission}
-                  isCompleted={isCompleted}
-                />
-              )
+        
+        <div className={`${isMobile ? 'flex flex-col' : 'flex justify-between items-start'}`}>
+          <div className="flex-1">
+            <h1 className={`${isMobile ? 'text-2xl mb-2' : 'text-3xl mb-2'} font-bold`}>
+              {taskSummary.title}
+            </h1>
+            
+            {/* Workload badge under title */}
+            {workload && (
+              <div className="mb-3">
+                <WorkloadBadge workload={workload} size={isMobile ? 'sm' : 'default'} />
+              </div>
             )}
-          </>
-        )}
-      </div>
-
-      {/* Recommended Videos Section */}
-      {recommendedVideoIds && recommendedVideoIds.length > 0 && (
-        <div className={`${isMobile ? 'mb-4' : 'mb-8'}`}>
-          <TaskRecommendedVideos videoIds={recommendedVideoIds} />
+          </div>
+          
+          <div className={`flex gap-2 ${isMobile ? 'mb-2 mt-2' : 'ml-4'}`}>
+            <ImStuckButton taskId={currentTask.id} />
+            <Button 
+              variant="outline" 
+              size={isMobile ? "sm" : "default"}
+              onClick={() => navigate(`/community?challenge=${currentTask.id}`)}
+            >
+              <MessageCircle className="mr-2 h-4 w-4" />
+              Discuss
+            </Button>
+          </div>
         </div>
-      )}
-    </div>
+        
+        <p className={`text-gray-600 ${isMobile ? 'mb-4 text-sm' : 'mb-8'}`}>
+          {taskSummary.description}
+        </p>
+
+        {taskSummary.content && (
+          <div className={`bg-white rounded-lg shadow-sm border ${isMobile ? 'p-3 mb-4' : 'p-6 mb-8'}`}>
+            <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: taskSummary.content }} />
+          </div>
+        )}
+
+        <div className={`bg-white rounded-lg shadow-sm border ${isMobile ? 'p-3 mb-4' : 'p-6 mb-8'}`}>
+          {LogicComponent || (
+            <>
+              {currentTask.upload_required ? (
+                hasUploadedFile ? (
+                  <UploadedFileView
+                    fileId={currentTask.progress?.file_id || ''}
+                    isCompleted={isCompleted}
+                  />
+                ) : (
+                  <FileUploader
+                    onFileUploaded={(fileId) => handleTaskCompletion(fileId)}
+                    onUploadComplete={handleTaskCompletion}
+                    isCompleted={isCompleted}
+                  />
+                )
+              ) : (
+                currentTask.question && (
+                  <QuestionForm
+                    task={currentTask}
+                    onSubmit={handleAnswerSubmission}
+                    isCompleted={isCompleted}
+                  />
+                )
+              )}
+            </>
+          )}
+        </div>
+
+        {/* Recommended Videos Section */}
+        {recommendedVideoIds && recommendedVideoIds.length > 0 && (
+          <div className={`${isMobile ? 'mb-4' : 'mb-8'}`}>
+            <TaskRecommendedVideos videoIds={recommendedVideoIds} />
+          </div>
+        )}
+
+        {/* Video Player Components */}
+        <TaskVideoPlayerModal />
+        <TaskVideoPiP />
+      </div>
+    </VideoPlayerProvider>
   );
 };
 

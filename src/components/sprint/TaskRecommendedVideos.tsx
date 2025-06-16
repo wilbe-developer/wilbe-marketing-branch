@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import VideoCard from '@/components/VideoCard';
 import { Video } from '@/types';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useVideoPlayer } from '@/contexts/VideoPlayerContext';
 
 interface TaskRecommendedVideosProps {
   videoIds: string[];
@@ -12,6 +13,7 @@ interface TaskRecommendedVideosProps {
 
 const TaskRecommendedVideos: React.FC<TaskRecommendedVideosProps> = ({ videoIds }) => {
   const isMobile = useIsMobile();
+  const { playVideo } = useVideoPlayer();
 
   const { data: videos, isLoading, error } = useQuery({
     queryKey: ['recommended-videos', videoIds],
@@ -30,7 +32,7 @@ const TaskRecommendedVideos: React.FC<TaskRecommendedVideosProps> = ({ videoIds 
       }
       
       // Transform to match Video type
-      return data.map(video => ({
+      const transformedVideos = data.map(video => ({
         id: video.id,
         title: video.title,
         description: video.description || '',
@@ -38,13 +40,26 @@ const TaskRecommendedVideos: React.FC<TaskRecommendedVideosProps> = ({ videoIds 
         duration: video.duration || '',
         presenter: video.presenter || '',
         youtubeId: video.youtube_id || '',
-        completed: false, // We don't track completion for recommended videos
-        moduleId: '', // Not associated with a module
+        completed: false,
+        moduleId: '',
         isDeckBuilderVideo: false
       })) as Video[];
+
+      // Sort videos to match the order in videoIds array
+      const sortedVideos = videoIds
+        .map(id => transformedVideos.find(video => video.id === id))
+        .filter(Boolean) as Video[];
+
+      return sortedVideos;
     },
     enabled: videoIds && videoIds.length > 0
   });
+
+  const handleVideoClick = (video: Video) => {
+    if (videos) {
+      playVideo(video, videos);
+    }
+  };
 
   if (!videoIds || videoIds.length === 0) {
     return null;
@@ -72,7 +87,11 @@ const TaskRecommendedVideos: React.FC<TaskRecommendedVideosProps> = ({ videoIds 
       <h3 className="text-lg font-medium mb-4">Recommended Videos</h3>
       <div className="flex gap-4 overflow-x-auto pb-2">
         {videos.map((video) => (
-          <div key={video.id} className="flex-shrink-0 w-64">
+          <div 
+            key={video.id} 
+            className="flex-shrink-0 w-64 cursor-pointer"
+            onClick={() => handleVideoClick(video)}
+          >
             <VideoCard
               video={video}
               showModule={false}
