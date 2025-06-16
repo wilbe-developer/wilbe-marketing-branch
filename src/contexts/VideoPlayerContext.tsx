@@ -11,6 +11,7 @@ interface VideoPlayerState {
   isPiPMode: boolean;
   pipSize: 'small' | 'medium' | 'large';
   autoAdvance: boolean;
+  videoTime: number; // Add video time tracking
 }
 
 interface VideoPlayerContextType {
@@ -23,6 +24,9 @@ interface VideoPlayerContextType {
   previousVideo: () => void;
   setPiPSize: (size: 'small' | 'medium' | 'large') => void;
   toggleAutoAdvance: () => void;
+  togglePlayPause: () => void; // Add play/pause toggle
+  setVideoTime: (time: number) => void; // Add time setter
+  jumpToVideo: (index: number) => void; // Add jump to specific video
 }
 
 const VideoPlayerContext = createContext<VideoPlayerContextType | undefined>(undefined);
@@ -37,6 +41,7 @@ export const VideoPlayerProvider: React.FC<{ children: ReactNode }> = ({ childre
     isPiPMode: false,
     pipSize: 'medium',
     autoAdvance: true,
+    videoTime: 0,
   });
 
   const playVideo = useCallback((video: Video, playlist: Video[]) => {
@@ -49,6 +54,7 @@ export const VideoPlayerProvider: React.FC<{ children: ReactNode }> = ({ childre
       currentIndex: Math.max(0, index),
       isModalOpen: true,
       isPiPMode: false,
+      videoTime: 0,
     }));
   }, []);
 
@@ -67,6 +73,7 @@ export const VideoPlayerProvider: React.FC<{ children: ReactNode }> = ({ childre
       isPiPMode: false,
       currentVideo: null,
       playlist: [],
+      videoTime: 0,
     }));
   }, []);
 
@@ -87,6 +94,7 @@ export const VideoPlayerProvider: React.FC<{ children: ReactNode }> = ({ childre
         ...prev,
         currentIndex: nextIndex,
         currentVideo: prev.playlist[nextIndex],
+        videoTime: 0,
       };
     });
   }, []);
@@ -100,6 +108,20 @@ export const VideoPlayerProvider: React.FC<{ children: ReactNode }> = ({ childre
         ...prev,
         currentIndex: prevIndex,
         currentVideo: prev.playlist[prevIndex],
+        videoTime: 0,
+      };
+    });
+  }, []);
+
+  const jumpToVideo = useCallback((index: number) => {
+    setState(prev => {
+      if (index < 0 || index >= prev.playlist.length) return prev;
+      
+      return {
+        ...prev,
+        currentIndex: index,
+        currentVideo: prev.playlist[index],
+        videoTime: 0,
       };
     });
   }, []);
@@ -112,6 +134,14 @@ export const VideoPlayerProvider: React.FC<{ children: ReactNode }> = ({ childre
     setState(prev => ({ ...prev, autoAdvance: !prev.autoAdvance }));
   }, []);
 
+  const togglePlayPause = useCallback(() => {
+    setState(prev => ({ ...prev, isPlaying: !prev.isPlaying }));
+  }, []);
+
+  const setVideoTime = useCallback((time: number) => {
+    setState(prev => ({ ...prev, videoTime: time }));
+  }, []);
+
   const contextValue: VideoPlayerContextType = {
     state,
     playVideo,
@@ -120,8 +150,11 @@ export const VideoPlayerProvider: React.FC<{ children: ReactNode }> = ({ childre
     expandFromPiP,
     nextVideo,
     previousVideo,
+    jumpToVideo,
     setPiPSize,
     toggleAutoAdvance,
+    togglePlayPause,
+    setVideoTime,
   };
 
   return (

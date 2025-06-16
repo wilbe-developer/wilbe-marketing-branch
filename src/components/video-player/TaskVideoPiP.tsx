@@ -1,10 +1,11 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useVideoPlayer } from '@/contexts/VideoPlayerContext';
 import { Button } from '@/components/ui/button';
-import { Play, Pause, SkipForward, X, Maximize2, Volume2, VolumeX } from 'lucide-react';
+import { Play, Pause, SkipForward, X, Maximize2 } from 'lucide-react';
 import VideoEmbed from './VideoEmbed';
 import { getYoutubeEmbedId } from '@/utils/videoPlayerUtils';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const TaskVideoPiP: React.FC = () => {
   const { 
@@ -12,35 +13,116 @@ const TaskVideoPiP: React.FC = () => {
     closePiP, 
     expandFromPiP, 
     nextVideo, 
-    setPiPSize 
+    setPiPSize,
+    togglePlayPause 
   } = useVideoPlayer();
   
-  const { isPiPMode, currentVideo, playlist, currentIndex, pipSize } = state;
+  const { isPiPMode, currentVideo, playlist, currentIndex, pipSize, isPlaying } = state;
   const [isHovered, setIsHovered] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
+  const [controlsVisible, setControlsVisible] = useState(false);
+  const [position, setPosition] = useState({ x: 16, y: 16 });
+  const [isDragging, setIsDragging] = useState(false);
+  const isMobile = useIsMobile();
+  const pipRef = useRef<HTMLDivElement>(null);
+  const controlsTimeoutRef = useRef<NodeJS.Timeout>();
 
   if (!isPiPMode || !currentVideo) return null;
 
   const canGoNext = currentIndex < playlist.length - 1;
 
-  // Size configurations
+  // Auto-hide controls on mobile
+  useEffect(() => {
+    if (!isMobile) return;
+    
+    if (controlsVisible) {
+      controlsTimeoutRef.current = setTimeout(() => {
+        setControlsVisible(false);
+      }, 4000);
+    }
+    
+    return () => {
+      if (controlsTimeoutRef.current) {
+        clearTimeout(controlsTimeoutRef.current);
+      }
+    };
+  }, [controlsVisible, isMobile]);
+
+  // Size configurations with mobile-first approach
   const sizeClasses = {
-    small: 'w-64 h-36',
-    medium: 'w-80 h-48', 
-    large: 'w-96 h-60'
+    small: isMobile ? 'w-48 h-28' : 'w-64 h-36',
+    medium: isMobile ? 'w-64 h-40' : 'w-80 h-48', 
+    large: isMobile ? 'w-80 h-48' : 'w-96 h-60'
   };
 
   const buttonSizes = {
-    small: 'h-6 w-6',
-    medium: 'h-7 w-7',
-    large: 'h-8 w-8'
+    small: isMobile ? 'h-8 w-8' : 'h-6 w-6',
+    medium: isMobile ? 'h-9 w-9' : 'h-7 w-7',
+    large: isMobile ? 'h-10 w-10' : 'h-8 w-8'
+  };
+
+  const iconSizes = {
+    small: isMobile ? 'h-4 w-4' : 'h-3 w-3',
+    medium: isMobile ? 'h-5 w-5' : 'h-4 w-4',
+    large: isMobile ? 'h-6 w-6' : 'h-5 w-5'
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (!isMobile) return;
+    setControlsVisible(true);
+  };
+
+  const handleMouseEnter = () => {
+    if (!isMobile) {
+      setIsHovered(true);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (!isMobile) {
+      setIsHovered(false);
+    }
+  };
+
+  const showControls = isMobile ? controlsVisible : isHovered;
+
+  // Drag functionality for desktop
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (isMobile) return;
+    setIsDragging(true);
+    const rect = pipRef.current?.getBoundingClientRect();
+    if (rect) {
+      const offsetX = e.clientX - rect.left;
+      const offsetY = e.clientY - rect.top;
+      
+      const handleMouseMove = (e: MouseEvent) => {
+        setPosition({
+          x: Math.max(0, Math.min(window.innerWidth - rect.width, e.clientX - offsetX)),
+          y: Math.max(0, Math.min(window.innerHeight - rect.height, e.clientY - offsetY))
+        });
+      };
+      
+      const handleMouseUp = () => {
+        setIsDragging(false);
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+      
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    }
   };
 
   return (
     <div 
-      className={`fixed bottom-4 right-4 ${sizeClasses[pipSize]} bg-black rounded-lg shadow-2xl overflow-hidden z-50 transition-all duration-200 hover:shadow-3xl`}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      ref={pipRef}
+      className={`fixed ${sizeClasses[pipSize]} bg-black rounded-lg shadow-2xl overflow-hidden z-50 transition-all duration-200 hover:shadow-3xl ${
+        isDragging ? 'cursor-grabbing' : 'cursor-grab'
+      }`}
+      style={isMobile ? { bottom: 16, right: 16 } : { bottom: position.y, right: position.x }}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      onTouchStart={handleTouchStart}
+      onMouseDown={!isMobile ? handleMouseDown : undefined}
     >
       {/* Video */}
       <div className="relative w-full h-full">
@@ -52,18 +134,38 @@ const TaskVideoPiP: React.FC = () => {
         {/* Controls Overlay */}
         <div 
           className={`absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-opacity duration-200 ${
-            isHovered ? 'opacity-100' : 'opacity-0'
+            showControls ? 'opacity-100' : 'opacity-0'
           }`}
+          onClick={() => isMobile && setControlsVisible(!controlsVisible)}
         >
           <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`${buttonSizes[pipSize]} text-white hover:bg-white/20`}
+              onClick={(e) => {
+                e.stopPropagation();
+                togglePlayPause();
+              }}
+            >
+              {isPlaying ? (
+                <Pause className={iconSizes[pipSize]} />
+              ) : (
+                <Play className={iconSizes[pipSize]} />
+              )}
+            </Button>
+            
             {canGoNext && (
               <Button
                 variant="ghost"
                 size="sm"
                 className={`${buttonSizes[pipSize]} text-white hover:bg-white/20`}
-                onClick={nextVideo}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  nextVideo();
+                }}
               >
-                <SkipForward className={`${pipSize === 'small' ? 'h-3 w-3' : 'h-4 w-4'}`} />
+                <SkipForward className={iconSizes[pipSize]} />
               </Button>
             )}
             
@@ -71,51 +173,64 @@ const TaskVideoPiP: React.FC = () => {
               variant="ghost"
               size="sm"
               className={`${buttonSizes[pipSize]} text-white hover:bg-white/20`}
-              onClick={expandFromPiP}
+              onClick={(e) => {
+                e.stopPropagation();
+                expandFromPiP();
+              }}
             >
-              <Maximize2 className={`${pipSize === 'small' ? 'h-3 w-3' : 'h-4 w-4'}`} />
+              <Maximize2 className={iconSizes[pipSize]} />
             </Button>
             
             <Button
               variant="ghost"
               size="sm"
               className={`${buttonSizes[pipSize]} text-white hover:bg-white/20`}
-              onClick={closePiP}
+              onClick={(e) => {
+                e.stopPropagation();
+                closePiP();
+              }}
             >
-              <X className={`${pipSize === 'small' ? 'h-3 w-3' : 'h-4 w-4'}`} />
+              <X className={iconSizes[pipSize]} />
             </Button>
           </div>
         </div>
 
-        {/* Size Control */}
-        <div 
-          className={`absolute top-2 left-2 transition-opacity duration-200 ${
-            isHovered ? 'opacity-100' : 'opacity-0'
-          }`}
-        >
-          <div className="flex gap-1">
-            {(['small', 'medium', 'large'] as const).map((size) => (
-              <button
-                key={size}
-                className={`w-2 h-2 rounded-full transition-colors ${
-                  pipSize === size ? 'bg-white' : 'bg-white/50'
-                }`}
-                onClick={() => setPiPSize(size)}
-              />
-            ))}
+        {/* Size Control - Only on desktop */}
+        {!isMobile && (
+          <div 
+            className={`absolute top-2 left-2 transition-opacity duration-200 ${
+              showControls ? 'opacity-100' : 'opacity-0'
+            }`}
+          >
+            <div className="flex gap-1">
+              {(['small', 'medium', 'large'] as const).map((size) => (
+                <button
+                  key={size}
+                  className={`w-2 h-2 rounded-full transition-colors ${
+                    pipSize === size ? 'bg-white' : 'bg-white/50'
+                  }`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setPiPSize(size);
+                  }}
+                />
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Video Info */}
         <div 
-          className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2 transition-opacity duration-200 ${
-            isHovered ? 'opacity-100' : 'opacity-0'
+          className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent ${
+            isMobile ? 'p-2' : 'p-2'
+          } transition-opacity duration-200 ${
+            showControls ? 'opacity-100' : 'opacity-0'
           }`}
         >
-          <div className="text-white text-xs font-medium line-clamp-1">
+          <div className={`text-white ${isMobile ? 'text-xs' : 'text-xs'} font-medium line-clamp-1`}>
             {currentVideo.title}
           </div>
-          <div className="text-white/70 text-xs">
+          <div className={`text-white/70 ${isMobile ? 'text-xs' : 'text-xs'}`}>
             {currentIndex + 1} of {playlist.length}
             {currentVideo.duration && ` • ${currentVideo.duration}`}
           </div>
