@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useCallback, ReactNode, useRef } from 'react';
 import { Video } from '@/types';
 
@@ -31,6 +32,7 @@ interface VideoPlayerContextType {
   jumpToVideo: (index: number) => void;
   handleVideoProgress: (state: { played: number; playedSeconds: number; loaded: number; loadedSeconds: number }) => void;
   enterPiP: () => void;
+  clearExpandingFromPiP: () => void;
 }
 
 const VideoPlayerContext = createContext<VideoPlayerContextType | undefined>(undefined);
@@ -108,6 +110,14 @@ export const VideoPlayerProvider: React.FC<{ children: ReactNode }> = ({ childre
       expandingFromPiP: true,
     }));
   }, [state.videoTime]);
+
+  const clearExpandingFromPiP = useCallback(() => {
+    console.log('Clearing expandingFromPiP flag');
+    setState(prev => ({
+      ...prev,
+      expandingFromPiP: false,
+    }));
+  }, []);
 
   const nextVideo = useCallback(() => {
     setState(prev => {
@@ -216,6 +226,7 @@ export const VideoPlayerProvider: React.FC<{ children: ReactNode }> = ({ childre
     setVideoDuration,
     handleVideoProgress,
     enterPiP,
+    clearExpandingFromPiP,
   };
 
   return (

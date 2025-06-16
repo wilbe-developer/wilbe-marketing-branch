@@ -11,10 +11,12 @@ interface VideoEmbedProps {
   onPlay?: () => void;
   onPause?: () => void;
   onEnded?: () => void;
+  onReady?: () => void;
   playing?: boolean;
   width?: string | number;
   height?: string | number;
   playerRef?: React.RefObject<ReactPlayer>;
+  startTime?: number;
 }
 
 const VideoEmbed = ({ 
@@ -26,10 +28,12 @@ const VideoEmbed = ({
   onPlay,
   onPause,
   onEnded,
+  onReady,
   playing,
   width = '100%',
   height = '100%',
-  playerRef
+  playerRef,
+  startTime = 0
 }: VideoEmbedProps) => {
   const youtubeUrl = `https://www.youtube.com/watch?v=${youtubeEmbedId}`;
 
@@ -41,6 +45,11 @@ const VideoEmbed = ({
   const handlePause = () => {
     console.log('Video paused');
     onPause?.();
+  };
+
+  const handleReady = () => {
+    console.log('Video player is ready');
+    onReady?.();
   };
 
   return (
@@ -56,12 +65,14 @@ const VideoEmbed = ({
         onPlay={handlePlay}
         onPause={handlePause}
         onEnded={onEnded}
+        onReady={handleReady}
         config={{
           playerVars: {
             modestbranding: 1,
             rel: 0,
             showinfo: 0,
-            playsinline: 1
+            playsinline: 1,
+            start: Math.floor(startTime)
           }
         }}
       />

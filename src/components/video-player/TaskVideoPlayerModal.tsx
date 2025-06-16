@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { useVideoPlayer } from '@/contexts/VideoPlayerContext';
@@ -11,6 +11,9 @@ import ReactPlayer from 'react-player/youtube';
 const TaskVideoPlayerModal: React.FC = () => {
   const isMobile = useIsMobile();
   const playerRef = useRef<ReactPlayer>(null);
+  const [playerReady, setPlayerReady] = useState(false);
+  const [shouldSeek, setShouldSeek] = useState(false);
+  
   const { 
     state, 
     closeModal, 
@@ -25,43 +28,41 @@ const TaskVideoPlayerModal: React.FC = () => {
   
   const { isModalOpen, currentVideo, playlist, currentIndex, autoAdvance, isPlaying, videoTime, expandingFromPiP } = state;
 
-  // Handle video seeking when modal opens, especially from PiP
+  // Handle player ready state and seeking
+  const handlePlayerReady = () => {
+    console.log('Player ready in modal, videoTime:', videoTime, 'expandingFromPiP:', expandingFromPiP);
+    setPlayerReady(true);
+    
+    // If we have a video time to seek to (from PiP or resume), do it now
+    if (videoTime > 0 && playerRef.current) {
+      console.log('Seeking to time on player ready:', videoTime);
+      playerRef.current.seekTo(videoTime, 'seconds');
+      setShouldSeek(false);
+    }
+  };
+
+  // Set up seeking when modal opens with video time
   useEffect(() => {
-    if (isModalOpen && playerRef.current && videoTime > 0) {
+    if (isModalOpen && videoTime > 0) {
       console.log('Modal opened with video time:', videoTime, 'expanding from PiP:', expandingFromPiP);
-      
-      const seekToTime = () => {
-        if (playerRef.current) {
-          console.log('Seeking to time in modal:', videoTime);
-          playerRef.current.seekTo(videoTime, 'seconds');
-        }
-      };
-
-      // If expanding from PiP, seek immediately and also after a short delay
-      if (expandingFromPiP) {
-        seekToTime();
-        const timer = setTimeout(seekToTime, 500);
-        return () => clearTimeout(timer);
-      } else {
-        // For regular modal opening, use longer delay
-        const timer = setTimeout(seekToTime, 1000);
-        return () => clearTimeout(timer);
-      }
+      setShouldSeek(true);
+      setPlayerReady(false);
+    } else if (isModalOpen) {
+      // Reset states for new video
+      setPlayerReady(false);
+      setShouldSeek(false);
     }
-  }, [isModalOpen, videoTime, expandingFromPiP]);
+  }, [isModalOpen, currentVideo?.id, expandingFromPiP]);
 
-  // Reset expanding flag after modal is fully open
+  // Seek when player becomes ready and we need to seek
   useEffect(() => {
-    if (isModalOpen && expandingFromPiP) {
-      const timer = setTimeout(() => {
-        // Clear the expanding flag after the modal has had time to load
-        console.log('Clearing expandingFromPiP flag');
-      }, 1500);
-      return () => clearTimeout(timer);
+    if (playerReady && shouldSeek && videoTime > 0 && playerRef.current) {
+      console.log('Performing delayed seek to:', videoTime);
+      playerRef.current.seekTo(videoTime, 'seconds');
+      setShouldSeek(false);
     }
-  }, [isModalOpen, expandingFromPiP]);
+  }, [playerReady, shouldSeek, videoTime]);
 
-  // ... keep existing code (auto-advance effect)
   useEffect(() => {
     if (!isModalOpen || !currentVideo || !autoAdvance) return;
 
@@ -115,6 +116,9 @@ const TaskVideoPlayerModal: React.FC = () => {
     }
   };
 
+  // Determine if we should start playing immediately or wait
+  const shouldAutoPlay = isPlaying && (!expandingFromPiP || (expandingFromPiP && playerReady && !shouldSeek));
+
   return (
     <Dialog open={isModalOpen} onOpenChange={closeModal}>
       <DialogContent 
@@ -146,12 +150,14 @@ const TaskVideoPlayerModal: React.FC = () => {
                   <VideoEmbed
                     youtubeEmbedId={getYoutubeEmbedId(currentVideo.youtubeId || '')}
                     title={currentVideo.title}
-                    playing={isPlaying}
+                    playing={shouldAutoPlay}
                     onProgress={handleVideoProgress}
                     onPlay={handlePlay}
                     onPause={handlePause}
                     onEnded={handleVideoEnd}
+                    onReady={handlePlayerReady}
                     playerRef={playerRef}
+                    startTime={videoTime}
                   />
                 </div>
               </div>
