@@ -1,3 +1,4 @@
+
 export * from './task-builder/index';
 
 export interface SprintTaskDefinition {
@@ -26,6 +27,9 @@ export interface TaskDefinition {
   estimatedTime?: string;
   difficulty?: string;
   order_index?: number;
+  
+  // Video recommendations
+  recommended_videos?: string[]; // Array of video IDs
   
   // Custom fields that can be extended as needed
   customFields?: Record<string, any>;

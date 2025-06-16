@@ -1,3 +1,4 @@
+
 import { useEffect } from "react"
 import LandingNavigation from "@/components/landing/LandingNavigation"
 import TickerStrips from "@/components/landing/TickerStrips"
@@ -74,7 +75,9 @@ export default function LandingPage() {
       <section className="bg-black text-white py-12 sm:py-16 lg:py-20 xl:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 sm:gap-10 lg:gap-12 items-start">
-            <HeroSection />
+            <div className="lg:col-span-2 space-y-6">
+              <HeroSection />
+            </div>
             <div className="lg:col-span-1 flex justify-center">
               <WilbeStreamPlayer />
             </div>

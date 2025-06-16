@@ -209,8 +209,8 @@ const SprintSignupForm: React.FC<SprintSignupFormProps> = ({ utmParams = {} }) =
   return (
     <div className="max-w-4xl mx-auto p-6">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold">⚡ BSF Sign-Up</h1>
-        <p className="text-muted-foreground">Turn your breakthrough into a high-performance startup - in 10 days. </p>
+        <h1 className="text-3xl font-bold">BSF Sign-Up</h1>
+        <p className="text-muted-foreground">Scientists and engineers hold the keys to the solutions we need for this century. Tell us a bit about you and what you are working on so that we can generate a tailored guided path for you to turn your breakthrough into a high-performance company - in 10 days.</p>
       </div>
       
       {/* Email exists alert - only show when on first window and email exists */}

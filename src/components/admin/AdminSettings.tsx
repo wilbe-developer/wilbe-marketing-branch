@@ -3,6 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SprintFeatureFlags } from './SprintFeatureFlags';
+import LiveEventsManager from './LiveEventsManager';
 
 const AdminSettings = () => {
   return (
@@ -15,6 +16,7 @@ const AdminSettings = () => {
       <Tabs defaultValue="sprint">
         <TabsList className="mb-4">
           <TabsTrigger value="sprint">BSF Features</TabsTrigger>
+          <TabsTrigger value="live-events">Live Events</TabsTrigger>
           <TabsTrigger value="analytics">Analytics Settings</TabsTrigger>
         </TabsList>
         
@@ -25,6 +27,17 @@ const AdminSettings = () => {
             </CardHeader>
             <CardContent>
               <SprintFeatureFlags />
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="live-events">
+          <Card>
+            <CardHeader>
+              <CardTitle>Live Events Management</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <LiveEventsManager />
             </CardContent>
           </Card>
         </TabsContent>

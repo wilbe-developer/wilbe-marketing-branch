@@ -26,6 +26,8 @@ export interface SprintProfile {
   utm_term?: string | null;
   utm_content?: string | null;
   experiment_validated?: string | null; // Changed from boolean to string
+  institution?: string | null;
+  company_role?: string | null;
   // Add other fields as needed
 }
 

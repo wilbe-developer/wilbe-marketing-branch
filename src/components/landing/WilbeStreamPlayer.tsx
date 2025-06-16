@@ -5,6 +5,7 @@ import VideoPlayer from "./VideoPlayer";
 import NextLiveEvent from "./NextLiveEvent";
 import { useCountdownTimer } from "@/hooks/useCountdownTimer";
 import { useVideoPlaylist } from "@/hooks/useVideoPlaylist";
+import { useLiveEvents } from "@/hooks/useLiveEvents";
 
 interface Video {
   id: string;
@@ -30,8 +31,9 @@ export default function WilbeStreamPlayer() {
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Use the countdown timer hook for June 10, 2025 at 12:00 PM ET
-  const timeLeft = useCountdownTimer('2025-06-10T16:00:00Z');
+  // Get live events data
+  const { nextEvent } = useLiveEvents();
+  const timeLeft = useCountdownTimer(nextEvent?.event_date);
 
   // Load videos from the same source as FoundersStories but filter to specific IDs
   useEffect(() => {
@@ -99,8 +101,8 @@ export default function WilbeStreamPlayer() {
             </div>
           </div>
 
-          {/* Next Live Event - Fixed position */}
-          <NextLiveEvent timeLeft={timeLeft} />
+          {/* Next Live Event - Only show if there's an upcoming event */}
+          {nextEvent && <NextLiveEvent timeLeft={timeLeft} />}
         </div>
       </div>
     );
@@ -122,7 +124,8 @@ export default function WilbeStreamPlayer() {
               <p className="text-white text-sm font-medium line-clamp-2">NOW PLAYING: Loading...</p>
             </div>
           </div>
-          <NextLiveEvent timeLeft={timeLeft} />
+          {/* Next Live Event - Only show if there's an upcoming event */}
+          {nextEvent && <NextLiveEvent timeLeft={timeLeft} />}
         </div>
       </div>
     );
@@ -132,7 +135,8 @@ export default function WilbeStreamPlayer() {
     <div className="w-full max-w-md mx-auto">
       <div className="grid grid-rows-[auto_auto] gap-3 sm:gap-4 h-full">
         <VideoPlayer video={currentVideo} onVideoEnd={handleVideoEnd} />
-        <NextLiveEvent timeLeft={timeLeft} />
+        {/* Next Live Event - Only show if there's an upcoming event */}
+        {nextEvent && <NextLiveEvent timeLeft={timeLeft} />}
       </div>
     </div>
   );

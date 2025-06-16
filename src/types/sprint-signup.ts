@@ -75,6 +75,8 @@ export interface SprintProfile {
   deck_feedback?: boolean;
   minimal_success_version?: string;
   ambitious_version?: string;
+  institution?: string;
+  company_role?: string;
   
   // UTM parameters
   utm_source?: string;

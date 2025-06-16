@@ -39,7 +39,7 @@ const SprintProfilePage = () => {
           <TabsTrigger value="profile">Profile Information</TabsTrigger>
           <TabsTrigger value="account">Account Settings</TabsTrigger>
           <TabsTrigger value="privacy">Privacy Settings</TabsTrigger>
-          <TabsTrigger value="collaboration">Collaboration</TabsTrigger>
+          <TabsTrigger value="collaboration">Team Access</TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile">

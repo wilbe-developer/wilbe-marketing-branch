@@ -8,7 +8,7 @@ interface CountdownTime {
   seconds: number;
 }
 
-export const useCountdownTimer = (targetDate: string) => {
+export const useCountdownTimer = (targetDate?: string) => {
   const [timeLeft, setTimeLeft] = useState<CountdownTime>({
     days: 0,
     hours: 0,
@@ -17,8 +17,11 @@ export const useCountdownTimer = (targetDate: string) => {
   });
 
   const calculateTimeLeft = (): CountdownTime => {
-    // Updated target date to June 13, 2025 at 12:00 PM ET (16:00 UTC)
-    const eventDate = new Date('2025-06-13T16:00:00Z').getTime();
+    if (!targetDate) {
+      return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+    }
+
+    const eventDate = new Date(targetDate).getTime();
     const now = new Date().getTime();
     const difference = eventDate - now;
 
