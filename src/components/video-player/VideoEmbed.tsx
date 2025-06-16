@@ -14,6 +14,7 @@ interface VideoEmbedProps {
   playing?: boolean;
   width?: string | number;
   height?: string | number;
+  playerRef?: React.RefObject<ReactPlayer>;
 }
 
 const VideoEmbed = ({ 
@@ -27,21 +28,33 @@ const VideoEmbed = ({
   onEnded,
   playing,
   width = '100%',
-  height = '100%'
+  height = '100%',
+  playerRef
 }: VideoEmbedProps) => {
   const youtubeUrl = `https://www.youtube.com/watch?v=${youtubeEmbedId}`;
+
+  const handlePlay = () => {
+    console.log('Video started playing');
+    onPlay?.();
+  };
+
+  const handlePause = () => {
+    console.log('Video paused');
+    onPause?.();
+  };
 
   return (
     <div className="aspect-video bg-black rounded-lg overflow-hidden">
       <ReactPlayer
+        ref={playerRef}
         url={youtubeUrl}
         playing={playing ?? autoplay}
         controls={controls}
         width={width}
         height={height}
         onProgress={onProgress}
-        onPlay={onPlay}
-        onPause={onPause}
+        onPlay={handlePlay}
+        onPause={handlePause}
         onEnded={onEnded}
         config={{
           playerVars: {

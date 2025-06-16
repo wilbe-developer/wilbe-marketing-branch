@@ -1,15 +1,17 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { useVideoPlayer } from '@/contexts/VideoPlayerContext';
 import VideoEmbed from './VideoEmbed';
-import { Play, Pause, SkipForward, SkipBack, X } from 'lucide-react';
+import { Play, Pause, SkipForward, SkipBack, X, PictureInPicture } from 'lucide-react';
 import { getYoutubeEmbedId } from '@/utils/videoPlayerUtils';
 import { useIsMobile } from '@/hooks/use-mobile';
+import ReactPlayer from 'react-player/youtube';
 
 const TaskVideoPlayerModal: React.FC = () => {
   const isMobile = useIsMobile();
+  const playerRef = useRef<ReactPlayer>(null);
   const { 
     state, 
     closeModal, 
@@ -36,13 +38,44 @@ const TaskVideoPlayerModal: React.FC = () => {
   const canGoNext = currentIndex < playlist.length - 1;
   const canGoPrev = currentIndex > 0;
 
-  const handlePiPClick = () => {
-    enterPiP();
+  const handleNativePiPClick = async () => {
+    try {
+      if (playerRef.current) {
+        const internalPlayer = playerRef.current.getInternalPlayer();
+        const iframe = internalPlayer?.getIframe?.();
+        
+        if (iframe && document.pictureInPictureEnabled) {
+          // For YouTube iframes, we'll transition to our custom PiP since native PiP doesn't work with iframes
+          enterPiP();
+        } else {
+          console.log('Native PiP not supported for YouTube iframes, using custom PiP');
+          enterPiP();
+        }
+      }
+    } catch (error) {
+      console.error('PiP error:', error);
+      // Fallback to custom PiP
+      enterPiP();
+    }
   };
 
   const handleVideoEnd = () => {
     if (autoAdvance && canGoNext) {
       nextVideo();
+    }
+  };
+
+  const handlePlay = () => {
+    // Only update state if it's different to avoid loops
+    if (!isPlaying) {
+      togglePlayPause();
+    }
+  };
+
+  const handlePause = () => {
+    // Only update state if it's different to avoid loops
+    if (isPlaying) {
+      togglePlayPause();
     }
   };
 
@@ -59,8 +92,8 @@ const TaskVideoPlayerModal: React.FC = () => {
               {currentVideo.title}
             </h2>
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm" onClick={handlePiPClick}>
-                PiP
+              <Button variant="ghost" size="sm" onClick={handleNativePiPClick}>
+                <PictureInPicture className="h-4 w-4" />
               </Button>
               <Button variant="ghost" size="sm" onClick={closeModal}>
                 <X className="h-4 w-4" />
@@ -79,9 +112,10 @@ const TaskVideoPlayerModal: React.FC = () => {
                     title={currentVideo.title}
                     playing={isPlaying}
                     onProgress={handleVideoProgress}
-                    onPlay={togglePlayPause}
-                    onPause={togglePlayPause}
+                    onPlay={handlePlay}
+                    onPause={handlePause}
                     onEnded={handleVideoEnd}
+                    playerRef={playerRef}
                   />
                 </div>
               </div>
