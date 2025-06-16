@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { useVideoPlayer } from '@/contexts/VideoPlayerContext';
 import { Button } from '@/components/ui/button';
