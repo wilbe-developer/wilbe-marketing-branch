@@ -272,6 +272,45 @@ export type Database = {
         }
         Relationships: []
       }
+      live_events: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          event_date: string
+          id: string
+          is_active: boolean | null
+          location: string | null
+          speaker: string | null
+          speaker_link: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          event_date: string
+          id?: string
+          is_active?: boolean | null
+          location?: string | null
+          speaker?: string | null
+          speaker_link?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          event_date?: string
+          id?: string
+          is_active?: boolean | null
+          location?: string | null
+          speaker?: string | null
+          speaker_link?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       merch_orders: {
         Row: {
           address: string

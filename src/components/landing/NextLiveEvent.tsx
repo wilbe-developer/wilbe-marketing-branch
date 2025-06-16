@@ -3,6 +3,7 @@ import { Calendar, Clock } from "lucide-react";
 import CalendarSelector from "./CalendarSelector";
 import LiveEventCountdown from "./LiveEventCountdown";
 import { CalendarEvent } from "@/utils/calendarUtils";
+import { useLiveEvents } from "@/hooks/useLiveEvents";
 
 interface CountdownTime {
   days: number;
@@ -16,21 +17,39 @@ interface NextLiveEventProps {
 }
 
 export default function NextLiveEvent({ timeLeft }: NextLiveEventProps) {
-  // Next live event - Updated with new date
-  const nextEvent = {
-    title: "Ep 6: From PhD War Models to an AI x Defense Exit",
-    speaker: "With Sean Gourley",
-    date: "2025-06-17T16:00:00Z", // 12:00 ET = 16:00 UTC
-    description: "Join leading scientists discussing the latest breakthroughs in AI-powered drug discovery"
-  };
+  const { nextEvent, loading } = useLiveEvents();
+
+  // If no event or still loading, don't render anything
+  if (loading || !nextEvent) {
+    return null;
+  }
+
+  const eventDate = new Date(nextEvent.event_date);
+  const endDate = new Date(eventDate.getTime() + 60 * 60 * 1000); // 1 hour duration
 
   // Calendar event data for the next live event
   const nextEventCalendarData: CalendarEvent = {
-    title: "Ep 6: From PhD War Models to an AI x Defense Exit",
-    description: "Join Sean Gourley discussing breakthrough insights in AI-powered defense applications and his entrepreneurial journey from PhD research to successful exit. Learn from leading scientists about the latest developments in the intersection of AI and defense technology.",
-    startDate: new Date('2025-06-17T16:00:00Z'), // 12:00 PM ET = 16:00 UTC
-    endDate: new Date('2025-06-17T17:00:00Z'), // 1 hour duration
-    location: "Wilbe Live Stream - https://wilbe.com"
+    title: nextEvent.title,
+    description: nextEvent.description || `Join ${nextEvent.speaker} for an engaging discussion about breakthrough insights and innovations.`,
+    startDate: eventDate,
+    endDate: endDate,
+    location: nextEvent.location || "Wilbe Live Stream - https://wilbe.com"
+  };
+
+  const formatEventDate = (date: Date) => {
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+  };
+
+  const formatEventTime = (date: Date) => {
+    return date.toLocaleTimeString('en-US', { 
+      hour: 'numeric', 
+      minute: '2-digit',
+      timeZoneName: 'short'
+    });
   };
 
   return (
@@ -41,27 +60,34 @@ export default function NextLiveEvent({ timeLeft }: NextLiveEventProps) {
       </div>
       
       <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 leading-tight">{nextEvent.title}</h3>
-      <p className="text-sm text-gray-600 mb-3 sm:mb-4">
-        With{" "}
-        <a 
-          href="https://x.com/sgourley" 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="text-blue-600 hover:text-blue-800 hover:underline transition-colors min-h-[44px] inline-flex items-center"
-        >
-          Sean Gourley
-        </a>
-      </p>
       
-      {/* Event Date & Time - Updated to June 17, 2025 */}
+      {nextEvent.speaker && (
+        <p className="text-sm text-gray-600 mb-3 sm:mb-4">
+          With{" "}
+          {nextEvent.speaker_link ? (
+            <a 
+              href={nextEvent.speaker_link} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:text-blue-800 hover:underline transition-colors min-h-[44px] inline-flex items-center"
+            >
+              {nextEvent.speaker}
+            </a>
+          ) : (
+            <span className="text-blue-600">{nextEvent.speaker}</span>
+          )}
+        </p>
+      )}
+      
+      {/* Event Date & Time */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-3 sm:mb-4 text-sm text-gray-500">
         <div className="flex items-center gap-1">
           <Calendar className="h-4 w-4" />
-          <span>June 17, 2025</span>
+          <span>{formatEventDate(eventDate)}</span>
         </div>
         <div className="flex items-center gap-1">
           <Clock className="h-4 w-4" />
-          <span>12:00 PM ET</span>
+          <span>{formatEventTime(eventDate)}</span>
         </div>
       </div>
       
