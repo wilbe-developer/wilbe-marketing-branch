@@ -6,6 +6,7 @@ import { SprintTaskLogicRouter } from "@/components/sprint/sprint-task-logic";
 import QuestionForm from '@/components/sprint/QuestionForm';
 import FileUploader from '@/components/sprint/FileUploader';
 import UploadedFileView from '@/components/sprint/UploadedFileView';
+import TaskRecommendedVideos from '@/components/sprint/TaskRecommendedVideos';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
 import { MessageCircle, ArrowLeft } from 'lucide-react';
@@ -94,6 +95,9 @@ const SprintTaskPage = () => {
 
   // Get workload info from current task or calculate it
   const workload = currentTask.workload || (taskDefinition ? extractTaskWorkload(taskDefinition) : null);
+
+  // Extract recommended videos from task definition
+  const recommendedVideoIds = taskDefinition?.definition?.recommended_videos || [];
 
   const handleTaskCompletion = async (fileId?: string) => {
     await updateProgress.mutateAsync({
@@ -214,6 +218,13 @@ const SprintTaskPage = () => {
           </>
         )}
       </div>
+
+      {/* Recommended Videos Section */}
+      {recommendedVideoIds && recommendedVideoIds.length > 0 && (
+        <div className={`${isMobile ? 'mb-4' : 'mb-8'}`}>
+          <TaskRecommendedVideos videoIds={recommendedVideoIds} />
+        </div>
+      )}
     </div>
   );
 };
