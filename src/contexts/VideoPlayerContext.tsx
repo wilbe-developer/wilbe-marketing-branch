@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+
+import React, { createContext, useContext, useState, useCallback, ReactNode, useRef } from 'react';
 import { Video } from '@/types';
 
 interface VideoPlayerState {
@@ -11,6 +12,7 @@ interface VideoPlayerState {
   pipSize: 'small' | 'medium' | 'large';
   autoAdvance: boolean;
   videoTime: number;
+  duration: number;
 }
 
 interface VideoPlayerContextType {
@@ -25,7 +27,10 @@ interface VideoPlayerContextType {
   toggleAutoAdvance: () => void;
   togglePlayPause: () => void;
   setVideoTime: (time: number) => void;
+  setVideoDuration: (duration: number) => void;
   jumpToVideo: (index: number) => void;
+  handleVideoProgress: (state: { played: number; playedSeconds: number; loaded: number; loadedSeconds: number }) => void;
+  enterPiP: () => void;
 }
 
 const VideoPlayerContext = createContext<VideoPlayerContextType | undefined>(undefined);
@@ -41,6 +46,7 @@ export const VideoPlayerProvider: React.FC<{ children: ReactNode }> = ({ childre
     pipSize: 'medium',
     autoAdvance: true,
     videoTime: 0,
+    duration: 0,
   });
 
   const playVideo = useCallback((video: Video, playlist: Video[]) => {
@@ -66,6 +72,15 @@ export const VideoPlayerProvider: React.FC<{ children: ReactNode }> = ({ childre
       isPiPMode: prev.isPlaying && !!prev.currentVideo,
     }));
   }, [state.isPlaying]);
+
+  const enterPiP = useCallback(() => {
+    console.log('Entering PiP mode');
+    setState(prev => ({
+      ...prev,
+      isModalOpen: false,
+      isPiPMode: true,
+    }));
+  }, []);
 
   const closePiP = useCallback(() => {
     console.log('Closing PiP completely');
@@ -102,7 +117,7 @@ export const VideoPlayerProvider: React.FC<{ children: ReactNode }> = ({ childre
         currentIndex: nextIndex,
         currentVideo: prev.playlist[nextIndex],
         videoTime: 0,
-        isPlaying: true, // Keep playing when switching videos
+        isPlaying: true,
       };
     });
   }, []);
@@ -121,7 +136,7 @@ export const VideoPlayerProvider: React.FC<{ children: ReactNode }> = ({ childre
         currentIndex: prevIndex,
         currentVideo: prev.playlist[prevIndex],
         videoTime: 0,
-        isPlaying: true, // Keep playing when switching videos
+        isPlaying: true,
       };
     });
   }, []);
@@ -139,7 +154,7 @@ export const VideoPlayerProvider: React.FC<{ children: ReactNode }> = ({ childre
         currentIndex: index,
         currentVideo: prev.playlist[index],
         videoTime: 0,
-        isPlaying: true, // Keep playing when jumping to video
+        isPlaying: true,
       };
     });
   }, []);
@@ -168,6 +183,14 @@ export const VideoPlayerProvider: React.FC<{ children: ReactNode }> = ({ childre
     setState(prev => ({ ...prev, videoTime: time }));
   }, []);
 
+  const setVideoDuration = useCallback((duration: number) => {
+    setState(prev => ({ ...prev, duration }));
+  }, []);
+
+  const handleVideoProgress = useCallback((progressState: { played: number; playedSeconds: number; loaded: number; loadedSeconds: number }) => {
+    setState(prev => ({ ...prev, videoTime: progressState.playedSeconds }));
+  }, []);
+
   const contextValue: VideoPlayerContextType = {
     state,
     playVideo,
@@ -181,6 +204,9 @@ export const VideoPlayerProvider: React.FC<{ children: ReactNode }> = ({ childre
     toggleAutoAdvance,
     togglePlayPause,
     setVideoTime,
+    setVideoDuration,
+    handleVideoProgress,
+    enterPiP,
   };
 
   return (

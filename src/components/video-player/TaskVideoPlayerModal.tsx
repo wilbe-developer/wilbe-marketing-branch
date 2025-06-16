@@ -17,7 +17,9 @@ const TaskVideoPlayerModal: React.FC = () => {
     previousVideo, 
     jumpToVideo,
     toggleAutoAdvance,
-    togglePlayPause 
+    togglePlayPause,
+    handleVideoProgress,
+    enterPiP
   } = useVideoPlayer();
   
   const { isModalOpen, currentVideo, playlist, currentIndex, autoAdvance, isPlaying } = state;
@@ -25,17 +27,24 @@ const TaskVideoPlayerModal: React.FC = () => {
   useEffect(() => {
     if (!isModalOpen || !currentVideo || !autoAdvance) return;
 
-    // Auto-advance logic would go here in a real implementation
-    // This is simplified for now
     console.log('Auto-advance is enabled for video:', currentVideo.title);
   }, [currentVideo, currentIndex, playlist.length, autoAdvance, nextVideo, isModalOpen]);
 
-  // Early return to prevent hooks issues
   if (!currentVideo) return null;
 
   const upNext = playlist.slice(currentIndex + 1);
   const canGoNext = currentIndex < playlist.length - 1;
   const canGoPrev = currentIndex > 0;
+
+  const handlePiPClick = () => {
+    enterPiP();
+  };
+
+  const handleVideoEnd = () => {
+    if (autoAdvance && canGoNext) {
+      nextVideo();
+    }
+  };
 
   return (
     <Dialog open={isModalOpen} onOpenChange={closeModal}>
@@ -49,9 +58,14 @@ const TaskVideoPlayerModal: React.FC = () => {
             <h2 className="text-lg font-semibold line-clamp-1 flex-1 pr-4">
               {currentVideo.title}
             </h2>
-            <Button variant="ghost" size="sm" onClick={closeModal}>
-              <X className="h-4 w-4" />
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="sm" onClick={handlePiPClick}>
+                PiP
+              </Button>
+              <Button variant="ghost" size="sm" onClick={closeModal}>
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
 
           <div className={`flex ${isMobile ? 'flex-col' : 'flex-row'} flex-1 overflow-hidden`}>
@@ -63,6 +77,11 @@ const TaskVideoPlayerModal: React.FC = () => {
                   <VideoEmbed
                     youtubeEmbedId={getYoutubeEmbedId(currentVideo.youtubeId || '')}
                     title={currentVideo.title}
+                    playing={isPlaying}
+                    onProgress={handleVideoProgress}
+                    onPlay={togglePlayPause}
+                    onPause={togglePlayPause}
+                    onEnded={handleVideoEnd}
                   />
                 </div>
               </div>

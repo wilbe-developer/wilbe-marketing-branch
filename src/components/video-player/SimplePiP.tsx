@@ -1,8 +1,10 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { useVideoPlayer } from '@/contexts/VideoPlayerContext';
 import { Button } from '@/components/ui/button';
 import { Play, Pause, SkipForward, X, Maximize2 } from 'lucide-react';
 import { getYoutubeEmbedId } from '@/utils/videoPlayerUtils';
+import ReactPlayer from 'react-player/youtube';
 
 const SimplePiP: React.FC = () => {
   const { 
@@ -10,12 +12,14 @@ const SimplePiP: React.FC = () => {
     closePiP, 
     expandFromPiP, 
     nextVideo, 
-    togglePlayPause
+    togglePlayPause,
+    handleVideoProgress
   } = useVideoPlayer();
   
   const [showControls, setShowControls] = useState(false);
   const [position, setPosition] = useState({ x: 16, y: 80 });
   const timeoutRef = useRef<NodeJS.Timeout>();
+  const playerRef = useRef(null);
   
   const { isPiPMode, currentVideo, playlist, currentIndex, isPlaying, videoTime } = state;
 
@@ -56,19 +60,15 @@ const SimplePiP: React.FC = () => {
 
   const canGoNext = currentIndex < playlist.length - 1;
   const videoId = getYoutubeEmbedId(currentVideo.youtubeId || '');
-  
-  // Continue from where we left off in the modal, with autoplay based on playing state
-  const startTime = Math.floor(videoTime);
-  const iframeUrl = `https://www.youtube.com/embed/${videoId}?autoplay=${isPlaying ? 1 : 0}&start=${startTime}&controls=0&modestbranding=1&rel=0&showinfo=0`;
+  const youtubeUrl = `https://www.youtube.com/watch?v=${videoId}`;
 
   const handleTap = () => {
     setShowControls(!showControls);
   };
 
-  const handleSwipeRight = (e: React.TouchEvent) => {
-    const touch = e.touches[0];
-    if (touch.clientX > window.innerWidth - 100) {
-      closePiP();
+  const handleVideoEnd = () => {
+    if (canGoNext) {
+      nextVideo();
     }
   };
 
@@ -82,15 +82,28 @@ const SimplePiP: React.FC = () => {
         top: position.y,
       }}
       onClick={handleTap}
-      onTouchStart={handleSwipeRight}
     >
-      {/* YouTube iframe that continues from modal time */}
-      <iframe
-        src={iframeUrl}
-        className="w-full h-full"
-        frameBorder="0"
-        allowFullScreen
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      {/* ReactPlayer for better control */}
+      <ReactPlayer
+        ref={playerRef}
+        url={youtubeUrl}
+        playing={isPlaying}
+        width="100%"
+        height="100%"
+        controls={false}
+        onProgress={handleVideoProgress}
+        onEnded={handleVideoEnd}
+        config={{
+          youtube: {
+            playerVars: {
+              modestbranding: 1,
+              rel: 0,
+              showinfo: 0,
+              playsinline: 1,
+              start: Math.floor(videoTime)
+            }
+          }
+        }}
       />
       
       {/* Controls overlay */}

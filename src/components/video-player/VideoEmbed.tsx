@@ -1,27 +1,59 @@
 
 import React from 'react';
+import ReactPlayer from 'react-player/youtube';
 
 interface VideoEmbedProps {
   youtubeEmbedId: string;
   title: string;
   autoplay?: boolean;
   controls?: boolean;
+  onProgress?: (state: { played: number; playedSeconds: number; loaded: number; loadedSeconds: number }) => void;
+  onPlay?: () => void;
+  onPause?: () => void;
+  onEnded?: () => void;
+  playing?: boolean;
+  width?: string | number;
+  height?: string | number;
 }
 
-const VideoEmbed = ({ youtubeEmbedId, title, autoplay = false, controls = true }: VideoEmbedProps) => {
-  const embedUrl = `https://www.youtube.com/embed/${youtubeEmbedId}?autoplay=${autoplay ? 1 : 0}&controls=${controls ? 1 : 0}&rel=0&modestbranding=1&playsinline=1`;
+const VideoEmbed = ({ 
+  youtubeEmbedId, 
+  title, 
+  autoplay = false, 
+  controls = true,
+  onProgress,
+  onPlay,
+  onPause,
+  onEnded,
+  playing,
+  width = '100%',
+  height = '100%'
+}: VideoEmbedProps) => {
+  const youtubeUrl = `https://www.youtube.com/watch?v=${youtubeEmbedId}`;
 
   return (
     <div className="aspect-video bg-black rounded-lg overflow-hidden">
-      <iframe
-        width="100%"
-        height="100%"
-        src={embedUrl}
-        title={title}
-        frameBorder="0"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-        allowFullScreen
-      ></iframe>
+      <ReactPlayer
+        url={youtubeUrl}
+        playing={playing ?? autoplay}
+        controls={controls}
+        width={width}
+        height={height}
+        onProgress={onProgress}
+        onPlay={onPlay}
+        onPause={onPause}
+        onEnded={onEnded}
+        config={{
+          youtube: {
+            playerVars: {
+              modestbranding: 1,
+              rel: 0,
+              showinfo: 0,
+              playsinline: 1
+            }
+          }
+        }}
+      />
     </div>
   );
 };
