@@ -51,16 +51,17 @@ const TaskVideoPiP: React.FC = () => {
     videoId: getYoutubeEmbedId(currentVideo?.youtubeId || ''),
     containerId: playerId,
     onStateChange: (state) => {
-      if (state === 1) { // Playing
+      console.log('YouTube state change in PiP:', state);
+      // Only sync state if the change is significant
+      if (state === 1 && !isPlaying) { // Playing
         togglePlayPause();
-      } else if (state === 2) { // Paused
+      } else if (state === 2 && isPlaying) { // Paused
         togglePlayPause();
       }
     },
     onReady: () => {
-      if (isPlaying) {
-        youtubePlay();
-      }
+      console.log('YouTube player ready in PiP, isPlaying:', isPlaying);
+      // Don't auto-play on ready to avoid conflicts
     }
   });
 
@@ -102,13 +103,25 @@ const TaskVideoPiP: React.FC = () => {
     handleDragStart(e.clientX, e.clientY);
   }, [isMobile, handleDragStart]);
 
-  // Sync video state with context
+  // Early return AFTER all hooks have been called
+  if (!isPiPMode || !currentVideo) {
+    return null;
+  }
+
+  // Sync video state with context - only when player is ready
   useEffect(() => {
-    if (!playerReady) return;
+    if (!playerReady) {
+      console.log('Player not ready, skipping sync');
+      return;
+    }
+    
+    console.log('Syncing player state - isPlaying:', isPlaying, 'youtubeIsPlaying:', youtubeIsPlaying);
     
     if (isPlaying && !youtubeIsPlaying) {
+      console.log('Starting playback');
       youtubePlay();
     } else if (!isPlaying && youtubeIsPlaying) {
+      console.log('Pausing playback');
       youtubePause();
     }
   }, [isPlaying, youtubeIsPlaying, playerReady, youtubePlay, youtubePause]);
@@ -119,7 +132,9 @@ const TaskVideoPiP: React.FC = () => {
     
     const interval = setInterval(() => {
       const currentTime = getCurrentTime();
-      setVideoTime(currentTime);
+      if (currentTime > 0) {
+        setVideoTime(currentTime);
+      }
     }, 1000);
     
     return () => clearInterval(interval);
@@ -162,11 +177,6 @@ const TaskVideoPiP: React.FC = () => {
       document.removeEventListener('mouseup', handleMouseUp);
     };
   }, [isDragging, handleDragMove, handleDragEnd, isMobile]);
-
-  // Early return AFTER all hooks have been called
-  if (!isPiPMode || !currentVideo) {
-    return null;
-  }
 
   const canGoNext = currentIndex < playlist.length - 1;
   const sizeConfig = getSizeConfig();

@@ -59,6 +59,7 @@ export const useYouTubePlayer = ({
     script.async = true;
     
     window.onYouTubeIframeAPIReady = () => {
+      console.log('YouTube API loaded');
       setApiLoaded(true);
     };
 
@@ -79,8 +80,11 @@ export const useYouTubePlayer = ({
       try {
         if (playerRef.current) {
           playerRef.current.destroy();
+          playerRef.current = null;
         }
 
+        console.log('Initializing YouTube player for video:', videoId);
+        
         playerRef.current = new window.YT.Player(containerId, {
           videoId: videoId,
           playerVars: {
@@ -95,11 +99,13 @@ export const useYouTubePlayer = ({
             showinfo: 0,
           },
           events: {
-            onReady: () => {
+            onReady: (event: any) => {
+              console.log('YouTube player ready');
               setIsReady(true);
               onReady?.();
             },
             onStateChange: (event: any) => {
+              console.log('YouTube player state change:', event.data);
               setPlayerState(event.data);
               onStateChange?.(event.data);
             },
@@ -124,31 +130,54 @@ export const useYouTubePlayer = ({
           console.error('Error destroying YouTube player:', error);
         }
         playerRef.current = null;
+        setIsReady(false);
       }
     };
   }, [apiLoaded, videoId, containerId, onStateChange, onReady]);
 
   const play = useCallback(() => {
-    if (playerRef.current && isReady) {
-      playerRef.current.playVideo();
+    console.log('Play called - isReady:', isReady, 'playerRef:', !!playerRef.current);
+    if (playerRef.current && isReady && typeof playerRef.current.playVideo === 'function') {
+      try {
+        playerRef.current.playVideo();
+      } catch (error) {
+        console.error('Error calling playVideo:', error);
+      }
+    } else {
+      console.warn('Cannot play - player not ready or playVideo method not available');
     }
   }, [isReady]);
 
   const pause = useCallback(() => {
-    if (playerRef.current && isReady) {
-      playerRef.current.pauseVideo();
+    console.log('Pause called - isReady:', isReady, 'playerRef:', !!playerRef.current);
+    if (playerRef.current && isReady && typeof playerRef.current.pauseVideo === 'function') {
+      try {
+        playerRef.current.pauseVideo();
+      } catch (error) {
+        console.error('Error calling pauseVideo:', error);
+      }
+    } else {
+      console.warn('Cannot pause - player not ready or pauseVideo method not available');
     }
   }, [isReady]);
 
   const seekTo = useCallback((seconds: number) => {
-    if (playerRef.current && isReady) {
-      playerRef.current.seekTo(seconds);
+    if (playerRef.current && isReady && typeof playerRef.current.seekTo === 'function') {
+      try {
+        playerRef.current.seekTo(seconds);
+      } catch (error) {
+        console.error('Error calling seekTo:', error);
+      }
     }
   }, [isReady]);
 
   const getCurrentTime = useCallback(() => {
-    if (playerRef.current && isReady) {
-      return playerRef.current.getCurrentTime();
+    if (playerRef.current && isReady && typeof playerRef.current.getCurrentTime === 'function') {
+      try {
+        return playerRef.current.getCurrentTime();
+      } catch (error) {
+        console.error('Error calling getCurrentTime:', error);
+      }
     }
     return 0;
   }, [isReady]);
