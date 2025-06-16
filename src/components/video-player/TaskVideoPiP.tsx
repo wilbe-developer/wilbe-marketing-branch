@@ -8,6 +8,7 @@ import { getYoutubeEmbedId } from '@/utils/videoPlayerUtils';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const TaskVideoPiP: React.FC = () => {
+  // ALL HOOKS MUST BE CALLED BEFORE ANY CONDITIONAL RETURNS
   const isMobile = useIsMobile();
   const { 
     state, 
@@ -18,7 +19,6 @@ const TaskVideoPiP: React.FC = () => {
     togglePlayPause 
   } = useVideoPlayer();
   
-  const { isPiPMode, currentVideo, playlist, currentIndex, pipSize, isPlaying } = state;
   const [isHovered, setIsHovered] = useState(false);
   const [controlsVisible, setControlsVisible] = useState(false);
   const [position, setPosition] = useState({ x: 16, y: 16 });
@@ -26,14 +26,12 @@ const TaskVideoPiP: React.FC = () => {
   const pipRef = useRef<HTMLDivElement>(null);
   const controlsTimeoutRef = useRef<NodeJS.Timeout>();
 
-  // Early return to prevent hooks issues
-  if (!isPiPMode || !currentVideo) return null;
+  // Extract state values after hooks are called
+  const { isPiPMode, currentVideo, playlist, currentIndex, pipSize, isPlaying } = state;
 
-  const canGoNext = currentIndex < playlist.length - 1;
-
-  // Auto-hide controls on mobile
+  // Auto-hide controls on mobile - this useEffect must be called every render
   useEffect(() => {
-    if (!isMobile) return;
+    if (!isMobile || !isPiPMode || !currentVideo) return;
     
     if (controlsVisible) {
       controlsTimeoutRef.current = setTimeout(() => {
@@ -46,7 +44,14 @@ const TaskVideoPiP: React.FC = () => {
         clearTimeout(controlsTimeoutRef.current);
       }
     };
-  }, [controlsVisible, isMobile]);
+  }, [controlsVisible, isMobile, isPiPMode, currentVideo]);
+
+  // NOW we can do the conditional return AFTER all hooks have been called
+  if (!isPiPMode || !currentVideo) {
+    return null;
+  }
+
+  const canGoNext = currentIndex < playlist.length - 1;
 
   // Size configurations with mobile-first approach
   const sizeClasses = {
