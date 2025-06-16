@@ -8,6 +8,7 @@ import { getYoutubeEmbedId } from '@/utils/videoPlayerUtils';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const TaskVideoPiP: React.FC = () => {
+  const isMobile = useIsMobile();
   const { 
     state, 
     closePiP, 
@@ -22,10 +23,10 @@ const TaskVideoPiP: React.FC = () => {
   const [controlsVisible, setControlsVisible] = useState(false);
   const [position, setPosition] = useState({ x: 16, y: 16 });
   const [isDragging, setIsDragging] = useState(false);
-  const isMobile = useIsMobile();
   const pipRef = useRef<HTMLDivElement>(null);
   const controlsTimeoutRef = useRef<NodeJS.Timeout>();
 
+  // Early return to prevent hooks issues
   if (!isPiPMode || !currentVideo) return null;
 
   const canGoNext = currentIndex < playlist.length - 1;
@@ -55,15 +56,15 @@ const TaskVideoPiP: React.FC = () => {
   };
 
   const buttonSizes = {
-    small: isMobile ? 'h-8 w-8' : 'h-6 w-6',
-    medium: isMobile ? 'h-9 w-9' : 'h-7 w-7',
-    large: isMobile ? 'h-10 w-10' : 'h-8 w-8'
+    small: isMobile ? 'h-12 w-12' : 'h-8 w-8',
+    medium: isMobile ? 'h-12 w-12' : 'h-9 w-9',
+    large: isMobile ? 'h-14 w-14' : 'h-10 w-10'
   };
 
   const iconSizes = {
-    small: isMobile ? 'h-4 w-4' : 'h-3 w-3',
-    medium: isMobile ? 'h-5 w-5' : 'h-4 w-4',
-    large: isMobile ? 'h-6 w-6' : 'h-5 w-5'
+    small: isMobile ? 'h-6 w-6' : 'h-4 w-4',
+    medium: isMobile ? 'h-6 w-6' : 'h-5 w-5',
+    large: isMobile ? 'h-7 w-7' : 'h-6 w-6'
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -133,7 +134,7 @@ const TaskVideoPiP: React.FC = () => {
         
         {/* Controls Overlay */}
         <div 
-          className={`absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-opacity duration-200 ${
+          className={`absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center transition-opacity duration-200 ${
             showControls ? 'opacity-100' : 'opacity-0'
           }`}
           onClick={() => isMobile && setControlsVisible(!controlsVisible)}
@@ -142,7 +143,7 @@ const TaskVideoPiP: React.FC = () => {
             <Button
               variant="ghost"
               size="sm"
-              className={`${buttonSizes[pipSize]} text-white hover:bg-white/20`}
+              className={`${buttonSizes[pipSize]} text-white hover:bg-white/30 bg-black/40 backdrop-blur-sm`}
               onClick={(e) => {
                 e.stopPropagation();
                 togglePlayPause();
@@ -159,7 +160,7 @@ const TaskVideoPiP: React.FC = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                className={`${buttonSizes[pipSize]} text-white hover:bg-white/20`}
+                className={`${buttonSizes[pipSize]} text-white hover:bg-white/30 bg-black/40 backdrop-blur-sm`}
                 onClick={(e) => {
                   e.stopPropagation();
                   nextVideo();
@@ -172,7 +173,7 @@ const TaskVideoPiP: React.FC = () => {
             <Button
               variant="ghost"
               size="sm"
-              className={`${buttonSizes[pipSize]} text-white hover:bg-white/20`}
+              className={`${buttonSizes[pipSize]} text-white hover:bg-white/30 bg-black/40 backdrop-blur-sm`}
               onClick={(e) => {
                 e.stopPropagation();
                 expandFromPiP();
@@ -184,7 +185,7 @@ const TaskVideoPiP: React.FC = () => {
             <Button
               variant="ghost"
               size="sm"
-              className={`${buttonSizes[pipSize]} text-white hover:bg-white/20`}
+              className={`${buttonSizes[pipSize]} text-white hover:bg-white/30 bg-black/40 backdrop-blur-sm`}
               onClick={(e) => {
                 e.stopPropagation();
                 closePiP();
@@ -221,7 +222,7 @@ const TaskVideoPiP: React.FC = () => {
 
         {/* Video Info */}
         <div 
-          className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent ${
+          className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent ${
             isMobile ? 'p-2' : 'p-2'
           } transition-opacity duration-200 ${
             showControls ? 'opacity-100' : 'opacity-0'

@@ -1,13 +1,15 @@
-import React, { useEffect, useRef } from 'react';
+
+import React, { useEffect } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { useVideoPlayer } from '@/contexts/VideoPlayerContext';
 import VideoEmbed from './VideoEmbed';
-import { Play, Pause, SkipForward, SkipBack, X, Settings } from 'lucide-react';
+import { Play, Pause, SkipForward, SkipBack, X } from 'lucide-react';
 import { getYoutubeEmbedId } from '@/utils/videoPlayerUtils';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const TaskVideoPlayerModal: React.FC = () => {
+  const isMobile = useIsMobile();
   const { 
     state, 
     closeModal, 
@@ -17,31 +19,18 @@ const TaskVideoPlayerModal: React.FC = () => {
     toggleAutoAdvance,
     togglePlayPause 
   } = useVideoPlayer();
-  const { isModalOpen, currentVideo, playlist, currentIndex, autoAdvance, isPlaying } = state;
-  const isMobile = useIsMobile();
   
-  const videoRef = useRef<HTMLIFrameElement>(null);
+  const { isModalOpen, currentVideo, playlist, currentIndex, autoAdvance, isPlaying } = state;
 
   useEffect(() => {
     if (!isModalOpen || !currentVideo || !autoAdvance) return;
 
-    // Listen for video end to auto-advance (simplified approach)
-    const handleVideoEnd = () => {
-      if (currentIndex < playlist.length - 1) {
-        nextVideo();
-      }
-    };
-
-    // This is a simplified approach - in a real implementation, you'd use YouTube API
-    // to properly detect video end events
-    const timer = setTimeout(() => {
-      // Auto-advance after estimated video duration (if available)
-      // This is a fallback - proper implementation would use YouTube Player API
-    }, 5000);
-
-    return () => clearTimeout(timer);
+    // Auto-advance logic would go here in a real implementation
+    // This is simplified for now
+    console.log('Auto-advance is enabled for video:', currentVideo.title);
   }, [currentVideo, currentIndex, playlist.length, autoAdvance, nextVideo, isModalOpen]);
 
+  // Early return to prevent hooks issues
   if (!currentVideo) return null;
 
   const upNext = playlist.slice(currentIndex + 1);
@@ -49,7 +38,7 @@ const TaskVideoPlayerModal: React.FC = () => {
   const canGoPrev = currentIndex > 0;
 
   return (
-    <Dialog open={isModalOpen} onOpenChange={() => closeModal()}>
+    <Dialog open={isModalOpen} onOpenChange={closeModal}>
       <DialogContent 
         className={`${isMobile ? 'max-w-full h-full p-0 m-0' : 'max-w-6xl w-full h-[85vh] p-0'}`}
         hideCloseButton={true}

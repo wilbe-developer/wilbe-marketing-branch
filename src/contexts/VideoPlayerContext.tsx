@@ -11,7 +11,7 @@ interface VideoPlayerState {
   isPiPMode: boolean;
   pipSize: 'small' | 'medium' | 'large';
   autoAdvance: boolean;
-  videoTime: number; // Add video time tracking
+  videoTime: number;
 }
 
 interface VideoPlayerContextType {
@@ -24,9 +24,9 @@ interface VideoPlayerContextType {
   previousVideo: () => void;
   setPiPSize: (size: 'small' | 'medium' | 'large') => void;
   toggleAutoAdvance: () => void;
-  togglePlayPause: () => void; // Add play/pause toggle
-  setVideoTime: (time: number) => void; // Add time setter
-  jumpToVideo: (index: number) => void; // Add jump to specific video
+  togglePlayPause: () => void;
+  setVideoTime: (time: number) => void;
+  jumpToVideo: (index: number) => void;
 }
 
 const VideoPlayerContext = createContext<VideoPlayerContextType | undefined>(undefined);
@@ -46,6 +46,7 @@ export const VideoPlayerProvider: React.FC<{ children: ReactNode }> = ({ childre
 
   const playVideo = useCallback((video: Video, playlist: Video[]) => {
     const index = playlist.findIndex(v => v.id === video.id);
+    console.log('Playing video:', video.title, 'in playlist of', playlist.length);
     setState(prev => ({
       ...prev,
       isPlaying: true,
@@ -59,14 +60,16 @@ export const VideoPlayerProvider: React.FC<{ children: ReactNode }> = ({ childre
   }, []);
 
   const closeModal = useCallback(() => {
+    console.log('Closing modal, transitioning to PiP. Current playing state:', state.isPlaying);
     setState(prev => ({
       ...prev,
       isModalOpen: false,
-      isPiPMode: prev.isPlaying, // Transition to PiP if video was playing
+      isPiPMode: prev.isPlaying && !!prev.currentVideo, // Only go to PiP if video was playing
     }));
-  }, []);
+  }, [state.isPlaying]);
 
   const closePiP = useCallback(() => {
+    console.log('Closing PiP completely');
     setState(prev => ({
       ...prev,
       isPlaying: false,
@@ -78,6 +81,7 @@ export const VideoPlayerProvider: React.FC<{ children: ReactNode }> = ({ childre
   }, []);
 
   const expandFromPiP = useCallback(() => {
+    console.log('Expanding from PiP back to modal');
     setState(prev => ({
       ...prev,
       isModalOpen: true,
@@ -88,8 +92,12 @@ export const VideoPlayerProvider: React.FC<{ children: ReactNode }> = ({ childre
   const nextVideo = useCallback(() => {
     setState(prev => {
       const nextIndex = prev.currentIndex + 1;
-      if (nextIndex >= prev.playlist.length) return prev;
+      if (nextIndex >= prev.playlist.length) {
+        console.log('Already at last video, cannot go next');
+        return prev;
+      }
       
+      console.log('Moving to next video:', prev.playlist[nextIndex]?.title);
       return {
         ...prev,
         currentIndex: nextIndex,
@@ -102,8 +110,12 @@ export const VideoPlayerProvider: React.FC<{ children: ReactNode }> = ({ childre
   const previousVideo = useCallback(() => {
     setState(prev => {
       const prevIndex = prev.currentIndex - 1;
-      if (prevIndex < 0) return prev;
+      if (prevIndex < 0) {
+        console.log('Already at first video, cannot go previous');
+        return prev;
+      }
       
+      console.log('Moving to previous video:', prev.playlist[prevIndex]?.title);
       return {
         ...prev,
         currentIndex: prevIndex,
@@ -115,8 +127,12 @@ export const VideoPlayerProvider: React.FC<{ children: ReactNode }> = ({ childre
 
   const jumpToVideo = useCallback((index: number) => {
     setState(prev => {
-      if (index < 0 || index >= prev.playlist.length) return prev;
+      if (index < 0 || index >= prev.playlist.length) {
+        console.log('Invalid video index:', index);
+        return prev;
+      }
       
+      console.log('Jumping to video:', prev.playlist[index]?.title);
       return {
         ...prev,
         currentIndex: index,
@@ -127,15 +143,22 @@ export const VideoPlayerProvider: React.FC<{ children: ReactNode }> = ({ childre
   }, []);
 
   const setPiPSize = useCallback((size: 'small' | 'medium' | 'large') => {
+    console.log('Setting PiP size to:', size);
     setState(prev => ({ ...prev, pipSize: size }));
   }, []);
 
   const toggleAutoAdvance = useCallback(() => {
-    setState(prev => ({ ...prev, autoAdvance: !prev.autoAdvance }));
+    setState(prev => {
+      console.log('Toggling auto advance from:', prev.autoAdvance, 'to:', !prev.autoAdvance);
+      return { ...prev, autoAdvance: !prev.autoAdvance };
+    });
   }, []);
 
   const togglePlayPause = useCallback(() => {
-    setState(prev => ({ ...prev, isPlaying: !prev.isPlaying }));
+    setState(prev => {
+      console.log('Toggling play/pause from:', prev.isPlaying, 'to:', !prev.isPlaying);
+      return { ...prev, isPlaying: !prev.isPlaying };
+    });
   }, []);
 
   const setVideoTime = useCallback((time: number) => {
