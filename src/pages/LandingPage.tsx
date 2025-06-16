@@ -22,7 +22,7 @@ export default function LandingPage() {
         if (element) {
           element.scrollIntoView({ behavior: 'smooth' });
         }
-      }, []);
+      }, 100);
     }
   }, []);
 
