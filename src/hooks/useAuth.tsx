@@ -253,8 +253,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const isMember = !!user?.isMember; // This will include admins since database function checks both 'member' and 'admin'
   const isAuthenticated = !!user;
   
-  // Updated dashboard access: only based on explicit permissions (global flag OR individual access OR is admin)
-  const hasDashboardAccess = (
+  // Updated dashboard access: requires sprint profile AND explicit permissions (global flag OR individual access OR is admin)
+  const hasDashboardAccess = hasSprintProfile && (
     user?.isDashboardActive || 
     user?.dashboardAccessEnabled || 
     isAdmin
