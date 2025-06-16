@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useVideoPlayer } from '@/contexts/VideoPlayerContext';
 import { Button } from '@/components/ui/button';
-import { Play, Pause, SkipForward, X, Maximize2 } from 'lucide-react';
+import { X, PictureInPicture } from 'lucide-react';
 import { getYoutubeEmbedId } from '@/utils/videoPlayerUtils';
 import ReactPlayer from 'react-player/youtube';
 
@@ -11,32 +11,14 @@ const SimplePiP: React.FC = () => {
     state, 
     closePiP, 
     expandFromPiP, 
-    nextVideo, 
-    togglePlayPause,
+    nextVideo,
     handleVideoProgress
   } = useVideoPlayer();
   
-  const [showControls, setShowControls] = useState(false);
   const [position, setPosition] = useState({ x: 16, y: 80 });
-  const timeoutRef = useRef<NodeJS.Timeout>();
   const playerRef = useRef(null);
   
   const { isPiPMode, currentVideo, playlist, currentIndex, isPlaying, videoTime } = state;
-
-  // Auto-hide controls after 3 seconds
-  useEffect(() => {
-    if (showControls) {
-      timeoutRef.current = setTimeout(() => {
-        setShowControls(false);
-      }, 3000);
-    }
-    
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
-  }, [showControls]);
 
   // Position PiP in bottom right corner on mount
   useEffect(() => {
@@ -62,10 +44,6 @@ const SimplePiP: React.FC = () => {
   const videoId = getYoutubeEmbedId(currentVideo.youtubeId || '');
   const youtubeUrl = `https://www.youtube.com/watch?v=${videoId}`;
 
-  const handleTap = () => {
-    setShowControls(!showControls);
-  };
-
   const handleVideoEnd = () => {
     if (canGoNext) {
       nextVideo();
@@ -81,7 +59,6 @@ const SimplePiP: React.FC = () => {
         left: position.x,
         top: position.y,
       }}
-      onClick={handleTap}
     >
       {/* ReactPlayer for better control */}
       <ReactPlayer
@@ -104,71 +81,37 @@ const SimplePiP: React.FC = () => {
         }}
       />
       
-      {/* Controls overlay */}
-      <div 
-        className={`absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center transition-opacity duration-200 ${
-          showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'
-        }`}
-      >
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-10 w-10 text-white hover:bg-white/30 bg-black/40 backdrop-blur-sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              togglePlayPause();
-            }}
-          >
-            {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-          </Button>
-          
-          {canGoNext && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-10 w-10 text-white hover:bg-white/30 bg-black/40 backdrop-blur-sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                nextVideo();
-              }}
-            >
-              <SkipForward className="h-4 w-4" />
-            </Button>
-          )}
-          
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-10 w-10 text-white hover:bg-white/30 bg-black/40 backdrop-blur-sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              expandFromPiP();
-            }}
-          >
-            <Maximize2 className="h-4 w-4" />
-          </Button>
-          
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-10 w-10 text-white hover:bg-white/30 bg-black/40 backdrop-blur-sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              closePiP();
-            }}
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
+      {/* Always visible controls - positioned to avoid YouTube overlay */}
+      <div className="absolute inset-0 pointer-events-none">
+        {/* Close button - top left, avoiding YouTube channel info */}
+        <Button
+          variant="ghost"
+          size="sm"
+          className="absolute top-2 left-2 h-8 w-8 p-0 text-white hover:bg-black/60 bg-black/40 backdrop-blur-sm pointer-events-auto z-10 rounded-full"
+          onClick={(e) => {
+            e.stopPropagation();
+            closePiP();
+          }}
+        >
+          <X className="h-4 w-4" />
+        </Button>
+        
+        {/* Expand button - top right, avoiding YouTube options menu */}
+        <Button
+          variant="ghost"
+          size="sm"
+          className="absolute top-2 right-2 h-8 w-8 p-0 text-white hover:bg-black/60 bg-black/40 backdrop-blur-sm pointer-events-auto z-10 rounded-full"
+          onClick={(e) => {
+            e.stopPropagation();
+            expandFromPiP();
+          }}
+        >
+          <PictureInPicture className="h-4 w-4" />
+        </Button>
       </div>
 
-      {/* Video info */}
-      <div 
-        className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-2 transition-opacity duration-200 ${
-          showControls ? 'opacity-100' : 'opacity-0'
-        }`}
-      >
+      {/* Video info - only show on hover to reduce clutter */}
+      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-2 opacity-0 hover:opacity-100 transition-opacity duration-200">
         <div className="text-white text-xs font-medium line-clamp-1">
           {currentVideo.title}
         </div>
