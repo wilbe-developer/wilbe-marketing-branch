@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useCallback, ReactNode, useRef } from 'react';
 import { Video } from '@/types';
 
@@ -13,6 +12,7 @@ interface VideoPlayerState {
   autoAdvance: boolean;
   videoTime: number;
   duration: number;
+  expandingFromPiP: boolean;
 }
 
 interface VideoPlayerContextType {
@@ -47,6 +47,7 @@ export const VideoPlayerProvider: React.FC<{ children: ReactNode }> = ({ childre
     autoAdvance: true,
     videoTime: 0,
     duration: 0,
+    expandingFromPiP: false,
   });
 
   const playVideo = useCallback((video: Video, playlist: Video[]) => {
@@ -61,6 +62,7 @@ export const VideoPlayerProvider: React.FC<{ children: ReactNode }> = ({ childre
       isModalOpen: true,
       isPiPMode: false,
       videoTime: 0,
+      expandingFromPiP: false,
     }));
   }, []);
 
@@ -70,6 +72,7 @@ export const VideoPlayerProvider: React.FC<{ children: ReactNode }> = ({ childre
       ...prev,
       isModalOpen: false,
       isPiPMode: prev.isPlaying && !!prev.currentVideo,
+      expandingFromPiP: false,
     }));
   }, [state.isPlaying]);
 
@@ -79,6 +82,7 @@ export const VideoPlayerProvider: React.FC<{ children: ReactNode }> = ({ childre
       ...prev,
       isModalOpen: false,
       isPiPMode: true,
+      expandingFromPiP: false,
     }));
   }, []);
 
@@ -91,17 +95,19 @@ export const VideoPlayerProvider: React.FC<{ children: ReactNode }> = ({ childre
       currentVideo: null,
       playlist: [],
       videoTime: 0,
+      expandingFromPiP: false,
     }));
   }, []);
 
   const expandFromPiP = useCallback(() => {
-    console.log('Expanding from PiP back to modal');
+    console.log('Expanding from PiP back to modal at time:', state.videoTime);
     setState(prev => ({
       ...prev,
       isModalOpen: true,
       isPiPMode: false,
+      expandingFromPiP: true,
     }));
-  }, []);
+  }, [state.videoTime]);
 
   const nextVideo = useCallback(() => {
     setState(prev => {
@@ -118,6 +124,7 @@ export const VideoPlayerProvider: React.FC<{ children: ReactNode }> = ({ childre
         currentVideo: prev.playlist[nextIndex],
         videoTime: 0,
         isPlaying: true,
+        expandingFromPiP: false,
       };
     });
   }, []);
@@ -137,6 +144,7 @@ export const VideoPlayerProvider: React.FC<{ children: ReactNode }> = ({ childre
         currentVideo: prev.playlist[prevIndex],
         videoTime: 0,
         isPlaying: true,
+        expandingFromPiP: false,
       };
     });
   }, []);
@@ -155,6 +163,7 @@ export const VideoPlayerProvider: React.FC<{ children: ReactNode }> = ({ childre
         currentVideo: prev.playlist[index],
         videoTime: 0,
         isPlaying: true,
+        expandingFromPiP: false,
       };
     });
   }, []);

@@ -23,19 +23,43 @@ const TaskVideoPlayerModal: React.FC = () => {
     enterPiP
   } = useVideoPlayer();
   
-  const { isModalOpen, currentVideo, playlist, currentIndex, autoAdvance, isPlaying, videoTime } = state;
+  const { isModalOpen, currentVideo, playlist, currentIndex, autoAdvance, isPlaying, videoTime, expandingFromPiP } = state;
 
-  // Seek to current time when modal opens (especially when returning from PiP)
+  // Handle video seeking when modal opens, especially from PiP
   useEffect(() => {
     if (isModalOpen && playerRef.current && videoTime > 0) {
-      const timer = setTimeout(() => {
-        playerRef.current?.seekTo(videoTime, 'seconds');
-        console.log('Seeking to time in modal:', videoTime);
-      }, 1000); // Small delay to ensure player is ready
+      console.log('Modal opened with video time:', videoTime, 'expanding from PiP:', expandingFromPiP);
       
+      const seekToTime = () => {
+        if (playerRef.current) {
+          console.log('Seeking to time in modal:', videoTime);
+          playerRef.current.seekTo(videoTime, 'seconds');
+        }
+      };
+
+      // If expanding from PiP, seek immediately and also after a short delay
+      if (expandingFromPiP) {
+        seekToTime();
+        const timer = setTimeout(seekToTime, 500);
+        return () => clearTimeout(timer);
+      } else {
+        // For regular modal opening, use longer delay
+        const timer = setTimeout(seekToTime, 1000);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [isModalOpen, videoTime, expandingFromPiP]);
+
+  // Reset expanding flag after modal is fully open
+  useEffect(() => {
+    if (isModalOpen && expandingFromPiP) {
+      const timer = setTimeout(() => {
+        // Clear the expanding flag after the modal has had time to load
+        console.log('Clearing expandingFromPiP flag');
+      }, 1500);
       return () => clearTimeout(timer);
     }
-  }, [isModalOpen, videoTime]);
+  }, [isModalOpen, expandingFromPiP]);
 
   // ... keep existing code (auto-advance effect)
   useEffect(() => {
