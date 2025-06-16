@@ -1,14 +1,14 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useVideoPlayer } from '@/contexts/VideoPlayerContext';
 import { Button } from '@/components/ui/button';
 import { Play, Pause, SkipForward, X, Maximize2 } from 'lucide-react';
-import VideoEmbed from './VideoEmbed';
 import { getYoutubeEmbedId } from '@/utils/videoPlayerUtils';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useYouTubePlayer } from '@/hooks/useYouTubePlayer';
+import { usePiPPositioning } from '@/hooks/usePiPPositioning';
 
 const TaskVideoPiP: React.FC = () => {
-  // ALL HOOKS MUST BE CALLED BEFORE ANY CONDITIONAL RETURNS
   const isMobile = useIsMobile();
   const { 
     state, 
@@ -16,20 +16,78 @@ const TaskVideoPiP: React.FC = () => {
     expandFromPiP, 
     nextVideo, 
     setPiPSize,
-    togglePlayPause 
+    togglePlayPause,
+    setVideoTime
   } = useVideoPlayer();
   
   const [isHovered, setIsHovered] = useState(false);
   const [controlsVisible, setControlsVisible] = useState(false);
-  const [position, setPosition] = useState({ x: 16, y: 16 });
-  const [isDragging, setIsDragging] = useState(false);
   const pipRef = useRef<HTMLDivElement>(null);
   const controlsTimeoutRef = useRef<NodeJS.Timeout>();
+  const playerId = 'pip-youtube-player';
 
-  // Extract state values after hooks are called
+  // Extract state values
   const { isPiPMode, currentVideo, playlist, currentIndex, pipSize, isPlaying } = state;
 
-  // Auto-hide controls on mobile - this useEffect must be called every render
+  // PiP positioning hook
+  const {
+    position,
+    isDragging,
+    isSnapping,
+    handleDragStart,
+    handleDragMove,
+    handleDragEnd,
+    getSizeConfig
+  } = usePiPPositioning({ size: pipSize, isVisible: isPiPMode });
+
+  // YouTube player integration
+  const {
+    isReady: playerReady,
+    isPlaying: youtubeIsPlaying,
+    play: youtubePlay,
+    pause: youtubePause,
+    getCurrentTime
+  } = useYouTubePlayer({
+    videoId: getYoutubeEmbedId(currentVideo?.youtubeId || ''),
+    containerId: playerId,
+    onStateChange: (state) => {
+      if (state === 1) { // Playing
+        togglePlayPause();
+      } else if (state === 2) { // Paused
+        togglePlayPause();
+      }
+    },
+    onReady: () => {
+      if (isPlaying) {
+        youtubePlay();
+      }
+    }
+  });
+
+  // Sync video state with context
+  useEffect(() => {
+    if (!playerReady) return;
+    
+    if (isPlaying && !youtubeIsPlaying) {
+      youtubePlay();
+    } else if (!isPlaying && youtubeIsPlaying) {
+      youtubePause();
+    }
+  }, [isPlaying, youtubeIsPlaying, playerReady, youtubePlay, youtubePause]);
+
+  // Update video time periodically
+  useEffect(() => {
+    if (!playerReady || !isPlaying) return;
+    
+    const interval = setInterval(() => {
+      const currentTime = getCurrentTime();
+      setVideoTime(currentTime);
+    }, 1000);
+    
+    return () => clearInterval(interval);
+  }, [playerReady, isPlaying, getCurrentTime, setVideoTime]);
+
+  // Auto-hide controls on mobile
   useEffect(() => {
     if (!isMobile || !isPiPMode || !currentVideo) return;
     
@@ -46,35 +104,46 @@ const TaskVideoPiP: React.FC = () => {
     };
   }, [controlsVisible, isMobile, isPiPMode, currentVideo]);
 
-  // NOW we can do the conditional return AFTER all hooks have been called
+  // Handle mouse events for dragging
+  useEffect(() => {
+    if (isMobile || !isDragging) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      handleDragMove(e.clientX, e.clientY);
+    };
+
+    const handleMouseUp = () => {
+      handleDragEnd();
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging, handleDragMove, handleDragEnd, isMobile]);
+
+  // Early return after all hooks
   if (!isPiPMode || !currentVideo) {
     return null;
   }
 
   const canGoNext = currentIndex < playlist.length - 1;
+  const sizeConfig = getSizeConfig();
 
-  // Size configurations with mobile-first approach
-  const sizeClasses = {
-    small: isMobile ? 'w-48 h-28' : 'w-64 h-36',
-    medium: isMobile ? 'w-64 h-40' : 'w-80 h-48', 
-    large: isMobile ? 'w-80 h-48' : 'w-96 h-60'
-  };
-
+  // Button and icon sizes
   const buttonSizes = {
-    small: isMobile ? 'h-12 w-12' : 'h-8 w-8',
+    small: isMobile ? 'h-10 w-10' : 'h-8 w-8',
     medium: isMobile ? 'h-12 w-12' : 'h-9 w-9',
     large: isMobile ? 'h-14 w-14' : 'h-10 w-10'
   };
 
   const iconSizes = {
-    small: isMobile ? 'h-6 w-6' : 'h-4 w-4',
+    small: isMobile ? 'h-5 w-5' : 'h-4 w-4',
     medium: isMobile ? 'h-6 w-6' : 'h-5 w-5',
     large: isMobile ? 'h-7 w-7' : 'h-6 w-6'
-  };
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    if (!isMobile) return;
-    setControlsVisible(true);
   };
 
   const handleMouseEnter = () => {
@@ -89,52 +158,58 @@ const TaskVideoPiP: React.FC = () => {
     }
   };
 
-  const showControls = isMobile ? controlsVisible : isHovered;
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (!isMobile) return;
+    setControlsVisible(true);
+  };
 
-  // Drag functionality for desktop
   const handleMouseDown = (e: React.MouseEvent) => {
     if (isMobile) return;
-    setIsDragging(true);
-    const rect = pipRef.current?.getBoundingClientRect();
-    if (rect) {
-      const offsetX = e.clientX - rect.left;
-      const offsetY = e.clientY - rect.top;
-      
-      const handleMouseMove = (e: MouseEvent) => {
-        setPosition({
-          x: Math.max(0, Math.min(window.innerWidth - rect.width, e.clientX - offsetX)),
-          y: Math.max(0, Math.min(window.innerHeight - rect.height, e.clientY - offsetY))
-        });
-      };
-      
-      const handleMouseUp = () => {
-        setIsDragging(false);
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
-      };
-      
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-    }
+    e.preventDefault();
+    handleDragStart(e.clientX, e.clientY);
   };
+
+  const showControls = isMobile ? controlsVisible : isHovered;
+
+  // Handle gesture-based dismissal on mobile
+  const handleSwipeGesture = useCallback((e: React.TouchEvent) => {
+    if (!isMobile) return;
+    
+    const touch = e.touches[0];
+    const rect = pipRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    
+    // If swiping right from the edge, close PiP
+    if (touch.clientX > rect.right - 50) {
+      closePiP();
+    }
+  }, [isMobile, closePiP]);
 
   return (
     <div 
       ref={pipRef}
-      className={`fixed ${sizeClasses[pipSize]} bg-black rounded-lg shadow-2xl overflow-hidden z-50 transition-all duration-200 hover:shadow-3xl ${
-        isDragging ? 'cursor-grabbing' : 'cursor-grab'
+      className={`fixed bg-black rounded-lg shadow-2xl overflow-hidden z-50 transition-all duration-300 ${
+        isSnapping ? 'ease-out' : isDragging ? 'cursor-grabbing' : isMobile ? '' : 'cursor-grab hover:shadow-3xl'
       }`}
-      style={isMobile ? { bottom: 16, right: 16 } : { bottom: position.y, right: position.x }}
+      style={{
+        width: sizeConfig.width,
+        height: sizeConfig.height,
+        left: position.x,
+        top: position.y,
+        transform: isDragging ? 'scale(1.05)' : 'scale(1)',
+      }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onTouchStart={handleTouchStart}
+      onTouchMove={handleSwipeGesture}
       onMouseDown={!isMobile ? handleMouseDown : undefined}
     >
-      {/* Video */}
+      {/* YouTube Player */}
       <div className="relative w-full h-full">
-        <VideoEmbed
-          youtubeEmbedId={getYoutubeEmbedId(currentVideo.youtubeId || '')}
-          title={currentVideo.title}
+        <div 
+          id={playerId}
+          className="w-full h-full"
+          style={{ pointerEvents: isDragging ? 'none' : 'auto' }}
         />
         
         {/* Controls Overlay */}
@@ -148,7 +223,7 @@ const TaskVideoPiP: React.FC = () => {
             <Button
               variant="ghost"
               size="sm"
-              className={`${buttonSizes[pipSize]} text-white hover:bg-white/30 bg-black/40 backdrop-blur-sm`}
+              className={`${buttonSizes[pipSize]} text-white hover:bg-white/30 bg-black/40 backdrop-blur-sm transition-all`}
               onClick={(e) => {
                 e.stopPropagation();
                 togglePlayPause();
@@ -165,7 +240,7 @@ const TaskVideoPiP: React.FC = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                className={`${buttonSizes[pipSize]} text-white hover:bg-white/30 bg-black/40 backdrop-blur-sm`}
+                className={`${buttonSizes[pipSize]} text-white hover:bg-white/30 bg-black/40 backdrop-blur-sm transition-all`}
                 onClick={(e) => {
                   e.stopPropagation();
                   nextVideo();
@@ -178,7 +253,7 @@ const TaskVideoPiP: React.FC = () => {
             <Button
               variant="ghost"
               size="sm"
-              className={`${buttonSizes[pipSize]} text-white hover:bg-white/30 bg-black/40 backdrop-blur-sm`}
+              className={`${buttonSizes[pipSize]} text-white hover:bg-white/30 bg-black/40 backdrop-blur-sm transition-all`}
               onClick={(e) => {
                 e.stopPropagation();
                 expandFromPiP();
@@ -190,7 +265,7 @@ const TaskVideoPiP: React.FC = () => {
             <Button
               variant="ghost"
               size="sm"
-              className={`${buttonSizes[pipSize]} text-white hover:bg-white/30 bg-black/40 backdrop-blur-sm`}
+              className={`${buttonSizes[pipSize]} text-white hover:bg-white/30 bg-black/40 backdrop-blur-sm transition-all`}
               onClick={(e) => {
                 e.stopPropagation();
                 closePiP();
@@ -201,7 +276,7 @@ const TaskVideoPiP: React.FC = () => {
           </div>
         </div>
 
-        {/* Size Control - Only on desktop */}
+        {/* Size Control - Desktop only */}
         {!isMobile && (
           <div 
             className={`absolute top-2 left-2 transition-opacity duration-200 ${
@@ -227,20 +302,25 @@ const TaskVideoPiP: React.FC = () => {
 
         {/* Video Info */}
         <div 
-          className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent ${
-            isMobile ? 'p-2' : 'p-2'
-          } transition-opacity duration-200 ${
+          className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-2 transition-opacity duration-200 ${
             showControls ? 'opacity-100' : 'opacity-0'
           }`}
         >
-          <div className={`text-white ${isMobile ? 'text-xs' : 'text-xs'} font-medium line-clamp-1`}>
+          <div className="text-white text-xs font-medium line-clamp-1">
             {currentVideo.title}
           </div>
-          <div className={`text-white/70 ${isMobile ? 'text-xs' : 'text-xs'}`}>
+          <div className="text-white/70 text-xs">
             {currentIndex + 1} of {playlist.length}
             {currentVideo.duration && ` • ${currentVideo.duration}`}
           </div>
         </div>
+
+        {/* Loading indicator */}
+        {!playerReady && (
+          <div className="absolute inset-0 bg-black/80 flex items-center justify-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+          </div>
+        )}
       </div>
     </div>
   );

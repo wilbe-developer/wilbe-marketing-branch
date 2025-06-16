@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import { Video } from '@/types';
 
@@ -64,7 +63,7 @@ export const VideoPlayerProvider: React.FC<{ children: ReactNode }> = ({ childre
     setState(prev => ({
       ...prev,
       isModalOpen: false,
-      isPiPMode: prev.isPlaying && !!prev.currentVideo, // Only go to PiP if video was playing
+      isPiPMode: prev.isPlaying && !!prev.currentVideo,
     }));
   }, [state.isPlaying]);
 
@@ -103,6 +102,7 @@ export const VideoPlayerProvider: React.FC<{ children: ReactNode }> = ({ childre
         currentIndex: nextIndex,
         currentVideo: prev.playlist[nextIndex],
         videoTime: 0,
+        isPlaying: true, // Keep playing when switching videos
       };
     });
   }, []);
@@ -121,6 +121,7 @@ export const VideoPlayerProvider: React.FC<{ children: ReactNode }> = ({ childre
         currentIndex: prevIndex,
         currentVideo: prev.playlist[prevIndex],
         videoTime: 0,
+        isPlaying: true, // Keep playing when switching videos
       };
     });
   }, []);
@@ -138,6 +139,7 @@ export const VideoPlayerProvider: React.FC<{ children: ReactNode }> = ({ childre
         currentIndex: index,
         currentVideo: prev.playlist[index],
         videoTime: 0,
+        isPlaying: true, // Keep playing when jumping to video
       };
     });
   }, []);
@@ -156,8 +158,9 @@ export const VideoPlayerProvider: React.FC<{ children: ReactNode }> = ({ childre
 
   const togglePlayPause = useCallback(() => {
     setState(prev => {
-      console.log('Toggling play/pause from:', prev.isPlaying, 'to:', !prev.isPlaying);
-      return { ...prev, isPlaying: !prev.isPlaying };
+      const newIsPlaying = !prev.isPlaying;
+      console.log('Toggling play/pause from:', prev.isPlaying, 'to:', newIsPlaying);
+      return { ...prev, isPlaying: newIsPlaying };
     });
   }, []);
 
