@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "sonner";
 import { AuthProvider } from "@/hooks/useAuth";
 import { SprintContextProvider } from "@/hooks/useSprintContext";
+import { VideoPlayerProvider } from "@/contexts/VideoPlayerContext";
 import MetaWrapper from "@/components/MetaWrapper";
 
 // Import routing components
@@ -26,27 +27,29 @@ const App = () => (
     <BrowserRouter>
       <AuthProvider>
         <SprintContextProvider>
-          <MetaWrapper>
-            <Routes>
-              {/* Marketing Routes */}
-              {MarketingRoutes()}
-              
-              {/* Public Routes */}
-              {PublicRoutes()}
+          <VideoPlayerProvider>
+            <MetaWrapper>
+              <Routes>
+                {/* Marketing Routes */}
+                {MarketingRoutes()}
+                
+                {/* Public Routes */}
+                {PublicRoutes()}
 
-              {/* Protected User Routes */}
-              {ProtectedUserRoutes()}
+                {/* Protected User Routes */}
+                {ProtectedUserRoutes()}
 
-              {/* Sprint Routes */}
-              {SprintRoutes()}
+                {/* Sprint Routes */}
+                {SprintRoutes()}
 
-              {/* Admin Routes */}
-              {AdminRoutes()}
+                {/* Admin Routes */}
+                {AdminRoutes()}
 
-              {/* Miscellaneous Routes */}
-              {MiscRoutes()}
-            </Routes>
-          </MetaWrapper>
+                {/* Miscellaneous Routes */}
+                {MiscRoutes()}
+              </Routes>
+            </MetaWrapper>
+          </VideoPlayerProvider>
         </SprintContextProvider>
       </AuthProvider>
     </BrowserRouter>
