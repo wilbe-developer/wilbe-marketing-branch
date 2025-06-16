@@ -94,14 +94,12 @@ const SimplePiP: React.FC = () => {
         onProgress={handleVideoProgress}
         onEnded={handleVideoEnd}
         config={{
-          youtube: {
-            playerVars: {
-              modestbranding: 1,
-              rel: 0,
-              showinfo: 0,
-              playsinline: 1,
-              start: Math.floor(videoTime)
-            }
+          playerVars: {
+            modestbranding: 1,
+            rel: 0,
+            showinfo: 0,
+            playsinline: 1,
+            start: Math.floor(videoTime)
           }
         }}
       />

@@ -44,13 +44,11 @@ const VideoEmbed = ({
         onPause={onPause}
         onEnded={onEnded}
         config={{
-          youtube: {
-            playerVars: {
-              modestbranding: 1,
-              rel: 0,
-              showinfo: 0,
-              playsinline: 1
-            }
+          playerVars: {
+            modestbranding: 1,
+            rel: 0,
+            showinfo: 0,
+            playsinline: 1
           }
         }}
       />
