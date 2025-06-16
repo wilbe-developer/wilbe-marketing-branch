@@ -103,15 +103,11 @@ const TaskVideoPiP: React.FC = () => {
     handleDragStart(e.clientX, e.clientY);
   }, [isMobile, handleDragStart]);
 
-  // Early return AFTER all hooks have been called
-  if (!isPiPMode || !currentVideo) {
-    return null;
-  }
-
+  // ALL useEffect hooks MUST be called before the early return
   // Sync video state with context - only when player is ready
   useEffect(() => {
-    if (!playerReady) {
-      console.log('Player not ready, skipping sync');
+    if (!playerReady || !isPiPMode || !currentVideo) {
+      console.log('Player not ready or PiP not active, skipping sync');
       return;
     }
     
@@ -124,11 +120,11 @@ const TaskVideoPiP: React.FC = () => {
       console.log('Pausing playback');
       youtubePause();
     }
-  }, [isPlaying, youtubeIsPlaying, playerReady, youtubePlay, youtubePause]);
+  }, [isPlaying, youtubeIsPlaying, playerReady, youtubePlay, youtubePause, isPiPMode, currentVideo]);
 
   // Update video time periodically
   useEffect(() => {
-    if (!playerReady || !isPlaying) return;
+    if (!playerReady || !isPlaying || !isPiPMode || !currentVideo) return;
     
     const interval = setInterval(() => {
       const currentTime = getCurrentTime();
@@ -138,7 +134,7 @@ const TaskVideoPiP: React.FC = () => {
     }, 1000);
     
     return () => clearInterval(interval);
-  }, [playerReady, isPlaying, getCurrentTime, setVideoTime]);
+  }, [playerReady, isPlaying, getCurrentTime, setVideoTime, isPiPMode, currentVideo]);
 
   // Auto-hide controls on mobile
   useEffect(() => {
@@ -177,6 +173,11 @@ const TaskVideoPiP: React.FC = () => {
       document.removeEventListener('mouseup', handleMouseUp);
     };
   }, [isDragging, handleDragMove, handleDragEnd, isMobile]);
+
+  // Early return AFTER all hooks have been called
+  if (!isPiPMode || !currentVideo) {
+    return null;
+  }
 
   const canGoNext = currentIndex < playlist.length - 1;
   const sizeConfig = getSizeConfig();
