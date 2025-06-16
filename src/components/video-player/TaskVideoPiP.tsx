@@ -29,7 +29,7 @@ const TaskVideoPiP: React.FC = () => {
   // Extract state values
   const { isPiPMode, currentVideo, playlist, currentIndex, pipSize, isPlaying } = state;
 
-  // PiP positioning hook
+  // PiP positioning hook - must be called before early return
   const {
     position,
     isDragging,
@@ -40,7 +40,7 @@ const TaskVideoPiP: React.FC = () => {
     getSizeConfig
   } = usePiPPositioning({ size: pipSize, isVisible: isPiPMode });
 
-  // YouTube player integration
+  // YouTube player integration - must be called before early return
   const {
     isReady: playerReady,
     isPlaying: youtubeIsPlaying,
@@ -63,6 +63,44 @@ const TaskVideoPiP: React.FC = () => {
       }
     }
   });
+
+  // Handle gesture-based dismissal on mobile - must be called before early return
+  const handleSwipeGesture = useCallback((e: React.TouchEvent) => {
+    if (!isMobile) return;
+    
+    const touch = e.touches[0];
+    const rect = pipRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    
+    // If swiping right from the edge, close PiP
+    if (touch.clientX > rect.right - 50) {
+      closePiP();
+    }
+  }, [isMobile, closePiP]);
+
+  // Mouse event handlers - must be called before early return
+  const handleMouseEnter = useCallback(() => {
+    if (!isMobile) {
+      setIsHovered(true);
+    }
+  }, [isMobile]);
+
+  const handleMouseLeave = useCallback(() => {
+    if (!isMobile) {
+      setIsHovered(false);
+    }
+  }, [isMobile]);
+
+  const handleTouchStart = useCallback(() => {
+    if (!isMobile) return;
+    setControlsVisible(true);
+  }, [isMobile]);
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    if (isMobile) return;
+    e.preventDefault();
+    handleDragStart(e.clientX, e.clientY);
+  }, [isMobile, handleDragStart]);
 
   // Sync video state with context
   useEffect(() => {
@@ -125,7 +163,7 @@ const TaskVideoPiP: React.FC = () => {
     };
   }, [isDragging, handleDragMove, handleDragEnd, isMobile]);
 
-  // Early return after all hooks
+  // Early return AFTER all hooks have been called
   if (!isPiPMode || !currentVideo) {
     return null;
   }
@@ -146,44 +184,7 @@ const TaskVideoPiP: React.FC = () => {
     large: isMobile ? 'h-7 w-7' : 'h-6 w-6'
   };
 
-  const handleMouseEnter = () => {
-    if (!isMobile) {
-      setIsHovered(true);
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (!isMobile) {
-      setIsHovered(false);
-    }
-  };
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    if (!isMobile) return;
-    setControlsVisible(true);
-  };
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (isMobile) return;
-    e.preventDefault();
-    handleDragStart(e.clientX, e.clientY);
-  };
-
   const showControls = isMobile ? controlsVisible : isHovered;
-
-  // Handle gesture-based dismissal on mobile
-  const handleSwipeGesture = useCallback((e: React.TouchEvent) => {
-    if (!isMobile) return;
-    
-    const touch = e.touches[0];
-    const rect = pipRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    
-    // If swiping right from the edge, close PiP
-    if (touch.clientX > rect.right - 50) {
-      closePiP();
-    }
-  }, [isMobile, closePiP]);
 
   return (
     <div 
