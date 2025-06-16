@@ -18,7 +18,7 @@ const SimplePiP: React.FC = () => {
   const [position, setPosition] = useState({ x: 16, y: 80 });
   const timeoutRef = useRef<NodeJS.Timeout>();
   
-  const { isPiPMode, currentVideo, playlist, currentIndex, isPlaying } = state;
+  const { isPiPMode, currentVideo, playlist, currentIndex, isPlaying, videoTime } = state;
 
   // Auto-hide controls after 3 seconds
   useEffect(() => {
@@ -58,8 +58,9 @@ const SimplePiP: React.FC = () => {
   const canGoNext = currentIndex < playlist.length - 1;
   const videoId = getYoutubeEmbedId(currentVideo.youtubeId || '');
   
-  // Simple iframe URL with autoplay parameter based on playing state
-  const iframeUrl = `https://www.youtube.com/embed/${videoId}?autoplay=${isPlaying ? 1 : 0}&controls=0&modestbranding=1&rel=0&showinfo=0`;
+  // Continue from where we left off in the modal, with autoplay based on playing state
+  const startTime = Math.floor(videoTime);
+  const iframeUrl = `https://www.youtube.com/embed/${videoId}?autoplay=${isPlaying ? 1 : 0}&start=${startTime}&controls=0&modestbranding=1&rel=0&showinfo=0`;
 
   const handleTap = () => {
     setShowControls(!showControls);
@@ -84,7 +85,7 @@ const SimplePiP: React.FC = () => {
       onClick={handleTap}
       onTouchStart={handleSwipeRight}
     >
-      {/* Simple YouTube iframe */}
+      {/* YouTube iframe that continues from modal time */}
       <iframe
         src={iframeUrl}
         className="w-full h-full"
