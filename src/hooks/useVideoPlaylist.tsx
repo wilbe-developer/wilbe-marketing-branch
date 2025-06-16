@@ -9,7 +9,7 @@ interface Video {
   duration?: string;
   presenter?: string;
   created_at: string;
-  youtube_id?: string; // Use youtube_id to match database field
+  youtube_id?: string;
 }
 
 export const useVideoPlaylist = (videos: Video[]) => {
@@ -33,7 +33,7 @@ export const useVideoPlaylist = (videos: Video[]) => {
     }
   };
 
-  // Auto-advance when video ends (this would be called by YouTube API in a full implementation)
+  // Auto-advance when video ends
   const handleVideoEnd = () => {
     nextVideo();
   };

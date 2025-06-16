@@ -19,7 +19,7 @@ import { PATHS } from '@/lib/constants';
 import { toast } from 'sonner';
 import { VideoPlayerProvider } from '@/contexts/VideoPlayerContext';
 import TaskVideoPlayerModal from '@/components/video-player/TaskVideoPlayerModal';
-import TaskVideoPiP from '@/components/video-player/TaskVideoPiP';
+import SimplePiP from '@/components/video-player/SimplePiP';
 
 const SprintTaskPage = () => {
   const { taskId } = useParams<{ taskId: string }>();
@@ -231,7 +231,7 @@ const SprintTaskPage = () => {
 
         {/* Video Player Components */}
         <TaskVideoPlayerModal />
-        <TaskVideoPiP />
+        <SimplePiP />
       </div>
     </VideoPlayerProvider>
   );
