@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -24,8 +23,21 @@ const TaskVideoPlayerModal: React.FC = () => {
     enterPiP
   } = useVideoPlayer();
   
-  const { isModalOpen, currentVideo, playlist, currentIndex, autoAdvance, isPlaying } = state;
+  const { isModalOpen, currentVideo, playlist, currentIndex, autoAdvance, isPlaying, videoTime } = state;
 
+  // Seek to current time when modal opens (especially when returning from PiP)
+  useEffect(() => {
+    if (isModalOpen && playerRef.current && videoTime > 0) {
+      const timer = setTimeout(() => {
+        playerRef.current?.seekTo(videoTime, 'seconds');
+        console.log('Seeking to time in modal:', videoTime);
+      }, 1000); // Small delay to ensure player is ready
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isModalOpen, videoTime]);
+
+  // ... keep existing code (auto-advance effect)
   useEffect(() => {
     if (!isModalOpen || !currentVideo || !autoAdvance) return;
 
