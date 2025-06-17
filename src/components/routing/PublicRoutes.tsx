@@ -6,6 +6,7 @@ import LoginPage from "@/pages/LoginPage";
 import PasswordLoginPage from "@/pages/PasswordLoginPage";
 import PasswordResetPage from "@/pages/PasswordResetPage";
 import LandingPageOld from "@/components/LandingPageOld";
+import LandingPageOld2 from "@/components/LandingPageOld2";
 import BsfPage from "@/components/BsfOld";
 import QuizPage from "@/pages/QuizPage";
 import SprintSignupPage from "@/pages/SprintSignupPage";
@@ -28,6 +29,7 @@ export default function PublicRoutes() {
       <Route path="/admin-login" element={<PasswordLoginPage />} />
       <Route path="/password-reset" element={<PasswordResetPage />} />
       <Route path={PATHS.LANDING_PAGE} element={<LandingPageOld />} />
+      <Route path={PATHS.LANDING_PAGE2} element={<LandingPageOld2 />} />
       <Route path={PATHS.BSF_PAGE} element={<BsfPage />} />
 
       {/* Quiz route - publicly accessible */}

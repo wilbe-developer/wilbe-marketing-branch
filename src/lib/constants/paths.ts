@@ -1,3 +1,4 @@
+
 export const PATHS = {
   HOME: '/',
   LOGIN: '/login',
@@ -15,6 +16,7 @@ export const PATHS = {
   ASK: '/ask',
   BUILD_YOUR_DECK: '/build-your-deck',
   LANDING_PAGE: '/landing-page',
+  LANDING_PAGE2: '/landing-page2',
   BSF_PAGE: '/bsf',
   ABOUT: '/about',
   BLOG: '/blog',
