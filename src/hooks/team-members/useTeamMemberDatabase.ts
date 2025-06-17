@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -78,7 +77,7 @@ export const useTeamMemberDatabase = (
           profile_description: member.profile_description,
           employment_status: member.employment_status,
           trigger_points: member.trigger_points || '',
-          relationship_description: member.relationship_description || ''
+          relationship_description: '' // Set default since this field doesn't exist in database
         }));
         
         setTeamMembers(loadedMembers);
@@ -149,8 +148,8 @@ export const useTeamMemberDatabase = (
             name: member.name,
             profile_description: member.profile_description,
             employment_status: member.employment_status,
-            trigger_points: member.trigger_points,
-            relationship_description: member.relationship_description
+            trigger_points: member.trigger_points
+            // Note: relationship_description is not saved since it doesn't exist in the database
           });
 
         if (error) {
