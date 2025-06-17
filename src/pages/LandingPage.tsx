@@ -1,3 +1,4 @@
+
 import { useEffect } from "react"
 import LandingNavigation from "@/components/landing/LandingNavigation"
 import TickerStrips from "@/components/landing/TickerStrips"
@@ -7,6 +8,7 @@ import WilbeStreamPlayer from "@/components/landing/WilbeStreamPlayer"
 import FoundersStories from "@/components/landing/FoundersStories"
 import PlatformsSection from "@/components/landing/PlatformsSection"
 import WilbeCapitalStrip from "@/components/landing/WilbeCapitalStrip"
+import WilbeWaySection from "@/components/landing/WilbeWaySection"
 import WilbeCapitalStripAlt from "@/components/landing/WilbeCapitalStripAlt"
 import ScientistsFirstSection from "@/components/landing/ScientistsFirstSection"
 import BlogReel from "@/components/landing/BlogReel"
@@ -87,6 +89,7 @@ export default function LandingPage() {
 
       <FoundersStories />
       <WilbeCapitalStrip />
+      <WilbeWaySection />
       <WilbeCapitalStripAlt />
       <PlatformsSection />
       <ScientistsFirstSection />
