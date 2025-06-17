@@ -86,8 +86,8 @@ export default function LandingPage() {
       </section>
 
       <FoundersStories />
-      <PlatformsSection />
       <WilbeCapitalStrip />
+      <PlatformsSection />
       <ScientistsFirstSection />
       <BlogReel />
       <LandingFooter />
