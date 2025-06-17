@@ -27,6 +27,7 @@ export const PATHS = {
   ACCEPT_INVITATION: '/accept-invitation',
   LEAD_GENERATOR: '/lead-generator',
   QUIZ: '/quiz',
+  WILBEWAY: '/wilbeway',
   API: {
     FIND_EMAILS: '/api/find-emails'
   }

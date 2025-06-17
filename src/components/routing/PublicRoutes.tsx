@@ -12,6 +12,7 @@ import SprintSignupPage from "@/pages/SprintSignupPage";
 import SprintWaitingPage from "@/pages/SprintWaitingPage";
 import SprintPage from "@/pages/SprintPage";
 import SprintWaitlistPage from "@/pages/SprintWaitlistPage";
+import WilbeWayPage from "@/pages/WilbeWayPage";
 import SprintReferralPage from "@/pages/SprintReferralPage";
 import AcceptInvitationPage from "@/pages/AcceptInvitationPage";
 
@@ -41,6 +42,7 @@ export default function PublicRoutes() {
 
       {/* Sprint waitlist routes */}
       <Route path="/waitlist" element={<SprintWaitlistPage />} />
+      <Route path="/wilbeway" element={<WilbeWayPage />} />
       <Route path="/referral" element={<SprintReferralPage />} />
       <Route path="/ref/:code" element={<SprintWaitlistPage />} />
       
