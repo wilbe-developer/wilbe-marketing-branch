@@ -23,7 +23,7 @@ export default function BackedFoundersSection({
     <div className="mt-8 w-full">
       {/* Header */}
       <div className="mb-6">
-        <h4 className="text-lg font-medium text-gray-500 uppercase tracking-wide">FROM POSTDOCS TO FOUNDERS WITH US: LEADING THE PACK</h4>
+        <h4 className="text-lg font-medium text-gray-500 uppercase tracking-wide">FROM POSTDOCS TO FOUNDERS: WITH US FROM THE OUTSET</h4>
       </div>
       
       {/* Grid container - full width, responsive grid */}
