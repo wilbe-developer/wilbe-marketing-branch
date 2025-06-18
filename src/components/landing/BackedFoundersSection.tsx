@@ -57,17 +57,17 @@ function FounderCard({ founder }: FounderCardProps) {
         
         {/* Quote overlay with dark semi-transparent background */}
         <div className="absolute inset-0 bg-black/60 flex items-center justify-center p-4">
-          <div className="text-center flex flex-col justify-between h-full py-2">
-            {/* Large decorative opening quote */}
-            <div className="text-4xl font-serif text-white/40 leading-none">"</div>
+          <div className="relative w-full h-full flex items-center justify-center">
+            {/* Decorative opening quote - positioned absolutely */}
+            <div className="absolute top-2 left-2 text-3xl font-serif text-white/40 leading-none">"</div>
             
-            {/* Quote text */}
-            <p className="text-white text-sm leading-relaxed font-light px-2 flex-1 flex items-center justify-center">
+            {/* Quote text - centered in available space */}
+            <p className="text-white text-sm leading-relaxed font-light text-center px-6 py-4 max-w-full">
               {founder.quote}
             </p>
             
-            {/* Large decorative closing quote */}
-            <div className="text-4xl font-serif text-white/40 leading-none rotate-180">"</div>
+            {/* Decorative closing quote - positioned absolutely */}
+            <div className="absolute bottom-2 right-2 text-3xl font-serif text-white/40 leading-none rotate-180">"</div>
           </div>
         </div>
       </div>
