@@ -43,8 +43,8 @@ interface FounderCardProps {
 function FounderCard({ founder }: FounderCardProps) {
   return (
     <div className="bg-white hover:bg-gray-25 transition-colors duration-200 group border border-gray-100 hover:border-gray-200">
-      {/* Image section - completely flat */}
-      <div className="relative h-32 bg-gray-100">
+      {/* Image section with quote overlay */}
+      <div className="relative h-48 bg-gray-100">
         <img 
           src={founder.image} 
           alt={founder.name} 
@@ -54,9 +54,25 @@ function FounderCard({ founder }: FounderCardProps) {
             target.src = "/placeholder.svg";
           }} 
         />
+        
+        {/* Quote overlay with dark semi-transparent background */}
+        <div className="absolute inset-0 bg-black/60 flex items-center justify-center p-4">
+          <div className="text-center">
+            {/* Large decorative opening quote */}
+            <div className="text-4xl font-serif text-white/40 leading-none mb-2">"</div>
+            
+            {/* Quote text */}
+            <p className="text-white text-sm leading-relaxed font-light italic px-2">
+              {founder.quote}
+            </p>
+            
+            {/* Large decorative closing quote */}
+            <div className="text-4xl font-serif text-white/40 leading-none mt-2 rotate-180">"</div>
+          </div>
+        </div>
       </div>
       
-      {/* Content section with geometric spacing */}
+      {/* Content section with founder info */}
       <div className="p-4 bg-white">
         <div className="flex justify-between items-start mb-3">
           <div className="flex-1">
@@ -77,26 +93,7 @@ function FounderCard({ founder }: FounderCardProps) {
         </div>
         
         <h6 className="font-semibold text-gray-800 text-sm mb-2">{founder.company}</h6>
-        <p className="text-gray-600 text-xs leading-relaxed mb-4 line-clamp-2">{founder.description}</p>
-        
-        {/* Stylized Typography Quote - Creative Agency Style */}
-        <div className="relative py-4">
-          {/* Large decorative opening quote */}
-          <div className="absolute -top-1 left-0 text-6xl font-serif text-gray-200 leading-none select-none">"</div>
-          
-          {/* Quote text with elegant typography */}
-          <div className="pl-8 pr-4">
-            <p className="text-sm text-gray-800 leading-relaxed font-light italic tracking-wide">
-              {founder.quote}
-            </p>
-          </div>
-          
-          {/* Large decorative closing quote */}
-          <div className="absolute -bottom-4 right-0 text-6xl font-serif text-gray-200 leading-none select-none rotate-180">"</div>
-          
-          {/* Subtle accent line */}
-          <div className="absolute bottom-0 left-8 right-4 h-px bg-gradient-to-r from-red-500 to-transparent"></div>
-        </div>
+        <p className="text-gray-600 text-xs leading-relaxed line-clamp-2">{founder.description}</p>
       </div>
     </div>
   );
