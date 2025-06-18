@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Users, Target, Globe, FileText, Lightbulb, Rocket } from "lucide-react";
 import BackedFoundersSection from "./BackedFoundersSection";
 
 export default function WilbeCapitalStrip() {
@@ -13,8 +13,85 @@ export default function WilbeCapitalStrip() {
           </h2>
         </div>
 
-        {/* Description */}
-        <p className="text-gray-700 text-lg leading-relaxed mb-12 max-w-4xl">Wilbe Capital is our investment arm and is entirely dedicated to investing in scientists that can become the industrial leaders of this century. We invest in scientists looking to disrupt all sectors (from fusion to therapeutics) regions (from Bangalore to Los Angeles). Only interested in the first round, with or without foundational IP. What all the scientists we have backed so far have in common: they have met them and transitioned from scientist to founders through our process.</p>
+        {/* Who This Is For Section */}
+        <div className="mb-12 text-center">
+          <div className="flex justify-center items-center mb-4">
+            <div className="bg-red-50 w-16 h-16 rounded-full flex items-center justify-center mr-4">
+              <Users className="h-8 w-8 text-red-600" />
+            </div>
+            <div className="text-left">
+              <h3 className="text-2xl font-bold text-gray-900">Scientists transitioning to full-time founders</h3>
+              <p className="text-gray-600 text-lg">The industrial leaders of this century</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Investment Criteria Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+          {/* First Check */}
+          <div className="text-center">
+            <div className="bg-red-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Target className="h-8 w-8 text-red-600" />
+            </div>
+            <h4 className="text-lg font-semibold text-gray-900 mb-2">First Check</h4>
+            <p className="text-gray-600 text-sm">We want to be your first investor</p>
+          </div>
+
+          {/* All Sectors */}
+          <div className="text-center">
+            <div className="bg-red-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Lightbulb className="h-8 w-8 text-red-600" />
+            </div>
+            <h4 className="text-lg font-semibold text-gray-900 mb-2">All Sectors</h4>
+            <p className="text-gray-600 text-sm">From fusion to fertility therapeutics</p>
+          </div>
+
+          {/* Global Reach */}
+          <div className="text-center">
+            <div className="bg-red-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Globe className="h-8 w-8 text-red-600" />
+            </div>
+            <h4 className="text-lg font-semibold text-gray-900 mb-2">Global Reach</h4>
+            <p className="text-gray-600 text-sm">From Bangalore to Los Angeles</p>
+          </div>
+
+          {/* Pre-IP */}
+          <div className="text-center">
+            <div className="bg-red-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <FileText className="h-8 w-8 text-red-600" />
+            </div>
+            <h4 className="text-lg font-semibold text-gray-900 mb-2">Pre-IP</h4>
+            <p className="text-gray-600 text-sm">Before foundational IP is generated</p>
+          </div>
+        </div>
+
+        {/* Fund Strategy Section */}
+        <div className="bg-white rounded-lg p-8 mb-12">
+          <h3 className="text-2xl font-bold text-gray-900 text-center mb-8">Our Fund Strategy</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Fund 1 */}
+            <div className="text-center">
+              <div className="bg-gray-50 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-gray-700 font-bold text-lg">1</span>
+              </div>
+              <h4 className="text-lg font-semibold text-gray-900 mb-3">Fund 1</h4>
+              <p className="text-gray-600 text-sm leading-relaxed">
+                Supported scientists in their transition from researchers to founders through our comprehensive process
+              </p>
+            </div>
+
+            {/* Fund 2 */}
+            <div className="text-center">
+              <div className="bg-red-50 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-red-600 font-bold text-lg">2</span>
+              </div>
+              <h4 className="text-lg font-semibold text-gray-900 mb-3">Fund 2</h4>
+              <p className="text-gray-600 text-sm leading-relaxed">
+                Investing solely in scientists who have completed the Wilbe Way methodology
+              </p>
+            </div>
+          </div>
+        </div>
 
         {/* Backed Founders section */}
         <BackedFoundersSection initialCount={6} loadMoreCount={6} />
