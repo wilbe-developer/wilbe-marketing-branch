@@ -1,4 +1,5 @@
 
+
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Target, Globe, FileText, Lightbulb, Rocket } from "lucide-react";
 import BackedFoundersSection from "./BackedFoundersSection";
@@ -59,34 +60,6 @@ export default function WilbeCapitalStrip() {
           </div>
         </div>
 
-        {/* Fund Strategy Section */}
-        <div className="bg-white rounded-lg p-8 mb-12">
-          <h3 className="text-2xl font-bold text-gray-900 text-center mb-8">Our Fund Strategy</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Fund 1 */}
-            <div className="text-center">
-              <div className="bg-gray-50 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-gray-700 font-bold text-lg">1</span>
-              </div>
-              <h4 className="text-lg font-semibold text-gray-900 mb-3">Fund 1</h4>
-              <p className="text-gray-600 text-sm leading-relaxed">
-                Supported scientists in their transition from researchers to founders through our comprehensive process
-              </p>
-            </div>
-
-            {/* Fund 2 */}
-            <div className="text-center">
-              <div className="bg-red-50 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-red-600 font-bold text-lg">2</span>
-              </div>
-              <h4 className="text-lg font-semibold text-gray-900 mb-3">Fund 2</h4>
-              <p className="text-gray-600 text-sm leading-relaxed">
-                Investing solely in scientists who have completed the Wilbe Way methodology
-              </p>
-            </div>
-          </div>
-        </div>
-
         {/* Backed Founders section */}
         <BackedFoundersSection initialCount={6} loadMoreCount={6} />
         
@@ -104,3 +77,4 @@ export default function WilbeCapitalStrip() {
       </div>
     </section>;
 }
+
