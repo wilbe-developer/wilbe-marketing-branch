@@ -74,26 +74,25 @@ function FounderCard({ founder }: FounderCardProps) {
       
       {/* Content section with founder info */}
       <div className="p-4 bg-white">
-        <div className="flex justify-between items-start mb-3">
-          <div className="flex-1">
-            <h5 className="font-bold text-gray-900 text-sm leading-tight mb-1">{founder.name}</h5>
-            <p className="text-gray-600 text-xs">{founder.title}</p>
-          </div>
-          <div className="flex flex-col gap-2 ml-3">
-            {/* Flat rectangular tags */}
-            <div className="bg-gray-200 text-gray-700 text-xs px-3 py-1 font-medium">
-              {founder.sector}
-            </div>
-            {founder.bsfClass && (
-              <div className="bg-green-200 text-green-800 text-xs px-3 py-1 font-medium">
-                {founder.bsfClass}
-              </div>
-            )}
-          </div>
+        <div className="mb-3">
+          <h5 className="font-bold text-gray-900 text-sm leading-tight mb-1">{founder.name}</h5>
+          <p className="text-gray-600 text-xs">{founder.title}</p>
         </div>
         
         <h6 className="font-semibold text-gray-800 text-sm mb-2">{founder.company}</h6>
-        <p className="text-gray-600 text-xs leading-relaxed line-clamp-2">{founder.description}</p>
+        <p className="text-gray-600 text-xs leading-relaxed line-clamp-2 mb-3">{founder.description}</p>
+        
+        {/* Tags moved to bottom */}
+        <div className="flex gap-2 flex-wrap">
+          <div className="bg-gray-200 text-gray-700 text-xs px-3 py-1 font-medium">
+            {founder.sector}
+          </div>
+          {founder.bsfClass && (
+            <div className="bg-green-200 text-green-800 text-xs px-3 py-1 font-medium">
+              {founder.bsfClass}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
