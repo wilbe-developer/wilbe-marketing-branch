@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Target, Globe, FileText, Lightbulb, Rocket } from "lucide-react";
 import BackedFoundersSection from "./BackedFoundersSection";
@@ -13,8 +14,8 @@ export default function WilbeCapitalStrip() {
         </div>
 
         {/* Who This Is For Section - Traditional Paragraph */}
-        <div className="mb-12 text-center">
-          <p className="text-xl text-gray-700 leading-relaxed max-w-4xl mx-auto">
+        <div className="mb-12">
+          <p className="text-xl text-gray-700 leading-relaxed max-w-4xl">
             Becoming a founder and securing capital requires a mindset shift and operational insight. All the scientists we have backed so far have become founders through a process designed to maximize your chances of success and accelerate our response.
           </p>
         </div>
