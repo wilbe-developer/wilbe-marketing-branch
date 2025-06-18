@@ -9,7 +9,7 @@ export default function WilbeCapitalStrip() {
         {/* Header */}
         <div className="mb-12">
           <h2 className="text-4xl font-bold text-gray-900 tracking-wide mb-6">
-            INVESTING IN SCIENTIST FOUNDERS THE WILBE WAY
+            INVESTING IN SCIENTIST FOUNDERS: THE WILBE WAY
           </h2>
         </div>
 
