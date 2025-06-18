@@ -1,5 +1,3 @@
-
-
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Target, Globe, FileText, Lightbulb, Rocket } from "lucide-react";
 import BackedFoundersSection from "./BackedFoundersSection";
@@ -10,14 +8,14 @@ export default function WilbeCapitalStrip() {
         {/* Header */}
         <div className="mb-12">
           <h2 className="text-4xl font-bold text-gray-900 tracking-wide mb-6">
-            INVESTING IN SCIENTIST FOUNDERS
+            INVESTING IN SCIENTIST FOUNDERS THE WILBE WAY
           </h2>
         </div>
 
         {/* Who This Is For Section - Traditional Paragraph */}
         <div className="mb-12 text-center">
           <p className="text-xl text-gray-700 leading-relaxed max-w-4xl mx-auto">
-            We invest in scientists transitioning to full-time founders - the industrial leaders of this century.
+            Becoming a founder and securing capital requires a mindset shift and operational insight. All the scientists we have backed so far have become founders through a process designed to maximize your chances of success and accelerate our response.
           </p>
         </div>
 
@@ -77,4 +75,3 @@ export default function WilbeCapitalStrip() {
       </div>
     </section>;
 }
-
