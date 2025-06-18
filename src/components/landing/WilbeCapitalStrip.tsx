@@ -1,6 +1,5 @@
-
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Users, Target, Globe, FileText, Lightbulb, Rocket } from "lucide-react";
+import { ArrowRight, Target, Globe, FileText, Lightbulb, Rocket } from "lucide-react";
 import BackedFoundersSection from "./BackedFoundersSection";
 
 export default function WilbeCapitalStrip() {
@@ -13,17 +12,11 @@ export default function WilbeCapitalStrip() {
           </h2>
         </div>
 
-        {/* Who This Is For Section */}
+        {/* Who This Is For Section - Traditional Paragraph */}
         <div className="mb-12 text-center">
-          <div className="flex justify-center items-center mb-4">
-            <div className="bg-red-50 w-16 h-16 rounded-full flex items-center justify-center mr-4">
-              <Users className="h-8 w-8 text-red-600" />
-            </div>
-            <div className="text-left">
-              <h3 className="text-2xl font-bold text-gray-900">Scientists transitioning to full-time founders</h3>
-              <p className="text-gray-600 text-lg">The industrial leaders of this century</p>
-            </div>
-          </div>
+          <p className="text-xl text-gray-700 leading-relaxed max-w-4xl mx-auto">
+            We invest in scientists transitioning to full-time founders - the industrial leaders of this century.
+          </p>
         </div>
 
         {/* Investment Criteria Grid */}
