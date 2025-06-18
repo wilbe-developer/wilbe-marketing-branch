@@ -20,8 +20,11 @@ export default function WilbeCapitalStrip() {
           </p>
         </div>
 
-        {/* Investment Criteria Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+        {/* Backed Founders section - moved here */}
+        <BackedFoundersSection initialCount={6} loadMoreCount={6} />
+
+        {/* Investment Criteria Grid - moved below founders */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12 mt-12">
           {/* Stage */}
           <div className="text-center">
             <div className="bg-red-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -58,9 +61,6 @@ export default function WilbeCapitalStrip() {
             <p className="text-gray-600 text-sm">All the scientists became founders through our support process</p>
           </div>
         </div>
-
-        {/* Backed Founders section */}
-        <BackedFoundersSection initialCount={6} loadMoreCount={6} />
         
         {/* View All button - now links to external wilbe.capital */}
         <div className="text-center mt-12">
