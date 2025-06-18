@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Target, Users, Lightbulb, Rocket } from "lucide-react";
+import { ArrowRight, User, Target, DollarSign, Zap, GraduationCap } from "lucide-react";
 
 export default function WilbeWaySection() {
   return (
@@ -9,58 +9,69 @@ export default function WilbeWaySection() {
         {/* Header */}
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-gray-900 tracking-wide mb-6">
-            THE WILBE WAY: OUR PROVEN METHODOLOGY
+            THE WILBE WAY: OUR CORE BELIEFS FOR SUCCESSFUL SCIENCE VENTURES
           </h2>
           <p className="text-gray-700 text-lg leading-relaxed max-w-4xl mx-auto">
-            Every successful founder in our portfolio has followed the same proven playbook. The Wilbe Way combines 
-            rigorous scientific validation with venture building expertise, giving scientist-founders the knowledge, 
-            tools, and community support needed to transform breakthrough research into scalable businesses.
+            Based on our experience as operators and building companies in Fund 1, we've identified the essential 
+            elements for transforming breakthrough science into successful ventures. These are the core activities 
+            we help every scientist deliver through our proven process.
           </p>
         </div>
 
-        {/* Methodology Pillars */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-          {/* Pillar 1 */}
+        {/* Core Beliefs */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+          {/* Belief 1 */}
+          <div className="text-center">
+            <div className="bg-red-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <User className="h-8 w-8 text-red-600" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-3">Full-Time Commitment</h3>
+            <p className="text-gray-600 text-sm leading-relaxed">
+              Scientists must work on the company full-time to drive breakthrough success and maintain competitive advantage.
+            </p>
+          </div>
+
+          {/* Belief 2 */}
+          <div className="text-center">
+            <div className="bg-red-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <GraduationCap className="h-8 w-8 text-red-600" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-3">No Lab Juggling</h3>
+            <p className="text-gray-600 text-sm leading-relaxed">
+              Principal Investigators cannot successfully juggle academic labs while building ventures. Focus is essential.
+            </p>
+          </div>
+
+          {/* Belief 3 */}
           <div className="text-center">
             <div className="bg-red-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
               <Target className="h-8 w-8 text-red-600" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">Science-First Validation</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-3">Economic Validation First</h3>
             <p className="text-gray-600 text-sm leading-relaxed">
-              Rigorous validation of scientific breakthroughs before business development, ensuring solid foundations for venture success.
+              Stop focusing on papers and publications. Validate the economic opportunity and market potential instead.
             </p>
           </div>
 
-          {/* Pillar 2 */}
+          {/* Belief 4 */}
           <div className="text-center">
             <div className="bg-red-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Lightbulb className="h-8 w-8 text-red-600" />
+              <DollarSign className="h-8 w-8 text-red-600" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">Knowledge + Tools Access</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-3">Cap Table Control</h3>
             <p className="text-gray-600 text-sm leading-relaxed">
-              Comprehensive knowledge center and practical tools for venture building, from ideation to market entry.
+              Maintain control of your cap table. Non-full-time PIs and TTOs should hold single-digit equity percentages.
             </p>
           </div>
 
-          {/* Pillar 3 */}
-          <div className="text-center">
+          {/* Belief 5 */}
+          <div className="text-center lg:col-span-1 md:col-span-2 lg:col-start-2">
             <div className="bg-red-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Rocket className="h-8 w-8 text-red-600" />
+              <Zap className="h-8 w-8 text-red-600" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">Venture Building Process</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-3">Profound Sense of Urgency</h3>
             <p className="text-gray-600 text-sm leading-relaxed">
-              Structured sprint methodology guiding founders through key milestones from concept to investable company.
-            </p>
-          </div>
-
-          {/* Pillar 4 */}
-          <div className="text-center">
-            <div className="bg-red-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Users className="h-8 w-8 text-red-600" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">Community-Driven Support</h3>
-            <p className="text-gray-600 text-sm leading-relaxed">
-              Access to a global network of scientist-entrepreneurs, mentors, and domain experts for ongoing guidance.
+              Being a founder is not a career plan change but an unexplainable impulse driven by urgent purpose.
             </p>
           </div>
         </div>
