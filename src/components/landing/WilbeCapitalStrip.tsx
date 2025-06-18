@@ -9,12 +9,12 @@ export default function WilbeCapitalStrip() {
         {/* Header */}
         <div className="mb-12">
           <h2 className="text-4xl font-bold text-gray-900 tracking-wide mb-6">
-            WILBE CAPITAL: INVESTING IN SCIENTIST-LED COMPANIES
+            INVESTING IN SCIENTIST FOUNDERS
           </h2>
         </div>
 
         {/* Description */}
-        <p className="text-gray-700 text-lg leading-relaxed mb-12 max-w-4xl">Wilbe Capital partners with scientist-led companies solving the most urgent and valuable challenges in health, climate, and security - on day zero. We work alongside our founders to transform novel insights into scalable businesses, supporting BSF graduates and Sandbox members to drive impact.</p>
+        <p className="text-gray-700 text-lg leading-relaxed mb-12 max-w-4xl">Wilbe Capital is our investment arm and is entirely dedicated to investing in scientists that can become the industrial leaders of this century. We invest in scientists looking to disrupt all sectors (from fusion to therapeutics) regions (from Bangalore to Los Angeles). Only interested in the first round, with or without foundational IP. What all the scientists we have backed so far have in common: they have met them and transitioned from scientist to founders through our process.</p>
 
         {/* Backed Founders section */}
         <BackedFoundersSection initialCount={6} loadMoreCount={6} />
