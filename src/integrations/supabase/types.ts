@@ -697,6 +697,7 @@ export type Database = {
           cv_url: string | null
           dashboard_access_enabled: boolean | null
           data_room_public: boolean
+          data_room_title: string | null
           deck_feedback: boolean | null
           email: string | null
           experiment_validated: string | null
@@ -758,6 +759,7 @@ export type Database = {
           cv_url?: string | null
           dashboard_access_enabled?: boolean | null
           data_room_public?: boolean
+          data_room_title?: string | null
           deck_feedback?: boolean | null
           email?: string | null
           experiment_validated?: string | null
@@ -819,6 +821,7 @@ export type Database = {
           cv_url?: string | null
           dashboard_access_enabled?: boolean | null
           data_room_public?: boolean
+          data_room_title?: string | null
           deck_feedback?: boolean | null
           email?: string | null
           experiment_validated?: string | null

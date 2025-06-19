@@ -49,7 +49,7 @@ export default function FoundersStories() {
     return (
       <div className="py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl font-bold uppercase tracking-wide text-gray-900 mb-8">FROM THE TRENCHES: THE LEADERS</h2>
+          <h2 className="text-4xl font-bold uppercase tracking-wide text-gray-900 mb-8">WILBE STORIES: ALL EPISODES</h2>
           <div className="flex space-x-6 mb-8">
             {[...Array(3)].map((_, i) => (
               <div key={i} className="flex-shrink-0 w-80 bg-gray-200 animate-pulse">
@@ -73,7 +73,7 @@ export default function FoundersStories() {
     return (
       <div className="py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl font-bold uppercase tracking-wide text-gray-900 mb-8">FROM THE TRENCHES: THE LEADERS</h2>
+          <h2 className="text-4xl font-bold uppercase tracking-wide text-gray-900 mb-8">WILBE STORIES: ALL EPISODES</h2>
           <p className="text-gray-600 mb-8">
             {error || "No videos available at the moment."}
           </p>
@@ -89,7 +89,7 @@ export default function FoundersStories() {
     <div className="py-12 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center mb-8">
-          <h2 className="text-4xl font-bold uppercase tracking-wide text-gray-900">FROM THE TRENCHES: THE LEADERS</h2>
+          <h2 className="text-4xl font-bold uppercase tracking-wide text-gray-900">WILBE STORIES: ALL EPISODES</h2>
         </div>
 
         <Carousel
