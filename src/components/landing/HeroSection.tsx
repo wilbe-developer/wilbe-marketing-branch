@@ -13,9 +13,9 @@ export default function HeroSection() {
         </Badge>
       </div>
       <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold mb-4 sm:mb-6 leading-tight text-white">
-        THE MOVEMENT FOR
+        THE FUND FOR
         <span className="text-green-500"> SCIENTIST</span>
-        <span className="text-green-500"> ENTREPRENEURS</span>
+        <span className="text-green-500"> FOUNDERS</span>
       </h1>
       <p className="text-base sm:text-lg md:text-xl text-gray-300 mb-6 sm:mb-8 max-w-2xl leading-relaxed">
         Where breakthroughs become businesses. We help scientist founders turn research into high performing companies — with venture tools, capital, market intelligence, community, and lab space from day zero.
