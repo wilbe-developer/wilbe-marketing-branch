@@ -4,13 +4,12 @@ import TickerStrips from "@/components/landing/TickerStrips"
 import LiveNewsStrip from "@/components/landing/LiveNewsStrip"
 import HeroSection from "@/components/landing/HeroSection"
 import WilbeStreamPlayer from "@/components/landing/WilbeStreamPlayer"
-import FoundersStories from "@/components/landing/FoundersStories"
 import PlatformsSection from "@/components/landing/PlatformsSection"
 import WilbeCapitalStrip from "@/components/landing/WilbeCapitalStrip"
 import WilbeWaySection from "@/components/landing/WilbeWaySection"
 import WilbeCapitalStripAlt from "@/components/landing/WilbeCapitalStripAlt"
 import ScientistsFirstSection from "@/components/landing/ScientistsFirstSection"
-import BlogReel from "@/components/landing/BlogReel"
+import WilbeMediaSection from "@/components/landing/WilbeMediaSection"
 import LandingFooter from "@/components/landing/LandingFooter"
 
 export default function LandingPage() {
@@ -88,8 +87,7 @@ export default function LandingPage() {
 
       <WilbeCapitalStrip />
       <WilbeWaySection />
-      <FoundersStories />
-      <BlogReel />
+      <WilbeMediaSection />
       <WilbeCapitalStripAlt />
       <PlatformsSection />
       <ScientistsFirstSection />
