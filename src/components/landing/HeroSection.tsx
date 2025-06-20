@@ -18,7 +18,7 @@ export default function HeroSection() {
         <span className="text-green-500"> FOUNDERS</span>
       </h1>
       <p className="text-base sm:text-lg md:text-xl text-gray-300 mb-6 sm:mb-8 max-w-2xl leading-relaxed">
-        Where breakthroughs become businesses. We help scientist founders turn research into high performing companies — with venture tools, capital, market intelligence, community, and lab space from day zero.
+        Transitioning from scientist to founder is your break or make moment. Our focus is preparing you for that so that we can be the first to invest and with high conviction supported by a global community.
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">

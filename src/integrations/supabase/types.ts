@@ -276,40 +276,72 @@ export type Database = {
         Row: {
           created_at: string | null
           description: string | null
+          duration: string | null
           event_date: string
           id: string
           is_active: boolean | null
+          last_synced_at: string | null
           location: string | null
+          scheduled_publish_time: string | null
           speaker: string | null
           speaker_link: string | null
+          thumbnail_url: string | null
           title: string
           updated_at: string | null
+          video_description: string | null
+          video_id: string | null
+          video_title: string | null
+          youtube_id: string | null
         }
         Insert: {
           created_at?: string | null
           description?: string | null
+          duration?: string | null
           event_date: string
           id?: string
           is_active?: boolean | null
+          last_synced_at?: string | null
           location?: string | null
+          scheduled_publish_time?: string | null
           speaker?: string | null
           speaker_link?: string | null
+          thumbnail_url?: string | null
           title: string
           updated_at?: string | null
+          video_description?: string | null
+          video_id?: string | null
+          video_title?: string | null
+          youtube_id?: string | null
         }
         Update: {
           created_at?: string | null
           description?: string | null
+          duration?: string | null
           event_date?: string
           id?: string
           is_active?: boolean | null
+          last_synced_at?: string | null
           location?: string | null
+          scheduled_publish_time?: string | null
           speaker?: string | null
           speaker_link?: string | null
+          thumbnail_url?: string | null
           title?: string
           updated_at?: string | null
+          video_description?: string | null
+          video_id?: string | null
+          video_title?: string | null
+          youtube_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "live_events_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "videos"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       merch_orders: {
         Row: {
@@ -1531,6 +1563,19 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      create_or_update_video_from_event: {
+        Args: {
+          p_event_id: string
+          p_youtube_id: string
+          p_title: string
+          p_description: string
+          p_thumbnail_url: string
+          p_duration: string
+          p_presenter?: string
+          p_scheduled_publish_time?: string
+        }
+        Returns: string
+      }
       create_sprint_profile: {
         Args:
           | {
@@ -1638,6 +1683,18 @@ export type Database = {
             }
         Returns: undefined
       }
+      create_video_from_event: {
+        Args: {
+          p_event_id: string
+          p_youtube_id: string
+          p_title: string
+          p_description: string
+          p_thumbnail_url: string
+          p_duration: string
+          p_presenter?: string
+        }
+        Returns: string
+      }
       get_all_unified_profiles: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -1704,6 +1761,10 @@ export type Database = {
           has_profile: boolean
         }[]
       }
+      get_next_content_id: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
       get_public_data_room_files: {
         Args: { p_sprint_owner_id: string; p_requesting_user_id?: string }
         Returns: {
@@ -1765,6 +1826,19 @@ export type Database = {
           created_by: string
         }[]
       }
+      get_stream_player_videos: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          title: string
+          description: string
+          thumbnail_url: string
+          duration: string
+          presenter: string
+          created_at: string
+          youtube_id: string
+        }[]
+      }
       get_thread_vote_summary: {
         Args: { p_thread_id: string }
         Returns: {
@@ -1822,6 +1896,10 @@ export type Database = {
         Args: { p_user_id: string; p_sprint_owner_id: string }
         Returns: boolean
       }
+      publish_scheduled_videos: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       submit_membership_application: {
         Args: {
           p_user_id: string
@@ -1830,6 +1908,10 @@ export type Database = {
           p_institution: string
           p_linkedin: string
         }
+        Returns: undefined
+      }
+      sync_video_from_event: {
+        Args: { p_event_id: string }
         Returns: undefined
       }
     }
