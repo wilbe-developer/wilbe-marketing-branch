@@ -2,6 +2,7 @@
 import { Route } from "react-router-dom";
 import { ErrorBoundary } from "react-error-boundary";
 import LandingPageMarketing from "@/pages/LandingPage";
+import WilbeCapitalPage from "@/pages/WilbeCapitalPage";
 import MediaPage from "@/pages/MediaPage";
 import AboutUsPage from "@/pages/AboutUsPage";
 import BlogPage from "@/pages/BlogPage";
@@ -18,6 +19,14 @@ export default function MarketingRoutes() {
           </ErrorBoundary>
         }
         path="/landing-page"
+      />
+      <Route
+        element={
+          <ErrorBoundary fallback={<ErrorPage />}>
+            <WilbeCapitalPage />
+          </ErrorBoundary>
+        }
+        path="/capital"
       />
       <Route
         element={
