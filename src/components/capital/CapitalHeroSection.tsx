@@ -1,11 +1,13 @@
+
 import { Button } from "@/components/ui/button";
 import { ArrowRight, TrendingUp, Users, Lightbulb } from "lucide-react";
+
 export default function CapitalHeroSection() {
   return <section className="bg-gray-900 text-white py-20 lg:py-32">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h1 className="text-6xl font-bold text-white mb-6 uppercase tracking-wide">
-            Wilbe Capital
+            THE FUND FOR SCIENTISTS TRANSITIONING TO FOUNDERS
           </h1>
           <p className="text-2xl text-gray-300 max-w-4xl mx-auto leading-relaxed">Investing exclusively in scientist-led companies at inception. Backed by exited founders from the Bay Area to Singapore, and executives in big tech.</p>
         </div>
