@@ -1,4 +1,3 @@
-
 import { useEffect } from "react"
 import LandingNavigation from "@/components/landing/LandingNavigation"
 import TickerStrips from "@/components/landing/TickerStrips"
@@ -87,9 +86,9 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <FoundersStories />
       <WilbeCapitalStrip />
       <WilbeWaySection />
+      <FoundersStories />
       <WilbeCapitalStripAlt />
       <PlatformsSection />
       <ScientistsFirstSection />
