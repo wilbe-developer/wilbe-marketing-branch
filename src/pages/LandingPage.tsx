@@ -89,10 +89,10 @@ export default function LandingPage() {
       <WilbeCapitalStrip />
       <WilbeWaySection />
       <FoundersStories />
+      <BlogReel />
       <WilbeCapitalStripAlt />
       <PlatformsSection />
       <ScientistsFirstSection />
-      <BlogReel />
       <LandingFooter />
     </div>
   )
